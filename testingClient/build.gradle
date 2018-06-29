@@ -1,0 +1,7 @@
+
+dependencies {
+    compile project(':resources')
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-client:3.4.0'
+}
+
+

@@ -1,0 +1,26 @@
+allprojects {
+
+    apply plugin: 'idea'
+
+    repositories {
+        jcenter() 
+    }
+
+}
+
+subprojects {
+
+    version = '0.0.1'
+
+    apply plugin: 'java'
+
+    dependencies {
+        compile 'ca.uhn.hapi.fhir:hapi-fhir-base:3.4.0'
+        compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:3.4.0'
+
+        testCompile 'junit:junit:4.12'
+    }
+
+}
+
+

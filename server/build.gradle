@@ -1,0 +1,34 @@
+apply plugin: 'war'
+apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
+
+
+//this supposedly allows the debugger to work in intellij, but maybe not working? found online -Cole
+def debugArgs = []
+if (gradle.startParameter.initScripts) {
+    def line = file(gradle.startParameter.initScripts[0]).readLines().findAll({x -> x ==~ /.*-agentlib:jdwp=.*/ })[0]
+    if (line) {
+        debugArgs = ((line =~ /.*'(.*)'.*/)[0][1] as String).split(' ')
+    }
+}
+
+gretty {
+    jvmArgs = [*debugArgs]
+    // supported values:
+    // 'jetty7', 'jetty8', 'jetty9', 'jetty93', 'jetty94', 'tomcat7', 'tomcat8'
+    servletContainer = 'tomcat8'
+}
+
+
+dependencies {
+    compile project(':resources') 
+    compile project(':operations')
+
+    compile 'javax.servlet:javax.servlet-api:3.1.0'
+
+
+    compile 'org.slf4j:slf4j-api:1.7.21'
+
+    compile 'com.github.dnault:xml-patch:0.3.1'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-server:3.4.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'
+}

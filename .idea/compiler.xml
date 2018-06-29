@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="operations_main" target="1.8" />
+      <module name="operations_test" target="1.8" />
+      <module name="resources_main" target="1.8" />
+      <module name="resources_test" target="1.8" />
+      <module name="server_main" target="1.8" />
+      <module name="server_test" target="1.8" />
+      <module name="testingClient_main" target="1.8" />
+      <module name="testingClient_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
