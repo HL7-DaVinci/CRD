@@ -162,7 +162,7 @@
         </tr>
         <tr>
           <td>OUT</td>
-          <td>response.EligibilityResponse</td>
+          <td>response.eligibilityResponse</td>
           <td>1..1</td>
           <td>EligibilityResponse</td>
           <td/>
@@ -224,7 +224,7 @@
         </tr>
         <tr>
           <td>OUT</td>
-          <td>request.services</td>
+          <td>response.services</td>
           <td>0..*</td>
           <td>Procedure | HealthcareService | ServiceRequest | MedicationRequest | Medication | Device | DeviceRequest</td>
           <td/>
@@ -236,7 +236,7 @@
         </tr>
         <tr>
           <td>OUT</td>
-          <td>request.endpoint</td>
+          <td>response.endpoint</td>
           <td>0..1</td>
           <td>Endpoint</td>
           <td/>
