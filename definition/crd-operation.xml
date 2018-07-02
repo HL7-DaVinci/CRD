@@ -114,7 +114,7 @@
         </tr>
         <tr>
           <td>IN</td>
-          <td>request.supportingInformation</td>
+          <td>request.patientContext</td>
           <td>0..*</td>
           <td>Condition | Device | Procedure | MedicationStatement | HealthcareServices</td>
           <td/>
@@ -126,7 +126,7 @@
         </tr>
         <tr>
           <td>IN</td>
-          <td>request.serviceInformation</td>
+          <td>request.serviceInformationReference</td>
           <td>0..*</td>
           <td>Procedure | HealthcareService | ServiceRequest | MedicationRequest | Medication | Device | DeviceRequest</td>
           <td/>
@@ -156,7 +156,7 @@
           <td/>
           <td>
             <div>
-              <p>An endpoint that a payer can query for additional patient information</p>
+              <p>Desired type of response</p>
             </div>
           </td>
         </tr>
@@ -321,7 +321,7 @@
       <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/location-davinci"/>
     </part>
     <part>
-      <name value="supportingInformation"/>
+      <name value="patientContext"/>
       <use value="in"/>
       <min value="0"/>
       <max value="*"/>
@@ -331,7 +331,7 @@
         HealthcareServices -->
     </part>
     <part>
-      <name value="serviceInformation"/>
+      <name value="serviceInformationReference"/>
       <use value="in"/>
       <min value="0"/>
       <max value="*"/>
