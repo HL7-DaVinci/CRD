@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="dbRelatedTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2018-07-05T15:27:41" hostname="MM232273-PC" time="0.929">
-  <properties/>
-  <testcase name="testDataBaseQueries()" classname="dbRelatedTests" time="0.929"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

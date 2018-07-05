@@ -1,3 +1,0 @@
-patient_age_range_low, patient_age_range_high, patient_gender, patient_plan_id, equipment_code, no_auth_needed, info_link
-0,50,"M","12345","E0601",false,"http://images.mentalfloss.com/sites/default/files/styles/mf_image_16x9/public/istock-511366776.jpg"
-51,null,"M","12345","E0601",true,"https://cdn2.vectorstock.com/i/1000x1000/44/21/old-fashioned-dancing-penguin-in-comic-hat-vector-2664421.jpg"
