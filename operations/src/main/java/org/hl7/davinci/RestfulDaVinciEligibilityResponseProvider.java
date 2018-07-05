@@ -7,10 +7,8 @@ import ca.uhn.fhir.rest.annotation.OperationParam;
 
 public class RestfulDaVinciEligibilityResponseProvider{
 
-
-
-    @Operation(name="$coverage-requirement-discovery", idempotent=true)
-    public DaVinciEligibilityResponse coverageRequirementsDiscovery(
+    @Operation(name="$operation-test", idempotent=true)
+    public DaVinciEligibilityResponse operationTest(
             @OperationParam(name="patient") DaVinciPatient patient
             ) {
 
