@@ -18,7 +18,12 @@ subprojects {
         compile 'ca.uhn.hapi.fhir:hapi-fhir-base:3.4.0'
         compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:3.4.0'
 
-        testCompile 'junit:junit:4.12'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.+'
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
 }

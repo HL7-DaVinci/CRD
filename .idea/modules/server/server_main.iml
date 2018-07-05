@@ -5,7 +5,6 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../server/src/main">
       <sourceFolder url="file://$MODULE_DIR$/../../../server/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../server/src/main/resources" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -25,6 +24,7 @@
     <orderEntry type="library" name="Gradle: ca.uhn.hapi.fhir:hapi-fhir-converter:3.4.0" level="project" />
     <orderEntry type="library" name="Gradle: ca.uhn.hapi.fhir:hapi-fhir-base:3.4.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: javax.servlet:javax.servlet-api:3.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.postgresql:postgresql:42.2.2" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-nop:1.7.12" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-jpa:1.11.6.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-commons:1.13.6.RELEASE" level="project" />

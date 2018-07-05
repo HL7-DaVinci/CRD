@@ -12,7 +12,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/server/server.iml" filepath="$PROJECT_DIR$/.idea/modules/server/server.iml" group="server" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/server/server_main.iml" filepath="$PROJECT_DIR$/.idea/modules/server/server_main.iml" group="server" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/server/server_test.iml" filepath="$PROJECT_DIR$/.idea/modules/server/server_test.iml" group="server" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/testingClient.iml" filepath="$PROJECT_DIR$/.idea/modules/testingClient.iml" group="testingClient" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/testingClient/testingClient.iml" filepath="$PROJECT_DIR$/.idea/modules/testingClient/testingClient.iml" group="testingClient" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/testingClient/testingClient_main.iml" filepath="$PROJECT_DIR$/.idea/modules/testingClient/testingClient_main.iml" group="testingClient" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/testingClient/testingClient_test.iml" filepath="$PROJECT_DIR$/.idea/modules/testingClient/testingClient_test.iml" group="testingClient" />
     </modules>
