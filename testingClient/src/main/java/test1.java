@@ -17,7 +17,7 @@ public class test1 {
         IGenericClient client = ctx.newRestfulGenericClient("http://localhost:8080/server/fhir");
         client.registerInterceptor(new LoggingInterceptor(true));
 
-        //runTestOperation(client);
+        runTestOperation(client);
         runCRD(client);
     }
 
@@ -76,6 +76,24 @@ public class test1 {
         Location facility = new Location();
 
 
+        // create a Condition for the patientContext
+        Condition condition = new Condition();
+        condition.setId("condition-1");
+
+        // create a Device for the patientContext
+        Device device = new Device();
+        device.setModel("XYZ-123");
+
+        // create a Procedure for the serviceInformationReference
+        Procedure procedure = new Procedure();
+        procedure.setId("12345678");
+
+        // create a Medication for the serviceInformationReference
+        Medication medication = new Medication();
+        SimpleQuantity simpleQuantity = new SimpleQuantity();
+        simpleQuantity.setValue(40);
+        medication.setAmount(simpleQuantity);
+
         // build the request parameter
         Parameters.ParametersParameterComponent param = crdParams.addParameter();
         param.setName("request");
@@ -85,7 +103,10 @@ public class test1 {
         param.addPart().setName("provider").setResource(provider);
         param.addPart().setName("insurer").setResource(insurer);
         param.addPart().setName("facility").setResource(facility);
-
+        param.addPart().setName("patientContext").setResource(condition);
+        param.addPart().setName("patientContext").setResource(device);
+        param.addPart().setName("serviceInformationReference").setResource(procedure);
+        param.addPart().setName("serviceInformationReference").setResource(medication);
 
         // create and add an Endpoint object to the CRD parameters
         Endpoint endpoint = new Endpoint();
@@ -103,7 +124,6 @@ public class test1 {
     public static void runCRD(IGenericClient client) {
         // build the parameters for the CRD
         Parameters crdParams = buildParams();
-
 
         // call the CRD operation
         Parameters retParams = client.operation()
@@ -134,27 +154,59 @@ public class test1 {
             switch (part.getName()) {
                 case "eligibilityResponse":
                     eligibilityResponse = (EligibilityResponse) part.getResource();
+                    System.out.println("CRD: got response.eligibilityResponse");
                     break;
-                case "provider":
+                case "requestProvider":
                     returnProvider = (Practitioner) part.getResource();
+                    System.out.println("CRD: got response.requestProvider");
                     break;
                 case "request":
                     returnEligibilityRequest = (EligibilityRequest) part.getResource();
+                    System.out.println("CRD: got response.request");
                     break;
                 case "insurer":
                     returnInsurer = (Organization) part.getResource();
+                    System.out.println("CRD: got response.insurer");
                     break;
                 case "coverage":
                     returnCoverage = (Coverage) part.getResource();
+                    System.out.println("CRD: got response.coverage");
                     break;
-                case "endpoint":
+                case "endPoint":
                     returnEndpoint = (Endpoint) part.getResource();
+                    System.out.println("CRD: got response.endpoint");
                     break;
-                    /* TODO zzzz handle 0..* of these...
                 case "service":
+                    ResourceType serviceType = part.getResource().getResourceType();
+                    switch (serviceType) {
+                        case Procedure:
+                            System.out.println("CRD: got response.service of type Procedure");
+                            break;
+                        case HealthcareService:
+                            System.out.println("CRD: got response.service of type HealthcareService");
+                            break;
+                        case ServiceRequest:
+                            System.out.println("CRD: got response.service of type ServiceRequest");
+                            break;
+                        case MedicationRequest:
+                            System.out.println("CRD: got response.service of type MedicationRequest");
+                            break;
+                        case Medication:
+                            System.out.println("CRD: got response.service of type Medication");
+                            break;
+                        case Device:
+                            System.out.println("CRD: got response.service of type Device");
+                            break;
+                        case DeviceRequest:
+                            System.out.println("CRD: got response.service of type DeviceRequest");
+                            break;
+                        default:
+                            System.out.println("Warning: unexpected response.service type");
+                            break;
+                    }
                     break;
-                    zzzz */
                 default:
+                    System.out.println("Warning: unexpected parameter part: " + part.getName());
                     break;
             }
         }

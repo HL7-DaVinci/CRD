@@ -60,13 +60,60 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
                     System.out.println("CRD: got facility");
                     facility = (Location) part.getResource();
                     break;
-                // TODO zzzz handle 0..* of these...
-                //case "patientContext":
-                //    break;
-                //case "serviceInformationReference":
-                //    break;
-                //    zzzz
+                case "patientContext":
+                    ResourceType patientContextType = part.getResource().getResourceType();
+                    switch (patientContextType) {
+                        case Condition:
+                            System.out.println("CRD: got request.patientContext of type Condition");
+                            break;
+                        case Device:
+                            System.out.println("CRD: got request.patientContext of type Device");
+                            break;
+                        case Procedure:
+                            System.out.println("CRD: got request.patientContext of type Procedure");
+                            break;
+                        case MedicationStatement:
+                            System.out.println("CRD: got request.patientContext of type MedicationStatement");
+                            break;
+                        case HealthcareService:
+                            System.out.println("CRD: got request.patientContext of type HealthcareService");
+                            break;
+                        default:
+                            System.out.println("Warning: unexpected request.patientContext type");
+                            break;
+                    }
+                    break;
+                case "serviceInformationReference":
+                    ResourceType serviceInformationReferenceType = part.getResource().getResourceType();
+                    switch (serviceInformationReferenceType) {
+                    case Procedure:
+                        System.out.println("CRD: got request.serviceInformationReferenceType of type Procedure");
+                        break;
+                    case HealthcareService:
+                        System.out.println("CRD: got request.serviceInformationReferenceType of type HealthcareService");
+                        break;
+                    case ServiceRequest:
+                        System.out.println("CRD: got request.serviceInformationReferenceType of type ServiceRequest");
+                        break;
+                    case MedicationRequest:
+                        System.out.println("CRD: got request.serviceInformationReferenceType of type MedicationRequest");
+                        break;
+                    case Medication:
+                        System.out.println("CRD: got request.serviceInformationReferenceType of type Medication");
+                        break;
+                    case Device:
+                        System.out.println("CRD: got request.serviceInformationReferenceType of type Device");
+                        break;
+                    case DeviceRequest:
+                        System.out.println("CRD: got request.serviceInformationReferenceType of type DeviceRequest");
+                        break;
+                    default:
+                        System.out.println("Warning: unexpected request.serviceInformationReferenceType type");
+                        break;
+                }
+                    break;
                 default:
+                    System.out.println("Warning: unexpected parameter part: " + part.getName());
                     break;
             }
         }
@@ -83,7 +130,7 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
         }
 
         // print out the patient name
-        System.out.println(patient.getName().get(0).getText());
+        System.out.println("CRD: Patient Name: " + patient.getName().get(0).getText());
 
         // start building the response
         EligibilityResponse eligibilityResponse = new EligibilityResponse();
@@ -101,9 +148,15 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
         response.addPart().setName("insurer").setResource(insurer);
         response.addPart().setName("coverage").setResource(coverage);
 
-        /* TODO zzzz handle 0..* of these...
-        retVal.addParameter().setName("service").setResource();
-        */
+        // add a few service resources to the parameters
+        Procedure procedure = new Procedure();
+        procedure.setId("procedure-1");
+        Device device = new Device();
+        device.setModel("LMNOP678");
+        response.addPart().setName("service").setResource(procedure);
+        response.addPart().setName("service").setResource(device);
+
+
         if (finalEndPoint != null) {
             response.addPart().setName("endPoint").setResource(finalEndPoint);
         }

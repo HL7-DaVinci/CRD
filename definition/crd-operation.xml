@@ -116,7 +116,7 @@
           <td>IN</td>
           <td>request.patientContext</td>
           <td>0..*</td>
-          <td>Condition | Device | Procedure | MedicationStatement | HealthcareServices</td>
+          <td>Condition | Device | Procedure | MedicationStatement | HealthcareService</td>
           <td/>
           <td>
             <div>
@@ -328,7 +328,7 @@
       <documentation value="Any supporting information"/>
       <type value="Any"/>
       <!-- Condition | Device | Procedure | MedicationStatement
-        HealthcareServices -->
+        HealthcareService -->
     </part>
     <part>
       <name value="serviceInformationReference"/>
