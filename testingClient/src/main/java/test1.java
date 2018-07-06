@@ -17,7 +17,7 @@ public class test1 {
         IGenericClient client = ctx.newRestfulGenericClient("http://localhost:8080/server/fhir");
         client.registerInterceptor(new LoggingInterceptor(true));
 
-        runTestOperation(client);
+        //runTestOperation(client);
         runCRD(client);
     }
 
@@ -43,17 +43,13 @@ public class test1 {
         System.out.println(eligibilityResponseT.getDisposition());
     }
 
-    public static void runCRD(IGenericClient client) {
+    public static Parameters buildParams() {
         // build the parameters for the CRD
         Parameters crdParams = new Parameters();
-
-        // build the request parameters
-        Parameters requestParams = new Parameters();
 
         // create an EligibilityRequest object with ID set
         EligibilityRequest eligibilityRequest = new EligibilityRequest();
         eligibilityRequest.setId("1234");
-        requestParams.addParameter().setName("eligibilityrequest").setResource(eligibilityRequest);
 
         // create a Patient object with Name set
         Patient patient = new Patient();
@@ -62,30 +58,34 @@ public class test1 {
         name.setText("Bob Smith");
         names.add(name);
         patient.setName(names);
-        requestParams.addParameter().setName("patient").setResource(patient);
 
         // create a Coverage object with ID set
         Coverage coverage = new Coverage();
         coverage.setId("4321");
-        requestParams.addParameter().setName("coverage").setResource(coverage);
 
         // create a Practitioner object with ID set
         Practitioner provider = new Practitioner();
         provider.setId("5678");
-        requestParams.addParameter().setName("provider").setResource(provider);
 
         // create an Organization object with ID and Name set
         Organization insurer = new Organization();
         insurer.setId("87654");
         insurer.setName("InsureCo");
-        requestParams.addParameter().setName("insurer").setResource(insurer);
 
         // create a Location Object
         Location facility = new Location();
-        requestParams.addParameter().setName("facility").setResource(facility);
 
-        // add the request to the CRD parameters
-        crdParams.addParameter().setName("request").setResource(requestParams);
+
+        // build the request parameter
+        Parameters.ParametersParameterComponent param = crdParams.addParameter();
+        param.setName("request");
+        param.addPart().setName("eligibilityrequest").setResource(eligibilityRequest);
+        param.addPart().setName("patient").setResource(patient);
+        param.addPart().setName("coverage").setResource(coverage);
+        param.addPart().setName("provider").setResource(provider);
+        param.addPart().setName("insurer").setResource(insurer);
+        param.addPart().setName("facility").setResource(facility);
+
 
         // create and add an Endpoint object to the CRD parameters
         Endpoint endpoint = new Endpoint();
@@ -95,6 +95,16 @@ public class test1 {
         CodeableConcept requestQualification = new CodeableConcept();
         crdParams.addParameter().setName("requestQualification").setValue(requestQualification);
 
+        printResource(crdParams);
+
+        return crdParams;
+    }
+
+    public static void runCRD(IGenericClient client) {
+        // build the parameters for the CRD
+        Parameters crdParams = buildParams();
+
+
         // call the CRD operation
         Parameters retParams = client.operation()
                 .onServer()
@@ -103,7 +113,7 @@ public class test1 {
                 .returnResourceType(Parameters.class)
                 .execute();
 
-        // make sure the retuned paramets are valid
+        // make sure the return parameters are valid
         if (retParams == null) {
             System.out.println("ERROR: retParams is null");
             return;
@@ -117,8 +127,9 @@ public class test1 {
         Coverage returnCoverage = null;
         Endpoint returnEndpoint = null;
 
+        printResource(retParams);
 
-        List<Parameters.ParametersParameterComponent> paramList = retParams.getParameter();
+        List<Parameters.ParametersParameterComponent> paramList = retParams.getParameter().get(0).getPart();
         for (Parameters.ParametersParameterComponent part : paramList) {
             switch (part.getName()) {
                 case "eligibilityResponse":
@@ -154,5 +165,11 @@ public class test1 {
         } else {
             System.out.println("ERROR: eligibilityResponse is null");
         }
+    }
+
+    static void printResource(Resource obj) {
+        FhirContext ctx = FhirContext.forR4();
+        String encoded = ctx.newXmlParser().encodeResourceToString(obj);
+        System.out.println("\n" + encoded + "\n");
     }
 }

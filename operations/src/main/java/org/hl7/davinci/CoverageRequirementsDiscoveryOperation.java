@@ -13,7 +13,7 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
 
     @Operation(name="$coverage-requirements-discovery", idempotent=true)
     public Parameters coverageRequirementsDiscovery(
-            @OperationParam(name="request") Parameters request,
+            @OperationParam(name="request") Parameters.ParametersParameterComponent request,
             @OperationParam(name="endpoint") Endpoint endpoint,
             @OperationParam(name="requestQualification") CodeableConcept requestQualification
             ) {
@@ -31,7 +31,7 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
         // serviceInformation
 
         // grab the list of parameters
-        List<Parameters.ParametersParameterComponent> paramList = request.getParameter();
+        List<Parameters.ParametersParameterComponent> paramList = request.getPart();
 
         // pull each of the parameters from the list
         for (Parameters.ParametersParameterComponent part : paramList) {
@@ -92,17 +92,20 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
         Endpoint finalEndPoint = new Endpoint();
         finalEndPoint.setAddress("http://www.mitre.org");
 
-        retVal.addParameter().setName("eligibilityResponse").setResource(eligibilityResponse);
-        retVal.addParameter().setName("requestProvider").setResource(provider);
-        retVal.addParameter().setName("request").setResource(eligibilityRequest);
-        retVal.addParameter().setName("insurer").setResource(insurer);
-        retVal.addParameter().setName("coverage").setResource(coverage);
+        Parameters.ParametersParameterComponent response = retVal.addParameter();
+        response.setName("response");
+
+        response.addPart().setName("eligibilityResponse").setResource(eligibilityResponse);
+        response.addPart().setName("requestProvider").setResource(provider);
+        response.addPart().setName("request").setResource(eligibilityRequest);
+        response.addPart().setName("insurer").setResource(insurer);
+        response.addPart().setName("coverage").setResource(coverage);
 
         /* TODO zzzz handle 0..* of these...
         retVal.addParameter().setName("service").setResource();
         */
         if (finalEndPoint != null) {
-            retVal.addParameter().setName("endPoint").setResource(finalEndPoint);
+            response.addPart().setName("endPoint").setResource(finalEndPoint);
         }
 
         System.out.println("coverageRequirementsDiscovery: end");
