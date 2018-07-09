@@ -2,6 +2,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
 import org.hl7.davinci.RestfulDaVinciEligibilityResponseProvider;
+import org.hl7.davinci.CoverageRequirementsDiscoveryOperation;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -38,6 +39,7 @@ public class server extends RestfulServer {
 
         List<Object> plainProviders=new ArrayList<Object>();
         plainProviders.add(new RestfulDaVinciEligibilityResponseProvider());
+        plainProviders.add(new CoverageRequirementsDiscoveryOperation());
         setPlainProviders(plainProviders);
 
 //        List<IResourceProvider> resourceProviders = new ArrayList<IResourceProvider>();
