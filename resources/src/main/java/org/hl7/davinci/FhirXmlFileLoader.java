@@ -12,20 +12,23 @@ import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.StrictErrorHandler;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.StructureDefinition;
 
 public class FhirXmlFileLoader {
 
-    public static <T extends IBaseResource> List<T> loadFromDirectory(String rootDir) {
+    public static List<StructureDefinition> loadFromDirectory(String rootDir) {
         IParser xmlParser = FhirContext.forR4().newXmlParser();
         xmlParser.setParserErrorHandler(new StrictErrorHandler());
-        List<T> definitions = new ArrayList<>();
-        System.out.println(rootDir);
+        List<StructureDefinition> definitions = new ArrayList<>();
+
+        // Check directory for all available structure definitions
         File[] profiles =
                 new File(FhirXmlFileLoader.class.getClassLoader().getResource(rootDir).getFile()).listFiles();
 
         Arrays.asList(profiles).forEach(f -> {
             try {
-                T sd = (T) xmlParser.parseResource(new FileReader(f));
+
+                StructureDefinition sd = xmlParser.parseResource(StructureDefinition.class, new FileReader(f));
                 definitions.add(sd);
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);

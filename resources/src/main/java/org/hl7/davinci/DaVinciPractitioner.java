@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@ResourceDef(name="Practitioner", profile="http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner")
+@ResourceDef(name="Practitioner", profile="http://acme.org/blah")
 public class DaVinciPractitioner extends Practitioner {
     /**
     public DaVinciPractitioner(){
@@ -62,6 +62,7 @@ public class DaVinciPractitioner extends Practitioner {
         this.myIdentifier = theIdentifier;
         return this;
     }
+
 
 }
 

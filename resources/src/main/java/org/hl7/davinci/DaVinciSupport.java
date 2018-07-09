@@ -30,21 +30,24 @@ public class DaVinciSupport implements IValidationSupport {
 
     @Override
     public List<IBaseResource> fetchAllConformanceResources(FhirContext theContext) {
+
         return null;
     }
 
     @Override
     public List<StructureDefinition> fetchAllStructureDefinitions(FhirContext theContext) {
+
         return definitions;
     }
 
     @Override
     public CodeSystem fetchCodeSystem(FhirContext theContext, String theSystem) {
-        return null;
-    }
+        System.out.println(theSystem);
+        return null; }
 
     @Override
     public <T extends IBaseResource> T fetchResource(FhirContext theContext, Class<T> theClass, String theUri) {
+
         return (T) definitionsMap.get(theUri);
     }
 
@@ -55,11 +58,14 @@ public class DaVinciSupport implements IValidationSupport {
 
     @Override
     public boolean isCodeSystemSupported(FhirContext theContext, String theSystem) {
+        System.out.println(theSystem);
+
         return false;
     }
 
     @Override
     public CodeValidationResult validateCode(FhirContext theContext, String theCodeSystem, String theCode, String theDisplay) {
+        System.out.println("HASDL");
         return null;
     }
 }
