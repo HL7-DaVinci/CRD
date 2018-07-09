@@ -16,9 +16,10 @@ public class DaVinciSupport implements IValidationSupport {
     private final HashMap<String, StructureDefinition> definitionsMap;
     private final List<StructureDefinition> definitions;
 
+
     public DaVinciSupport() {
 
-        definitions = FhirXmlFileLoader.loadFromDirectory(profileDir);
+        definitions = ValidationResources.loadFromDirectory(profileDir);
         definitionsMap = new HashMap<>();
         definitions.forEach(def -> definitionsMap.put(def.getUrl(), def));
     }
@@ -42,8 +43,8 @@ public class DaVinciSupport implements IValidationSupport {
 
     @Override
     public CodeSystem fetchCodeSystem(FhirContext theContext, String theSystem) {
-        System.out.println(theSystem);
-        return null; }
+        return null;
+    }
 
     @Override
     public <T extends IBaseResource> T fetchResource(FhirContext theContext, Class<T> theClass, String theUri) {
@@ -53,19 +54,16 @@ public class DaVinciSupport implements IValidationSupport {
 
     @Override
     public StructureDefinition fetchStructureDefinition(FhirContext theCtx, String theUrl) {
-        return null;
+        return definitionsMap.get(theUrl);
     }
 
     @Override
     public boolean isCodeSystemSupported(FhirContext theContext, String theSystem) {
-        System.out.println(theSystem);
-
         return false;
     }
 
     @Override
     public CodeValidationResult validateCode(FhirContext theContext, String theCodeSystem, String theCode, String theDisplay) {
-        System.out.println("HASDL");
         return null;
     }
 }
