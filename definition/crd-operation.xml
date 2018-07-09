@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OperationDefinition xmlns="http://hl7.org/fhir" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://hl7.org/fhir ./fhirschema/fhir-base.xsd">
+  <id value="crd-operation"/>
+  <text>
+    <status value="generated"/>
+    <div xmlns="http://www.w3.org/1999/xhtml">
+      <h2>Da Vinci Use Case X - Coverage Requirements Discovery (CRD)</h2>
+      <p>OPERATION: Coverage Requirements Discovery</p>
+      <div>
+        <p>This is a proposed new operation type by the Da Vinci Project in support of standardizing the request and response interfaces between Payer and Provider actors where the Provider is requesting documentation evidence for a coverage request.</p>
+      </div>
+      <p>URL: [base]/$coverage-requirements-discovery</p>
+      <p>Parameters</p>
+      <table class="grid">
+        <tr>
+          <td>
+            <b>Use</b>
+          </td>
+          <td>
+            <b>Name</b>
+          </td>
+          <td>
+            <b>Cardinality</b>
+          </td>
+          <td>
+            <b>Type</b>
+          </td>
+          <td>
+            <b>Binding</b>
+          </td>
+          <td>
+            <b>Documentation</b>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>request.eligibilityrequest</td>
+          <td>1..1</td>
+          <td>EligibilityRequest</td>
+          <td/>
+          <td>
+            <div>
+              <p>
+                The request to discover coverage requirements. This resource is the focus of the request.
+                It contains references to associated resources, such as the insurer, patient, etc.
+              </p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>request.patient</td>
+          <td>1..1</td>
+          <td>Patient</td>
+          <td/>
+          <td>
+            <div>
+              <p>
+								Information about the patient that the request is seeking documentation requirements for.
+								This will not be a fully populated Patient resource. It will only contain enough information
+								to support coverage requirement discovery.
+              </p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>request.coverage</td>
+          <td>1..1</td>
+          <td>Coverage</td>
+          <td/>
+          <td>
+            <div>
+              <p>Information used to determine that plan and group for the payer.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>request.provider</td>
+          <td>1..1</td>
+          <td>Practitioner</td>
+          <td/>
+          <td>
+            <div>
+              <p>The provider</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>request.insurer</td>
+          <td>1..1</td>
+          <td>Organization</td>
+          <td/>
+          <td>
+            <div>
+              <p>The payer</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>request.facility</td>
+          <td>0..1</td>
+          <td>Location</td>
+          <td/>
+          <td>
+            <div>
+              <p>The place where the services of interest are intended to be performed.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>request.patientContext</td>
+          <td>0..*</td>
+          <td>Condition | Device | Procedure | MedicationStatement | HealthcareService</td>
+          <td/>
+          <td>
+            <div>
+              <p>Related information about the patient that may aid in discovery of coverage requirements</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>request.serviceInformationReference</td>
+          <td>0..*</td>
+          <td>Procedure | HealthcareService | ServiceRequest | MedicationRequest | Medication | Device | DeviceRequest</td>
+          <td/>
+          <td>
+            <div>
+              <p>Related information about the patient that may aid in discovery of coverage requirements</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>endpoint</td>
+          <td>0..1</td>
+          <td>Endpoint</td>
+          <td/>
+          <td>
+            <div>
+              <p>An endpoint that a payer can query for additional patient information</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>IN</td>
+          <td>requestQualification</td>
+          <td>0..*</td>
+          <td>CodeableConcept</td>
+          <td/>
+          <td>
+            <div>
+              <p>Desired type of response</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>OUT</td>
+          <td>response.eligibilityResponse</td>
+          <td>1..1</td>
+          <td>EligibilityResponse</td>
+          <td/>
+          <td>
+            <div>
+              <p>The result documentation.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>OUT</td>
+          <td>response.request</td>
+          <td>1..1</td>
+          <td>EligibilityRequest</td>
+          <td/>
+          <td>
+            <div>
+              <p>
+                The EligibilityRequest as provided in the initial request
+              </p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>OUT</td>
+          <td>response.coverage</td>
+          <td>1..1</td>
+          <td>Coverage</td>
+          <td/>
+          <td>
+            <div>
+              <p>Identified group and plan as determined by the payer.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>OUT</td>
+          <td>response.requestProvider</td>
+          <td>1..1</td>
+          <td>Practitioner</td>
+          <td/>
+          <td>
+            <div>
+              <p>The provider</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>OUT</td>
+          <td>response.insurer</td>
+          <td>1..1</td>
+          <td>Organization</td>
+          <td/>
+          <td>
+            <div>
+              <p>The payer</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>OUT</td>
+          <td>response.services</td>
+          <td>0..*</td>
+          <td>Procedure | HealthcareService | ServiceRequest | MedicationRequest | Medication | Device | DeviceRequest</td>
+          <td/>
+          <td>
+            <div>
+              <p>Services for which coverage requirement documentation is provided.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>OUT</td>
+          <td>response.endpoint</td>
+          <td>0..1</td>
+          <td>Endpoint</td>
+          <td/>
+          <td>
+            <div>
+              <p>An endpoint that a provider may use to take further actions.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </text>
+  <url value="http://hl7.org/fhir/ig/davinci/OperationDefinition/coverage-requirements-discovery"/>
+  <name value="Coverage Requirements Discovery"/>
+  <status value="draft"/>
+  <kind value="operation"/>
+  <date value="2018-06-22T11:34:00-05:00"/>
+  <publisher value="Health Level Seven International"/>
+  <description value="This is a proposed new operation type by the Da Vinci Project in support of standardizing the request and response interfaces between Payer and Provider actors where the Provider is requesting documentation evidence for a coverage request."/>
+  <code value="coverage-requirements-discovery"/>
+  <system value="true"/>
+  <type value="false"/>
+  <instance value="false"/>
+  <parameter>
+    <name value="request"/>
+    <use value="in"/>
+    <min value="1"/>
+    <max value="*"/>
+    <documentation value="The coverage Requirements Discovery collection of part parameters."/>
+    <part>
+      <name value="eligibilityrequest"/>
+      <use value="in"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The eligibility request"/>
+      <type value="EligibilityRequest"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/eligibilityrequest-davinci"/>
+    </part>
+    <part>
+      <name value="patient"/>
+      <use value="in"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The patient"/>
+      <type value="Patient"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/patient-davinci"/>
+    </part>
+    <part>
+      <name value="coverage"/>
+      <use value="in"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The coverage"/>
+      <type value="Coverage"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/coverage-davinci"/>
+    </part>
+    <part>
+      <name value="provider"/>
+      <use value="in"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The provider"/>
+      <type value="Practitioner"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/practitioner-davinci"/>
+    </part>
+    <part>
+      <name value="insurer"/>
+      <use value="in"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The insurer"/>
+      <type value="Organization"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/organization-davinci"/>
+    </part>
+    <part>
+      <name value="facility"/>
+      <use value="in"/>
+      <min value="0"/>
+      <max value="1"/>
+      <documentation value="The facility"/>
+      <type value="Location"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/location-davinci"/>
+    </part>
+    <part>
+      <name value="patientContext"/>
+      <use value="in"/>
+      <min value="0"/>
+      <max value="*"/>
+      <documentation value="Any supporting information"/>
+      <type value="Any"/>
+      <!-- Condition | Device | Procedure | MedicationStatement
+        HealthcareService -->
+    </part>
+    <part>
+      <name value="serviceInformationReference"/>
+      <use value="in"/>
+      <min value="0"/>
+      <max value="*"/>
+      <documentation value="Items that are part of the coverage requirements discovery"/>
+      <type value="Any"/>
+      <!-- Procedure | HealthcareService | 
+        ServiceRequest | MedicationRequest | Medication | Device | 
+        DeviceRequest -->
+    </part>
+  </parameter>
+  <parameter>
+    <name value="endpoint"/>
+    <use value="in"/>
+    <min value="0"/>
+    <max value="1"/>
+    <documentation value="An endpoint that a payer can query for additional patient information"/>
+    <type value="Endpoint"/>
+    <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/endpoint-davinci"/>
+  </parameter>
+  <parameter>
+    <name value="requestQualification"/>
+    <use value="in"/>
+    <min value="0"/>
+    <max value="*"/>
+    <documentation value="Desired format of the response"/>
+    <type value="CodeableConcept"/>
+    <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/requestQualification-davinci"/>
+  </parameter>
+  <parameter>
+    <name value="response"/>
+    <use value="out"/>
+    <min value="1"/>
+    <max value="1"/>
+    <part>
+      <name value="eligibilityResponse"/>
+      <use value="out"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The result documentation."/>
+      <type value="EligibilityResponse"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/eligibilityresponse-davinci"/>
+    </part>
+    <part>
+      <name value="requestProvider"/>
+      <use value="out"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The provider"/>
+      <type value="Practitioner"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/practitioner-davinci"/>
+    </part>
+    <part>
+      <name value="request"/>
+      <use value="out"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The eligibility request"/>
+      <type value="EligibilityRequest"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/eligibilityrequest-davinci"/>
+    </part>
+    <part>
+      <name value="insurer"/>
+      <use value="out"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The insurer"/>
+      <type value="Organization"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/organization-davinci"/>
+    </part>
+    <part>
+      <name value="coverage"/>
+      <use value="out"/>
+      <min value="1"/>
+      <max value="1"/>
+      <documentation value="The coverage"/>
+      <type value="Coverage"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/coverage-davinci"/>
+    </part>
+    <part>
+      <name value="service"/>
+      <use value="out"/>
+      <min value="0"/>
+      <max value="*"/>
+      <documentation value="Services for which coverage requirement documentation is provided"/>
+      <type value="Any"/>
+      <!-- Procedure | HealthcareService | 
+        ServiceRequest | MedicationRequest | Medication | Device | 
+        DeviceRequest -->
+    </part>
+    <part>
+      <name value="endpoint"/>
+      <use value="out"/>
+      <min value="0"/>
+      <max value="1"/>
+      <documentation value="A endpoint that a provider can use for further actions"/>
+      <type value="Endpoint"/>
+      <targetProfile value="http://hl7.org/fhir/ig/davinci/StructureDefinition/endpoint-davinci"/>
+    </part>
+  </parameter>
+</OperationDefinition>

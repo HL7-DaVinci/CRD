@@ -11,7 +11,7 @@
 <tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white;"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck000.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_blank.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin_end.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_primitive.png" alt="." style="background-color: white; background-color: inherit" title="Primitive Data Type" class="hierarchy"/> <a href="StructureDefinition-us-core-practitioner-definitions.html#Practitioner.name.family">family</a><a name="Practitioner.name.family"> </a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><span style="padding: 3px; color: white; background-color: red" title="This element must be supported">S</span></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">1..1</td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="opacity: 0.4" href="http://hl7.org/fhir/datatypes.html#string">string</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"/></tr>
 <tr><td colspan="5" class="hierarchy"><br/><a href="http://hl7.org/fhir/formats.html#table" title="Legend for this format"><img src="http://hl7.org/fhir/help16.png" alt="doco" style="background-color: inherit"/> Documentation for this format</a></td></tr></table></div>
   </text>
-  <url value="http://acme.org/blah2"/>
+  <url value="http://acme.org/blah"/>
   <version value="1.0.1"/>
   <name value="US  Core Practitioner Profile"/>
   <status value="draft"/>
@@ -204,9 +204,9 @@
         </extension>
         <strength value="extensible"/>
         <description value="A human language."/>
-        <valueSetCanonical>
+        <valueSetUri>
           <extension url="http://hl7.org/fhir/ValueSet/languages"/>
-        </valueSetCanonical>
+        </valueSetUri>
       </binding>
     </element>
     <element id="Practitioner.text">
@@ -218,7 +218,7 @@
       <alias value="html"/>
       <alias value="xhtml"/>
       <alias value="display"/>
-      <min value="0"/>
+      <min value="1"/>
       <max value="1"/>
       <base>
         <path value="DomainResource.text"/>
@@ -307,7 +307,7 @@
       <short value="A identifier for the person as this agent"/>
       <definition value="An identifier that applies to this person in this role."/>
       <requirements value="Either id or name is needed."/>
-      <min value="1"/>
+      <min value="7"/>
       <max value="*"/>
       <base>
         <path value="Practitioner.identifier"/>
@@ -341,15 +341,15 @@
       <representation value="xmlAttr"/>
       <short value="xml:id (or equivalent in JSON)"/>
       <definition value="unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."/>
-      <min value="0"/>
-      <max value="1"/>
+      <min value="1"/>
+      <max value="*"/>
       <base>
         <path value="Element.id"/>
         <min value="0"/>
         <max value="1"/>
       </base>
       <type>
-        <code value="string"/>
+        <code value="code"/>
       </type>
       <mapping>
         <identity value="rim"/>
@@ -468,13 +468,24 @@
       <definition value="Establishes the namespace for the value - that is, a URL that describes a set values that are unique."/>
       <comment value="NPI could be used as the identifier system in the US."/>
       <requirements value="There are many sets  of identifiers.  To perform matching of two identifiers, we need to know what set we&#39;re dealing with. The system identifies a particular set of unique identifiers."/>
-      <min value="1"/>
-      <max value="1"/>
+      <min value="8"/>
+      <max value="8"/>
       <base>
         <path value="Identifier.system"/>
         <min value="0"/>
         <max value="1"/>
       </base>
+      <binding>
+
+        <extension url="http://hl7.org/fhir/StructureDefinition/elementdefinition-bindingName">
+          <valueString value="NameUse"/>
+        </extension>
+        <strength value="required"/>
+        <description value="The use of a human name"/>
+        <valueSetUri>
+          <extension url="http://hl7.org/fhir/ValueSet/name-use"/>
+        </valueSetUri>
+      </binding>
       <type>
         <code value="uri"/>
       </type>
@@ -1328,7 +1339,7 @@
     <element id="Practitioner.identifier">
       <path value="Practitioner.identifier"/>
       <requirements value="Either id or name is needed."/>
-      <min value="1"/>
+      <min value="0"/>
       <max value="*"/>
       <type>
         <code value="Identifier"/>
@@ -1340,11 +1351,19 @@
       <path value="Practitioner.identifier.system"/>
       <short value="NPI could be used as the identifier system in the US."/>
       <comment value="NPI could be used as the identifier system in the US."/>
-      <min value="1"/>
-      <max value="1"/>
+      <min value="9"/>
+      <max value="9"/>
       <type>
         <code value="uri"/>
       </type>
+      <binding>
+        <strength value="required"/>
+
+        <valueSetUri>
+          <extension url="http://hl7.org/fhir/ValueSet/clinical-findings">
+          </extension>
+        </valueSetUri>
+      </binding>
       <example>
         <label value="General"/>
         <valueUri value="NPI preferred, Tax id is allowed, Local id is allowed in addition to &#39;authoritative&#39; identifier"/>
@@ -1352,6 +1371,7 @@
       <mustSupport value="true"/>
       <isModifier value="false"/>
     </element>
+
     <element id="Practitioner.identifier.value">
       <path value="Practitioner.identifier.value"/>
       <min value="1"/>

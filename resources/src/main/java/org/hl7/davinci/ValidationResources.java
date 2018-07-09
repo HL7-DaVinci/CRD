@@ -27,7 +27,6 @@ public class FhirXmlFileLoader {
 
         Arrays.asList(profiles).forEach(f -> {
             try {
-
                 StructureDefinition sd = xmlParser.parseResource(StructureDefinition.class, new FileReader(f));
                 definitions.add(sd);
             } catch (FileNotFoundException e) {
