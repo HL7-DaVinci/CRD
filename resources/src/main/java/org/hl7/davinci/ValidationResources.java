@@ -11,6 +11,9 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.StrictErrorHandler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import ca.uhn.fhir.context.FhirContext;
@@ -25,15 +28,18 @@ import org.hl7.fhir.r4.hapi.ctx.DefaultProfileValidationSupport;
 import org.hl7.fhir.r4.hapi.ctx.IValidationSupport;
 import org.hl7.fhir.r4.hapi.ctx.ValidationSupportChain;
 import org.hl7.fhir.r4.hapi.validation.FhirInstanceValidator;
-
 import org.hl7.fhir.r4.model.*;
 
 public class ValidationResources {
     private FhirContext ctx;
     private FhirValidator validator;
     private FhirInstanceValidator instanceValidator;
+    final Logger logger = LoggerFactory.getLogger(ValidationResources.class);
+
+
 
     public ValidationResources(){
+
         //Only support for r4 for now
         ctx =  FhirContext.forR4();
         validator = ctx.newValidator();
@@ -46,6 +52,7 @@ public class ValidationResources {
     }
 
     public static List<StructureDefinition> loadFromDirectory(String rootDir) {
+
         IParser xmlParser = FhirContext.forR4().newXmlParser();
         xmlParser.setParserErrorHandler(new StrictErrorHandler());
         List<StructureDefinition> definitions = new ArrayList<>();
@@ -72,11 +79,11 @@ public class ValidationResources {
 
         // Do we have any errors or fatal errors?
         boolean retVal = result.isSuccessful();
-        System.out.println(retVal);
+        logger.info("Success: {}.",retVal);
 
         // Show the issues
         for (SingleValidationMessage next : result.getMessages()) {
-            System.out.println(" Next issue " + next.getSeverity() + " - " + next.getLocationString() + " - " + next.getMessage());
+            logger.info(" Next issue " + next.getSeverity() + " - " + next.getLocationString() + " - " + next.getMessage());
 
         }
 

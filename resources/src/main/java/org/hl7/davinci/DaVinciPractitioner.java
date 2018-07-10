@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // The "profile" argument decides which structure definition gets used for validation purposes.
-@ResourceDef(name="Practitioner", profile="http://acme.org/blah")
+@ResourceDef(name="Practitioner")
 public class DaVinciPractitioner extends Practitioner {
 
 
