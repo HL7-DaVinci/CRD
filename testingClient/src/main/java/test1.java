@@ -1,6 +1,7 @@
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor;
+import org.hl7.davinci.CRDRequestCreator;
 import org.hl7.davinci.DaVinciEligibilityResponse;
 import org.hl7.davinci.DaVinciPatient;
 import org.hl7.fhir.r4.model.*;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -47,88 +49,12 @@ public class test1 {
         logger.debug(eligibilityResponseT.getDisposition());
     }
 
-    public static Parameters buildParams() {
-        // build the parameters for the CRD
-        Parameters crdParams = new Parameters();
-
-        // create an EligibilityRequest object with ID set
-        EligibilityRequest eligibilityRequest = new EligibilityRequest();
-        eligibilityRequest.setId("1234");
-
-        // create a Patient object with Name set
-        Patient patient = new Patient();
-        patient.setId("patient-4");
-        ArrayList<HumanName> names = new ArrayList<HumanName>();
-        HumanName name = new HumanName();
-        name.setText("Bob Smith");
-        names.add(name);
-        patient.setName(names);
-
-        // create a Coverage object with ID set
-        Coverage coverage = new Coverage();
-        coverage.setId("4321");
-
-        // create a Practitioner object with ID set
-        Practitioner provider = new Practitioner();
-        provider.setId("5678");
-
-        // create an Organization object with ID and Name set
-        Organization insurer = new Organization();
-        insurer.setId("87654");
-        insurer.setName("InsureCo");
-
-        // create a Location Object
-        Location facility = new Location();
-
-
-        // create a Condition for the patientContext
-        Condition condition = new Condition();
-        condition.setId("condition-1");
-
-        // create a Device for the patientContext
-        Device device = new Device();
-        device.setModel("XYZ-123");
-
-        // create a Procedure for the serviceInformationReference
-        Procedure procedure = new Procedure();
-        procedure.setId("12345678");
-
-        // create a Medication for the serviceInformationReference
-        Medication medication = new Medication();
-        SimpleQuantity simpleQuantity = new SimpleQuantity();
-        simpleQuantity.setValue(40);
-        medication.setAmount(simpleQuantity);
-
-        // build the request parameter
-        Parameters.ParametersParameterComponent param = crdParams.addParameter();
-        param.setName("request");
-        param.addPart().setName("eligibilityrequest").setResource(eligibilityRequest);
-        param.addPart().setName("patient").setResource(patient);
-        param.addPart().setName("coverage").setResource(coverage);
-        param.addPart().setName("provider").setResource(provider);
-        param.addPart().setName("insurer").setResource(insurer);
-        param.addPart().setName("facility").setResource(facility);
-        param.addPart().setName("patientContext").setResource(condition);
-        param.addPart().setName("patientContext").setResource(device);
-        param.addPart().setName("serviceInformationReference").setResource(procedure);
-        param.addPart().setName("serviceInformationReference").setResource(medication);
-
-        // create and add an Endpoint object to the CRD parameters
-        Endpoint endpoint = new Endpoint();
-        crdParams.addParameter().setName("endpoint").setResource(endpoint);
-
-        // create and add an CodeableConcpt object to the CRD parameters
-        CodeableConcept requestQualification = new CodeableConcept();
-        crdParams.addParameter().setName("requestQualification").setValue(requestQualification);
-
-        printResource(crdParams);
-
-        return crdParams;
-    }
 
     public static void runCRD(IGenericClient client) {
         // build the parameters for the CRD
-        Parameters crdParams = buildParams();
+        Calendar cal = Calendar.getInstance();
+        cal.set(1970, Calendar.JULY, 4);
+        Parameters crdParams = CRDRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
 
         // call the CRD operation
         Parameters retParams = client.operation()
