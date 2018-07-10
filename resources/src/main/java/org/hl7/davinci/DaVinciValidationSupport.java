@@ -10,14 +10,14 @@ import org.hl7.fhir.r4.model.CodeSystem;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.r4.model.ValueSet;
 
-public class DaVinciSupport implements IValidationSupport {
+public class DaVinciValidationSupport implements IValidationSupport {
     private static String profileDir = "../resources/";
 
     private final HashMap<String, StructureDefinition> definitionsMap;
     private final List<StructureDefinition> definitions;
 
 
-    public DaVinciSupport() {
+    public DaVinciValidationSupport() {
 
         definitions = ValidationResources.loadFromDirectory(profileDir);
         definitionsMap = new HashMap<>();

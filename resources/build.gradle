@@ -1,8 +1,6 @@
 dependencies {
     compile group: 'com.helger', name: 'ph-schematron', version: '4.1.0'
     compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-validation-resources-r4', version: '3.4.0'
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:3.4.0'
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:3.4.0'
     compile 'ca.uhn.hapi.fhir:hapi-fhir-validation:3.4.0'
 
 }

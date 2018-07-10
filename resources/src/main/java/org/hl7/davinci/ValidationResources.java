@@ -16,19 +16,14 @@ import org.slf4j.LoggerFactory;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.StructureDefinition;
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationResult;
-import org.hl7.davinci.DaVinciPractitioner;
-import org.hl7.davinci.DaVinciSupport;
-import org.hl7.davinci.ValidationResources;
 
 import org.hl7.fhir.r4.hapi.ctx.DefaultProfileValidationSupport;
 import org.hl7.fhir.r4.hapi.ctx.IValidationSupport;
 import org.hl7.fhir.r4.hapi.ctx.ValidationSupportChain;
 import org.hl7.fhir.r4.hapi.validation.FhirInstanceValidator;
-import org.hl7.fhir.r4.model.*;
 
 public class ValidationResources {
     private FhirContext ctx;
@@ -44,7 +39,7 @@ public class ValidationResources {
         ctx =  FhirContext.forR4();
         validator = ctx.newValidator();
         instanceValidator = new FhirInstanceValidator();
-        IValidationSupport valSupport = new DaVinciSupport();
+        IValidationSupport valSupport = new DaVinciValidationSupport();
         ValidationSupportChain support = new ValidationSupportChain(valSupport, new DefaultProfileValidationSupport());
         instanceValidator.setValidationSupport(support);
         validator.registerValidatorModule(instanceValidator);
