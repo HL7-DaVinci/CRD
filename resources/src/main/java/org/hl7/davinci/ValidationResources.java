@@ -13,7 +13,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.StrictErrorHandler;
 
-import ca.uhn.fhir.validation.ResultSeverityEnum;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ public class ValidationResources {
     private FhirContext ctx;
     private FhirValidator validator;
     private FhirInstanceValidator instanceValidator;
-    final Logger logger = LoggerFactory.getLogger(ValidationResources.class);
+    final static Logger logger = LoggerFactory.getLogger(ValidationResources.class);
 
 
 
@@ -54,7 +54,7 @@ public class ValidationResources {
         IParser xmlParser = FhirContext.forR4().newXmlParser();
         xmlParser.setParserErrorHandler(new StrictErrorHandler());
         List<StructureDefinition> definitions = new ArrayList<>();
-        
+
         File[] profiles =
                 new File(ValidationResources.class.getClassLoader().getResource(rootDir).getFile()).listFiles();
 

@@ -3,7 +3,8 @@ package org.hl7.davinci;
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
 import org.hl7.fhir.r4.model.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
@@ -11,13 +12,15 @@ import java.util.List;
  */
 public class CoverageRequirementsDiscoveryOperation implements CoverageRequirementsDiscoveryOperationInterface {
 
+    final static Logger logger = LoggerFactory.getLogger(CoverageRequirementsDiscoveryOperation.class);
+
     @Operation(name="$coverage-requirements-discovery", idempotent=true)
     public Parameters coverageRequirementsDiscovery(
             @OperationParam(name="request") Parameters.ParametersParameterComponent request,
             @OperationParam(name="endpoint") Endpoint endpoint,
             @OperationParam(name="requestQualification") CodeableConcept requestQualification
             ) {
-        System.out.println("coverageRequirementsDiscovery: start");
+        logger.debug("coverageRequirementsDiscovery: start");
 
         Parameters retVal = new Parameters();
 
@@ -37,49 +40,49 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
         for (Parameters.ParametersParameterComponent part : paramList) {
             switch (part.getName()) {
                 case "eligibilityrequest":
-                    System.out.println("CRD: got eligibilityRequest");
+                    logger.debug("CRD: got eligibilityRequest");
                     eligibilityRequest = (EligibilityRequest) part.getResource();
                     break;
                 case "patient":
-                    System.out.println("CRD: got patient");
+                    logger.debug("CRD: got patient");
                     patient = (Patient) part.getResource();
                     break;
                 case "coverage":
-                    System.out.println("CRD: got coverage");
+                    logger.debug("CRD: got coverage");
                     coverage = (Coverage) part.getResource();
                     break;
                 case "provider":
-                    System.out.println("CRD: got provider");
+                    logger.debug("CRD: got provider");
                     provider = (Practitioner) part.getResource();
                     break;
                 case "insurer":
-                    System.out.println("CRD: got insurer");
+                    logger.debug("CRD: got insurer");
                     insurer = (Organization) part.getResource();
                     break;
                 case "facility":
-                    System.out.println("CRD: got facility");
+                    logger.debug("CRD: got facility");
                     facility = (Location) part.getResource();
                     break;
                 case "patientContext":
                     ResourceType patientContextType = part.getResource().getResourceType();
                     switch (patientContextType) {
                         case Condition:
-                            System.out.println("CRD: got request.patientContext of type Condition");
+                            logger.debug("CRD: got request.patientContext of type Condition");
                             break;
                         case Device:
-                            System.out.println("CRD: got request.patientContext of type Device");
+                            logger.debug("CRD: got request.patientContext of type Device");
                             break;
                         case Procedure:
-                            System.out.println("CRD: got request.patientContext of type Procedure");
+                            logger.debug("CRD: got request.patientContext of type Procedure");
                             break;
                         case MedicationStatement:
-                            System.out.println("CRD: got request.patientContext of type MedicationStatement");
+                            logger.debug("CRD: got request.patientContext of type MedicationStatement");
                             break;
                         case HealthcareService:
-                            System.out.println("CRD: got request.patientContext of type HealthcareService");
+                            logger.debug("CRD: got request.patientContext of type HealthcareService");
                             break;
                         default:
-                            System.out.println("Warning: unexpected request.patientContext type");
+                            logger.warn("Warning: unexpected request.patientContext type");
                             break;
                     }
                     break;
@@ -87,33 +90,33 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
                     ResourceType serviceInformationReferenceType = part.getResource().getResourceType();
                     switch (serviceInformationReferenceType) {
                     case Procedure:
-                        System.out.println("CRD: got request.serviceInformationReferenceType of type Procedure");
+                        logger.debug("CRD: got request.serviceInformationReferenceType of type Procedure");
                         break;
                     case HealthcareService:
-                        System.out.println("CRD: got request.serviceInformationReferenceType of type HealthcareService");
+                        logger.debug("CRD: got request.serviceInformationReferenceType of type HealthcareService");
                         break;
                     case ServiceRequest:
-                        System.out.println("CRD: got request.serviceInformationReferenceType of type ServiceRequest");
+                        logger.debug("CRD: got request.serviceInformationReferenceType of type ServiceRequest");
                         break;
                     case MedicationRequest:
-                        System.out.println("CRD: got request.serviceInformationReferenceType of type MedicationRequest");
+                        logger.debug("CRD: got request.serviceInformationReferenceType of type MedicationRequest");
                         break;
                     case Medication:
-                        System.out.println("CRD: got request.serviceInformationReferenceType of type Medication");
+                        logger.debug("CRD: got request.serviceInformationReferenceType of type Medication");
                         break;
                     case Device:
-                        System.out.println("CRD: got request.serviceInformationReferenceType of type Device");
+                        logger.debug("CRD: got request.serviceInformationReferenceType of type Device");
                         break;
                     case DeviceRequest:
-                        System.out.println("CRD: got request.serviceInformationReferenceType of type DeviceRequest");
+                        logger.debug("CRD: got request.serviceInformationReferenceType of type DeviceRequest");
                         break;
                     default:
-                        System.out.println("Warning: unexpected request.serviceInformationReferenceType type");
+                        logger.warn("Warning: unexpected request.serviceInformationReferenceType type");
                         break;
                 }
                     break;
                 default:
-                    System.out.println("Warning: unexpected parameter part: " + part.getName());
+                    logger.warn("Warning: unexpected parameter part: " + part.getName());
                     break;
             }
         }
@@ -125,15 +128,15 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
             || nullCheck(coverage, "coverage")
             || nullCheck(provider, "provider")
             || nullCheck(insurer, "insurer") ) {
-            System.out.println("ERROR: required information missing!");
+            logger.error("ERROR: required information missing!");
             return retVal;
         }
 
         // print out the patient name
         if (patient.hasName()) {
-            System.out.println("CRD: Patient Name: " + patient.getName().get(0).getText());
+            logger.debug("CRD: Patient Name: " + patient.getName().get(0).getText());
         } else {
-            System.out.println("CRD: No Patient Name provided");
+            logger.debug("CRD: No Patient Name provided");
         }
 
         // start building the response
@@ -165,13 +168,13 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
             response.addPart().setName("endPoint").setResource(finalEndPoint);
         }
 
-        System.out.println("coverageRequirementsDiscovery: end");
+        logger.debug("coverageRequirementsDiscovery: end");
         return retVal;
     }
 
     boolean nullCheck(Resource obj, String objName) {
         if (obj == null) {
-            System.out.println(objName + " is null");
+            logger.debug(objName + " is null");
             return true;
         } else {
             return false;
