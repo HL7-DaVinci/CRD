@@ -130,7 +130,11 @@ public class CoverageRequirementsDiscoveryOperation implements CoverageRequireme
         }
 
         // print out the patient name
-        System.out.println("CRD: Patient Name: " + patient.getName().get(0).getText());
+        if (patient.hasName()) {
+            System.out.println("CRD: Patient Name: " + patient.getName().get(0).getText());
+        } else {
+            System.out.println("CRD: No Patient Name provided");
+        }
 
         // start building the response
         EligibilityResponse eligibilityResponse = new EligibilityResponse();

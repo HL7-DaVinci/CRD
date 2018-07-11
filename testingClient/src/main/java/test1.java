@@ -53,6 +53,7 @@ public class test1 {
 
         // create a Patient object with Name set
         Patient patient = new Patient();
+        patient.setId("patient-4");
         ArrayList<HumanName> names = new ArrayList<HumanName>();
         HumanName name = new HumanName();
         name.setText("Bob Smith");
