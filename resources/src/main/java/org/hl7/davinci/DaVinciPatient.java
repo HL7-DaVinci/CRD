@@ -25,7 +25,7 @@ public class DaVinciPatient extends Patient {
     private StringType favoriteColor;
 
 
-    public StringType getFavoriteColor() {
+    public StringType getfavoriteColor() {
         if (favoriteColor == null) {
             favoriteColor = new StringType();
         }
