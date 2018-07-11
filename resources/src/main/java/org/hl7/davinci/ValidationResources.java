@@ -3,6 +3,8 @@ package org.hl7.davinci;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +13,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.parser.StrictErrorHandler;
 
+import ca.uhn.fhir.validation.ResultSeverityEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +54,7 @@ public class ValidationResources {
         IParser xmlParser = FhirContext.forR4().newXmlParser();
         xmlParser.setParserErrorHandler(new StrictErrorHandler());
         List<StructureDefinition> definitions = new ArrayList<>();
-
-        // Check directory for all available structure definitions
+        
         File[] profiles =
                 new File(ValidationResources.class.getClassLoader().getResource(rootDir).getFile()).listFiles();
 
@@ -74,12 +76,31 @@ public class ValidationResources {
 
         // Do we have any errors or fatal errors?
         boolean retVal = result.isSuccessful();
-        logger.info("Success: {}.",retVal);
+        if(retVal){
+            logger.info("Validation success for {}.",theResource.getMeta().getProfile().get(0));
+        }else{
+            logger.warn("Validation failure for {}.",theResource.getMeta().getProfile().get(0));
+        }
+
 
         // Show the issues
         for (SingleValidationMessage next : result.getMessages()) {
-            logger.info(" Next issue " + next.getSeverity() + " - " + next.getLocationString() + " - " + next.getMessage());
-
+            switch(next.getSeverity()){
+                case ERROR:
+                    logger.error(next.getLocationString() + " - " + next.getMessage());
+                    break;
+                case INFORMATION:
+                    logger.info(next.getLocationString() + " - " + next.getMessage());
+                    break;
+                case WARNING:
+                    logger.warn(next.getLocationString() + " - " + next.getMessage());
+                    break;
+                case FATAL:
+                    logger.error(next.getLocationString() + " - " + next.getMessage());
+                    break;
+                default:
+                    logger.debug(next.getLocationString() + " - " + next.getMessage());
+            }
         }
 
         return retVal;

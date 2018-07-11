@@ -20,7 +20,6 @@ public class ExtensionTest {
     @Test
     public void testPractitioner() {
 
-        logger.info("Hello");
         ValidationResources v = new ValidationResources();
 
         DaVinciPractitioner dvP = new DaVinciPractitioner();

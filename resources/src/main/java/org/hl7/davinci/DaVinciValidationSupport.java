@@ -1,4 +1,6 @@
 package org.hl7.davinci;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,7 +13,7 @@ import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.r4.model.ValueSet;
 
 public class DaVinciValidationSupport implements IValidationSupport {
-    private static String profileDir = "../resources/";
+    private static String profileDir = "structureDefinitions";
 
     private final HashMap<String, StructureDefinition> definitionsMap;
     private final List<StructureDefinition> definitions;
