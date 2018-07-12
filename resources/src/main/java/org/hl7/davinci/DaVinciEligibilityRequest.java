@@ -8,12 +8,13 @@ import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import ca.uhn.fhir.util.ElementUtil;
 import org.hl7.fhir.r4.model.BackboneElement;
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.EligibilityRequest;
 import org.hl7.fhir.r4.model.Reference;
 
 import java.util.List;
 
 @ResourceDef(name="EligibilityRequest")
-public class DaVinciEligibilityRequest {
+public class DaVinciEligibilityRequest extends EligibilityRequest {
     @Child(name="serviceInformation", max=Child.MAX_UNLIMITED)
     @Extension(url="http://hl7.org/davinci/crd/eligibilityRequest/serviceInformation", definedLocally=false, isModifier=false)
     private List<ServiceInformation> serviceInformation;
