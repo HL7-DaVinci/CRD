@@ -9,7 +9,7 @@ import org.hl7.fhir.r4.model.*;
 
 import java.util.List;
 
-@ResourceDef(name="DaVinciEligibilityResponse")
+@ResourceDef(name="EligibilityResponse")
 public class DaVinciEligibilityResponse extends EligibilityResponse {
     @Child(name="coverageDocumentation", max=Child.MAX_UNLIMITED)
     @Extension(url="http://hl7.org/davinci/crd/eligibilityResponse/coverageDocumentation", definedLocally=false, isModifier=false)
