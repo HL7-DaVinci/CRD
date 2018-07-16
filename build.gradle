@@ -17,9 +17,9 @@ subprojects {
     dependencies {
         compile 'ca.uhn.hapi.fhir:hapi-fhir-base:3.4.0'
         compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:3.4.0'
-        compile "org.slf4j:slf4j-api:1.7.25"
+        //compile "org.slf4j:slf4j-api:1.7.25"
         //compile "org.slf4j:slf4j-nop:1.7.25"
-        compile group: 'ch.qos.logback', name: 'logback-classic', version: '0.9.26'
+        //compile group: 'ch.qos.logback', name: 'logback-classic', version: '0.9.26'
 
 
 
