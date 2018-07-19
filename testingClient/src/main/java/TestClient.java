@@ -2,20 +2,17 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.interceptor.LoggingInterceptor;
 import org.hl7.davinci.CRDRequestCreator;
-import org.hl7.davinci.DaVinciEligibilityResponse;
-import org.hl7.davinci.DaVinciPatient;
 import org.hl7.fhir.r4.model.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 
-public class test1 {
-    final static Logger logger = LoggerFactory.getLogger(test1.class);
+public class TestClient {
+    final static Logger logger = LoggerFactory.getLogger(TestClient.class);
 
     public static void main(String[] args) {
         // Create a client to talk to the server
@@ -23,32 +20,8 @@ public class test1 {
         IGenericClient client = ctx.newRestfulGenericClient("http://localhost:8080/server/fhir");
         client.registerInterceptor(new LoggingInterceptor(true));
 
-        runTestOperation(client);
         runCRD(client);
     }
-
-    public static void runTestOperation(IGenericClient client) {
-        //make new davinci patient
-        DaVinciPatient pt = new DaVinciPatient();
-        pt.setFavoriteColor(new StringType("blue"));
-        pt.setLanguage("english");
-
-        // Create the input parameters to pass to the server
-        Parameters inParams = new Parameters();
-        inParams.addParameter().setName("patient").setResource(pt);
-
-        // Invoke operation
-        DaVinciEligibilityResponse eligibilityResponseT = client
-                .operation()
-                .onServer()
-                .named("$operation-test")
-                .withParameters(inParams)
-                .returnResourceType(DaVinciEligibilityResponse.class)
-                .execute();
-
-        logger.debug(eligibilityResponseT.getDisposition());
-    }
-
 
     public static void runCRD(IGenericClient client) {
         // build the parameters for the CRD
