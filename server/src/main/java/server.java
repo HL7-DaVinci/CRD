@@ -1,7 +1,6 @@
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
-import org.hl7.davinci.RestfulDaVinciEligibilityResponseProvider;
 import org.hl7.davinci.CoverageRequirementsDiscoveryOperation;
 
 import javax.servlet.ServletException;
@@ -38,14 +37,8 @@ public class server extends RestfulServer {
          */
 
         List<Object> plainProviders=new ArrayList<Object>();
-        plainProviders.add(new RestfulDaVinciEligibilityResponseProvider());
         plainProviders.add(new CoverageRequirementsDiscoveryOperation());
         setPlainProviders(plainProviders);
-
-//        List<IResourceProvider> resourceProviders = new ArrayList<IResourceProvider>();
-//        resourceProviders.add(new RestfulDaVinciEligibilityResponseProvider());
-//        setResourceProviders(resourceProviders);
-
 
         // Now register the logging interceptor
         LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
@@ -58,7 +51,6 @@ public class server extends RestfulServer {
         // be used here. See the JavaDoc for LoggingInterceptor for information on
         // what is available.
         loggingInterceptor.setMessageFormat("Source[${remoteAddr}] Operation[${operationType} ${idOrResourceName}] UA[${requestHeader.user-agent}] Params[${requestParameters}]");
-
     }
 
 }
