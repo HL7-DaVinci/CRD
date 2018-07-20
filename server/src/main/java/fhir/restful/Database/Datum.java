@@ -1,24 +1,38 @@
-package fhir.restful;
-
+package fhir.restful.Database;
+import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Entity;
 
-@Entity
 
 //patient_age_range_low, patient_age_range_high,
 // patient_gender, patient_plan_id, equipment_code,
 // no_auth_needed, info_link
-
+@Entity
 public class Datum {
+
     @Id @GeneratedValue
     private Long id;
+
+    @Column(nullable = false)
     private String patient_age_range_low;
+
+    @Column(nullable = false)
     private String patient_age_range_high;
+
+    @Column(nullable = false)
     private String patient_gender;
+
+    @Column(nullable = false)
     private String patient_plan_id;
+
+    @Column(nullable = false)
     private String equipment_code;
+
+    @Column(nullable = false)
     private String no_auth_needed;
+
+    @Column(nullable = false)
     private String info_link;
 
     public Long getId() {
