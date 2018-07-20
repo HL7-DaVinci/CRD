@@ -1,3 +1,5 @@
+//package fhir.restful;
+//
 //import ca.uhn.fhir.context.FhirContext;
 //import ca.uhn.fhir.rest.server.RestfulServer;
 //import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
