@@ -18,11 +18,11 @@ spring:
       enabled: true
 hapi:
   fhir:
-    version: r4
+    version: dstu3
     server:
       path: /fhir/*
     rest:
-      server-name: hapi-fhir-spring-boot-sample-server-jpa
+      server-name: hapi-fhir-spring-boot-sample-fhir.restful.server-jpa
       server-version: 1.0.0
       server-port: 8090
       implementation-description: Spring Boot Jpa Server Sample

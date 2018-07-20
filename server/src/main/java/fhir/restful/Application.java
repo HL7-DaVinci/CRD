@@ -1,14 +1,20 @@
 package fhir.restful;
 
-import org.springframework.boot.ApplicationRunner;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-
-import java.util.stream.Stream;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @SpringBootApplication
+// Finds the FhirServlet and runs it
+@ServletComponentScan
+
+/**
+ * Runs the app, including the FhirServlet.  Keep this in the root directory or it won't find the dependencies.
+ * Only initialization functions should be put here.
+ */
 public class Application {
+
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
