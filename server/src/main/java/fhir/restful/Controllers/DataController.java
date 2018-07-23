@@ -15,6 +15,7 @@ import java.util.Optional;
 /**
  * Provides the REST interface
  */
+@CrossOrigin(maxAge = 3600)
 @RestController
 public class DataController {
 
@@ -26,13 +27,13 @@ public class DataController {
 
     }
 
-    @GetMapping("/data")
+    @GetMapping(value="/api/data")
     @CrossOrigin(origins = "http://localhost:4200")
     public Collection<Datum> showAll(){
         return repository.findAll();
     }
 
-    @GetMapping("/data/{id}")
+    @GetMapping("/api/data/{id}")
     public Datum getDatum(@PathVariable long id){
         Optional<Datum> datum = repository.findById(id);
 
@@ -42,7 +43,7 @@ public class DataController {
         return datum.get();
     }
 
-    @PostMapping("/data")
+    @PostMapping("/api/data")
     public ResponseEntity<Object> addDatum(@RequestBody Datum datum){
         Datum savedDatum = repository.save(datum);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -50,13 +51,13 @@ public class DataController {
         return ResponseEntity.created(location).build();
     }
 
-    @DeleteMapping("/data/{id}")
+    @DeleteMapping("/api/data/{id}")
     public long deleteDatum(@PathVariable long id){
         repository.deleteById(id);
         return id;
     }
 
-    @PutMapping("/data/{id}")
+    @PutMapping("/api/data/{id}")
     public ResponseEntity<Object> updateDatum(@RequestBody Datum datum, @PathVariable long id){
         Optional<Datum> datumOptional = repository.findById(id);
 

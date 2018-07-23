@@ -5,7 +5,9 @@ import fhir.restful.Database.DataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -26,5 +28,31 @@ public class HomeController {
         List<Datum> data = dataService.findAll();
         model.addAttribute("allPosts",data);
         return "index";
+    }
+
+    @GetMapping("/data")
+    public String data(Model model){
+        List<Datum> foo = dataService.findAll();
+        model.addAttribute("dataEntries",foo);
+        List<String> bar = Datum.getFields();
+        model.addAttribute("headers",bar);
+        model.addAttribute("datum", new Datum());
+
+        return "data";
+    }
+
+
+    @PostMapping("/data")
+    public ModelAndView saveDatum(@ModelAttribute Datum datum, BindingResult errors) {
+
+        ModelAndView mv = new ModelAndView("redirect:data");
+        if(errors.hasErrors()){
+            System.out.println("There was a error "+errors);
+        }
+        dataService.create(datum);
+
+
+        System.out.println(datum.getId());
+        return mv;
     }
 }
