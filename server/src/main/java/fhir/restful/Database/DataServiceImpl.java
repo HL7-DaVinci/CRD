@@ -43,4 +43,5 @@ public class DataServiceImpl implements DataService {
     public void deleteById(Long id) {
         this.dataRepository.deleteById(id);
     }
+
 }

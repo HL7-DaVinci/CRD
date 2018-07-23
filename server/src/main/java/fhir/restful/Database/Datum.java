@@ -3,6 +3,9 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Entity;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 
 //patient_age_range_low, patient_age_range_high,
@@ -34,6 +37,20 @@ public class Datum {
 
     @Column(nullable = false)
     private String info_link;
+
+    public Datum(){
+
+    }
+    public Datum(String patient_age_range_low, String patient_age_range_high, String patient_gender,
+                 String patient_plan_id, String equipment_code, String no_auth_needed, String info_link) {
+        this.patient_age_range_low = patient_age_range_low;
+        this.patient_age_range_high = patient_age_range_high;
+        this.patient_gender = patient_gender;
+        this.patient_plan_id = patient_plan_id;
+        this.equipment_code = equipment_code;
+        this.no_auth_needed = no_auth_needed;
+        this.info_link = info_link;
+    }
 
     public Long getId() {
         return id;
@@ -104,6 +121,15 @@ public class Datum {
     @Override
     public String toString(){
         return this.equipment_code;
+    }
+
+    public static List<String> getFields() {
+        List<String> fieldList = new ArrayList<>();
+        for (Field field : Datum.class.getDeclaredFields()) {
+            String name = field.getName();
+            fieldList.add(name);
+        }
+        return fieldList;
     }
 
 
