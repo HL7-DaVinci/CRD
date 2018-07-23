@@ -118,15 +118,10 @@ dependencies {
             exclude group: 'org.thymeleaf'
 
     }
+    compile("org.springframework.boot:spring-boot-devtools")
+
     compile 'javax.servlet:javax.servlet-api:3.1.0'
 
 }
 
-task webpack(type: Exec) {
-    inputs.file("package-lock.json").withPathSensitivity(PathSensitivity.RELATIVE)
-    inputs.dir("app").withPathSensitivity(PathSensitivity.RELATIVE)
-    outputs.dir("$buildDir/js")
-    outputs.cacheIf { true }
 
-    commandLine "$projectDir/node_modules/.bin/webpack", "app/index.js", "$buildDir/js/bundle.js"
-}

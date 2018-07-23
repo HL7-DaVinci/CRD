@@ -1,6 +1,10 @@
+import fhir.restful.Database.Datum;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -90,5 +94,12 @@ class dbRelatedTests {
         assertEquals("https://cdn2.vectorstock.com/i/1000x1000/44/21/old-fashioned-dancing-penguin-in-comic-hat-vector-2664421.jpg",r.getInfoLink());
         assertEquals(true,r.getNoAuthNeeded());
     }
+
+    @Test
+    public void test2(){
+        System.out.println(Datum.getFields().size());
+    }
+
+
 
 }
