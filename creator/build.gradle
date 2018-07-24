@@ -1,5 +1,14 @@
 apply plugin: 'application'
 
+mainClassName = "org.hl7.davinci.creator.RequestWriter"
+
 dependencies {
     compile project(':resources')
+}
+
+// For gradle run
+run {
+    if ( project.hasProperty('appArgs') ) {
+        args Eval.me(appArgs)
+    }
 }

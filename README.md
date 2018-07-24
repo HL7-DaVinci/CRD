@@ -7,20 +7,30 @@ The CRD RI is software that simulates a system at a healthcare payer organizatio
  
 This software lets EHR vendors and payer organizations examine how the proposed standard will work and test their own implementations of the standard.
 
-<h3>Building</h3>
-
-> gradle build
+<h3>Building and running from the command line</h3>
+1. Clone the repo
+	* `git clone https://github.com/HL7-DaVinci/CRD.git`
+2. Install dependencies (gradle, postgresql)
+3. Build the code
+	* `gradle build`
+4. Running from the command line
+	* Run the fhir server
+		* `gradle :server:appRun`
+	* Run the testing client
+		* `gradle :testingClient:run`
+	* Run the creator tool
+		* `gradle :creator:run -PappArgs="['/tmp/']"`
 
 <h3>Developing</h3>
 <h4>Setup</h4>
 
-* Install IntelliJ Idea
-* Create new project from existing sources
-* Choose the CRD folder
-* Specify that it is a gradle project
+1. Install IntelliJ Idea
+2. Create new project from existing sources
+3. Choose the CRD folder
+4. Specify that it is a gradle project
 
-<h4>Running</h4>
+<h4>Running from the UI</h4>
 
 * Select the gradle tool window
-* Choose CRD -> :server -> Tasks -> gretty -> appRun
+* Choose CRD --> :server --> Tasks --> gretty --> appRun
 * Run TestClient.main()
