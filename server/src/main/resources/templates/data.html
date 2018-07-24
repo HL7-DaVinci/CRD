@@ -26,11 +26,12 @@
                 </th:block>
             </tr>
         </thead>
+        <tbody>
         <th:block th:each="dataEntry : ${dataEntries}">
             <tr>
                 <th:block th:each="header : ${headers}">
 
-                    <th:block/>
+
                 <td th:text="${dataEntry.__${header}__}" class="col-xs-2"></td>
                 <!--<td th:text="${dataEntry.patient_age_range_low}" class="col-xs-1"></td>-->
                 <!--<td th:text="${dataEntry.patient_age_range_high}" class="col-xs-1"></td>-->
@@ -39,8 +40,11 @@
                 <!--<td th:text="${dataEntry.equipment_code}"  class="col-xs-2"></td>-->
                 <!--<td th:text="${dataEntry.no_auth_needed}" class="col-xs-1"></td>-->
                 <!--<td th:text="${dataEntry.info_link}" class="col-xs-4"></td>-->
+                <th:block/>
             </tr>
         </th:block>
+        </tbody>
+
     </table>
 
 </div>
@@ -93,6 +97,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
-<!--<script src="js/bundle.js"></script>-->
+<script src="js/index.js"></script>
 </body>
 </html>

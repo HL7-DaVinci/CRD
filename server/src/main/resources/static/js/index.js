@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import 'stickyTableHeaders';
-
 function component () {
 
   var element = document.createElement('div');
@@ -12,4 +10,4 @@ function component () {
 }
 
 document.body.appendChild(component());
-$('table').stickyTableHeaders();
+
