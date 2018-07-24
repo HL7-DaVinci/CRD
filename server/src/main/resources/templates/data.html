@@ -32,15 +32,9 @@
                 <th:block th:each="header : ${headers}">
 
 
-                <td th:text="${dataEntry.__${header}__}" class="col-xs-2"></td>
-                <!--<td th:text="${dataEntry.patient_age_range_low}" class="col-xs-1"></td>-->
-                <!--<td th:text="${dataEntry.patient_age_range_high}" class="col-xs-1"></td>-->
-                <!--<td th:text="${dataEntry.patient_gender}" class="col-xs-1"></td>-->
-                <!--<td th:text="${dataEntry.patient_plan_id}" class="col-xs-1"></td>-->
-                <!--<td th:text="${dataEntry.equipment_code}"  class="col-xs-2"></td>-->
-                <!--<td th:text="${dataEntry.no_auth_needed}" class="col-xs-1"></td>-->
-                <!--<td th:text="${dataEntry.info_link}" class="col-xs-4"></td>-->
-                <th:block/>
+                    <td th:text="${dataEntry.__${header}__}" class="col-xs-2"></td>
+  
+                </th:block>
             </tr>
         </th:block>
         </tbody>
@@ -56,37 +50,40 @@
                 <!--<td>id</td>-->
                 <!--<td><input type="number" th:field="*{id}" /></td>-->
             <!--</tr>-->
-            <tr>
-                <td>Age_Low</td>
-                <td><input type="number" th:field="*{patient_age_range_low}" /></td>
-            </tr>
-            <tr>
-                <td>Age_High</td>
-                <td><input type="number" th:field="*{patient_age_range_high}" /></td>
-            </tr>
-            <tr>
-                <td>Gender</td>
-                <td><input type="text" th:field="*{patient_gender}" /></td>
-            </tr>
-            <tr>
-                <td>Plan_ID</td>
-                <td><input type="text" th:field="*{patient_plan_id}" /></td>
-            </tr>
-            <tr>
-                <td>CPT_CODE</td>
-                <td><input type="text" th:field="*{equipment_code}" /></td>
-            </tr>
-            <tr>
-                <td>AUTH</td>
-                <td><input type="text" th:field="*{no_auth_needed}" /></td>
-            </tr>
-            <tr>
-                <td>INFO</td>
-                <td><input type="text" th:field="*{info_link}" /></td>
-            </tr>
-            <tr>
-                <td><input type="submit" value="Submit" /></td>
-            </tr>
+            <th:block th:each="header : ${headers}">
+                <tr>
+                    <td th:text="${header}"></td>
+                    <td><input type="text" th:field="*{__${header}__}" /></td>
+                </tr>
+            </th:block>
+            <!---->
+            <!--<tr>-->
+                <!--<td>Age_High</td>-->
+                <!--<td><input type="number" th:field="*{patient_age_range_high}" /></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>Gender</td>-->
+                <!--<td><input type="text" th:field="*{patient_gender}" /></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>Plan_ID</td>-->
+                <!--<td><input type="text" th:field="*{patient_plan_id}" /></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>CPT_CODE</td>-->
+                <!--<td><input type="text" th:field="*{equipment_code}" /></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>AUTH</td>-->
+                <!--<td><input type="text" th:field="*{no_auth_needed}" /></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>INFO</td>-->
+                <!--<td><input type="text" th:field="*{info_link}" /></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td><input type="submit" value="Submit" /></td>-->
+            <!--</tr>-->
         </table>
     </form>
 </div>
@@ -97,6 +94,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
-<script src="js/index.js"></script>
 </body>
 </html>
