@@ -6,6 +6,7 @@ import org.hl7.fhir.r4.model.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.util.Calendar;
 import java.util.List;
@@ -14,10 +15,13 @@ import java.util.List;
 public class TestClient {
     final static Logger logger = LoggerFactory.getLogger(TestClient.class);
 
+
     public static void main(String[] args) {
         // Create a client to talk to the server
+
+
         FhirContext ctx = FhirContext.forR4();
-        IGenericClient client = ctx.newRestfulGenericClient("http://localhost:8080/server/fhir");
+        IGenericClient client = ctx.newRestfulGenericClient("http://localhost:8080/fhir/");
         client.registerInterceptor(new LoggingInterceptor(true));
 
         runCRD(client);

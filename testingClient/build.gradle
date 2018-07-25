@@ -2,6 +2,8 @@
 dependencies {
     compile project(':resources')
     compile 'ca.uhn.hapi.fhir:hapi-fhir-client:3.4.0'
+    compile "org.slf4j:slf4j-api:1.7.25"
+    compile "org.slf4j:slf4j-nop:1.7.25"
 }
 
 
