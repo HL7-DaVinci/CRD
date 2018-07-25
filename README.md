@@ -1,5 +1,4 @@
-Coverage Requirements Discovery (CRD) Reference Implementation (RI)
-===================================================================
+# Coverage Requirements Discovery (CRD) Reference Implementation (RI)
 
 The Coverage Requirements Discovery (CRD) Reference Implementation (RI) is an implementation of an open healthcare standard developed by the Da Vinci Project within the HL7 Standards Organization. The CRD RI will be published as a project under the HL7-DaVinci GitHub organization https://github.com/HL7-DaVinci.
  
@@ -7,13 +6,13 @@ The CRD RI is software that simulates a system at a healthcare payer organizatio
  
 This software lets EHR vendors and payer organizations examine how the proposed standard will work and test their own implementations of the standard.
 
-<h3>Building and running from the command line</h3>
+## Building and running from the command line
 1. Clone the repo
 	* `git clone https://github.com/HL7-DaVinci/CRD.git`
-2. Install dependencies (gradle, postgresql)
-3. Build the code
+1. Install dependencies (gradle, postgresql)
+1. Build the code
 	* `gradle build`
-4. Running from the command line
+1. Running from the command line
 	* Run the fhir server
 		* `gradle :server:appRun`
 	* Run the testing client
@@ -21,15 +20,15 @@ This software lets EHR vendors and payer organizations examine how the proposed 
 	* Run the creator tool
 		* `gradle :creator:run -PappArgs="['/tmp/']"`
 
-<h3>Developing</h3>
-<h4>Setup</h4>
+## Developing
+### Setup
 
 1. Install IntelliJ Idea
 2. Create new project from existing sources
 3. Choose the CRD folder
 4. Specify that it is a gradle project
 
-<h4>Running from the UI</h4>
+### Running from the UI
 
 * Select the gradle tool window
 * Choose CRD --> :server --> Tasks --> gretty --> appRun
