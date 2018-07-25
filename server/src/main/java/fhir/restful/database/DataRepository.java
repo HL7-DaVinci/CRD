@@ -1,8 +1,5 @@
-package fhir.restful.Database;
+package fhir.restful.database;
 
-
-
-import fhir.restful.Database.Datum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;

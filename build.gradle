@@ -2,13 +2,16 @@ allprojects {
 
     apply plugin: 'idea'
 
+    apply plugin: 'checkstyle'
+    checkstyle {
+        toolVersion "8.11"
+    }
+
     repositories {
         jcenter() 
     }
 
 }
-
-
 
 subprojects {
 

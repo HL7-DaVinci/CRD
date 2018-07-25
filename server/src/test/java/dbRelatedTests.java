@@ -1,10 +1,7 @@
-import fhir.restful.Database.Datum;
+import fhir.restful.database.Datum;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -75,7 +72,7 @@ class dbRelatedTests {
         setCRDtableToCsv("crd_table_basic.csv");
 
         Connection connection = DriverManager.getConnection("jdbc:postgresql://"+DB_SERVER_URL+"/"+TEST_DB_NAME);
-        dbQueries dbq = new dbQueries(connection);
+        DbQueries dbq = new DbQueries(connection);
 
 
         //make patient info and query db
@@ -84,7 +81,7 @@ class dbRelatedTests {
         String patient_plan_id = "12345";
         String equipment_code = "E0601";
 
-        dbResponse r = dbq.getInfo(patient_age, patient_gender, patient_plan_id, equipment_code);
+        DbResponse r = dbq.getInfo(patient_age, patient_gender, patient_plan_id, equipment_code);
         assertEquals("http://images.mentalfloss.com/sites/default/files/styles/mf_image_16x9/public/istock-511366776.jpg",r.getInfoLink());
         assertEquals(false,r.getNoAuthNeeded());
 

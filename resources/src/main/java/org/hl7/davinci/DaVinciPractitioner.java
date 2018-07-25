@@ -1,14 +1,14 @@
 package org.hl7.davinci;
-import ca.uhn.fhir.model.api.annotation.*;
-import ca.uhn.fhir.model.api.annotation.Extension;
-import ca.uhn.fhir.util.ElementUtil;
-import org.hl7.fhir.r4.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import ca.uhn.fhir.model.api.annotation.ResourceDef;
+
+import org.hl7.fhir.r4.model.Practitioner;
+
+
+
 
 // The "profile" argument decides which structure definition gets used for validation purposes.
-@ResourceDef(name="Practitioner")
+@ResourceDef(name = "Practitioner")
 public class DaVinciPractitioner extends Practitioner {
 
 

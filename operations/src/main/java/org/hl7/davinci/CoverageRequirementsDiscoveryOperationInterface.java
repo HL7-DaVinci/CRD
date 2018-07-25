@@ -11,11 +11,11 @@ import org.hl7.fhir.r4.model.Parameters;
  */
 public interface CoverageRequirementsDiscoveryOperationInterface {
 
-    @Operation(name="$coverage-requirements-discovery", idempotent=true)
-    Parameters coverageRequirementsDiscovery(
-            @OperationParam(name="request") Parameters.ParametersParameterComponent request,
-            @OperationParam(name="endpoint") Endpoint endpoint,
-            @OperationParam(name="requestQualification") CodeableConcept requestQualification
-    );
+  @Operation(name = "$coverage-requirements-discovery", idempotent = true)
+  Parameters coverageRequirementsDiscovery(
+      @OperationParam(name = "request") Parameters.ParametersParameterComponent request,
+      @OperationParam(name = "endpoint") Endpoint endpoint,
+      @OperationParam(name = "requestQualification") CodeableConcept requestQualification
+  );
 
 }
