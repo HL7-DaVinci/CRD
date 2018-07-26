@@ -24,3 +24,12 @@ This software lets EHR vendors and payer organizations examine how the proposed 
 * Select the gradle tool window
 * Choose CRD -> :server -> Tasks -> gretty -> appRun
 * Run TestClient.main()
+
+<h5>Running from Command Line</h5>
+
+* Run 'gradle build'
+* Run 'gradle bootRun'
+* The server will be running at http://localhost:8080
+* REST support on http://localhost:8080/api/data
+* Data view on http://localhost:8080/data
+* FHIR compliant server on http://localhost:8080/fhir

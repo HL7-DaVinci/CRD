@@ -92,10 +92,7 @@ class dbRelatedTests {
         assertEquals(true,r.getNoAuthNeeded());
     }
 
-    @Test
-    public void test2(){
-        System.out.println(Datum.getFields().size());
-    }
+
 
 
 
