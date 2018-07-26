@@ -31,5 +31,10 @@ This software lets EHR vendors and payer organizations examine how the proposed 
 ### Running from the UI
 
 * Select the gradle tool window
-* Choose CRD --> :server --> Tasks --> gretty --> appRun
+* Choose CRD --> :server --> Tasks --> application --> bootRun
 * Run TestClient.main()
+
+### Running from command line
+
+* run "gradle build"
+* run "gradle bootRun"
