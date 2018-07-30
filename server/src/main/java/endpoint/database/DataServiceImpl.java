@@ -1,4 +1,4 @@
-package fhir.restful.database;
+package endpoint.database;
 
 import java.util.List;
 
@@ -20,23 +20,23 @@ public class DataServiceImpl implements DataService {
   private DataRepository dataRepository;
 
   @Override
-  public List<Datum> findAll() {
+  public List<DMECoverageRequirementRule> findAll() {
     return this.dataRepository.findAll();
   }
 
   @Override
-  public Datum findById(Long id) {
+  public DMECoverageRequirementRule findById(Long id) {
     return this.dataRepository.findById(id).get();
   }
 
   @Override
-  public Datum create(Datum datum) {
-    return this.dataRepository.save(datum);
+  public DMECoverageRequirementRule create(DMECoverageRequirementRule rule) {
+    return this.dataRepository.save(rule);
   }
 
   @Override
-  public Datum edit(Datum datum) {
-    return this.dataRepository.save(datum);
+  public DMECoverageRequirementRule edit(DMECoverageRequirementRule rule) {
+    return this.dataRepository.save(rule);
   }
 
   @Override

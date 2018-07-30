@@ -8,14 +8,17 @@ allprojects {
     }
 
     repositories {
-        jcenter() 
+        jcenter()
+        mavenCentral()
     }
+
 
 }
 
 subprojects {
 
     version = '0.0.1'
+    group = 'org.mitre'
 
     apply plugin: 'java'
 

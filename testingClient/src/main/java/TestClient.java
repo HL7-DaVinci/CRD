@@ -48,7 +48,7 @@ public class TestClient {
   public static void runCrd(IGenericClient client) {
     // build the parameters for the CRD
     Calendar cal = Calendar.getInstance();
-    cal.set(1970, Calendar.JULY, 4);
+    cal.set(1948, Calendar.JULY, 4);
     Parameters crdParams = CrdRequestCreator
         .createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
 
@@ -145,6 +145,7 @@ public class TestClient {
     logger.debug("returned from CRD call!");
     if (eligibilityResponse != null) {
       logger.debug("CRD Disposition: " + eligibilityResponse.getDisposition());
+      System.out.println("CRD Disposition: " + eligibilityResponse.getDisposition());
     } else {
       logger.error("ERROR: eligibilityResponse is null");
     }

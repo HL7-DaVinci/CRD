@@ -1,7 +1,7 @@
-package fhir.restful.controllers;
+package endpoint.controllers;
 
-import fhir.restful.database.DataService;
-import fhir.restful.database.Datum;
+import endpoint.database.DataService;
+import endpoint.database.DMECoverageRequirementRule;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class HomeController {
    */
   @RequestMapping("/")
   public String index(Model model) {
-    List<Datum> data = dataService.findAll();
+    List<DMECoverageRequirementRule> data = dataService.findAll();
     model.addAttribute("allPosts", data);
     return "index";
   }
@@ -48,11 +48,11 @@ public class HomeController {
    */
   @GetMapping("/data")
   public String data(Model model) {
-    List<Datum> foo = dataService.findAll();
+    List<DMECoverageRequirementRule> foo = dataService.findAll();
     model.addAttribute("dataEntries", foo);
-    List<String> bar = Datum.getFields();
+    List<String> bar = DMECoverageRequirementRule.getFields();
     model.addAttribute("headers", bar);
-    model.addAttribute("datum", new Datum());
+    model.addAttribute("datum", new DMECoverageRequirementRule());
 
     return "data";
   }
@@ -65,7 +65,7 @@ public class HomeController {
    * @return an object that contains the model and view of the data page
    */
   @PostMapping("/data")
-  public ModelAndView saveDatum(@ModelAttribute Datum datum, BindingResult errors) {
+  public ModelAndView saveDatum(@ModelAttribute DMECoverageRequirementRule datum, BindingResult errors) {
 
 
     if (errors.hasErrors()) {

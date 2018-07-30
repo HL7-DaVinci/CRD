@@ -16,7 +16,7 @@ import org.hl7.fhir.r4.model.Reference;
 
 
 
-@ResourceDef(name = "EligibilityRequest")
+@ResourceDef(name = "EligibilityRequest", profile = "http://base.url/DaVinciEligibilityRequest")
 public class DaVinciEligibilityRequest extends EligibilityRequest {
   @Child(name = "serviceInformation", max = Child.MAX_UNLIMITED)
   @Extension(url = "http://hl7.org/davinci/crd/eligibilityRequest/serviceInformation", definedLocally = false, isModifier = false)
