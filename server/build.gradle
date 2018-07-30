@@ -2,39 +2,25 @@ buildscript {
     ext {
         springBootVersion = '2.0.3.RELEASE'
     }
-    repositories {
 
-
-        mavenCentral()
-    }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
 }
+
 plugins {
     id 'net.ltgt.apt' version '0.10'
 
 }
 
 apply plugin: 'war'
-apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
-
 dependencies {
 
-
+    compile project(':resources')
     compile project(':operations')
 
     compile('org.springframework.boot:spring-boot-starter-actuator')
@@ -49,23 +35,28 @@ dependencies {
 //    compile('org.mitre:openid-connect-server:1.3.1')
 //    compile('org.mitre:openid-connect-client:1.3.1')
 
-
-
-
-
-
-    runtime('com.h2database:h2')
     compileOnly('org.projectlombok:lombok')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile("org.springframework.boot:spring-boot-devtools")
 
     compile('ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'){
             exclude group: 'org.thymeleaf'
-
     }
-    compile("org.springframework.boot:spring-boot-devtools")
 
     compile 'javax.servlet:javax.servlet-api:3.1.0'
-
+    compile 'org.postgresql:postgresql:42.2.2'
 }
 
 
+task setupDB {
+    String setupScriptFullpath = System.getProperty("user.dir") + "/src/main/resources/db/setup_db.sql"
+    String sampleDataFullpath = System.getProperty("user.dir") + "/src/main/resources/db/sample_data.csv"
+    String loadSampleDataSqlCommand = "COPY coverage_requirement_rules FROM '"+sampleDataFullpath+"' DELIMITER ',' NULL as 'null' QUOTE '\"' CSV HEADER;"
+
+    exec {
+        commandLine 'psql', 'postgres', '-c', "CREATE DATABASE dme;"
+        ignoreExitValue true  // ignore errors since database might already exist
+    }
+    exec { commandLine 'psql', '-d', 'dme', '-a', '-f', setupScriptFullpath }
+    exec { commandLine 'psql', 'dme', '-c', loadSampleDataSqlCommand }
+}

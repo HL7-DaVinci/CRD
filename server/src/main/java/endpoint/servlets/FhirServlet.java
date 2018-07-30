@@ -1,4 +1,4 @@
-package fhir.restful.servlets;
+package endpoint.servlets;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.server.RestfulServer;
@@ -9,9 +9,13 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
+
+//import fhir.restful.DaVinciAuthInterceptor;
+import endpoint.CoverageRequirementsDiscoveryOperationDatabaseVersion;
 import org.hl7.davinci.CoverageRequirementsDiscoveryOperation;
-
-
+import org.hl7.davinci.DaVinciEligibilityRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 
 /**
@@ -22,6 +26,9 @@ import org.hl7.davinci.CoverageRequirementsDiscoveryOperation;
 @WebServlet(urlPatterns = {"/fhir/*"}, displayName = "DaVinci FHIR Server")
 public class FhirServlet extends RestfulServer {
   private static final long serialVersionUID = 1L;
+
+  @Autowired
+  CoverageRequirementsDiscoveryOperationDatabaseVersion crdOperation;
 
   /**
    * The initialize method is automatically called when the servlet is starting up, so it can
@@ -34,6 +41,7 @@ public class FhirServlet extends RestfulServer {
     FhirContext ctxR4 = FhirContext.forR4();
     setFhirContext(ctxR4);
 
+    ctxR4.setDefaultTypeForProfile("http://base.url/DaVinciEligibilityRequest", DaVinciEligibilityRequest.class);
 
     /*
      * The servlet defines any number of resource providers, and
@@ -42,7 +50,8 @@ public class FhirServlet extends RestfulServer {
      */
 
     List<Object> plainProviders = new ArrayList<Object>();
-    plainProviders.add(new CoverageRequirementsDiscoveryOperation());
+//    plainProviders.add(new CoverageRequirementsDiscoveryOperationDatabaseVersion());
+    plainProviders.add(crdOperation);
     setPlainProviders(plainProviders);
 
     //        List<IResourceProvider> resourceProviders = new ArrayList<IResourceProvider>();
@@ -53,6 +62,8 @@ public class FhirServlet extends RestfulServer {
     // Now register the logging interceptor
     LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
     //registerInterceptor(authInterceptor);
+//    DaVinciAuthInterceptor authInterceptor = new DaVinciAuthInterceptor();
+//    registerInterceptor(authInterceptor);
     registerInterceptor(loggingInterceptor);
 
     // The SLF4j logger "test.accesslog" will receive the logging events
