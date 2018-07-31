@@ -1,18 +1,16 @@
 package endpoint.database;
 
-import java.util.List;
-
 /**
  * Outlines which methods the database will support.
  */
 public interface DataService {
-  List<DMECoverageRequirementRule> findAll();
+  Iterable<CoverageRequirementRule> findAll();
 
-  DMECoverageRequirementRule findById(Long id);
+  CoverageRequirementRule findById(Long id);
 
-  DMECoverageRequirementRule create(DMECoverageRequirementRule rule);
+  CoverageRequirementRule create(CoverageRequirementRule rule);
 
-  DMECoverageRequirementRule edit(DMECoverageRequirementRule rule);
+  CoverageRequirementRule edit(CoverageRequirementRule rule);
 
   void deleteById(Long id);
 }

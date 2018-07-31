@@ -1,10 +1,9 @@
 package endpoint.controllers;
 
+import endpoint.database.CoverageRequirementRule;
 import endpoint.database.DataRepository;
-import endpoint.database.DMECoverageRequirementRule;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,7 @@ public class DataController {
 
   @GetMapping(value = "/api/data")
   @CrossOrigin(origins = "http://localhost:4200")
-  public Collection<DMECoverageRequirementRule> showAll() {
+  public Iterable<CoverageRequirementRule> showAll() {
     return repository.findAll();
   }
 
@@ -52,8 +51,8 @@ public class DataController {
    * @return the data from the repository
    */
   @GetMapping("/api/data/{id}")
-  public DMECoverageRequirementRule getRule(@PathVariable long id) {
-    Optional<DMECoverageRequirementRule> rule = repository.findById(id);
+  public CoverageRequirementRule getRule(@PathVariable long id) {
+    Optional<CoverageRequirementRule> rule = repository.findById(id);
 
     if (!rule.isPresent()) {
       throw new RuleNotFoundException();
@@ -68,8 +67,8 @@ public class DataController {
    * @return the response from the server
    */
   @PostMapping("/api/data")
-  public ResponseEntity<Object> addRule(@RequestBody DMECoverageRequirementRule rule) {
-    DMECoverageRequirementRule savedDatum = repository.save(rule);
+  public ResponseEntity<Object> addRule(@RequestBody CoverageRequirementRule rule) {
+    CoverageRequirementRule savedDatum = repository.save(rule);
     URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
         .buildAndExpand(savedDatum.getId()).toUri();
     return ResponseEntity.created(location).build();
@@ -88,8 +87,9 @@ public class DataController {
    * @return the response from the server
    */
   @PutMapping("/api/data/{id}")
-  public ResponseEntity<Object> updateRule(@RequestBody DMECoverageRequirementRule rule, @PathVariable long id) {
-    Optional<DMECoverageRequirementRule> datumOptional = repository.findById(id);
+  public ResponseEntity<Object> updateRule(@RequestBody CoverageRequirementRule rule,
+      @PathVariable long id) {
+    Optional<CoverageRequirementRule> datumOptional = repository.findById(id);
 
     if (!datumOptional.isPresent()) {
       return ResponseEntity.notFound().build();
@@ -101,7 +101,6 @@ public class DataController {
 
   @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such rule")  // 404
   public class RuleNotFoundException extends RuntimeException {
-    // ...
   }
 
 

@@ -1,7 +1,7 @@
 package endpoint.controllers;
 
+import endpoint.database.CoverageRequirementRule;
 import endpoint.database.DataService;
-import endpoint.database.DMECoverageRequirementRule;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class HomeController {
    */
   @RequestMapping("/")
   public String index(Model model) {
-    List<DMECoverageRequirementRule> data = dataService.findAll();
+    Iterable<CoverageRequirementRule> data = dataService.findAll();
     model.addAttribute("allPosts", data);
     return "index";
   }
@@ -56,11 +56,11 @@ public class HomeController {
    */
   @GetMapping("/data")
   public String data(Model model) {
-    List<DMECoverageRequirementRule> foo = dataService.findAll();
+    Iterable<CoverageRequirementRule> foo = dataService.findAll();
     model.addAttribute("dataEntries", foo);
-    List<String> bar = DMECoverageRequirementRule.getFields();
+    List<String> bar = CoverageRequirementRule.getFields();
     model.addAttribute("headers", bar);
-    model.addAttribute("datum", new DMECoverageRequirementRule());
+    model.addAttribute("datum", new CoverageRequirementRule());
 
     return "data";
   }
@@ -73,7 +73,8 @@ public class HomeController {
    * @return an object that contains the model and view of the data page
    */
   @PostMapping("/data")
-  public ModelAndView saveDatum(@ModelAttribute DMECoverageRequirementRule datum, BindingResult errors) {
+  public ModelAndView saveDatum(@ModelAttribute CoverageRequirementRule datum,
+      BindingResult errors) {
 
 
     if (errors.hasErrors()) {

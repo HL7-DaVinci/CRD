@@ -49,14 +49,16 @@ dependencies {
 
 
 task setupDB {
-    String setupScriptFullpath = System.getProperty("user.dir") + "/src/main/resources/db/setup_db.sql"
-    String sampleDataFullpath = System.getProperty("user.dir") + "/src/main/resources/db/sample_data.csv"
+    String setupScriptFullpath = file(".").absolutePath + "/src/main/resources/db/setup_db.sql"
+    String sampleDataFullpath = file(".").absolutePath + "/src/main/resources/db/sample_data.csv"
     String loadSampleDataSqlCommand = "COPY coverage_requirement_rules FROM '"+sampleDataFullpath+"' DELIMITER ',' NULL as 'null' QUOTE '\"' CSV HEADER;"
 
-    exec {
-        commandLine 'psql', 'postgres', '-c', "CREATE DATABASE dme;"
-        ignoreExitValue true  // ignore errors since database might already exist
+    doFirst {
+        exec {
+            commandLine 'psql', 'postgres', '-c', "CREATE DATABASE dme;"
+            ignoreExitValue true  // ignore errors since database might already exist
+        }
+        exec { commandLine 'psql', '-d', 'dme', '-a', '-f', setupScriptFullpath }
+        exec { commandLine 'psql', 'dme', '-c', loadSampleDataSqlCommand }
     }
-    exec { commandLine 'psql', '-d', 'dme', '-a', '-f', setupScriptFullpath }
-    exec { commandLine 'psql', 'dme', '-c', loadSampleDataSqlCommand }
 }
