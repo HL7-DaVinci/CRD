@@ -8,6 +8,9 @@ allprojects {
     }
 
     repositories {
+        mavenCentral()
+        jcenter{ url "http://jcenter.bintray.com/" }
+        maven { url "https://jitpack.io" }
         jcenter() 
     }
 

@@ -1,10 +1,26 @@
 package fhir.restful.controllers;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
 import fhir.restful.database.DataService;
 import fhir.restful.database.Datum;
 
+import java.util.Calendar;
 import java.util.List;
 
+import org.hl7.davinci.CrdRequestCreator;
+import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.EligibilityRequest;
+import org.hl7.fhir.r4.model.EligibilityResponse;
+import org.hl7.fhir.r4.model.Endpoint;
+import org.hl7.fhir.r4.model.Enumerations;
+import org.hl7.fhir.r4.model.Organization;
+import org.hl7.fhir.r4.model.Parameters;
+
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.ResourceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 
-
 /**
  * Defines pages by searching for returned string in the resources/templates directory.
  * Making changes here will alter the home page.
@@ -25,6 +40,8 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 public class HomeController {
+  static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+
 
   @Autowired
   private DataService dataService;
@@ -39,6 +56,11 @@ public class HomeController {
     List<Datum> data = dataService.findAll();
     model.addAttribute("allPosts", data);
     return "index";
+  }
+
+  @RequestMapping("/login")
+  public String login(Model model) {
+    return "login";
   }
 
   /**
@@ -60,7 +82,7 @@ public class HomeController {
   /**
    * Accepts form submissions to create new entries in the database, then redirects to the
    * data page to keep the user on the same page and show the change to the database.
-   * @param datum the data to be added to the database
+   * @param datum the data object to be added to the database
    * @param errors any errors incurred from the form submission
    * @return an object that contains the model and view of the data page
    */
@@ -69,10 +91,12 @@ public class HomeController {
 
 
     if (errors.hasErrors()) {
-      System.out.println("There was a error " + errors);
+      logger.warn("There was a error " + errors);
     }
     dataService.create(datum);
 
     return new ModelAndView("redirect:data");
   }
+
+
 }
