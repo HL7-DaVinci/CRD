@@ -14,7 +14,7 @@ This software lets EHR vendors and payer organizations examine how the proposed 
 	* `gradle build`
 1. Running from the command line
 	* Run the fhir server
-		* `gradle :server:appRun`
+		* `gradle :server:bootRun`
 	* Run the testing client
 		* `gradle :testingClient:run`
 	* Run the creator tool
@@ -31,5 +31,5 @@ This software lets EHR vendors and payer organizations examine how the proposed 
 ### Running from the UI
 
 * Select the gradle tool window
-* Choose CRD --> :server --> Tasks --> gretty --> appRun
+* Choose CRD --> :server --> Tasks --> application --> bootRun
 * Run TestClient.main()

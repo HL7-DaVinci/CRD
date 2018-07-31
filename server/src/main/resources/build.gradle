@@ -1,0 +1,8 @@
+task webpack(type: Exec) {
+    inputs.file("package-lock.json").withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.dir("resources").withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.dir("static/js")
+    outputs.cacheIf { true }
+
+    commandLine "$projectDir/node_modules/.bin/webpack", "static/js/index.js", "static/js/bundle.js"
+}

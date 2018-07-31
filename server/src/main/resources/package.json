@@ -1,0 +1,19 @@
+{
+  "name": "resources",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.10",
+    "sticky-table-headers": "^0.1.24"
+  },
+  "devDependencies": {
+    "webpack": "^2.7.0"
+  }
+}
