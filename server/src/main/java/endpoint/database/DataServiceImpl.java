@@ -1,7 +1,5 @@
 package endpoint.database;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -20,22 +18,22 @@ public class DataServiceImpl implements DataService {
   private DataRepository dataRepository;
 
   @Override
-  public List<DMECoverageRequirementRule> findAll() {
+  public Iterable<CoverageRequirementRule> findAll() {
     return this.dataRepository.findAll();
   }
 
   @Override
-  public DMECoverageRequirementRule findById(Long id) {
+  public CoverageRequirementRule findById(Long id) {
     return this.dataRepository.findById(id).get();
   }
 
   @Override
-  public DMECoverageRequirementRule create(DMECoverageRequirementRule rule) {
+  public CoverageRequirementRule create(CoverageRequirementRule rule) {
     return this.dataRepository.save(rule);
   }
 
   @Override
-  public DMECoverageRequirementRule edit(DMECoverageRequirementRule rule) {
+  public CoverageRequirementRule edit(CoverageRequirementRule rule) {
     return this.dataRepository.save(rule);
   }
 

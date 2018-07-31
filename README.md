@@ -20,6 +20,13 @@ This software lets EHR vendors and payer organizations examine how the proposed 
 	* Run the creator tool
 		* `gradle :creator:run -PappArgs="['/tmp/']"`
 
+## Seting up the DB
+1. Install and run postgresql
+1. Run the gradle task, it will create a database named 'dme' and populate it with a rules table, and the sample rules will be loaded from the csv file.
+  * `gradle setupDb` 
+
+This task can also be run to reset the data in the table to match the csv.
+  
 ## Developing
 ### Setup
 

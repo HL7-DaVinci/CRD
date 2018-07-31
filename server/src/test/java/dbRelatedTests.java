@@ -9,9 +9,13 @@
 //import java.sql.*;
 //
 //import static org.junit.jupiter.api.Assertions.assertEquals;
-//
+
+// TODO: implement some tests using the spring defined db (use jpa)
+
+
 //class dbRelatedTests {
-//    private static String TEST_DB_NAME = "dme_ephemeral";
+
+  //    private static String TEST_DB_NAME = "dme_ephemeral";
 //    private static String DB_SERVER_URL = "localhost";
 //
 //
@@ -91,9 +95,9 @@
 //        assertEquals("https://cdn2.vectorstock.com/i/1000x1000/44/21/old-fashioned-dancing-penguin-in-comic-hat-vector-2664421.jpg",r.getInfoLink());
 //        assertEquals(true,r.getNoAuthNeeded());
 //    }
-//
-//
-//
-//
-//
+
+
+
+
+
 //}
