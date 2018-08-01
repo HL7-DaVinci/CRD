@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 public class TestClient {
   static final Logger logger = LoggerFactory.getLogger(TestClient.class);
 
-
   /**
    * Sets up the context and client and runs the test.
    * @param args main function args
@@ -48,7 +47,7 @@ public class TestClient {
   public static void runCrd(IGenericClient client) {
     // build the parameters for the CRD
     Calendar cal = Calendar.getInstance();
-    cal.set(1970, Calendar.JULY, 4);
+    cal.set(1948, Calendar.JULY, 4);
     Parameters crdParams = CrdRequestCreator
         .createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
 
@@ -62,7 +61,7 @@ public class TestClient {
 
     // make sure the return parameters are valid
     if (retParams == null) {
-      logger.error("ERROR: retParams is null");
+      System.out.println("ERROR: retParams is null");
       return;
     }
 
@@ -85,74 +84,74 @@ public class TestClient {
       switch (part.getName()) {
         case "eligibilityResponse":
           eligibilityResponse = (EligibilityResponse) part.getResource();
-          logger.debug("CRD: got response.eligibilityResponse");
+          System.out.println("CRD: got response.eligibilityResponse");
           break;
         case "requestProvider":
           returnProvider = (Practitioner) part.getResource();
-          logger.debug("CRD: got response.requestProvider");
+          System.out.println("CRD: got response.requestProvider");
           break;
         case "request":
           returnEligibilityRequest = (EligibilityRequest) part.getResource();
-          logger.debug("CRD: got response.request");
+          System.out.println("CRD: got response.request");
           break;
         case "insurer":
           returnInsurer = (Organization) part.getResource();
-          logger.debug("CRD: got response.insurer");
+          System.out.println("CRD: got response.insurer");
           break;
         case "coverage":
           returnCoverage = (Coverage) part.getResource();
-          logger.debug("CRD: got response.coverage");
+          System.out.println("CRD: got response.coverage");
           break;
         case "endPoint":
           returnEndpoint = (Endpoint) part.getResource();
-          logger.debug("CRD: got response.endpoint");
+          System.out.println("CRD: got response.endpoint");
           break;
         case "service":
           ResourceType serviceType = part.getResource().getResourceType();
           switch (serviceType) {
             case Procedure:
-              logger.debug("CRD: got response.service of type Procedure");
+              System.out.println("CRD: got response.service of type Procedure");
               break;
             case HealthcareService:
-              logger.debug("CRD: got response.service of type HealthcareService");
+              System.out.println("CRD: got response.service of type HealthcareService");
               break;
             case ServiceRequest:
-              logger.debug("CRD: got response.service of type ServiceRequest");
+              System.out.println("CRD: got response.service of type ServiceRequest");
               break;
             case MedicationRequest:
-              logger.debug("CRD: got response.service of type MedicationRequest");
+              System.out.println("CRD: got response.service of type MedicationRequest");
               break;
             case Medication:
-              logger.debug("CRD: got response.service of type Medication");
+              System.out.println("CRD: got response.service of type Medication");
               break;
             case Device:
-              logger.debug("CRD: got response.service of type Device");
+              System.out.println("CRD: got response.service of type Device");
               break;
             case DeviceRequest:
-              logger.debug("CRD: got response.service of type DeviceRequest");
+              System.out.println("CRD: got response.service of type DeviceRequest");
               break;
             default:
-              logger.debug("Warning: unexpected response.service type");
+              System.out.println("Warning: unexpected response.service type");
               break;
           }
           break;
         default:
-          logger.warn("Warning: unexpected parameter part: " + part.getName());
+          System.out.println("Warning: unexpected parameter part: " + part.getName());
           break;
       }
     }
 
-    logger.debug("returned from CRD call!");
+    System.out.println("returned from CRD call!");
     if (eligibilityResponse != null) {
-      logger.debug("CRD Disposition: " + eligibilityResponse.getDisposition());
+      System.out.println("CRD Disposition: " + eligibilityResponse.getDisposition());
     } else {
-      logger.error("ERROR: eligibilityResponse is null");
+      System.out.println("ERROR: eligibilityResponse is null");
     }
   }
 
   static void printResource(Resource obj) {
     FhirContext ctx = FhirContext.forR4();
     String encoded = ctx.newXmlParser().encodeResourceToString(obj);
-    logger.debug("\n" + encoded + "\n");
+    System.out.println("\n" + encoded + "\n");
   }
 }

@@ -1,24 +1,10 @@
-package fhir.restful.controllers;
+package endpoint.controllers;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
-import fhir.restful.database.DataService;
-import fhir.restful.database.Datum;
+import endpoint.database.CoverageRequirementRule;
+import endpoint.database.DataService;
 
-import java.util.Calendar;
 import java.util.List;
 
-import org.hl7.davinci.CrdRequestCreator;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.EligibilityRequest;
-import org.hl7.fhir.r4.model.EligibilityResponse;
-import org.hl7.fhir.r4.model.Endpoint;
-import org.hl7.fhir.r4.model.Enumerations;
-import org.hl7.fhir.r4.model.Organization;
-import org.hl7.fhir.r4.model.Parameters;
-
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.ResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +39,7 @@ public class HomeController {
    */
   @RequestMapping("/")
   public String index(Model model) {
-    List<Datum> data = dataService.findAll();
+    Iterable<CoverageRequirementRule> data = dataService.findAll();
     model.addAttribute("allPosts", data);
     return "index";
   }
@@ -70,11 +56,11 @@ public class HomeController {
    */
   @GetMapping("/data")
   public String data(Model model) {
-    List<Datum> foo = dataService.findAll();
+    Iterable<CoverageRequirementRule> foo = dataService.findAll();
     model.addAttribute("dataEntries", foo);
-    List<String> bar = Datum.getFields();
+    List<String> bar = CoverageRequirementRule.getFields();
     model.addAttribute("headers", bar);
-    model.addAttribute("datum", new Datum());
+    model.addAttribute("datum", new CoverageRequirementRule());
 
     return "data";
   }
@@ -87,7 +73,8 @@ public class HomeController {
    * @return an object that contains the model and view of the data page
    */
   @PostMapping("/data")
-  public ModelAndView saveDatum(@ModelAttribute Datum datum, BindingResult errors) {
+  public ModelAndView saveDatum(@ModelAttribute CoverageRequirementRule datum,
+      BindingResult errors) {
 
 
     if (errors.hasErrors()) {

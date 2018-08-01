@@ -1,10 +1,9 @@
-package fhir.restful.controllers;
+package endpoint.controllers;
 
-import fhir.restful.database.DataRepository;
-import fhir.restful.database.Datum;
+import endpoint.database.CoverageRequirementRule;
+import endpoint.database.DataRepository;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +29,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 public class DataController {
 
+
   @Autowired
   private DataRepository repository;
 
+  @Autowired
   public DataController(DataRepository repository) {
     this.repository = repository;
 
@@ -40,7 +41,7 @@ public class DataController {
 
   @GetMapping(value = "/api/data")
   @CrossOrigin(origins = "http://localhost:4200")
-  public Collection<Datum> showAll() {
+  public Iterable<CoverageRequirementRule> showAll() {
     return repository.findAll();
   }
 
@@ -50,56 +51,56 @@ public class DataController {
    * @return the data from the repository
    */
   @GetMapping("/api/data/{id}")
-  public Datum getDatum(@PathVariable long id) {
-    Optional<Datum> datum = repository.findById(id);
+  public CoverageRequirementRule getRule(@PathVariable long id) {
+    Optional<CoverageRequirementRule> rule = repository.findById(id);
 
-    if (!datum.isPresent()) {
-      throw new DatumNotFoundException();
+    if (!rule.isPresent()) {
+      throw new RuleNotFoundException();
     }
 
-    return datum.get();
+    return rule.get();
   }
 
   /**
    * Allows post requests to add data to the repository.
-   * @param datum the object to put into the repository
+   * @param rule the object to put into the repository
    * @return the response from the server
    */
   @PostMapping("/api/data")
-  public ResponseEntity<Object> addDatum(@RequestBody Datum datum) {
-    Datum savedDatum = repository.save(datum);
+  public ResponseEntity<Object> addRule(@RequestBody CoverageRequirementRule rule) {
+    CoverageRequirementRule savedDatum = repository.save(rule);
     URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
         .buildAndExpand(savedDatum.getId()).toUri();
     return ResponseEntity.created(location).build();
   }
 
   @DeleteMapping("/api/data/{id}")
-  public long deleteDatum(@PathVariable long id) {
+  public long deleteRule(@PathVariable long id) {
     repository.deleteById(id);
     return id;
   }
 
   /**
    * Allows updated of data through the REST API.
-   * @param datum the new data
+   * @param rule the new data
    * @param id the id of the data to be replaced
    * @return the response from the server
    */
   @PutMapping("/api/data/{id}")
-  public ResponseEntity<Object> updateDatum(@RequestBody Datum datum, @PathVariable long id) {
-    Optional<Datum> datumOptional = repository.findById(id);
+  public ResponseEntity<Object> updateRule(@RequestBody CoverageRequirementRule rule,
+      @PathVariable long id) {
+    Optional<CoverageRequirementRule> datumOptional = repository.findById(id);
 
     if (!datumOptional.isPresent()) {
       return ResponseEntity.notFound().build();
     }
-    datum.setId(id);
-    repository.save(datum);
+    rule.setId(id);
+    repository.save(rule);
     return ResponseEntity.noContent().build();
   }
 
-  @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such datum")  // 404
-  public class DatumNotFoundException extends RuntimeException {
-    // ...
+  @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such rule")  // 404
+  public class RuleNotFoundException extends RuntimeException {
   }
 
 

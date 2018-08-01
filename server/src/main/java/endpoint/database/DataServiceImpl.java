@@ -1,6 +1,4 @@
-package fhir.restful.database;
-
-import java.util.List;
+package endpoint.database;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -20,23 +18,23 @@ public class DataServiceImpl implements DataService {
   private DataRepository dataRepository;
 
   @Override
-  public List<Datum> findAll() {
+  public Iterable<CoverageRequirementRule> findAll() {
     return this.dataRepository.findAll();
   }
 
   @Override
-  public Datum findById(Long id) {
+  public CoverageRequirementRule findById(Long id) {
     return this.dataRepository.findById(id).get();
   }
 
   @Override
-  public Datum create(Datum datum) {
-    return this.dataRepository.save(datum);
+  public CoverageRequirementRule create(CoverageRequirementRule rule) {
+    return this.dataRepository.save(rule);
   }
 
   @Override
-  public Datum edit(Datum datum) {
-    return this.dataRepository.save(datum);
+  public CoverageRequirementRule edit(CoverageRequirementRule rule) {
+    return this.dataRepository.save(rule);
   }
 
   @Override
