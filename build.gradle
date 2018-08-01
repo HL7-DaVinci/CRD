@@ -11,14 +11,16 @@ allprojects {
         mavenCentral()
         jcenter{ url "http://jcenter.bintray.com/" }
         maven { url "https://jitpack.io" }
-        jcenter() 
+        jcenter()
     }
+
 
 }
 
 subprojects {
 
     version = '0.0.1'
+    group = 'org.mitre'
 
     apply plugin: 'java'
 

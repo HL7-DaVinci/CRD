@@ -96,8 +96,8 @@ public class CrdRequestCreator {
     DaVinciEligibilityRequest.ServiceInformation serviceInformation = new DaVinciEligibilityRequest
         .ServiceInformation();
 
-    Coding kneeReplacement = new Coding().setCode("27438").setSystem("http://www.ama-assn.org/go/cpt").setDisplay("Knee Replacement");
-    serviceInformation.setServiceRequestType(new CodeableConcept().addCoding(kneeReplacement));
+    Coding walker = new Coding().setCode("E0130").setSystem("http://www.ama-assn.org/go/cpt").setDisplay("Walker");
+    serviceInformation.setServiceRequestType(new CodeableConcept().addCoding(walker));
     List<Reference> patientContext = new ArrayList<>();
     patientContext.add(generateReference(condition));
     serviceInformation.setPatientContext(patientContext);

@@ -1,0 +1,11 @@
+# avoid a hibernate error message, fix from https://github.com/pgjdbc/pgjdbc/issues/1102
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation: true
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost/dme
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
