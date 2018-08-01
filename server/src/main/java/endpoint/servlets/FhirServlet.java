@@ -8,10 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-<<<<<<< HEAD:server/src/main/java/endpoint/servlets/FhirServlet.java
 //import fhir.restful.DaVinciAuthInterceptor;
-=======
->>>>>>> a9c803c75eebd31f4b2356d92539bdd7678fe5fe:server/src/main/java/endpoint/servlets/FhirServlet.java
 import org.hl7.davinci.DaVinciEligibilityRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
