@@ -3,7 +3,7 @@ package endpoint.servlets;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
-import endpoint.CoverageRequirementsDiscoveryOperationUsingDatabase;
+import endpoint.CoverageRequirementsDiscoveryOperation;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -22,7 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class FhirServlet extends RestfulServer {
   private static final long serialVersionUID = 1L;
 
-  @Autowired CoverageRequirementsDiscoveryOperationUsingDatabase crdOperation;
+  @Autowired
+  CoverageRequirementsDiscoveryOperation crdOperation;
 
   /**
    * The initialize method is automatically called when the servlet is starting up, so it can be

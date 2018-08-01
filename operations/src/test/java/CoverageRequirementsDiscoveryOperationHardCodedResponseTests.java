@@ -1,4 +1,4 @@
-import org.hl7.davinci.CoverageRequirementsDiscoveryOperation;
+import org.hl7.davinci.CoverageRequirementsDiscoveryOperationHardCodedResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class CoverageRequirementsDiscoveryTests {
+public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
 
     @Test
     @DisplayName("Test CRD with good data.")
     void testCRDSuccess() {
-        CoverageRequirementsDiscoveryOperation crdop = new CoverageRequirementsDiscoveryOperation();
+        CoverageRequirementsDiscoveryOperationHardCodedResponse crdop = new CoverageRequirementsDiscoveryOperationHardCodedResponse();
 
         // valid parameters
         Parameters.ParametersParameterComponent request = buildRequest(
@@ -37,7 +37,7 @@ public class CoverageRequirementsDiscoveryTests {
     @Test
     @DisplayName("Test CRD with bad data.")
     void testCRDFail() {
-        CoverageRequirementsDiscoveryOperation crdop = new CoverageRequirementsDiscoveryOperation();
+        CoverageRequirementsDiscoveryOperationHardCodedResponse crdop = new CoverageRequirementsDiscoveryOperationHardCodedResponse();
 
         // empty parameters
         Parameters.ParametersParameterComponent request = new Parameters.ParametersParameterComponent();

@@ -1,71 +1,63 @@
-package endpoint;
+package org.hl7.davinci;
 
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
-import endpoint.database.CoverageRequirementRule;
-import endpoint.database.CoverageRequirementRuleFinder;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
+
 import java.util.List;
-import org.hl7.davinci.CoverageRequirementsDiscoveryOperationInterface;
-import org.hl7.davinci.DaVinciEligibilityRequest;
+
 import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.Device;
+import org.hl7.fhir.r4.model.EligibilityRequest;
 import org.hl7.fhir.r4.model.EligibilityResponse;
 import org.hl7.fhir.r4.model.Endpoint;
-import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.Procedure;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+
+
 
 /**
- * An implementation of the coverage-requirements-discovery operation that finds a matching rule in
- * the database.
+ * A concrete implementation of the coverage-requirements-discovery operation.
  */
-@Component
-public class CoverageRequirementsDiscoveryOperationUsingDatabase
+public class CoverageRequirementsDiscoveryOperationHardCodedResponse
     implements CoverageRequirementsDiscoveryOperationInterface {
-
-  static final Logger logger =
-      LoggerFactory.getLogger(CoverageRequirementsDiscoveryOperationUsingDatabase.class);
-
-  @Autowired CoverageRequirementRuleFinder ruleFinder;
-
+  private static final Logger logger = LoggerFactory
+      .getLogger(CoverageRequirementsDiscoveryOperationHardCodedResponse.class);
 
   /**
-   * A custom fhir operation to generate a davinci eligibility response.
-   * @param request This must contain all relevant parts.
-   * @param endpoint The endpoint.
-   * @param requestQualification This is a codeable concept.
-   * @return
+   * Submits the CRD request.
+   * @param request the request to be submitted
+   * @param endpoint the endpoint to submit the request to
+   * @param requestQualification what kind of request it is
+   * @return the parameters returned from the server
    */
   @Operation(name = "$coverage-requirements-discovery", idempotent = true)
   public Parameters coverageRequirementsDiscovery(
       @OperationParam(name = "request") Parameters.ParametersParameterComponent request,
       @OperationParam(name = "endpoint") Endpoint endpoint,
-      @OperationParam(name = "requestQualification") CodeableConcept requestQualification) {
+      @OperationParam(name = "requestQualification") CodeableConcept requestQualification
+  ) {
     logger.debug("coverageRequirementsDiscovery: start");
 
     Parameters retVal = new Parameters();
 
-    DaVinciEligibilityRequest eligibilityRequest = null;
+    EligibilityRequest eligibilityRequest = null;
     Patient patient = null;
     Coverage coverage = null;
     Practitioner provider = null;
     Organization insurer = null;
     Location facility = null;
+    // supportingInformation
+    // serviceInformation
 
     // grab the list of parameters
     List<Parameters.ParametersParameterComponent> paramList = request.getPart();
@@ -75,7 +67,7 @@ public class CoverageRequirementsDiscoveryOperationUsingDatabase
       switch (part.getName()) {
         case "eligibilityrequest":
           logger.debug("CRD: got eligibilityRequest");
-          eligibilityRequest = (DaVinciEligibilityRequest) part.getResource();
+          eligibilityRequest = (EligibilityRequest) part.getResource();
           break;
         case "patient":
           logger.debug("CRD: got patient");
@@ -127,16 +119,16 @@ public class CoverageRequirementsDiscoveryOperationUsingDatabase
               logger.debug("CRD: got request.serviceInformationReferenceType of type Procedure");
               break;
             case HealthcareService:
-              logger.debug(
-                  "CRD: got request.serviceInformationReferenceType of type HealthcareService");
+              logger.debug("CRD: got request.serviceInformationReferenceType "
+                  + "of type HealthcareService");
               break;
             case ServiceRequest:
-              logger.debug(
-                  "CRD: got request.serviceInformationReferenceType of type ServiceRequest");
+              logger.debug("CRD: got request.serviceInformationReferenceType "
+                  + "of type ServiceRequest");
               break;
             case MedicationRequest:
-              logger.debug(
-                  "CRD: got request.serviceInformationReferenceType of type MedicationRequest");
+              logger.debug("CRD: got request.serviceInformationReferenceType "
+                  + "of type MedicationRequest");
               break;
             case Medication:
               logger.debug("CRD: got request.serviceInformationReferenceType of type Medication");
@@ -145,8 +137,8 @@ public class CoverageRequirementsDiscoveryOperationUsingDatabase
               logger.debug("CRD: got request.serviceInformationReferenceType of type Device");
               break;
             case DeviceRequest:
-              logger.debug(
-                  "CRD: got request.serviceInformationReferenceType of type DeviceRequest");
+              logger.debug("CRD: got request.serviceInformationReferenceType "
+                  + "of type DeviceRequest");
               break;
             default:
               logger.warn("Warning: unexpected request.serviceInformationReferenceType type");
@@ -170,48 +162,17 @@ public class CoverageRequirementsDiscoveryOperationUsingDatabase
       return retVal;
     }
 
-    // response should be populated with individual responses for each item in this list of
-    // requests, so we make a list of requested cpt codes
-    List<String> cptCodes = new ArrayList<String>();
-    List<DaVinciEligibilityRequest.ServiceInformation> serviceInformationList =
-        eligibilityRequest.getServiceInformation();
-    for (DaVinciEligibilityRequest.ServiceInformation serviceInformation : serviceInformationList) {
-      List<Coding> codings = serviceInformation.getServiceRequestType().getCoding();
-      for (Coding coding : codings) {
-        String system = coding.getSystem();
-        if (system.equalsIgnoreCase(
-            "http://www.ama-assn.org/go/cpt")) { // currently only cpt codes supported
-          cptCodes.add(coding.getCode());
-          break;
-        }
-      }
-    }
-
-    // pull out the patient info
-    LocalDate birthDate = toLocalDate(patient.getBirthDate());
-    int age = getAgeOnDateInYears(birthDate, LocalDate.now());
-    Enumerations.AdministrativeGender gender = patient.getGender();
-
-    // lookup the rule for each cpt code
-    StringBuilder responseDescription = new StringBuilder();
-    for (String cptCode : cptCodes) {
-      CoverageRequirementRule rule = ruleFinder.findRule(age, gender, cptCode);
-      if (rule == null) {
-        responseDescription.append(cptCode + " = no information available\n");
-      } else {
-        responseDescription.append(
-            cptCode
-                + " = info: "
-                + rule.getInfoLink()
-                + " no auth needed:"
-                + rule.getNoAuthNeeded()
-                + "\n");
-      }
+    // print out the patient name
+    assert patient != null;
+    if (patient.hasName()) {
+      logger.debug("CRD: Patient Name: " + patient.getName().get(0).getText());
+    } else {
+      logger.debug("CRD: No Patient Name provided");
     }
 
     // start building the response
     EligibilityResponse eligibilityResponse = new EligibilityResponse();
-    eligibilityResponse.setDisposition(responseDescription.toString());
+    eligibilityResponse.setDisposition("this is a test");
 
     Endpoint finalEndPoint = new Endpoint();
     finalEndPoint.setAddress("http://www.mitre.org");
@@ -225,6 +186,15 @@ public class CoverageRequirementsDiscoveryOperationUsingDatabase
     response.addPart().setName("insurer").setResource(insurer);
     response.addPart().setName("coverage").setResource(coverage);
 
+    // add a few service resources to the parameters
+    Procedure procedure = new Procedure();
+    procedure.setId("procedure-1");
+    Device device = new Device();
+    device.setModel("LMNOP678");
+    response.addPart().setName("service").setResource(procedure);
+    response.addPart().setName("service").setResource(device);
+
+
     if (finalEndPoint != null) {
       response.addPart().setName("endPoint").setResource(finalEndPoint);
     }
@@ -233,20 +203,12 @@ public class CoverageRequirementsDiscoveryOperationUsingDatabase
     return retVal;
   }
 
-  boolean nullCheck(Resource obj, String objName) {
+  private boolean nullCheck(Resource obj, String objName) {
     if (obj == null) {
       logger.debug(objName + " is null");
       return true;
     } else {
       return false;
     }
-  }
-
-  static int getAgeOnDateInYears(LocalDate birthDate, LocalDate dateOfAge) {
-    return Period.between(birthDate, dateOfAge).getYears();
-  }
-
-  static LocalDate toLocalDate(Date date) {
-    return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
   }
 }
