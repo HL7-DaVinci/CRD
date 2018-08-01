@@ -1,12 +1,15 @@
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import endpoint.Application;
 import endpoint.database.CoverageRequirementRule;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,17 +21,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.IOException;
-
 
 /**
- * NOTE: Currently you should manually run "gradle setupDb" before running these tests
+ * NOTE: Currently you should manually run "gradle setupDb" before running these tests.
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes=Application.class)
+@SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-public class serverTest {
+public class ServerTest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -38,7 +39,10 @@ public class serverTest {
     return mapper.writeValueAsBytes(object);
   }
 
-  public static CoverageRequirementRule makeTestDatum(){
+  /**
+   * Build the tewt data.
+   */
+  public static CoverageRequirementRule makeTestDatum() {
     CoverageRequirementRule retVal = new CoverageRequirementRule();
     retVal.setInfoLink("test.com");
     retVal.setEquipmentCode("abc123");
@@ -73,7 +77,8 @@ public class serverTest {
 
   @Test
   public void checkPost() throws Exception {
-    MvcResult result = this.mockMvc.perform(post("/api/data").contentType(MediaType.APPLICATION_JSON)
+    MvcResult result = this.mockMvc.perform(post("/api/data")
+        .contentType(MediaType.APPLICATION_JSON)
         .content(convertObjectToJsonBytes(makeTestDatum())))
         .andExpect(status().isCreated())
         .andReturn();
@@ -92,17 +97,19 @@ public class serverTest {
   }
 
   /**
-   * TODO: Reenable this test once we can reset the Db each run (testing db?)
-   * @throws Exception
+   * TODO: Reenable this test once we can reset the Db each run (testing db?).
+   * @throws Exception when fails
    */
-//  @Test
-//  public void checkDelete() throws Exception {
-//    this.mockMvc.perform(delete("/api/data/5"))
-//        .andExpect(status().isOk());
-//    this.mockMvc.perform(get("/api/data/5"))
-//        .andExpect(status()
-//            .isNotFound());
-//  }
+  /*
+  @Test
+  public void checkDelete() throws Exception {
+    this.mockMvc.perform(delete("/api/data/5"))
+        .andExpect(status().isOk());
+    this.mockMvc.perform(get("/api/data/5"))
+        .andExpect(status()
+            .isNotFound());
+  }
+  */
 
   @Test
   public void checkNotFound() throws Exception {
