@@ -9,8 +9,6 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 //import fhir.restful.DaVinciAuthInterceptor;
-import endpoint.CoverageRequirementsDiscoveryOperationDatabaseVersion;
-import org.hl7.davinci.CoverageRequirementsDiscoveryOperation;
 import org.hl7.davinci.DaVinciEligibilityRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -54,9 +52,8 @@ public class FhirServlet extends RestfulServer {
 
     // Now register the logging interceptor
     LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
-    //registerInterceptor(authInterceptor);
-//    DaVinciAuthInterceptor authInterceptor = new DaVinciAuthInterceptor();
-//    registerInterceptor(authInterceptor);
+    // DaVinciAuthInterceptor authInterceptor = new DaVinciAuthInterceptor();
+    // registerInterceptor(authInterceptor);
 
     registerInterceptor(loggingInterceptor);
 
