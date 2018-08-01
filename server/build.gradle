@@ -2,7 +2,9 @@ buildscript {
     ext {
         springBootVersion = '2.0.3.RELEASE'
     }
-
+    repositories {
+        mavenCentral()
+    }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
@@ -14,8 +16,10 @@ plugins {
 }
 
 apply plugin: 'war'
+apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+
 
 
 dependencies {
