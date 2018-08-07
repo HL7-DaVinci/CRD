@@ -11,37 +11,14 @@
 
     <link rel="stylesheet" href="main.css">
 
-    <title>Hello, world!</title>
+    <title>CRD Admin Panel</title>
 </head>
 <body>
-<h1 class="header" id="henlo">Hello, DATA!</h1>
+<div th:replace="header :: nav-bar"></div>
+<div class="container-fluid">
 <h1 th:text="${foo}"></h1>
 
-<div class="scroll-table">
-    <table class="table-responsive table-striped table">
-        <thead>
-            <tr>
-                <th:block th:each="header : ${headers}">
-                    <td th:text="${header}"></td>
-                </th:block>
-            </tr>
-        </thead>
-        <tbody>
-        <th:block th:each="dataEntry : ${dataEntries}">
-            <tr>
-                <th:block th:each="header : ${headers}">
-
-
-                    <td th:text="${dataEntry.__${header}__}" class="col-xs-2"></td>
-  
-                </th:block>
-            </tr>
-        </th:block>
-        </tbody>
-
-    </table>
-
-</div>
+<div th:replace="rules-table :: table"></div>
 
 <div>
     <form action="#" th:action="@{/data}" th:object="${datum}" method="post">
@@ -86,6 +63,7 @@
             </tr>
         </table>
     </form>
+</div>
 </div>
 
 <!-- Optional JavaScript -->

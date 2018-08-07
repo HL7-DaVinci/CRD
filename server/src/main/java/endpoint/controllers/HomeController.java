@@ -39,8 +39,8 @@ public class HomeController {
    */
   @RequestMapping("/")
   public String index(Model model) {
-    Iterable<CoverageRequirementRule> data = dataService.findAll();
-    model.addAttribute("allPosts", data);
+    Iterable<CoverageRequirementRule> rules = dataService.findAll();
+    model.addAttribute("rules", rules);
     return "index";
   }
 
@@ -56,10 +56,10 @@ public class HomeController {
    */
   @GetMapping("/data")
   public String data(Model model) {
-    Iterable<CoverageRequirementRule> foo = dataService.findAll();
-    model.addAttribute("dataEntries", foo);
-    List<String> bar = CoverageRequirementRule.getFields();
-    model.addAttribute("headers", bar);
+    Iterable<CoverageRequirementRule> rules = dataService.findAll();
+    model.addAttribute("rules", rules);
+    List<String> headers = CoverageRequirementRule.getFields();
+    model.addAttribute("headers", headers);
     model.addAttribute("datum", new CoverageRequirementRule());
 
     return "data";
