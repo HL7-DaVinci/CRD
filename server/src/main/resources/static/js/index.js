@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import {Component} from 'react';
 function component () {
 
   var element = document.createElement('div');
