@@ -2,9 +2,6 @@ buildscript {
     ext {
         springBootVersion = '2.0.3.RELEASE'
     }
-    repositories {
-        mavenCentral()
-    }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
@@ -12,7 +9,6 @@ buildscript {
 
 plugins {
     id 'net.ltgt.apt' version '0.10'
-
 }
 
 apply plugin: 'war'
@@ -32,12 +28,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('org.springframework.boot:spring-boot-starter-data-rest')
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-    // you might have to get the cert in order for this to work
-//    compile('org.mitre:openid-connect-parent:1.3.1')
-//    compile('org.mitre:openid-connect-common:1.3.1')
-//    compile('org.mitre:openid-connect-server:1.3.1')
-//    compile('org.mitre:openid-connect-client:1.3.1')
-
+    compile("org.springframework.boot:spring-boot-devtools")
 
     compileOnly('org.projectlombok:lombok')
     testCompile('org.springframework.boot:spring-boot-starter-test')
