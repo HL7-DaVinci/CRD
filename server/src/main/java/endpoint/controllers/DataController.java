@@ -4,6 +4,7 @@ import endpoint.database.CoverageRequirementRule;
 import endpoint.database.DataRepository;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +102,11 @@ public class DataController {
 
   @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such rule")  // 404
   public class RuleNotFoundException extends RuntimeException {
+  }
+
+  @GetMapping("/user/me")
+  public Principal user(Principal principal) {
+    return principal;
   }
 
 

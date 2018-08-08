@@ -123,7 +123,7 @@ public class CrdRequestCreator {
     Endpoint endpoint = new Endpoint();
     crdParams.addParameter().setName("endpoint").setResource(endpoint);
 
-    // create and add an CodeableConcpt object to the CRD parameters
+    // create and add a CodeableConcept object to the CRD parameters
     CodeableConcept requestQualification = new CodeableConcept();
     crdParams.addParameter().setName("requestQualification").setValue(requestQualification);
 
