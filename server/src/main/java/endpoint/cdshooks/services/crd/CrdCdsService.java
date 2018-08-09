@@ -52,7 +52,7 @@ public class CrdCdsService extends CdsService {
 
     CdsResponse response = new CdsResponse();
     Card card = new Card();
-    card.setSummary("im sitting on the doorstep eating bread and jam");
+    card.setSummary("empty card");
     response.addCard(card);
     return response;
   }
