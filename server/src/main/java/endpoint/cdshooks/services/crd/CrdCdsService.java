@@ -7,9 +7,11 @@ import endpoint.cdshooks.models.CdsResponse;
 import endpoint.cdshooks.models.CdsService;
 import endpoint.cdshooks.models.Hook;
 import endpoint.cdshooks.models.Prefetch;
+import endpoint.components.FhirComponents;
 import javax.validation.Valid;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.DeviceRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -27,18 +29,18 @@ public class CrdCdsService extends CdsService {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
   }
 
+  @Autowired
+  private FhirComponents fhirComponents;
+
   /**
    * Handle the post request to the service.
    * @param request The json request, parsed.
    * @return
    */
   public CdsResponse handleRequest(@Valid @RequestBody CrdCdsRequest request) {
-    FhirContext ctxR4 = FhirContext.forR4(); // TODO: get this injected instead
-    IParser parser = ctxR4.newJsonParser();
-
     DeviceRequest deviceRequest = null;
     for (String fhirResourceString : request.getContext().getOrdersFhirResourceStringList()) {
-      IBaseResource baseResource = parser.parseResource(fhirResourceString);
+      IBaseResource baseResource = fhirComponents.getJsonParser().parseResource(fhirResourceString);
       if (baseResource.getClass() == DeviceRequest.class) {
         deviceRequest = (DeviceRequest) baseResource;
       }
