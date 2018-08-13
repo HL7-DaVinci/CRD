@@ -17,6 +17,6 @@ spring:
 keycloak:
   auth-server-url: http://localhost:8180/auth
   realm: SpringBootKeycloak
-  resource: login-app
-  public-client: true
+  resource: dme-app-access
+  public-client: false
   principal-attribute: preferred_username
