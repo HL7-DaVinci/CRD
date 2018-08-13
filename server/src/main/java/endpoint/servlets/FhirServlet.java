@@ -5,15 +5,21 @@ import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.CorsInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
 import endpoint.CoverageRequirementsDiscoveryOperation;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-//import fhir.restful.DaVinciAuthInterceptor;
+
 import org.hl7.davinci.DaVinciEligibilityRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.cors.CorsConfiguration;
+
+
+
+//import fhir.restful.DaVinciAuthInterceptor;
 
 /**
  * In this example, we are using Servlet 3.0 annotations to define the URL pattern for this servlet,
