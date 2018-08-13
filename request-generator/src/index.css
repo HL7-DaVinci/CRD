@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+
+}
+.left-form { 
+  width: 50%;
+  float: left;
+  margin-top: 2%;
+
+}
+
+.submit-btn {
+  float: left;
+}
+
+
+div {
+  position: relative; /*  make label relate to div  */
+  padding-top: 10px;  /*  make space for label      */
+  font-size: 14px;
+}
+.floating-label {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.5;
+  left: 13px;
+  top: 17px;
+  transition: 0.2s ease all;
+  font-size: 14px;  
+}
+input:focus ~ .floating-label{
+  top: -14px;
+  opacity: 1;
+
+}
+
+input:not(:focus):not([value=""]):valid ~ .floating-label{
+  top: -14px;
+  opacity: 1;
+
+}
+
+.input-text:not(:focus):not([value=""]):valid{
+  border-color: #000000;
+
+}
+
+.input-text{
+  border-width:0px 0px 1px 9px;
+  border-style: solid none solid solid;
+}
+
+.btn-class{
+  border:2px;
+  border-style: solid solid solid solid;
+  background: linear-gradient(white, gray);
+
+}
+
+.right-form{
+  float:right;
+  width:50%;
+  margin-top:2%;
+}
+
