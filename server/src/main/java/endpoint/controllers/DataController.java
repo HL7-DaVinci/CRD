@@ -7,9 +7,13 @@ import java.net.URI;
 import java.security.Principal;
 import java.util.Optional;
 
+import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +21,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -26,7 +33,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 /**
  * Provides the REST interface that can be interacted with at [base]/api/data.
  */
-@CrossOrigin(maxAge = 3600)
 @RestController
 public class DataController {
 
@@ -40,8 +46,9 @@ public class DataController {
 
   }
 
+
   @GetMapping(value = "/api/data")
-  @CrossOrigin(origins = "http://localhost:4200")
+  @CrossOrigin
   public Iterable<CoverageRequirementRule> showAll() {
     return repository.findAll();
   }
@@ -51,6 +58,7 @@ public class DataController {
    * @param id the id of the desired data.
    * @return the data from the repository
    */
+  @CrossOrigin
   @GetMapping("/api/data/{id}")
   public CoverageRequirementRule getRule(@PathVariable long id) {
     Optional<CoverageRequirementRule> rule = repository.findById(id);
@@ -106,8 +114,24 @@ public class DataController {
 
   @GetMapping("/user/me")
   public Principal user(Principal principal) {
+
     return principal;
   }
+
+
+
+  @CrossOrigin
+  @RequestMapping(value = "/api/testing", method=RequestMethod.POST)
+  public String testingAPI(@RequestBody Object object) {
+    System.out.println(object);
+    return "Thanks for posting";
+  }
+
+//  @CrossOrigin
+//  @RequestMapping("/csrf")
+//  public CsrfToken csrf(CsrfToken token) {
+//    return token;
+//  }
 
 
 }
