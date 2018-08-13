@@ -121,17 +121,11 @@ public class DataController {
 
 
   @CrossOrigin
-  @RequestMapping(value = "/api/testing", method=RequestMethod.POST)
-  public String testingAPI(@RequestBody Object object) {
+  @RequestMapping(value = "/api/testing", method = RequestMethod.POST)
+  public String testingApi(@RequestBody Object object) {
     System.out.println(object);
     return "Thanks for posting";
   }
-
-//  @CrossOrigin
-//  @RequestMapping("/csrf")
-//  public CsrfToken csrf(CsrfToken token) {
-//    return token;
-//  }
 
 
 }
