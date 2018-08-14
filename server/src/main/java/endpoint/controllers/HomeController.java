@@ -44,10 +44,6 @@ public class HomeController {
     return "index";
   }
 
-  @RequestMapping("/login")
-  public String login(Model model) {
-    return "login";
-  }
 
   /**
    * Maps the database to a specific page, hooks up the model with relevant information.
@@ -84,6 +80,7 @@ public class HomeController {
 
     return new ModelAndView("redirect:data");
   }
+
 
 
 }

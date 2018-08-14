@@ -2,6 +2,11 @@ buildscript {
     ext {
         springBootVersion = '2.0.3.RELEASE'
     }
+    repositories {
+        mavenCentral()
+        maven { url 'https://repo.spring.io/snapshot' }
+
+    }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
@@ -29,8 +34,11 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-rest')
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
     compile("org.springframework.boot:spring-boot-devtools")
+    compile('org.springframework.boot:spring-boot-starter-security')
 
-    compileOnly('org.projectlombok:lombok')
+    compile 'org.keycloak:keycloak-spring-boot-2-starter:4.0.0.Beta2'
+    compile group: 'com.allanditzel', name: 'spring-security-csrf-token-filter', version: '1.1'
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
     compile("org.springframework.boot:spring-boot-devtools")
 
