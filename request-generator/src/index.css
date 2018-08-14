@@ -60,15 +60,10 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 }
 
 .btn-class{
-  border-width:0px 5px 0px 5px;
+  border-width:1px 5px 1px 5px;
   border-style: solid solid solid solid;
   border-color: black;
-  background: linear-gradient(white,#F3F3F3)
-
-}
-
-.btn-class:hover{
-  border-color: black;
+  background: linear-gradient(white,white)
 
 }
 
@@ -87,7 +82,6 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 }
 
 .button-error{
-  border-color: red;
-  background: linear-gradient(white,#F3E3E3)
+  border-color: #E34531;
 }
 

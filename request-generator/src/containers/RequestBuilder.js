@@ -14,7 +14,7 @@ class RequestBuilder extends Component{
             gender: null,
             code: null,
             response:null,
-
+            token: null
         };
 
         this.validateMap={
@@ -38,6 +38,37 @@ class RequestBuilder extends Component{
 
     onInputChange(event){
         this.setState({ [event.target.name]: event.target.value });
+    }
+
+    login(){
+        const tokenUrl = "http://localhost:8180/auth/realms/SpringBootKeycloak/protocol/openid-connect/token"
+        let params = {
+            grant_type:"password",
+            username:"user1",
+            password:"password",
+            client_id:"dme-app-login"
+        }
+
+        // Encodes the params to be compliant with
+        // x-www-form-urlencoded content type.
+        const searchParams = Object.keys(params).map((key) => {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+          }).join('&');
+          
+        (async () => {
+            // We get the token from the url
+            const tokenResponse = await fetch(tokenUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/x-www-form-urlencoded"
+                },
+                body: searchParams
+            }).then((response) =>{
+                return response.json();
+            });
+            const token = "bearer " + tokenResponse.access_token;
+            this.setState({token})
+        })();
     }
 
     submit_info(){
@@ -81,56 +112,8 @@ class RequestBuilder extends Component{
               }
             }
         }
-        const tokenUrl = "http://localhost:8180/auth/realms/SpringBootKeycloak/protocol/openid-connect/token"
-        // Make a request   
-        // (async () => {
-        //     const rawResponse = await fetch("http://localhost:8080/api/testing/", {
-        //       method: "POST",
-        //       headers: {
-        //         "Accept": "application/json",
-        //         "Content-Type": "application/json"
-        //       },
-        //       body: JSON.stringify({a: 7, str: 'Some string: &=&'})
-        //     });
-        //     var content = await rawResponse.text();
-        //     console.log(content);
-        //   })();
 
-        let params = {
-            grant_type:"password",
-            username:"user1",
-            password:"password",
-            client_id:"dme-app-login"
-        }
-
-        // Encodes the params to be compliant with
-        // x-www-form-urlencoded content type.
-        const searchParams = Object.keys(params).map((key) => {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-          }).join('&');
-          
         (async () => {
-            // We get the token from the url
-            // const tokenResponse = await fetch(tokenUrl, {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type":"application/x-www-form-urlencoded"
-            //     },
-            //     body: searchParams
-            // }).then((response) =>{
-            //     return response.json();
-            // });
-            // const token = "bearer " + tokenResponse.access_token;
-            // console.log(token);
-            // const rawResponse = await fetch("http://localhost:8080/api/data/1/", {
-            //   method: "GET",
-            //   headers: {
-            //     "Content-Type": "application/x-www-form-urlencoded",
-            //     "Authorization": token
-            //   }
-            // });
-            // var content = await rawResponse.text();
-            // console.log(content);
 
             const fhirResponse = await fetch("http://localhost:8080/cds-services/coverage-requirements-discovery",{
                 method: "POST",
@@ -142,34 +125,67 @@ class RequestBuilder extends Component{
                 return response.json();
             });
             console.log(fhirResponse);
+            // hand jam a card with actual contents in to test 
+            // how it looks 
+            var extra = {
+                summary: "Example Card",
+                indicator: "info",
+                detail: "Add an XYZ complimentary medication OR switch patient order to ABC. See SMART app for more details.",
+                source: {
+                  label: "Medicine Library",
+                  url: "https://example.com"
+                },
+                links: [
+                  {
+                    label: "Medication SMART app",
+                    url: "https://example.com/launch",
+                    type: "smart"
+                  }
+                ],
+                suggestions: [
+                  {
+                    label: "Add Complimentary",
+                    uuid: "123",
+                    actions: [
+                      {
+                        type: "create",
+                        description: "Add XYZ",
+                        resource: {}
+                      },
+                      {
+                        type: "delete",
+                        description: "Cancel ABC",
+                        resource: "MedicationRequest/ABC"
+                      }
+                    ]
+                  },
+                  {
+                    label: "Change Order",
+                    uuid: "456",
+                    actions: [
+                      {
+                        type: "modify",
+                        description: "Modify dosage of Medication",
+                        resource: "MedicationRequest/ABC"
+                      }
+                    ]
+                  }
+                ]
+              }
+            fhirResponse.cards.push(extra);
             this.setState({response: fhirResponse});
-          })();
-
-  
-          
-
-
-        // fetch('http://localhost:8080/api/testing', {
-        //     method: 'post',
-        //     headers: {
-        //       'Accept': 'application/json, text/plain, */*',
-        //       'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({a: 7, str: 'Some string: &=&'})
-        //   }).then(res => console.log(res));
-
-    
+          })();  
     }
-
 
     validateState(){
         const validationResult = {};
         Object.keys(this.validateMap).forEach(key => {
             if(this.state[key] && this.validateMap[key](this.state[key])){
-                // We want to know if the result is not correct, so 1 here means 
-                // true, or that the input failed.  Since 1 will return true and 0
-                // false, a ternary operator is used later to choose the correct style
-                // for the correct input box.
+                // Basically we want to know if we have any errors 
+                // or empty fields, and we want the errors to override
+                // the empty fields, so we make errors 0 and unpopulated
+                // fields 2.  Then we just look at whether the product of all
+                // the validations is 0 (error), 1 (valid) , or >1 (some unpopulated fields).  
                 validationResult[key]=0;
             }else if(this.state[key]){
                 // the field is populated and valid
@@ -178,21 +194,11 @@ class RequestBuilder extends Component{
                 // the field is not populated
                 validationResult[key]=2
             }
-
         });
         return validationResult;
-
     }
 
-
-    
     render() {
-
-        // There's a little boolean logic being represented as integer
-        // multiplication.  If there's any invalid inputs, we want to 
-        // swap the submit buttons colors, but we don't want to treat
-        // empty inputs as invalid ones.  
-
 
         const validationResult = this.validateState();
         const total = Object.keys(validationResult).reduce((previous,current) =>{
@@ -202,7 +208,7 @@ class RequestBuilder extends Component{
         return (
             <div>
             <div className="form-group container left-form">
-                {Object.keys(this.state)
+                {Object.keys(this.validateMap)
                 .map((key) => {
 
                     if(key!=="response" && key!=="validateMap"){
