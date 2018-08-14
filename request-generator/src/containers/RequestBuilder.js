@@ -13,8 +13,16 @@ class RequestBuilder extends Component{
             age: null,
             gender: null,
             code: null,
-            response:null
+            response:null,
+
         };
+
+        this.validateMap={
+            age:(foo=>{return isNaN(foo)}),
+            gender:(foo=>{return foo!=="male" && foo!=="female"}),
+            code:(foo=>{return !foo.match(/^[a-z0-9]+$/i)})
+        };
+
 
         
     this.updateStateElement = this.updateStateElement.bind(this);
@@ -35,166 +43,44 @@ class RequestBuilder extends Component{
     submit_info(){
         const birthYear = 2018-parseInt(this.state.age,10);
         let json_request = {
-            resourceType: "Parameters",
-            parameter: [
-              {
-                name: "request",
-                part: [
+            hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
+            fhirServer: "http://hooks.smarthealthit.org:9080",
+            hook: "order-review",
+            fhirAuthorization: {
+              access_token: "some-opaque-fhir-access-token",
+              token_type: "Bearer",
+              expires_in: 300,
+              scope: "patient/Patient.read patient/Observation.read",
+              subject: "cds-service4"
+            },
+            user: "Practitioner/example",
+            context: {
+              patientId: "1288992",
+              encounterId: "89284",
+              orders: {
+                resourceType: "Bundle",
+                entry: [
                   {
-                    name: "eligibilityrequest",
-                    resource: {
-                      resourceType: "EligibilityRequest",
-                      id: "050de4e5-1e53-44bd-9422-5c54caaf3958",
-                      meta: {
-                        profile: [
-                          "http://base.url/DaVinciEligibilityRequest"
-                        ]
-                      },
-                      extension: [
-                        {
-                          url: "http://hl7.org/davinci/crd/eligibilityRequest/serviceInformation",
-                          extension: [
-                            {
-                              url: "http://hl7.org/davinci/crd/eligibilityRequest/serviceInformation/serviceRequestType",
-                              valueCodeableConcept: {
-                                coding: [
-                                  {
-                                    system: "http://www.ama-assn.org/go/cpt",
-                                    code: this.state.code,
-                                    display: "Walker"
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              url: "http://hl7.org/davinci/crd/eligibilityRequest/serviceInformation/patientContext",
-                              valueReference: {
-                                reference: "urn:uuid:d1332d6b-4d62-434c-852d-cfcef09a3973"
-                              }
-                            }
-                          ]
-                        }
-                      ],
-                      status: "active",
-                      patient: {
-                        reference: "urn:uuid:60da0410-fd52-48c4-ae1d-27af9fdcb4eb"
-                      },
-                      provider: {
-                        reference: "urn:uuid:2bc6c647-3d66-46b1-a6a4-35d877242a8c"
-                      },
-                      insurer: {
-                        reference: "urn:uuid:6596481f-66a3-400e-994d-230a489c8f7c"
-                      },
-                      facility: {
-                        reference: "urn:uuid:9feebcb0-db55-44a1-9b6d-af5fc57e6afe"
-                      },
-                      coverage: {
-                        reference: "urn:uuid:ccff886d-7dbc-470f-b8df-4d9a9bd4c598"
+                    resourceType: "DeviceRequest",
+                    note: [
+                      {
+                        text: "a sample device request"
                       }
-                    }
-                  },
-                  {
-                    name: "patient",
-                    resource: {
-                      resourceType: "Patient",
-                      id: "60da0410-fd52-48c4-ae1d-27af9fdcb4eb",
-                      gender: this.state.gender,
-                      birthDate: birthYear + "-07-04"
-                    }
-                  },
-                  {
-                    name: "coverage",
-                    resource: {
-                      resourceType: "Coverage",
-                      id: "ccff886d-7dbc-470f-b8df-4d9a9bd4c598",
-                      class: [
-                        {
-                          type: {
-                            system: "http://hl7.org/fhir/coverage-class",
-                            code: "plan"
-                          },
-                          value: "Medicare Part D"
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    name: "provider",
-                    resource: {
-                      resourceType: "Practitioner",
-                      id: "2bc6c647-3d66-46b1-a6a4-35d877242a8c",
-                      identifier: [
-                        {
-                          system: "http://hl7.org/fhir/sid/us-npi",
-                          value: "1122334455"
-                        }
-                      ],
-                      name: [
-                        {
-                          family: "Doe",
-                          given: [
-                            "Jane"
-                          ],
-                          prefix: [
-                            "Dr."
-                          ]
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    name: "insurer",
-                    resource: {
-                      resourceType: "Organization",
-                      id: "6596481f-66a3-400e-994d-230a489c8f7c",
-                      name: "Centers for Medicare and Medicaid Services"
-                    }
-                  },
-                  {
-                    name: "facility",
-                    resource: {
-                      resourceType: "Location",
-                      id: "9feebcb0-db55-44a1-9b6d-af5fc57e6afe",
-                      address: {
-                        line: [
-                          "100 Good St"
-                        ],
-                        city: "Bedford",
-                        state: "MA",
-                        postalCode: "01730"
-                      }
-                    }
-                  },
-                  {
-                    name: "patientContext",
-                    resource: {
-                      resourceType: "Condition",
-                      id: "d1332d6b-4d62-434c-852d-cfcef09a3973",
-                      clinicalStatus: "active",
-                      code: {
-                        coding: [
-                          {
-                            system: "http://hl7.org/fhir/sid/icd-10",
-                            code: "M23.51",
-                            display: "Instability of the right knee"
-                          }
-                        ]
-                      },
-                      subject: {
-                        reference: "urn:uuid:60da0410-fd52-48c4-ae1d-27af9fdcb4eb"
-                      }
-                    }
+                    ]
                   }
                 ]
-              },
-              {
-                name: "endpoint"
-              },
-              {
-                name: "requestQualification"
               }
-            ]
-          }
+            },
+            prefetch: {
+              patientToGreet: {
+                resourceType: "Patient",
+                gender: this.state.gender,
+                birthDate: birthYear + "-12-23",
+                id: "1288992",
+                active: true
+              }
+            }
+        }
         const tokenUrl = "http://localhost:8180/auth/realms/SpringBootKeycloak/protocol/openid-connect/token"
         // Make a request   
         // (async () => {
@@ -246,7 +132,7 @@ class RequestBuilder extends Component{
             // var content = await rawResponse.text();
             // console.log(content);
 
-            const fhirResponse = await fetch("http://localhost:8080/fhir/$coverage-requirements-discovery/",{
+            const fhirResponse = await fetch("http://localhost:8080/cds-services/coverage-requirements-discovery",{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -255,9 +141,8 @@ class RequestBuilder extends Component{
             }).then(response => {
                 return response.json();
             });
-            var extra = JSON.stringify(fhirResponse.parameter[0].part)
-
-            this.setState({response: extra});
+            console.log(fhirResponse);
+            this.setState({response: fhirResponse});
           })();
 
   
@@ -276,19 +161,58 @@ class RequestBuilder extends Component{
     
     }
 
+
+    validateState(){
+        const validationResult = {};
+        Object.keys(this.validateMap).forEach(key => {
+            if(this.state[key] && this.validateMap[key](this.state[key])){
+                // We want to know if the result is not correct, so 1 here means 
+                // true, or that the input failed.  Since 1 will return true and 0
+                // false, a ternary operator is used later to choose the correct style
+                // for the correct input box.
+                validationResult[key]=0;
+            }else if(this.state[key]){
+                // the field is populated and valid
+                validationResult[key]=1;
+            }else{
+                // the field is not populated
+                validationResult[key]=2
+            }
+
+        });
+        return validationResult;
+
+    }
+
+
+    
     render() {
-        
+
+        // There's a little boolean logic being represented as integer
+        // multiplication.  If there's any invalid inputs, we want to 
+        // swap the submit buttons colors, but we don't want to treat
+        // empty inputs as invalid ones.  
+
+
+        const validationResult = this.validateState();
+        console.log(validationResult);
+        const total = Object.keys(validationResult).reduce((previous,current) =>{
+            return validationResult[current]*previous
+        },1);
+        console.log(total);
         return (
             <div>
             <div className="form-group container left-form">
                 {Object.keys(this.state)
                 .map((key) => {
 
-                    if(key!=="response"){
+                    if(key!=="response" && key!=="validateMap"){
                         return <div key={key}> 
+
                         <InputBox
                             elementName={key} 
-                            updateCB={this.updateStateElement}/>
+                            updateCB={this.updateStateElement}
+                            extraClass={!validationResult[key] ? "error-border" : "regular-border"}/>
                         <br />
                     </div>
 
@@ -296,7 +220,7 @@ class RequestBuilder extends Component{
 
                 })}
 
-                <button className="btn btn-class" onClick={this.submit_info}>Submit</button>
+                <button className={"btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_info}>Submit</button>
             </div>
             <div className="right-form">
                 <DisplayBox 
