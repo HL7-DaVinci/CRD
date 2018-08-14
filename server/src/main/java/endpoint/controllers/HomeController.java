@@ -3,7 +3,6 @@ package endpoint.controllers;
 import endpoint.database.CoverageRequirementRule;
 import endpoint.database.DataService;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.slf4j.Logger;

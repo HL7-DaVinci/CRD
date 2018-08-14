@@ -13,7 +13,6 @@ import javax.servlet.annotation.WebServlet;
 //import fhir.restful.DaVinciAuthInterceptor;
 import org.hl7.davinci.DaVinciEligibilityRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
 
 /**
