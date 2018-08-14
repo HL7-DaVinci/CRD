@@ -5,6 +5,7 @@ import endpoint.cdshooks.services.crd.CrdCdsRequest;
 import endpoint.cdshooks.services.crd.CrdCdsService;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ public class CdsHooksController {
 
   static final Class clz = CrdCdsRequest.class;
 
+  @CrossOrigin
   @PostMapping(value = URL_BASE + CrdCdsService.ID)
   public CdsResponse handleRequest(@Valid @RequestBody CrdCdsRequest request) {
     return crdCdsService.handleRequest(request);
