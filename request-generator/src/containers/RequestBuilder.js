@@ -195,11 +195,10 @@ class RequestBuilder extends Component{
 
 
         const validationResult = this.validateState();
-        console.log(validationResult);
         const total = Object.keys(validationResult).reduce((previous,current) =>{
             return validationResult[current]*previous
         },1);
-        console.log(total);
+
         return (
             <div>
             <div className="form-group container left-form">
