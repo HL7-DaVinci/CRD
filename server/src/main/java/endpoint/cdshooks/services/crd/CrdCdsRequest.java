@@ -17,7 +17,11 @@ public class CrdCdsRequest extends CdsRequest {
   }
 
   @Override
-  public OrderReviewPrefetch getPrefetch() { return prefetch; }
+  public OrderReviewPrefetch getPrefetch() {
+    return prefetch;
+  }
 
-  public void setPrefetch(OrderReviewPrefetch prefetch) { this.prefetch = prefetch; }
+  public void setPrefetch(OrderReviewPrefetch prefetch) {
+    this.prefetch = prefetch;
+  }
 }
