@@ -1,0 +1,27 @@
+{
+  "name": "request-generator",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.18.0",
+    "classnames": "^2.2.6",
+    "fhirclient": "^0.1.12",
+    "jquery": "^3.3.1",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-redux": "^5.0.7",
+    "react-scripts": "1.1.4",
+    "redux": "^4.0.0",
+    "redux-promise": "^0.6.0",
+    "terra-base": "^3.19.0",
+    "terra-button": "^2.19.0",
+    "terra-card": "^2.18.0",
+    "terra-text": "^2.18.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

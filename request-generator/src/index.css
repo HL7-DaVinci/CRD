@@ -1,0 +1,93 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+
+}
+.left-form { 
+  width: 50%;
+  float: left;
+  margin-top: 2%;
+
+}
+
+.submit-btn {
+  float: left;
+}
+
+
+div {
+  position: relative; /*  make label relate to div  */
+  padding-top: 10px;  /*  make space for label      */
+  font-size: 14px;
+}
+.floating-label {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.5;
+  left: 13px;
+  top: 17px;
+  transition: 0.2s ease all;
+  font-size: 14px;  
+}
+input:focus ~ .floating-label{
+  top: -14px;
+  opacity: 1;
+
+}
+
+input:not(:focus):not([value=""]):valid ~ .floating-label{
+  top: -14px;
+  opacity: 1;
+
+}
+
+.error-border{
+  border-color:#E34531 !important; 
+}
+.input-text:not(:focus):not([value=""]):valid{
+  border-color: #000000;
+
+}
+.form-control:focus {
+  border-color: inherit;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.input-text{
+  border-width:1px 0px 0px 9px;
+  border-style: solid none solid solid;
+}
+
+.btn-class{
+  border-width:0px 5px 0px 5px;
+  border-style: solid solid solid solid;
+  border-color: black;
+  background: linear-gradient(white,#F3F3F3)
+
+}
+
+.btn-class:hover{
+  border-color: black;
+
+}
+
+.btn-class-correct{
+  border-color: #3145C3;
+}
+
+.right-form{
+  float:right;
+  width:50%;
+  margin-top:2%;
+}
+
+.button-empty-fields{
+  opacity:0.5 !important;
+}
+
+.button-error{
+  border-color: red;
+  background: linear-gradient(white,#F3E3E3)
+}
+
