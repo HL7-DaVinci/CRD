@@ -1,18 +1,20 @@
 package endpoint.cdshooks.services.crd;
 
-import endpoint.cdshooks.models.Card;
-import endpoint.cdshooks.models.CdsResponse;
-import endpoint.cdshooks.models.CdsService;
-import endpoint.cdshooks.models.Hook;
-import endpoint.cdshooks.models.Prefetch;
 import endpoint.components.FhirComponents;
 
 import java.util.List;
 
 import javax.validation.Valid;
 
-import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.davinci.cdshooks.Card;
+import org.hl7.davinci.cdshooks.CdsResponse;
+import org.hl7.davinci.cdshooks.CdsService;
+import org.hl7.davinci.cdshooks.Hook;
+import org.hl7.davinci.cdshooks.Prefetch;
+
+import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
 import org.hl7.fhir.r4.model.Annotation;
+import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DeviceRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +50,11 @@ public class CrdCdsService extends CdsService {
   public CdsResponse handleRequest(@Valid @RequestBody CrdCdsRequest request) {
 
     logger.info("handleRequest: start");
+    logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
     DeviceRequest deviceRequest = null;
-    for (String fhirResourceString : request.getContext().getOrdersFhirResourceStringList()) {
-      IBaseResource baseResource = fhirComponents.getJsonParser().parseResource(fhirResourceString);
-      if (baseResource.getClass() == DeviceRequest.class) {
-        deviceRequest = (DeviceRequest) baseResource;
+    for (Bundle.BundleEntryComponent bec: request.getContext().getOrders().getEntry()) {
+      if (bec.hasResource()) {
+        deviceRequest = (DeviceRequest) bec.getResource();
       }
     }
 

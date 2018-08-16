@@ -61,18 +61,20 @@ class RequestBuilder extends Component{
                 resourceType: "Bundle",
                 entry: [
                   {
-                    resourceType: "DeviceRequest",
-                    note: [
-                      {
-                        text: "a sample device request"
-                      }
-                    ]
+                    resource: {
+                      resourceType: "DeviceRequest",
+                      note: [
+                        {
+                          text: "a sample device request"
+                        }
+                      ]
+                    }
                   }
                 ]
               }
             },
             prefetch: {
-              patientToGreet: {
+              patient: {
                 resourceType: "Patient",
                 gender: this.state.gender,
                 birthDate: birthYear + "-12-23",

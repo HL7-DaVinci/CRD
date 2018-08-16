@@ -1,4 +1,4 @@
-package endpoint.cdshooks.models;
+package org.hl7.davinci.cdshooks;
 
 public class Link {
   private String label = null;

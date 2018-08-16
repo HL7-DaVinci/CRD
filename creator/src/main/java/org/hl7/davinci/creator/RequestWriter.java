@@ -1,9 +1,11 @@
 package org.hl7.davinci.creator;
 
-import ca.uhn.fhir.context.FhirContext;
-import org.hl7.davinci.CRDRequestCreator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import org.hl7.davinci.CrdRequestCreator;
+import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
 import org.hl7.fhir.r4.model.Enumerations;
-import org.hl7.fhir.r4.model.Parameters;
+
 
 import java.io.FileWriter;
 import java.nio.file.Paths;
@@ -19,18 +21,15 @@ public class RequestWriter {
     public static void main(String[] args) throws Exception {
         Calendar cal = Calendar.getInstance();
         cal.set(1970, Calendar.JULY, 4);
-        Parameters crdParams = CRDRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
-        FhirContext ctx = FhirContext.forR4();
+        CrdCdsRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter w = mapper.writer();
         String outputPath = args[0];
         if (outputPath == null) {
             outputPath = Paths.get(".").toAbsolutePath().normalize().toString();
         }
         FileWriter jsonWriter = new FileWriter(outputPath + "/crd_request.json");
-        ctx.newJsonParser().setPrettyPrint(true).encodeResourceToWriter(crdParams, jsonWriter);
+        w.writeValue(jsonWriter, request);
         jsonWriter.close();
-        System.out.println(ctx.newJsonParser().encodeResourceToString(crdParams));
-        FileWriter xmlWriter = new FileWriter(outputPath + "/crd_request.xml");
-        ctx.newXmlParser().setPrettyPrint(true).encodeResourceToWriter(crdParams, xmlWriter);
-        xmlWriter.close();
     }
 }
