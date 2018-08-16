@@ -50,12 +50,6 @@ public class FhirServlet extends RestfulServer {
     ctxR4.setDefaultTypeForProfile(
         "http://base.url/DaVinciEligibilityRequest", DaVinciEligibilityRequest.class);
 
-    /*
-     * The servlet defines any number of resource providers, and
-     * configures itself to use them by calling
-     * setResourceProviders()
-     */
-
     List<Object> plainProviders = new ArrayList<Object>();
     plainProviders.add(crdOperation);
     setPlainProviders(plainProviders);

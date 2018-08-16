@@ -111,7 +111,7 @@ class RequestBuilder extends Component{
                 active: true
               }
             }
-        }
+        };
 
         (async () => {
 
