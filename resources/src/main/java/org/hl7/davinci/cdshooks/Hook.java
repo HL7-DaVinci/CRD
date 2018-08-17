@@ -1,4 +1,4 @@
-package endpoint.cdshooks.models;
+package org.hl7.davinci.cdshooks;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

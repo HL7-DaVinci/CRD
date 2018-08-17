@@ -1,9 +1,12 @@
-package endpoint.cdshooks.services.crd;
+package org.hl7.davinci.cdshooks.orderreview;
 
 import ca.uhn.fhir.context.FhirContext;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hl7.davinci.JacksonHapiSerializer;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
@@ -16,14 +19,19 @@ import org.slf4j.LoggerFactory;
 public class OrderReviewPrefetch {
   static final Logger logger = LoggerFactory.getLogger(OrderReviewPrefetch.class);
 
+  @JsonSerialize(using = JacksonHapiSerializer.class)
   private Patient patient;
+  @JsonSerialize(using = JacksonHapiSerializer.class)
   private Coverage coverage;
+  @JsonSerialize(using = JacksonHapiSerializer.class)
   private Location location;
+  @JsonSerialize(using = JacksonHapiSerializer.class)
   private Organization insurer;
+  @JsonSerialize(using = JacksonHapiSerializer.class)
   private Practitioner provider;
-
+  @JsonSerialize(using = JacksonHapiSerializer.class)
   private PractitionerRole practitionerRole;
-
+  @JsonIgnore
   private FhirContext fhirContext;
 
   /**
@@ -58,6 +66,34 @@ public class OrderReviewPrefetch {
     return practitionerRole;
   }
 
+  public void setPatient(Patient patient) {
+    this.patient = patient;
+  }
+
+  public void setCoverage(Coverage coverage) {
+    this.coverage = coverage;
+  }
+
+  public void setLocation(Location location) {
+    this.location = location;
+  }
+
+  public void setInsurer(Organization insurer) {
+    this.insurer = insurer;
+  }
+
+  public void setProvider(Practitioner provider) {
+    this.provider = provider;
+  }
+
+  public void setPractitionerRole(PractitionerRole practitionerRole) {
+    this.practitionerRole = practitionerRole;
+  }
+
+  public void setFhirContext(FhirContext fhirContext) {
+    this.fhirContext = fhirContext;
+  }
+
   /**
    * Parse the FHIR Patient from the JSON request.
    * @param patientFhirResourceJsonNode is the input JSON node containing the FHIR resource.
@@ -71,6 +107,7 @@ public class OrderReviewPrefetch {
       logger.warn("failed to parse patient: " + e.getMessage());
     }
   }
+
 
   /**
    * Parse the FHIR Coverage from the JSON request.

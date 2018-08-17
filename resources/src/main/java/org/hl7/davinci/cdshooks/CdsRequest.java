@@ -1,4 +1,6 @@
-package endpoint.cdshooks.models;
+package org.hl7.davinci.cdshooks;
+
+import com.fasterxml.jackson.annotation.JsonGetter;
 
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
@@ -14,10 +16,6 @@ public class CdsRequest {
   private Object oauth = null;
 
   @NotNull private String user = null;
-
-  private String patient = null;
-
-  private String encounter = null;
 
   //  @NotNull TODO: why does this break validation if we extend this class???
   private Object context = null;
@@ -64,22 +62,6 @@ public class CdsRequest {
     this.user = user;
   }
 
-  public String getPatient() {
-    return patient;
-  }
-
-  public void setPatient(String patient) {
-    this.patient = patient;
-  }
-
-  public String getEncounter() {
-    return encounter;
-  }
-
-  public void setEncounter(String encounter) {
-    this.encounter = encounter;
-  }
-
   public Object getContext() {
     return context;
   }
@@ -94,5 +76,10 @@ public class CdsRequest {
 
   public void setPrefetch(Object prefetch) {
     this.prefetch = prefetch;
+  }
+
+  @JsonGetter("hookInstance")
+  public String getHookInstanceAsString(){
+    return hookInstance.toString();
   }
 }
