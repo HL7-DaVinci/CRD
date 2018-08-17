@@ -1,6 +1,6 @@
-package endpoint.cdshooks.services.crd;
+package org.hl7.davinci.cdshooks.orderreview;
 
-import endpoint.cdshooks.models.CdsRequest;
+import org.hl7.davinci.cdshooks.CdsRequest;
 import javax.validation.constraints.NotNull;
 
 public class CrdCdsRequest extends CdsRequest {

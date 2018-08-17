@@ -73,17 +73,51 @@ class RequestBuilder extends Component{
 
     submit_info(){
         const birthYear = 2018-parseInt(this.state.age,10);
+        // let json_request = {
+        //     hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
+        //     fhirServer: "http://hooks.smarthealthit.org:9080",
+        //     hook: "order-review",
+        //     fhirAuthorization: {
+        //       access_token: "some-opaque-fhir-access-token",
+        //       token_type: "Bearer",
+        //       expires_in: 300,
+        //       scope: "patient/Patient.read patient/Observation.read",
+        //       subject: "cds-service4"
+        //     },
+        //     user: "Practitioner/example",
+        //     context: {
+        //       patientId: "1288992",
+        //       encounterId: "89284",
+        //       orders: {
+        //         resourceType: "Bundle",
+        //         entry: [
+        //           {
+        //             resource: {
+        //               resourceType: "DeviceRequest",
+        //               note: [
+        //                 {
+        //                   text: "a sample device request"
+        //                 }
+        //               ]
+        //             }
+        //           }
+        //         ]
+        //       }
+        //     },
+        //     prefetch: {
+        //       patient: {
+        //         resourceType: "Patient",
+        //         gender: this.state.gender,
+        //         birthDate: birthYear + "-12-23",
+        //         id: "1288992",
+        //         active: true
+        //       }
+        //     }
+        // };
         let json_request = {
             hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
             fhirServer: "http://hooks.smarthealthit.org:9080",
             hook: "order-review",
-            fhirAuthorization: {
-              access_token: "some-opaque-fhir-access-token",
-              token_type: "Bearer",
-              expires_in: 300,
-              scope: "patient/Patient.read patient/Observation.read",
-              subject: "cds-service4"
-            },
             user: "Practitioner/example",
             context: {
               patientId: "1288992",
@@ -92,26 +126,108 @@ class RequestBuilder extends Component{
                 resourceType: "Bundle",
                 entry: [
                   {
-                    resourceType: "DeviceRequest",
-                    note: [
-                      {
-                        text: "a sample device request"
+                    resource: {
+                      resourceType: "DeviceRequest",
+                      status: "draft",
+                      codeCodeableConcept: {
+                        coding: [
+                          {
+                            system: "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                            code: "E0424"
+                          }
+                        ],
+                        text: "Stationary Compressed Gaseous Oxygen System, Rental"
+                      },
+                      subject: {
+                        reference: "Patient/1288992"
+                      },
+                      authoredOn: "2018-08-08",
+                      insurance: [{
+                        reference: "Coverage/1234"
+                      }],
+                      performer: {
+                        reference: "PractitionerRole/1234"
                       }
-                    ]
+                    }
                   }
                 ]
               }
             },
             prefetch: {
-              patientToGreet: {
+              patient: {
                 resourceType: "Patient",
-                gender: this.state.gender,
-                birthDate: birthYear + "-12-23",
-                id: "1288992",
-                active: true
+                gender: "male",
+                birthDate: "1970-07-04"
+              },
+              coverage: {
+                resourceType: "Coverage",
+                id: "1234",
+                class: [
+                  {
+                    type: {
+                      system: "http://hl7.org/fhir/coverage-class",
+                      code: "plan"
+                    },
+                    value: "Medicare Part D"
+                  }
+                ],
+                payor: [
+                  {
+                    reference: "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
+                  }
+                ]
+              },
+              location: {
+                resourceType: "Location",
+                id: "89abea45-75d5-4730-a214-027fcb903ca1",
+                address: {
+                  line: [
+                    "100 Good St"
+                  ],
+                  city: "Bedford",
+                  state: "MA",
+                  postalCode: "01730"
+                }
+              },
+              practitionerRole: {
+                resourceType: "PractitionerRole",
+                practitioner: {
+                  reference: "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
+                },
+                location: [
+                  {
+                    reference: "Location/89abea45-75d5-4730-a214-027fcb903ca1"
+                  }
+                ]
+              },
+              insurer: {
+                resourceType: "Organization",
+                id: "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
+                name: "Centers for Medicare and Medicaid Services"
+              },
+              provider: {
+                resourceType: "Practitioner",
+                id: "13608725-a5f5-4276-b44a-1fe2c7273555",
+                identifier: [
+                  {
+                    system: "http://hl7.org/fhir/sid/us-npi",
+                    value: "1122334455"
+                  }
+                ],
+                name: [
+                  {
+                    family: "Doe",
+                    given: [
+                      "Jane"
+                    ],
+                    prefix: [
+                      "Dr."
+                    ]
+                  }
+                ]
               }
             }
-        };
+          };
 
         (async () => {
 
