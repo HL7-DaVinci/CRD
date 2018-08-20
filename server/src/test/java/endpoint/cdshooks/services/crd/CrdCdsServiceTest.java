@@ -1,15 +1,16 @@
 package endpoint.cdshooks.services.crd;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.Calendar;
+
 import org.hl7.davinci.CrdRequestCreator;
 import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.Calendar;
 
 public class CrdCdsServiceTest {
   @Test

@@ -1,16 +1,16 @@
 package org.hl7.davinci.cdshooks.orderreview;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hl7.fhir.exceptions.FHIRException;
-import org.hl7.fhir.r4.model.DeviceRequest;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.r4.model.DeviceRequest;
+import org.junit.jupiter.api.Test;
 
 public class CrdCdsRequestTest {
   @Test
