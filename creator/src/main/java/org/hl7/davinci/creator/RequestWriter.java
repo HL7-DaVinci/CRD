@@ -18,18 +18,23 @@ import java.util.Calendar;
  * the application will use the current working directory.
  */
 public class RequestWriter {
-    public static void main(String[] args) throws Exception {
-        Calendar cal = Calendar.getInstance();
-        cal.set(1970, Calendar.JULY, 4);
-        CrdCdsRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter w = mapper.writer();
-        String outputPath = args[0];
-        if (outputPath == null) {
-            outputPath = Paths.get(".").toAbsolutePath().normalize().toString();
-        }
-        FileWriter jsonWriter = new FileWriter(outputPath + "/crd_request.json");
-        w.writeValue(jsonWriter, request);
-        jsonWriter.close();
+  /**
+   * Main method for the application.
+   * @param args command line arguments
+   * @throws Exception If there is an issue writing the file
+   */
+  public static void main(String[] args) throws Exception {
+    Calendar cal = Calendar.getInstance();
+    cal.set(1970, Calendar.JULY, 4);
+    CrdCdsRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectWriter w = mapper.writer();
+    String outputPath = args[0];
+    if (outputPath == null) {
+      outputPath = Paths.get(".").toAbsolutePath().normalize().toString();
     }
+    FileWriter jsonWriter = new FileWriter(outputPath + "/crd_request.json");
+    w.writeValue(jsonWriter, request);
+    jsonWriter.close();
+  }
 }

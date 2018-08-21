@@ -1,11 +1,13 @@
 package endpoint.cdshooks.services.crd;
 
+import endpoint.components.CardBuilder;
 import endpoint.components.FhirComponents;
 
 import java.util.List;
 
 import javax.validation.Valid;
 
+import endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.cdshooks.Card;
 import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.CdsService;
@@ -97,10 +99,20 @@ public class CrdCdsService extends CdsService {
     }
 
     CdsResponse response = new CdsResponse();
-    Card card = new Card();
-    card.setSummary("empty card");
-    card.setDetail(msg);
-    response.addCard(card);
+
+    // TODO - Replace this with database lookup logic
+    response.addCard(CardBuilder.summaryCard("Responses from this service are currently hard coded."));
+
+    CoverageRequirementRule crr = new CoverageRequirementRule();
+    crr.setAgeRangeHigh(80);
+    crr.setAgeRangeLow(55);
+    crr.setEquipmentCode("E0424");
+    crr.setGenderCode("F".charAt(0));
+    crr.setNoAuthNeeded(false);
+    crr.setInfoLink("https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/"
+        + "MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf");
+
+    response.addCard(CardBuilder.transform(crr));
     logger.info("handleRequest: end");
     return response;
   }

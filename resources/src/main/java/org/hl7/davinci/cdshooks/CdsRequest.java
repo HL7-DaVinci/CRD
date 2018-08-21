@@ -79,7 +79,7 @@ public class CdsRequest {
   }
 
   @JsonGetter("hookInstance")
-  public String getHookInstanceAsString(){
+  public String getHookInstanceAsString() {
     return hookInstance.toString();
   }
 }

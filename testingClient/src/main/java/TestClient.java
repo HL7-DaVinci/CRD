@@ -1,8 +1,9 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 import java.io.InputStream;
 import java.util.Calendar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -41,7 +42,7 @@ public class TestClient {
     InputStream responseStream = response.getEntity().getContent();
 
     CdsResponse cdsResponse = mapper.readValue(responseStream, CdsResponse.class);
-    for(Card card : cdsResponse.getCards()) {
+    for (Card card : cdsResponse.getCards()) {
       System.out.println("Card Summary: " + card.getSummary());
       System.out.println("Card Detail: " + card.getDetail());
     }
