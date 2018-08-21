@@ -3,12 +3,14 @@ package endpoint.cdshooks.services.crd;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.gclient.IReadExecutable;
+import endpoint.components.CardBuilder;
 import endpoint.components.FhirComponents;
 
 import java.util.List;
 
 import javax.validation.Valid;
 
+import endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.cdshooks.Card;
 import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.CdsService;
@@ -53,21 +55,21 @@ public class CrdCdsService extends CdsService {
    * @return
    */
   public CdsResponse handleRequest(@Valid @RequestBody CrdCdsRequest request) {
-    String serverBase = "http://localhost:8080/fhir-server";
-
-    FhirContext ctx = FhirContext.forR4();
-    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+//    String serverBase = "http://localhost:8080/fhir-server";
+//
+//    FhirContext ctx = FhirContext.forR4();
+//    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
     logger.info("handleRequest: start");
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
     DeviceRequest deviceRequest = null;
     for (Bundle.BundleEntryComponent bec: request.getContext().getOrders().getEntry()) {
       if (bec.hasResource()) {
         deviceRequest = (DeviceRequest) bec.getResource();
-
-        String pip = deviceRequest.getSubject().getReference();
-        String[] henlo = pip.split("/");
-        System.out.println(henlo[0]);
-        Patient patient = client.read().resource(Patient.class).withId(henlo[1]).execute();
+//
+//        String pip = deviceRequest.getSubject().getReference();
+//        String[] henlo = pip.split("/");
+//        System.out.println(henlo[0]);
+//        Patient patient = client.read().resource(Patient.class).withId(henlo[1]).execute();
 
       }
     }
@@ -109,11 +111,22 @@ public class CrdCdsService extends CdsService {
     } else {
       logger.info("handleRequest: no notes specified");
     }
+
     CdsResponse response = new CdsResponse();
-    Card card = new Card();
-    card.setSummary("empty card");
-    card.setDetail(msg);
-    response.addCard(card);
+
+    // TODO - Replace this with database lookup logic
+    response.addCard(CardBuilder.summaryCard("Responses from this service are currently hard coded."));
+
+    CoverageRequirementRule crr = new CoverageRequirementRule();
+    crr.setAgeRangeHigh(80);
+    crr.setAgeRangeLow(55);
+    crr.setEquipmentCode("E0424");
+    crr.setGenderCode("F".charAt(0));
+    crr.setNoAuthNeeded(false);
+    crr.setInfoLink("https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/"
+        + "MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf");
+
+    response.addCard(CardBuilder.transform(crr));
     logger.info("handleRequest: end");
     return response;
   }
