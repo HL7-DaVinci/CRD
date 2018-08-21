@@ -1,5 +1,8 @@
 package endpoint.cdshooks.services.crd;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.rest.gclient.IReadExecutable;
 import endpoint.components.FhirComponents;
 
 import java.util.List;
@@ -13,9 +16,11 @@ import org.hl7.davinci.cdshooks.Hook;
 import org.hl7.davinci.cdshooks.Prefetch;
 
 import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DeviceRequest;
+import org.hl7.fhir.r4.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,13 +53,22 @@ public class CrdCdsService extends CdsService {
    * @return
    */
   public CdsResponse handleRequest(@Valid @RequestBody CrdCdsRequest request) {
+    String serverBase = "http://localhost:8080/fhir-server";
 
+    FhirContext ctx = FhirContext.forR4();
+    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
     logger.info("handleRequest: start");
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
     DeviceRequest deviceRequest = null;
     for (Bundle.BundleEntryComponent bec: request.getContext().getOrders().getEntry()) {
       if (bec.hasResource()) {
         deviceRequest = (DeviceRequest) bec.getResource();
+
+        String pip = deviceRequest.getSubject().getReference();
+        String[] henlo = pip.split("/");
+        System.out.println(henlo[0]);
+        Patient patient = client.read().resource(Patient.class).withId(henlo[1]).execute();
+
       }
     }
 
@@ -95,7 +109,6 @@ public class CrdCdsService extends CdsService {
     } else {
       logger.info("handleRequest: no notes specified");
     }
-
     CdsResponse response = new CdsResponse();
     Card card = new Card();
     card.setSummary("empty card");
@@ -104,4 +117,6 @@ public class CrdCdsService extends CdsService {
     logger.info("handleRequest: end");
     return response;
   }
+
+
 }

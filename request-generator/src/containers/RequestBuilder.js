@@ -41,12 +41,12 @@ class RequestBuilder extends Component{
     }
 
     login(){
-        const tokenUrl = "http://localhost:8180/auth/realms/SpringBootKeycloak/protocol/openid-connect/token"
+        const tokenUrl = "http://localhost:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token"
         let params = {
             grant_type:"password",
             username:"user1",
             password:"password",
-            client_id:"dme-app-login"
+            client_id:"app-login"
         }
 
         // Encodes the params to be compliant with
@@ -67,6 +67,7 @@ class RequestBuilder extends Component{
                 return response.json();
             });
             const token = "bearer " + tokenResponse.access_token;
+            console.log(token);
             this.setState({token})
         })();
     }
@@ -114,13 +115,14 @@ class RequestBuilder extends Component{
         //       }
         //     }
         // };
+        this.login();
         let json_request = {
             hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-            fhirServer: "http://hooks.smarthealthit.org:9080",
+            fhirServer: "localhost:8080/fhir-server/",
             hook: "order-review",
             user: "Practitioner/example",
             context: {
-              patientId: "1288992",
+              patientId: "1234",
               encounterId: "89284",
               orders: {
                 resourceType: "Bundle",
@@ -139,7 +141,7 @@ class RequestBuilder extends Component{
                         text: "Stationary Compressed Gaseous Oxygen System, Rental"
                       },
                       subject: {
-                        reference: "Patient/1288992"
+                        reference: "Patient/1234"
                       },
                       authoredOn: "2018-08-08",
                       insurance: [{
@@ -231,7 +233,7 @@ class RequestBuilder extends Component{
 
         (async () => {
 
-            const fhirResponse = await fetch("http://localhost:8080/cds-services/coverage-requirements-discovery",{
+            const fhirResponse = await fetch("http://localhost:8090/cds-services/coverage-requirements-discovery",{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
