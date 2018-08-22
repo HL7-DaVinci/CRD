@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.hl7.davinci.cdshooks.Hook;
-import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
+import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 import org.hl7.davinci.cdshooks.orderreview.OrderReviewContext;
-import org.hl7.davinci.cdshooks.orderreview.OrderReviewPrefetch;
+import org.hl7.davinci.cdshooks.CrdPrefetch;
 import org.hl7.fhir.r4.model.*;
 
 
@@ -22,15 +22,15 @@ public class CrdRequestCreator {
    * @param patientBirthdate Desired birth date of the patient in the request
    * @return Fully populated CdsRequest
    */
-  public static CrdCdsRequest createRequest(Enumerations.AdministrativeGender patientGender,
-                                            Date patientBirthdate) {
+  public static OrderReviewRequest createRequest(Enumerations.AdministrativeGender patientGender,
+                                                 Date patientBirthdate) {
 
-    CrdCdsRequest request = new CrdCdsRequest();
+    OrderReviewRequest request = new OrderReviewRequest();
     request.setUser("Practitioner/1234");
     request.setHook(Hook.ORDER_REVIEW);
     request.setHookInstance(UUID.randomUUID());
     OrderReviewContext context = new OrderReviewContext();
-    OrderReviewPrefetch prefetch = new OrderReviewPrefetch();
+    CrdPrefetch prefetch = new CrdPrefetch();
     request.setContext(context);
     request.setPrefetch(prefetch);
 

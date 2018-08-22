@@ -7,7 +7,7 @@ import java.util.Calendar;
 
 import org.hl7.davinci.CrdRequestCreator;
 import org.hl7.davinci.cdshooks.CdsResponse;
-import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
+import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class CrdCdsServiceTest {
   public void testHandleRequest() {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
-    CrdCdsRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+    OrderReviewRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
     CrdCdsService service = new CrdCdsService();
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);

@@ -1,11 +1,13 @@
 package org.hl7.davinci.cdshooks.orderreview;
 
 import org.hl7.davinci.cdshooks.CdsRequest;
+import org.hl7.davinci.cdshooks.CrdPrefetch;
+
 import javax.validation.constraints.NotNull;
 
-public class CrdCdsRequest extends CdsRequest {
+public class OrderReviewRequest extends CdsRequest {
   @NotNull private OrderReviewContext context = null;
-  @NotNull private OrderReviewPrefetch prefetch = null;
+  @NotNull private CrdPrefetch prefetch = null;
 
   @Override
   public OrderReviewContext getContext() {
@@ -17,11 +19,11 @@ public class CrdCdsRequest extends CdsRequest {
   }
 
   @Override
-  public OrderReviewPrefetch getPrefetch() {
+  public CrdPrefetch getPrefetch() {
     return prefetch;
   }
 
-  public void setPrefetch(OrderReviewPrefetch prefetch) {
+  public void setPrefetch(CrdPrefetch prefetch) {
     this.prefetch = prefetch;
   }
 }

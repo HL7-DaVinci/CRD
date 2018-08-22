@@ -1,4 +1,4 @@
-package org.hl7.davinci.cdshooks.orderreview;
+package org.hl7.davinci.cdshooks;
 
 import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,8 +16,13 @@ import org.hl7.fhir.r4.model.PractitionerRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OrderReviewPrefetch {
-  static final Logger logger = LoggerFactory.getLogger(OrderReviewPrefetch.class);
+/**
+ * Class that supports the representation of prefetch information in a CDS Hook request.
+ * It appears that for CRD, prefetch information will be the same, regardless of hook type (order-review or
+ * medication-prescribe).
+ */
+public class CrdPrefetch {
+  static final Logger logger = LoggerFactory.getLogger(CrdPrefetch.class);
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
   private Patient patient;
@@ -38,7 +43,7 @@ public class OrderReviewPrefetch {
    * Constructor that creates a FhirContext used in parsing the FHIR resources
    * out of the request.
    */
-  public OrderReviewPrefetch() {
+  public CrdPrefetch() {
     fhirContext = FhirContext.forR4();
   }
 
