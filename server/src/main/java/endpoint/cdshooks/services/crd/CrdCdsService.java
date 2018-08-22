@@ -8,13 +8,12 @@ import java.util.List;
 import javax.validation.Valid;
 
 import endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.cdshooks.Card;
 import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.CdsService;
 import org.hl7.davinci.cdshooks.Hook;
 import org.hl7.davinci.cdshooks.Prefetch;
 
-import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
+import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DeviceRequest;
@@ -49,7 +48,7 @@ public class CrdCdsService extends CdsService {
    * @param request The json request, parsed.
    * @return
    */
-  public CdsResponse handleRequest(@Valid @RequestBody CrdCdsRequest request) {
+  public CdsResponse handleRequest(@Valid @RequestBody OrderReviewRequest request) {
 
     logger.info("handleRequest: start");
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());

@@ -5,7 +5,7 @@ import endpoint.cdshooks.services.crd.CrdCdsService;
 import javax.validation.Valid;
 
 import org.hl7.davinci.cdshooks.CdsResponse;
-import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
+import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,11 +20,11 @@ public class CdsHooksController {
 
   @Autowired private CrdCdsService crdCdsService;
 
-  static final Class clz = CrdCdsRequest.class;
+  static final Class clz = OrderReviewRequest.class;
 
   @CrossOrigin
   @PostMapping(value = URL_BASE + CrdCdsService.ID, consumes = "application/json;charset=UTF-8")
-  public CdsResponse handleRequest(@Valid @RequestBody CrdCdsRequest request) {
+  public CdsResponse handleRequest(@Valid @RequestBody OrderReviewRequest request) {
     return crdCdsService.handleRequest(request);
   }
 }
