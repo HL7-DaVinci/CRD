@@ -1,14 +1,9 @@
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.dstu2.valueset.AdministrativeGenderEnum;
-import ca.uhn.fhir.model.dstu2.valueset.IdentifierUseEnum;
-import ca.uhn.fhir.model.primitive.IdDt;
-import ca.uhn.fhir.model.primitive.UriDt;
+import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.RequiredParam;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.annotation.Search;
-import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
@@ -19,23 +14,48 @@ import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.Patient;
 
-import javax.annotation.Resource;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * All resource providers must implement IResourceProvider
  */
 public class RestfulPatientResourceProvider implements IResourceProvider {
-
+  private int currentId = 1;
   private Map<String,Patient> repository = new HashMap<>();
   /**
    * The getResourceType method comes from IResourceProvider, and must
    * be overridden to indicate what type of resource this provider
    * supplies.
    */
+
+  public RestfulPatientResourceProvider() {
+    // Populate the server with some resources
+    Random r = new Random();
+    for (int i = currentId; i < 50; i++) {
+      Patient npatient = new Patient();
+      npatient.setId(Integer.toString(i));
+      if (r.nextBoolean()) {
+        npatient.setGender(Enumerations.AdministrativeGender.MALE);
+      } else {
+        npatient.setGender(Enumerations.AdministrativeGender.FEMALE);
+      }
+      Date date = new Date();
+      Calendar cal = Calendar.getInstance();
+      cal.set(Calendar.YEAR, 2018 - r.nextInt(90));
+      cal.set(Calendar.MONTH, r.nextInt(11));
+      cal.set(Calendar.DAY_OF_MONTH, 1);
+      npatient.setBirthDate(cal.getTime());
+      savePatientToDatabase(npatient);
+    }
+
+  }
+
   @Override
   public Class<Patient> getResourceType() {
     return Patient.class;
@@ -54,7 +74,6 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
    */
   @Read()
   public Patient getResourceById(@IdParam IdType theId) {
-    System.out.println(theId.getIdPart());
 
     return repository.get(theId.getIdPart());
 

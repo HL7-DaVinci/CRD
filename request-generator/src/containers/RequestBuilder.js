@@ -55,7 +55,7 @@ class RequestBuilder extends Component{
             return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
           }).join('&');
           
-        (async () => {
+        return (async () => {
             // We get the token from the url
             const tokenResponse = await fetch(tokenUrl, {
                 method: "POST",
@@ -66,8 +66,8 @@ class RequestBuilder extends Component{
             }).then((response) =>{
                 return response.json();
             });
-            const token = "bearer " + tokenResponse.access_token;
-            console.log(token);
+            console.log(tokenResponse);
+            const token = tokenResponse.access_token;
             this.setState({token})
         })();
     }
@@ -115,11 +115,21 @@ class RequestBuilder extends Component{
         //       }
         //     }
         // };
-        this.login();
+        
+
+        (async () => {
+        await this.login();
         let json_request = {
             hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-            fhirServer: "localhost:8080/fhir-server/",
+            fhirServer: "http://localhost:8080/fhir-server",
             hook: "order-review",
+            oauth : {
+              "access_token" : this.state.token,
+              "token_type" : "Bearer",
+              "expires_in" : 300,
+              "scope" : "patient/Patient.read patient/Observation.read",
+              "subject" : "cds-service4"
+            },
             user: "Practitioner/example",
             context: {
               patientId: "1234",
@@ -141,7 +151,7 @@ class RequestBuilder extends Component{
                         text: "Stationary Compressed Gaseous Oxygen System, Rental"
                       },
                       subject: {
-                        reference: "Patient/1234"
+                        reference: "Patient/12"
                       },
                       authoredOn: "2018-08-08",
                       insurance: [{
@@ -230,8 +240,6 @@ class RequestBuilder extends Component{
               }
             }
           };
-
-        (async () => {
 
             const fhirResponse = await fetch("http://localhost:8090/cds-services/coverage-requirements-discovery",{
                 method: "POST",

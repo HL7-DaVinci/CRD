@@ -2,16 +2,16 @@ package endpoint.cdshooks.services.crd;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
-import ca.uhn.fhir.rest.gclient.IReadExecutable;
+import ca.uhn.fhir.rest.client.interceptor.BearerTokenAuthInterceptor;
 import endpoint.components.CardBuilder;
 import endpoint.components.FhirComponents;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.cdshooks.Card;
 import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.CdsService;
 import org.hl7.davinci.cdshooks.Hook;
@@ -22,7 +22,6 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DeviceRequest;
-import org.hl7.fhir.r4.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,22 +54,22 @@ public class CrdCdsService extends CdsService {
    * @return
    */
   public CdsResponse handleRequest(@Valid @RequestBody CrdCdsRequest request) {
-//    String serverBase = "http://localhost:8080/fhir-server";
-//
-//    FhirContext ctx = FhirContext.forR4();
-//    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+    IGenericClient client = composeClient(request);
     logger.info("handleRequest: start");
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
     DeviceRequest deviceRequest = null;
     for (Bundle.BundleEntryComponent bec: request.getContext().getOrders().getEntry()) {
       if (bec.hasResource()) {
         deviceRequest = (DeviceRequest) bec.getResource();
-//
-//        String pip = deviceRequest.getSubject().getReference();
-//        String[] henlo = pip.split("/");
-//        System.out.println(henlo[0]);
-//        Patient patient = client.read().resource(Patient.class).withId(henlo[1]).execute();
 
+
+        String pip = deviceRequest.getSubject().getReference();
+        // Change from regex to something more robust in getting references.
+        String[] resourceToGet = pip.split("/");
+        IBaseResource fhirResource = client.read()
+            .resource(resourceToGet[0])
+            .withId(resourceToGet[1])
+            .execute();
       }
     }
 
@@ -129,6 +128,20 @@ public class CrdCdsService extends CdsService {
     response.addCard(CardBuilder.transform(crr));
     logger.info("handleRequest: end");
     return response;
+  }
+
+  private IGenericClient composeClient(CrdCdsRequest request) {
+    String serverBase = request.getFhirServer();
+    System.out.println(serverBase);
+    FhirContext ctx = FhirContext.forR4();
+    LinkedHashMap<String,String> oauth =  (LinkedHashMap) request.getOauth();
+    System.out.println(oauth);
+    System.out.println(oauth.keySet());
+    BearerTokenAuthInterceptor authInterceptor = new BearerTokenAuthInterceptor(oauth.get("access_token"));
+
+    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+    client.registerInterceptor(authInterceptor);
+    return client;
   }
 
 
