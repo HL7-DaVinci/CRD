@@ -12,13 +12,13 @@ import org.hl7.fhir.r4.model.Enumerations;
 import org.junit.Test;
 
 
-public class CrdCdsServiceTest {
+public class OrderReviewServiceTest {
   @Test
   public void testHandleRequest() {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
     OrderReviewRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
-    CrdCdsService service = new CrdCdsService();
+    OrderReviewService service = new OrderReviewService();
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
