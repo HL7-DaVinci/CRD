@@ -1,6 +1,4 @@
-
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.server.HardcodedServerAddressStrategy;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.CorsInterceptor;
@@ -19,7 +17,6 @@ import org.springframework.web.cors.CorsConfiguration;
  * In this example, we are using Servlet 3.0 annotations to define the URL pattern for this servlet,
  * but we could also define this in a web.xml file.
  */
-
 @WebServlet(
     urlPatterns = {"/*"},
     displayName = "DaVinci FHIR Resource Server ")
@@ -43,8 +40,6 @@ public class fhirServlet extends RestfulServer {
 
     // Now register the logging interceptor
     LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
-    // DaVinciAuthInterceptor authInterceptor = new DaVinciAuthInterceptor();
-    // registerInterceptor(authInterceptor);
     registerInterceptor(loggingInterceptor);
 
     // The SLF4j logger "test.accesslog" will receive the logging events
@@ -75,5 +70,8 @@ public class fhirServlet extends RestfulServer {
     // Create the interceptor and register it
     CorsInterceptor interceptor = new CorsInterceptor(config);
     registerInterceptor(interceptor);
+
+    ClientAuthorizationInterceptor authInterceptor = new ClientAuthorizationInterceptor();
+    registerInterceptor(authInterceptor);
   }
 }

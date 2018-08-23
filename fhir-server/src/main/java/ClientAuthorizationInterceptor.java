@@ -46,19 +46,19 @@ public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
       e.printStackTrace();
     }
 
-    JsonObject jj;
+    JsonObject jsonResponse;
     try {
       CloseableHttpResponse response = client.execute(httpPost);
       String jsonString = EntityUtils.toString(response.getEntity());
-      jj = new JsonParser().parse(jsonString).getAsJsonObject();
+      jsonResponse = new JsonParser().parse(jsonString).getAsJsonObject();
       client.close();
 
     } catch (IOException e) {
       e.printStackTrace();
-      jj = null;
+      jsonResponse = null;
     }
 
-    if (jj.get("active").getAsBoolean()) {
+    if (jsonResponse.get("active").getAsBoolean()) {
       return new RuleBuilder().allowAll().build();
     } else {
       return new RuleBuilder().denyAll().build();
