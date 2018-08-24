@@ -128,8 +128,9 @@ public class OrderReviewService extends CdsService {
     return response;
   }
 
-  private IGenericClient composeClient(OrderReviewContext request) {
+  private IGenericClient composeClient(OrderReviewRequest request) {
     String serverBase = request.getFhirServer();
+
     FhirContext ctx = FhirContext.forR4();
     LinkedHashMap<String,String> oauth =  (LinkedHashMap) request.getOauth();
     BearerTokenAuthInterceptor authInterceptor = new BearerTokenAuthInterceptor(oauth.get("access_token"));
