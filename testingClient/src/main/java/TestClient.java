@@ -13,7 +13,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.hl7.davinci.CrdRequestCreator;
 import org.hl7.davinci.cdshooks.Card;
 import org.hl7.davinci.cdshooks.CdsResponse;
-import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
+import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 import org.hl7.fhir.r4.model.Enumerations;
 
 public class TestClient {
@@ -24,11 +24,11 @@ public class TestClient {
   public static void main(String[] args) throws Exception {
     Calendar cal = Calendar.getInstance();
     cal.set(1948, Calendar.JULY, 4);
-    CrdCdsRequest hookRequest = CrdRequestCreator
+    OrderReviewRequest hookRequest = CrdRequestCreator
             .createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
 
     CloseableHttpClient client = HttpClients.createDefault();
-    HttpPost httpPost = new HttpPost("http://localhost:8080/cds-services/coverage-requirements-discovery");
+    HttpPost httpPost = new HttpPost("http://localhost:8080/cds-services/order-review-crd");
 
     ObjectMapper mapper = new ObjectMapper();
     ObjectWriter w = mapper.writer();

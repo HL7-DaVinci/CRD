@@ -6,8 +6,7 @@ import java.io.IOException;
 
 public enum Hook {
 
-  // Currently only one hook is supported
-  ORDER_REVIEW("order-review");
+  ORDER_REVIEW("order-review"), MEDICATION_PRESCRIBE("medication-prescribe");
 
   private String value;
 

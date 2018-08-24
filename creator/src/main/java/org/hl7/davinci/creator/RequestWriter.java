@@ -3,7 +3,7 @@ package org.hl7.davinci.creator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.hl7.davinci.CrdRequestCreator;
-import org.hl7.davinci.cdshooks.orderreview.CrdCdsRequest;
+import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 import org.hl7.fhir.r4.model.Enumerations;
 
 
@@ -26,7 +26,7 @@ public class RequestWriter {
   public static void main(String[] args) throws Exception {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
-    CrdCdsRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+    OrderReviewRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
     ObjectMapper mapper = new ObjectMapper();
     ObjectWriter w = mapper.writer();
     String outputPath = args[0];

@@ -12,12 +12,12 @@ import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.DeviceRequest;
 import org.junit.jupiter.api.Test;
 
-public class CrdCdsRequestTest {
+public class OrderReviewRequestTest {
   @Test
   public void testReadingJson() throws IOException, FHIRException {
     InputStream requestStream = this.getClass().getResourceAsStream("request.json");
     ObjectMapper mapper = new ObjectMapper();
-    CrdCdsRequest request = mapper.readValue(requestStream, CrdCdsRequest.class);
+    OrderReviewRequest request = mapper.readValue(requestStream, OrderReviewRequest.class);
     assertNotNull(request);
     assertEquals("1288992", request.getContext().getPatientId());
     assertEquals("male", request.getPrefetch().getPatient().getGender().toCode());
