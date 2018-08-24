@@ -28,7 +28,7 @@ public class TestClient {
             .createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
 
     CloseableHttpClient client = HttpClients.createDefault();
-    HttpPost httpPost = new HttpPost("http://localhost:8080/cds-services/coverage-requirements-discovery");
+    HttpPost httpPost = new HttpPost("http://localhost:8080/cds-services/order-review-crd");
 
     ObjectMapper mapper = new ObjectMapper();
     ObjectWriter w = mapper.writer();

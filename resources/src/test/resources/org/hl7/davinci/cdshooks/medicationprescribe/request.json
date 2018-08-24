@@ -1,0 +1,110 @@
+{
+  "context":{
+    "patientId":"1288992",
+    "encounterId":"89284",
+    "medications":{
+      "resourceType":"Bundle",
+      "entry":[
+        {
+          "resource": {
+            "resourceType": "MedicationRequest",
+            "status": "draft",
+            "intent": "plan",
+            "medicationCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                  "code": "314076"
+                }
+              ],
+              "text": "Lisinopril 10 MG Oral Tablet"
+            },
+            "subject": {
+              "reference": "Patient/1288992"
+            },
+            "authoredOn": "2018-08-08",
+            "insurance": {
+              "reference": "Coverage/1234"
+            },
+            "performer": {
+              "reference": "PractitionerRole/1234"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "prefetch": {
+    "patient": {
+      "resourceType": "Patient",
+      "gender": "male",
+      "birthDate": "1970-07-04"
+    },
+    "coverage": {
+      "resourceType": "Coverage",
+      "id": "1234",
+      "class": [
+        {
+          "type": {
+            "system": "http://hl7.org/fhir/coverage-class",
+            "code": "plan"
+          },
+          "value": "Medicare Part D"
+        }
+      ],
+      "payor": [
+        {
+          "reference": "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
+        }
+      ]
+    },
+    "location": {
+      "resourceType": "Location",
+      "id": "89abea45-75d5-4730-a214-027fcb903ca1",
+      "address": {
+        "line": [
+          "100 Good St"
+        ],
+        "city": "Bedford",
+        "state": "MA",
+        "postalCode": "01730"
+      }
+    },
+    "practitionerRole": {
+      "practitioner": {
+        "reference": "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
+      },
+      "location": [
+        {
+          "reference": "Location/89abea45-75d5-4730-a214-027fcb903ca1"
+        }
+      ]
+    },
+    "insurer": {
+      "resourceType": "Organization",
+      "id": "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
+      "name": "Centers for Medicare and Medicaid Services"
+    },
+    "provider": {
+      "resourceType": "Practitioner",
+      "id": "13608725-a5f5-4276-b44a-1fe2c7273555",
+      "identifier": [
+        {
+          "system": "http://hl7.org/fhir/sid/us-npi",
+          "value": "1122334455"
+        }
+      ],
+      "name": [
+        {
+          "family": "Doe",
+          "given": [
+            "Jane"
+          ],
+          "prefix": [
+            "Dr."
+          ]
+        }
+      ]
+    }
+  }
+}
