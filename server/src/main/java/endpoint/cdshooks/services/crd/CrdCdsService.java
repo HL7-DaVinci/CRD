@@ -132,11 +132,8 @@ public class CrdCdsService extends CdsService {
 
   private IGenericClient composeClient(CrdCdsRequest request) {
     String serverBase = request.getFhirServer();
-    System.out.println(serverBase);
     FhirContext ctx = FhirContext.forR4();
     LinkedHashMap<String,String> oauth =  (LinkedHashMap) request.getOauth();
-    System.out.println(oauth);
-    System.out.println(oauth.keySet());
     BearerTokenAuthInterceptor authInterceptor = new BearerTokenAuthInterceptor(oauth.get("access_token"));
 
     IGenericClient client = ctx.newRestfulGenericClient(serverBase);
