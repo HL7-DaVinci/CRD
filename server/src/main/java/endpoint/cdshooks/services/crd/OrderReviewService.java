@@ -58,7 +58,8 @@ public class OrderReviewService extends CdsService {
     logger.info("handleRequest: start");
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
 
-    OrderReviewFetcher fetcher = new OrderReviewFetcher(request.getContext(), request.getPrefetch());
+    OrderReviewFetcher fetcher = new OrderReviewFetcher(request.getContext(),
+        request.getPrefetch());
     fetcher.fetch();
 
     // output some of the data
@@ -83,6 +84,11 @@ public class OrderReviewService extends CdsService {
       logger.info("handleRequest: provider name: "
           + request.getPrefetch().getProvider().getName().get(0).getPrefixAsSingleString() + " "
           + request.getPrefetch().getProvider().getName().get(0).getFamily());
+    }
+
+    if (!fetcher.hasRequest()) {
+      // TODO: raise error
+      logger.error("No request provided!");
     }
 
     CdsResponse response = new CdsResponse();

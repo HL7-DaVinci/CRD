@@ -1,5 +1,6 @@
 package org.hl7.davinci.cdshooks.orderreview;
 
+import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.CrdPrefetch;
 import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
@@ -72,7 +73,7 @@ public class OrderReviewFetcher {
    * Fetches the remaining resources referenced by the context that are not found in the prefetch.
    */
   public void fetch() {
-    //TODO
+    // TODO
     // use the prefetch template to get the data
     // match the data in the prefetch to that in the context
     // fetch the remaining resources from the Provider FHIR server
@@ -87,7 +88,7 @@ public class OrderReviewFetcher {
       // look in the prefetch
       if (prefetch.getPatient() != null) {
 
-        if (compareReferenceToId(deviceRequest.getSubject().getReference(),
+        if (Utilities.compareReferenceToId(deviceRequest.getSubject().getReference(),
             prefetch.getPatient().getId())) {
           logger.info("fetch: patient found");
         } else {
@@ -120,34 +121,11 @@ public class OrderReviewFetcher {
   }
 
   /**
-   * Compares the reference to the id of the format: "id", "ResourceType/id"
-   * @param reference is a string reference to a resource of type "ResourceType/id"
-   * @param id is a string id from a resource of type "id" or "ResourceType/id"
-   * @return true if the same
+   * Checks if a valid request was provided in the context.
+   * @return true if a request was provided, false otherwise.
    */
-  public static boolean compareReferenceToId(String reference, String id) {
-    String refParts[] = reference.split("/");
-    String idParts[] = id.split("/");
-    if (refParts.length > idParts.length) {
-      if (refParts[1].equals(idParts[0])) {
-        return true;
-      }
-    } else if (refParts.length < idParts.length) {
-      if (refParts[0].equals(idParts[1])) {
-        return true;
-      }
-    } else { // same length
-      if (refParts.length == 1) {
-        if (refParts[0].equals(idParts[0])) {
-          return true;
-        }
-      } else {
-        if (refParts[0].equals(idParts[0]) && refParts[1].equals(idParts[1])) {
-          return true;
-        }
-      }
-    }
-    return false;
+  public boolean hasRequest() {
+    return ((deviceRequest != null) || (serviceRequest != null) || (nutritionOrder != null) || (supplyRequest != null));
   }
 
 }

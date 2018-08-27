@@ -6,6 +6,7 @@ import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.CdsService;
 import org.hl7.davinci.cdshooks.Hook;
 import org.hl7.davinci.cdshooks.Prefetch;
+import org.hl7.davinci.cdshooks.medicationprescribe.MedicationPrescribeFetcher;
 import org.hl7.davinci.cdshooks.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.Bundle;
@@ -42,12 +43,10 @@ public class MedicationPrescribeService extends CdsService {
 
     logger.info("handleRequest: start");
     logger.info("Medications bundle size: " + request.getContext().getMedications().getEntry().size());
-    MedicationRequest medicationRequest = null;
-    for (Bundle.BundleEntryComponent bec: request.getContext().getMedications().getEntry()) {
-      if (bec.hasResource()) {
-        medicationRequest = (MedicationRequest) bec.getResource();
-      }
-    }
+
+    MedicationPrescribeFetcher fetcher = new MedicationPrescribeFetcher(request.getContext(),
+        request.getPrefetch());
+    fetcher.fetch();
 
     if (request.getPrefetch().getPatient() != null) {
       logger.info("handleRequest: patient birthdate: "
@@ -72,19 +71,16 @@ public class MedicationPrescribeService extends CdsService {
           + request.getPrefetch().getProvider().getName().get(0).getFamily());
     }
 
-    if (medicationRequest == null) {
+    if (fetcher.hasRequest()) {
+      List<Annotation> list = fetcher.getMedicationRequest().getNote();
+      if (!list.isEmpty()) {
+        logger.info("handleRequest: " + fetcher.getMedicationRequest().getNote().get(0).getText());
+      } else {
+        logger.info("handleRequest: no notes specified");
+      }
+    } else {
       // TODO: raise error
       logger.error("No request provided!");
-    }
-
-    String msg = "response";
-
-    List<Annotation> list = medicationRequest.getNote();
-    if (!list.isEmpty()) {
-      msg = medicationRequest.getNote().get(0).getText();
-      logger.info("handleRequest: " + medicationRequest.getNote().get(0).getText());
-    } else {
-      logger.info("handleRequest: no notes specified");
     }
 
     CdsResponse response = new CdsResponse();

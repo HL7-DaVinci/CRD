@@ -45,6 +45,16 @@ public class MedicationPrescribeFetcher {
    * Fetches the remaining resources referenced by the context that are not found in the prefetch.
    */
   public void fetch() {
+    // TODO
+    // fetch anything referenced in the context that is missing from the prefetch
+    logger.info("fetcher: patient ID : " + context.getPatientId());
+  }
 
+  /**
+   * Checks if a valid request was provided in the context.
+   * @return true if a request was provided, false otherwise.
+   */
+  public boolean hasRequest() {
+    return (medicationRequest != null);
   }
 }
