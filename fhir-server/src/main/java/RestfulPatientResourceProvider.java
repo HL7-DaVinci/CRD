@@ -28,11 +28,7 @@ import java.util.Random;
 public class RestfulPatientResourceProvider implements IResourceProvider {
   private int currentId = 1;
   private Map<String,Patient> repository = new HashMap<>();
-  /**
-   * The getResourceType method comes from IResourceProvider, and must
-   * be overridden to indicate what type of resource this provider
-   * supplies.
-   */
+
 
   public RestfulPatientResourceProvider() {
     // Populate the server with some resources
@@ -56,6 +52,11 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
 
   }
 
+  /**
+   * The getResourceType method comes from IResourceProvider, and must
+   * be overridden to indicate what type of resource this provider
+   * supplies.
+   */
   @Override
   public Class<Patient> getResourceType() {
     return Patient.class;
@@ -86,14 +87,14 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
    * example searches by family name.
    *
    * @param theFamilyName
-   *    This operation takes one parameter which is the search criteria. It is
-   *    annotated with the "@Required" annotation. This annotation takes one argument,
-   *    a string containing the name of the search criteria. The datatype here
-   *    is StringParam, but there are other possible parameter types depending on the
-   *    specific search criteria.
+   *        This operation takes one parameter which is the search criteria. It is
+   *        annotated with the "@Required" annotation. This annotation takes one argument,
+   *        a string containing the name of the search criteria. The datatype here
+   *        is StringParam, but there are other possible parameter types depending on the
+   *        specific search criteria.
    * @return
-   *    This method returns a list of Patients. This list may contain multiple
-   *    matching resources, or it may also be empty.
+   *        This method returns a list of Patients. This list may contain multiple
+   *        matching resources, or it may also be empty.
    */
   @Search()
   public List<Patient> getPatient(@RequiredParam(name = Patient.SP_FAMILY) StringParam theFamilyName) {
@@ -110,6 +111,17 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
   }
 
 
+  /**
+   * Allows resources to be POSTed to the server and saved
+   * to the database.
+   *
+   * @param thePatient
+   *        The resource that is passed to the function
+   *        in the body of the request that gets put into the
+   *        database.
+   * @return
+   *        Returns the status of the request from the server.
+   */
   @Create()
   public MethodOutcome createPatient(@ResourceParam Patient thePatient) {
     /*
@@ -124,23 +136,22 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
        */
       throw new UnprocessableEntityException("No identifier supplied");
     }
-    thePatient.setId("1234");
-    // Save this patient to the database...
-    savePatientToDatabase(thePatient);
-
-
-
     // This method returns a MethodOutcome object which contains
     // the ID (composed of the type Patient, the logical ID 3746, and the
     // version ID 1)
     MethodOutcome retVal = new MethodOutcome();
-    retVal.setId(new IdType("Patient", "3746", "1"));
+    if (!thePatient.hasId()) {
+      OperationOutcome outcome = new OperationOutcome();
+      outcome.addIssue().setDiagnostics("Resources should specify an ID");
+      thePatient.setId(Integer.toString(thePatient.hashCode()));
+      retVal.setOperationOutcome(outcome);
+    }
+    retVal.setId(new IdType("Patient", thePatient.getId(), "1"));
 
-    // You can also add an OperationOutcome resource to return
-    // This part is optional though:
-    OperationOutcome outcome = new OperationOutcome();
-    outcome.addIssue().setDiagnostics("One minor issue detected");
-    retVal.setOperationOutcome(outcome);
+    // Save this patient to the database...
+    savePatientToDatabase(thePatient);
+
+
 
 
     return retVal;
