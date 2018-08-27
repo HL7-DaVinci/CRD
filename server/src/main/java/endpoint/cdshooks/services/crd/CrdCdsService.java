@@ -13,10 +13,18 @@ import org.hl7.davinci.cdshooks.CdsService;
 import org.hl7.davinci.cdshooks.Hook;
 import org.hl7.davinci.cdshooks.Prefetch;
 
+import org.hl7.davinci.cdshooks.orderreview.OrderReviewFetcher;
 import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.Bundle;
+
 import org.hl7.fhir.r4.model.DeviceRequest;
+import org.hl7.fhir.r4.model.MedicationRequest;
+import org.hl7.fhir.r4.model.ServiceRequest;
+import org.hl7.fhir.r4.model.NutritionOrder;
+import org.hl7.fhir.r4.model.SupplyRequest;
+
+import org.hl7.fhir.r4.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +60,11 @@ public class CrdCdsService extends CdsService {
 
     logger.info("handleRequest: start");
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
-    DeviceRequest deviceRequest = null;
-    for (Bundle.BundleEntryComponent bec: request.getContext().getOrders().getEntry()) {
-      if (bec.hasResource()) {
-        deviceRequest = (DeviceRequest) bec.getResource();
-      }
-    }
 
+    OrderReviewFetcher fetcher = new OrderReviewFetcher(request.getContext(), request.getPrefetch());
+    fetcher.fetch();
+
+    // output some of the data
     if (request.getPrefetch().getPatient() != null) {
       logger.info("handleRequest: patient birthdate: "
           + request.getPrefetch().getPatient().getBirthDate().toString());
@@ -80,21 +86,6 @@ public class CrdCdsService extends CdsService {
       logger.info("handleRequest: provider name: "
           + request.getPrefetch().getProvider().getName().get(0).getPrefixAsSingleString() + " "
           + request.getPrefetch().getProvider().getName().get(0).getFamily());
-    }
-
-    if (deviceRequest == null) {
-      // TODO: raise error
-      logger.error("No request provided!");
-    }
-
-    String msg = "response";
-
-    List<Annotation> list = deviceRequest.getNote();
-    if (!list.isEmpty()) {
-      msg = deviceRequest.getNote().get(0).getText();
-      logger.info("handleRequest: " + deviceRequest.getNote().get(0).getText());
-    } else {
-      logger.info("handleRequest: no notes specified");
     }
 
     CdsResponse response = new CdsResponse();
