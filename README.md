@@ -39,4 +39,4 @@ This task can also be run to reset the data in the table to match the csv.
 
 * Select the gradle tool window
 * Choose CRD --> :server --> Tasks --> application --> bootRun
-* Run TestClient.main()
+* Run org.hl7.davinci.testClient.TestClient.main()
