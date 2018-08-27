@@ -7,9 +7,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import endpoint.Application;
-import endpoint.database.CoverageRequirementRule;
+import org.hl7.davinci.endpoint.Application;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import java.io.IOException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,6 +34,8 @@ public class ServerTest {
 
   @Autowired
   private MockMvc mockMvc;
+
+  private String token;
 
   public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
     ObjectMapper mapper = new ObjectMapper();

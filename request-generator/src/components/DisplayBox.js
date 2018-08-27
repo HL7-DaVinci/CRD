@@ -276,10 +276,9 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
                   />
                 ));
               }
-      
-              const classes = cx(styles['decision-card'], styles.alert, styles[`alert-${card.indicator}`]);      
+    
               const builtCard = (
-                <TerraCard key={cardInd} className={classes}>
+                <TerraCard key={cardInd} className='decision-card alert-info'>
                   {summarySection}
                   {sourceSection}
                   {detailSection}
@@ -295,7 +294,7 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
             });
           }
 
-          if (renderedCards.length === 0) { return <div>No Cards</div>; }
+          if (renderedCards.length === 0) { return <div><div className='decision-card alert-warning'>No Cards</div></div>; }
           return <div>{renderedCards}</div>;
         }
       }
