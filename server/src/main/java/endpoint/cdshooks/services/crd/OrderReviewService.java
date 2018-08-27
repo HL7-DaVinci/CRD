@@ -33,23 +33,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Component
-public class CrdCdsService extends CdsService {
+public class OrderReviewService extends CdsService {
 
-  static final Logger logger = LoggerFactory.getLogger(CrdCdsService.class);
+  static final Logger logger = LoggerFactory.getLogger(OrderReviewService.class);
 
-  public static final String ID = "coverage-requirements-discovery";
-  public static final String TITLE = "Coverage Requirements Discovery";
+  public static final String ID = "order-review-crd";
+  public static final String TITLE = "order-review Coverage Requirements Discovery";
   public static final Hook HOOK = Hook.ORDER_REVIEW;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
   public static final Prefetch PREFETCH = null;
 
-  public CrdCdsService() {
+  public OrderReviewService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
   }
-
-  @Autowired
-  private FhirComponents fhirComponents;
 
   /**
    * Handle the post request to the service.
