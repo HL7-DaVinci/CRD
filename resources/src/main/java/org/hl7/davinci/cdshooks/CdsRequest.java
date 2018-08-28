@@ -20,7 +20,7 @@ public class CdsRequest {
   //  @NotNull TODO: why does this break validation if we extend this class???
   private Object context = null;
 
-  private Object prefetch = null;
+  private CrdPrefetch prefetch = null;
 
   public Hook getHook() {
     return hook;
@@ -70,11 +70,11 @@ public class CdsRequest {
     this.context = context;
   }
 
-  public Object getPrefetch() {
+  public CrdPrefetch getPrefetch() {
     return prefetch;
   }
 
-  public void setPrefetch(Object prefetch) {
+  public void setPrefetch(CrdPrefetch prefetch) {
     this.prefetch = prefetch;
   }
 

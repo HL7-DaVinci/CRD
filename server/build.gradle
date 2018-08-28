@@ -37,7 +37,6 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-security')
 
     compile 'org.keycloak:keycloak-spring-boot-2-starter:4.0.0.Beta2'
-    compile group: 'com.allanditzel', name: 'spring-security-csrf-token-filter', version: '1.1'
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     compile("org.springframework.boot:spring-boot-devtools")

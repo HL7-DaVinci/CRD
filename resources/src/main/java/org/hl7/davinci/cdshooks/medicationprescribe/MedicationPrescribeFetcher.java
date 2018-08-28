@@ -1,6 +1,6 @@
 package org.hl7.davinci.cdshooks.medicationprescribe;
 
-import org.hl7.davinci.cdshooks.CrdPrefetch;
+import org.hl7.davinci.cdshooks.AbstractFetcher;
 import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,18 +9,17 @@ import org.slf4j.LoggerFactory;
  * The MedicationPrescribeFetcher pulls the bundle information out of the MedicationPrescribe and fetches
  * any references that are not found in the prefetch.
  */
-public class MedicationPrescribeFetcher {
+public class MedicationPrescribeFetcher extends AbstractFetcher {
 
   static final Logger logger = LoggerFactory.getLogger(MedicationPrescribeFetcher.class);
 
   private MedicationPrescribeContext context;
-  private CrdPrefetch prefetch;
 
   private MedicationRequest medicationRequest = null;
 
-  public MedicationPrescribeFetcher(MedicationPrescribeContext context, CrdPrefetch prefetch) {
+  public MedicationPrescribeFetcher(MedicationPrescribeRequest request) {
+    super(request);
     this.context = context;
-    this.prefetch = prefetch;
 
 
     // loop through the bundles in the context building up the request information
@@ -57,4 +56,5 @@ public class MedicationPrescribeFetcher {
   public boolean hasRequest() {
     return (medicationRequest != null);
   }
+
 }

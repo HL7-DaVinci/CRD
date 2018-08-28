@@ -1,38 +1,35 @@
 package org.hl7.davinci.cdshooks.orderreview;
 
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+
 import org.hl7.davinci.Utilities;
-import org.hl7.davinci.cdshooks.CrdPrefetch;
+import org.hl7.davinci.cdshooks.AbstractFetcher;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import javafx.util.Pair;
 
 /**
  * The OrderReviewFetcher pulls the bundle information out of the OrderReview and fetches
  * any references that are not found in the prefetch.
  */
-public class OrderReviewFetcher {
+public class OrderReviewFetcher extends AbstractFetcher {
 
   static final Logger logger = LoggerFactory.getLogger(OrderReviewFetcher.class);
 
   private OrderReviewContext context;
-  private CrdPrefetch prefetch;
 
   private DeviceRequest deviceRequest = null;
   private ServiceRequest serviceRequest = null;
   private NutritionOrder nutritionOrder = null;
   private SupplyRequest supplyRequest = null;
 
-  private Map<Pair<ResourceType, String>, Resource> resources;
 
-  public OrderReviewFetcher(OrderReviewContext context, CrdPrefetch prefetch) {
-    this.context = context;
-    this.prefetch = prefetch;
-
-    resources = new HashMap<Pair<ResourceType, String>, Resource>();
+  public OrderReviewFetcher(OrderReviewRequest request) {
+    super(request);
+    this.context = request.getContext();
 
     // loop through the bundles in the context building up the request information
     for (Bundle.BundleEntryComponent bec: context.getOrders().getEntry()) {
@@ -64,11 +61,6 @@ public class OrderReviewFetcher {
   public NutritionOrder getNutritionOrder() { return nutritionOrder; }
   public SupplyRequest getSupplyRequest() { return supplyRequest; }
 
-  public Resource getResource(ResourceType type, String reference) {
-    Pair<ResourceType, String> key = new Pair<>(type, reference);
-    return resources.get(key);
-  }
-
   /**
    * Fetches the remaining resources referenced by the context that are not found in the prefetch.
    */
@@ -85,6 +77,7 @@ public class OrderReviewFetcher {
     if (deviceRequest != null) {
       logger.info("fetcher: subject ref: " + deviceRequest.getSubject().getReference());
 
+      boolean fetchPatient = false;
       // look in the prefetch
       if (prefetch.getPatient() != null) {
 
@@ -96,17 +89,26 @@ public class OrderReviewFetcher {
           logger.info("fetching: patient (wrong ID)");
           logger.info("    patient.ID: '" + prefetch.getPatient().getId() + "'");
           logger.info("    patientID : '" + deviceRequest.getSubject().getReference() + "'");
-
-          Patient patient = new Patient();
-          patient.setId(deviceRequest.getSubject().getReference());
-          prefetch.setPatient(patient);
+          fetchPatient = true;
         }
       } else {
         // fetch it
         logger.info("fetching: patient (missing)");
-        Patient patient = new Patient();
-        patient.setId(deviceRequest.getSubject().getReference());
-        prefetch.setPatient(patient);
+        fetchPatient = true;
+      }
+
+      if (fetchPatient) {
+        IGenericClient client = composeClient(fhirServer, oauth);
+
+        String pip = deviceRequest.getSubject().getReference();
+        // Change from regex to something more robust in getting references.
+        String[] resourceToGet = pip.split("/");
+        IBaseResource fhirResource = client.read()
+            .resource(resourceToGet[0])
+            .withId(resourceToGet[1])
+            .execute();
+
+        prefetch.setPatient((Patient) fhirResource);
       }
 
       // add the patient to the resources map
