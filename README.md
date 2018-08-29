@@ -39,28 +39,26 @@ On the left side of the diagram, we have two components that simulate functional
 ### Healthcare Payer Components
 `server` is an implementation of a CDS Service. It handles CDS Hooks requests and returns results. The service performs some basic parsing of the request to extract basic demographic information and the code of the requested item. Based on that information, the service will consult a simple database and then return information from the database in CDS Hook cards. The simplistic documentation requirements rules can be modified via an administrative web interface.
 
-## Building and running the server subproject from the command line
+## Prerequisites
+* Java - At least JDK 8 - [Oracle JDK Downloads](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* Gradle 4.9 - [Gradle Installation Instructions](https://gradle.org/install/)
+* (server only) - PostgreSQL 9.3 - [PostgreSQL Downloads](https://www.postgresql.org/download/)
+* (optional) Keycloak - [Keycloak](https://www.keycloak.org/downloads.html)
+* (request-generator only) - node.js - [node.js Downloads](https://nodejs.org/en/download/)
+
+## Building, testing and running
 1. Clone the repo
-	* `git clone https://github.com/HL7-DaVinci/CRD.git`
-1. Install dependencies (gradle, postgresql)
+  * `git clone https://github.com/HL7-DaVinci/CRD.git`
+1. Test the code (optional)
+  * `gradle clean check`
 1. Build the code
-	* `gradle build`
-1. Running from the command line
-	* Run the fhir server
-		* `gradle :server:bootRun`
-	* Run the testing client
-		* `gradle :testingClient:run`
-	* Run the creator tool
-		* `gradle :creator:run -PappArgs="['/tmp/']"`
+  * `gradle build`
 
-## Seting up the server DB
-1. Install and run postgresql
-1. Run the gradle task, it will create a database named 'dme' and populate it with a rules table, and the sample rules will be loaded from the csv file.
-  * `gradle setupDb` 
-
-This task can also be run to reset the data in the table to match the csv.
+Visit the [server README](server/README.md) to see how to run the server or the [request-generator README](request-generator/README.md) for information on running these subprojects. 
 
 ## Setting up a KeyCloak instance
+If you want to test CRD in a secure fashion using OAuth, you will need to install and configure Keycloak. The following instructions are for configuring Keycloak for all subprojects in the RI:
+
 1. Download and unzip KeyCloak Server from [here](https://www.keycloak.org/downloads.html)
 2. From command line navigate to the directory KeyCloak was downloaded to and then type `unzip keycloak-<Version>.Final.zip` followed by `cd keycloak-<Version>.Final/bin`
 3. Run `./standalone.sh -Djboss.socket.binding.port-offset=100` from command line to start the server.  It should run on port 8180
@@ -80,16 +78,19 @@ This task can also be run to reset the data in the table to match the csv.
 	* Change `fhir-server/resources/fhirServer.properties` to have the client ID and secret of the bearer only client in the second realm
 	* Change `request-generator/src/properties.json` to include the second realm and public client ID
 
-## Developing
-### Setup
+## Preferred Development Environment
+The core CRD team develops with [IntelliJ IDEA](https://www.jetbrains.com/idea/). There are no requirements on using this as a Java IDE for working on the project and any other Java IDE should work fine.
 
-1. Install IntelliJ Idea
-2. Create new project from existing sources
-3. Choose the CRD folder
-4. Specify that it is a gradle project
+### IntelliJ IDEA Setup
+1. Create new project from existing sources
+2. Choose the CRD folder
+3. Specify that it is a gradle project
 
-### Running from the UI
+### Running the server from the IntelliJ IDEA UI
+1. Select the gradle tool window
+1. Choose CRD --> :server --> Tasks --> application --> bootRun
 
-* Select the gradle tool window
-* Choose CRD --> :server --> Tasks --> application --> bootRun
-* Run org.hl7.davinci.testClient.TestClient.main()
+## Questions and Contributions
+Questions about the project can be asked in the [DaVinci stream on the FHIR Zulip Chat](https://chat.fhir.org/#narrow/stream/128-DaVinci).
+
+This project welcomes Pull Requests. Any issues identified with the RI should be submitted via the [GitHub issue tracker](https://github.com/HL7-DaVinci/CRD/issues).
