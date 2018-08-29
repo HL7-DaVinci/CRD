@@ -30,7 +30,7 @@ public abstract class AbstractFetcher {
    * @param request contains data needed by the fetcher
    */
   public AbstractFetcher(CdsRequest request) {
-    this.prefetch = request.getPrefetch();
+//    this.prefetch = request.getPrefetch();
     this.oauth = (LinkedHashMap) request.getOauth();
     this.fhirServer = request.getFhirServer();
 

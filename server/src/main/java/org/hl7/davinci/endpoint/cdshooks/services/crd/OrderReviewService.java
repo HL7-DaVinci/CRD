@@ -1,11 +1,16 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import java.util.HashMap;
+import java.util.List;
+import org.hl7.davinci.Utilities;
+import org.hl7.davinci.cdshooks.PrefetchResponse;
 import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.orderreview.OrderReviewFetcher;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 
 import javax.validation.Valid;
 
+import org.hl7.davinci.endpoint.components.prefetchHydrator.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.CdsService;
@@ -14,6 +19,13 @@ import org.hl7.davinci.cdshooks.Prefetch;
 
 import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.DeviceRequest;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.DeviceRequest;
+import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -35,7 +47,53 @@ public class OrderReviewService extends CdsService {
   public static final Hook HOOK = Hook.ORDER_REVIEW;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
-  public static final Prefetch PREFETCH = null;
+  public static final Prefetch PREFETCH;
+  static {
+    PREFETCH = new Prefetch();
+    PREFETCH.put("DeviceRequestBundle","DeviceRequest?id={{context.orders.DeviceRequest.id}}"
+        + "&_include=DeviceRequest:patient"
+        + "&_include=DeviceRequest:performer"
+        + "&_include=DeviceRequest:requester"
+        + "&_include=DeviceRequest:device"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=DeviceRequest:insurance:Coverage");
+    PREFETCH.put("MedicationRequestBundle","MedicationRequest?id={{context.orders.MedicationRequest.id}}"
+        + "&_include=MedicationRequest:patient"
+        + "&_include=MedicationRequest:intended-dispenser"
+        + "&_include=MedicationRequest:requester:PractitionerRole"
+        + "&_include=MedicationRequest:medication"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=MedicationRequest:insurance:Coverage");
+    PREFETCH.put("NutritionOrderBundle","NutritionOrder?id={{context.orders.NutritionOrder.id}}"
+        + "&_include=NutritionOrder:patient"
+        + "&_include=NutritionOrder:provider"
+        + "&_include=NutritionOrder:requester"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=NutritionOrder:encounter"
+        + "&_include=Encounter:location"
+        + "&_include=NutritionOrder:insurance:Coverage");
+    PREFETCH.put("ServiceRequestBundle","ServiceRequest?id={{context.orders.ServiceRequest.id}}"
+        + "&_include=ServiceRequest:patient"
+        + "&_include=ServiceRequest:performer"
+        + "&_include=ServiceRequest:requester"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=ServiceRequest:insurance:Coverage");
+    PREFETCH.put("SupplyRequestBundle","SupplyRequest?id={{context.orders.SupplyRequest.id}}&"
+        + "_include=SupplyRequest:patient"
+        + "&_include=SupplyRequest:supplier:Organization"
+        + "&_include=SupplyRequest:requester:Practitioner"
+        + "&_include=SupplyRequest:requester:Organization"
+        + "&_include=SupplyRequest:Requester:PractitionerRole"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=SupplyRequest:insurance:Coverage");
+  }
+
+
 
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
@@ -53,39 +111,40 @@ public class OrderReviewService extends CdsService {
     logger.info("handleRequest: start");
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
 
-    OrderReviewFetcher fetcher = new OrderReviewFetcher(request);
-    //fetcher.fetch();
+    //note currently we only use the device request if its in the prefetch or we get it into
+    //the prefetch, so we dont use it if its just in the context since it wont have patient etc.
 
-    // output some of the data
-    if (request.getPrefetch().getPatient() != null) {
-      logger.info("handleRequest: patient birthdate: "
-          + request.getPrefetch().getPatient().getBirthDate().toString());
-    }
-    if (request.getPrefetch().getCoverage() != null) {
-      logger.info("handleRequest: coverage id: "
-          + request.getPrefetch().getCoverage().getId());
-    }
-    if (request.getPrefetch().getLocation() != null) {
-      logger.info("handleRequest: location address: "
-          + request.getPrefetch().getLocation().getAddress().getCity() + ", "
-          + request.getPrefetch().getLocation().getAddress().getState());
-    }
-    if (request.getPrefetch().getInsurer() != null) {
-      logger.info("handleRequest: insurer id: "
-          + request.getPrefetch().getInsurer().getName());
-    }
-    if (request.getPrefetch().getProvider() != null) {
-      logger.info("handleRequest: provider name: "
-          + request.getPrefetch().getProvider().getName().get(0).getPrefixAsSingleString() + " "
-          + request.getPrefetch().getProvider().getName().get(0).getFamily());
-    }
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request);
+    prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible
 
-    if (!fetcher.hasRequest()) {
-      // TODO: raise error
-      logger.error("No request provided!");
+    IBaseResource drbResource = request.getPrefetch().get("DeviceRequestBundle");
+    if (drbResource.getClass() != Bundle.class) {
+      logger.error("Prefetch DeviceRequestBundle not a bundle");
     }
+    List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
+        DeviceRequest.class, (Bundle) drbResource);
 
     CdsResponse response = new CdsResponse();
+    for (DeviceRequest deviceRequest: deviceRequestList) {
+      // TODO - Replace this with database lookup logic
+      response.addCard(CardBuilder.summaryCard("Responses from this service are currently hard coded."));
+
+      CoverageRequirementRule crr = new CoverageRequirementRule();
+      crr.setAgeRangeHigh(80);
+      crr.setAgeRangeLow(55);
+      crr.setEquipmentCode("E0424");
+      crr.setGenderCode("F".charAt(0));
+      crr.setNoAuthNeeded(false);
+      crr.setInfoLink("https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/"
+          + "MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf");
+
+      response.addCard(CardBuilder.transform(crr));
+    }
+
+    logger.info("handleRequest: end");
+    return response;
+
+
 
     Patient patient = request.getPrefetch().getPatient();
     CodeableConcept cc = null;

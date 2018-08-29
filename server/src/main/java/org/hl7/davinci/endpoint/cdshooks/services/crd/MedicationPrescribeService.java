@@ -47,28 +47,28 @@ public class MedicationPrescribeService extends CdsService {
     MedicationPrescribeFetcher fetcher = new MedicationPrescribeFetcher(request);
     fetcher.fetch();
 
-    if (request.getPrefetch().getPatient() != null) {
-      logger.info("handleRequest: patient birthdate: "
-          + request.getPrefetch().getPatient().getBirthDate().toString());
-    }
-    if (request.getPrefetch().getCoverage() != null) {
-      logger.info("handleRequest: coverage id: "
-          + request.getPrefetch().getCoverage().getId());
-    }
-    if (request.getPrefetch().getLocation() != null) {
-      logger.info("handleRequest: location address: "
-          + request.getPrefetch().getLocation().getAddress().getCity() + ", "
-          + request.getPrefetch().getLocation().getAddress().getState());
-    }
-    if (request.getPrefetch().getInsurer() != null) {
-      logger.info("handleRequest: insurer id: "
-          + request.getPrefetch().getInsurer().getName());
-    }
-    if (request.getPrefetch().getProvider() != null) {
-      logger.info("handleRequest: provider name: "
-          + request.getPrefetch().getProvider().getName().get(0).getPrefixAsSingleString() + " "
-          + request.getPrefetch().getProvider().getName().get(0).getFamily());
-    }
+//    if (request.getPrefetch().getPatient() != null) {
+//      logger.info("handleRequest: patient birthdate: "
+//          + request.getPrefetch().getPatient().getBirthDate().toString());
+//    }
+//    if (request.getPrefetch().getCoverage() != null) {
+//      logger.info("handleRequest: coverage id: "
+//          + request.getPrefetch().getCoverage().getId());
+//    }
+//    if (request.getPrefetch().getLocation() != null) {
+//      logger.info("handleRequest: location address: "
+//          + request.getPrefetch().getLocation().getAddress().getCity() + ", "
+//          + request.getPrefetch().getLocation().getAddress().getState());
+//    }
+//    if (request.getPrefetch().getInsurer() != null) {
+//      logger.info("handleRequest: insurer id: "
+//          + request.getPrefetch().getInsurer().getName());
+//    }
+//    if (request.getPrefetch().getProvider() != null) {
+//      logger.info("handleRequest: provider name: "
+//          + request.getPrefetch().getProvider().getName().get(0).getPrefixAsSingleString() + " "
+//          + request.getPrefetch().getProvider().getName().get(0).getFamily());
+//    }
 
     if (fetcher.hasRequest()) {
       List<Annotation> list = fetcher.getMedicationRequest().getNote();

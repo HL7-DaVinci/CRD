@@ -32,10 +32,11 @@ public class CrdRequestCreator {
     OrderReviewContext context = new OrderReviewContext();
     CrdPrefetch prefetch = new CrdPrefetch();
     request.setContext(context);
-    request.setPrefetch(prefetch);
+//    request.setPrefetch(prefetch);
 
     DeviceRequest dr = new DeviceRequest();
     dr.setStatus(DeviceRequest.DeviceRequestStatus.DRAFT);
+    dr.setId("DeviceRequest/123");
 
     Coding oxygen = new Coding().setCode("E0424").setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
             .setDisplay("Stationary Compressed Gaseous Oxygen System, Rental");
