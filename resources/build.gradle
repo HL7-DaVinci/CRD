@@ -7,4 +7,8 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
     compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     compile group: 'org.springframework', name: 'spring-context', version: '5.0.8.RELEASE'
+
+    compile('ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'){
+            exclude group: 'org.thymeleaf'
+    }
 }
