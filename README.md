@@ -26,7 +26,27 @@ This software lets EHR vendors and payer organizations examine how the proposed 
   * `gradle setupDb` 
 
 This task can also be run to reset the data in the table to match the csv.
-  
+
+## Setting up a KeyCloak instance
+1. Download and unzip KeyCloak Server from [here](https://www.keycloak.org/downloads.html)
+2. From command line navigate to the directory KeyCloak was downloaded to and then type `unzip keycloak-<Version>.Final.zip` followed by `cd keycloak-<Version>.Final/bin`
+3. Run `./standalone.sh -Djboss.socket.binding.port-offset=100` from command line to start the server.  It should run on port 8180
+4. Navigate to the KeyCloak instance in a browser, it should be at [http://localhost:8180/](http://localhost:8180)
+5. When prompted, create a new administrative username and password.
+6. Create two realms, one for the client fhir server, and one for the CRD implementation, choose any name.  Both realms follow the same following steps, the only difference should be the names of the clients
+7. Make two clients by navigating to the `Clients` tab
+	* Make one client public and the other bearer-only with the `Access-type` dropdown.
+	* Find the `Web Origins` input and add the address of the client fhir server and the CRD server.  Alternatively just 	       put `*` in `Web Origins` if running everything locally.
+	* Add a redirect URL, can generally work fine as the base url of the server such as [http://localhost:8080](http://localhost:8080)
+8. Navigate to the `Roles` tab and make a new role called `user`
+	* Navigate to the `Users` tab and make a new user.  
+	* Give the new user a password in the `credentials` tab
+	* Go to `Role Mappings` and add the `user` role
+9. Modify config files to point at the your new clients and realms
+	* Change `server/resources/application.yml` keycloak settings to point at the bearer only client in one of the realms
+	* Change `fhir-server/resources/fhirServer.properties` to have the client ID and secret of the bearer only client in the second realm
+	* Change `request-generator/src/properties.json` to include the second realm and public client ID
+
 ## Developing
 ### Setup
 
