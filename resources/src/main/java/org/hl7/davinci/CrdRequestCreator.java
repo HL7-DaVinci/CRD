@@ -77,6 +77,10 @@ public class CrdRequestCreator {
         .setPostalCode("01730"));
     prefetch.setLocation(facility);
 
+    Device device = new Device();
+    device.setType(new CodeableConcept().addCoding(oxygen));
+    prefetch.setDevice(device);
+
     PractitionerRole pr = new PractitionerRole();
     pr.setId(idString());
     pr.setPractitioner(generateReference(provider));

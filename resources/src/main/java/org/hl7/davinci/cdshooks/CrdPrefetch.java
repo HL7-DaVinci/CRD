@@ -50,11 +50,11 @@ public class CrdPrefetch {
 
   // associated Medication
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  private CodeableConcept medication;
+  private Medication medication;
 
   // associated Device
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  private CodeableConcept device;
+  private Device device;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
   private Organization insurer;
@@ -95,9 +95,9 @@ public class CrdPrefetch {
     return location;
   }
 
-  public CodeableConcept getMedication() { return medication; }
+  public Medication getMedication() { return medication; }
 
-  public CodeableConcept getDevice() { return device; }
+  public Device getDevice() { return device; }
 
   public Organization getInsurer() {
     return insurer;
@@ -131,9 +131,9 @@ public class CrdPrefetch {
     this.location = location;
   }
 
-  public void setMedication(CodeableConcept medication) { this.medication = medication; }
+  public void setMedication(Medication medication) { this.medication = medication; }
 
-  public void setDevice(CodeableConcept device) { this.device = device; }
+  public void setDevice(Device device) { this.device = device; }
 
   public void setInsurer(Organization insurer) {
     this.insurer = insurer;
@@ -253,8 +253,7 @@ public class CrdPrefetch {
   public void setMedicationFhirResource(JsonNode fhirResource) {
     String fhirString = fhirResource.toString();
     try {
-      //TODO: parse CodeableConcept from the json
-      //medication = fhirContext.newJsonParser().parseResource(CodeableConcept.class, fhirString);
+      medication = fhirContext.newJsonParser().parseResource(Medication.class, fhirString);
     } catch (Exception e) {
       logger.warn("failed to parse medication: " + e.getMessage());
     }
@@ -268,8 +267,7 @@ public class CrdPrefetch {
   public void setDeviceFhirResource(JsonNode fhirResource) {
     String fhirString = fhirResource.toString();
     try {
-      //TODO: parse CodeableConcept from the json
-      //device = fhirContext.newJsonParser().parseResource(CodeableConcept.class, fhirString);
+      device = fhirContext.newJsonParser().parseResource(Device.class, fhirString);
     } catch (Exception e) {
       logger.warn("failed to parse device: " + e.getMessage());
     }
