@@ -31,4 +31,4 @@ This will start the server running on http://localhost:8090.
 |`/cds-services/medication-prescribe-crd`|CDS Hook endpoint for medication-prescribe|
 
 ## Configuration
-As a Spring Boot application, configuration information is maintained in [application.yml](src/resources/application.yml).
+As a Spring Boot application, configuration information is maintained in [application.yml](src/main/resources/application.yml).
