@@ -53,7 +53,7 @@ public class CrdRequestCreator {
     patient.setBirthDate(patientBirthdate);
     context.setPatientId(patient.getId());
     prefetch.setPatient(patient);
-    dr.setSubject(generateReference(patient));
+    dr.setSubject(generateReference(ResourceType.Patient, patient));
 
     // create a Practitioner object with ID set
     Practitioner provider = new Practitioner();
@@ -83,10 +83,10 @@ public class CrdRequestCreator {
 
     PractitionerRole pr = new PractitionerRole();
     pr.setId(idString());
-    pr.setPractitioner(generateReference(provider));
-    pr.addLocation(generateReference(facility));
+    pr.setPractitioner(generateReference(ResourceType.Practitioner, provider));
+    pr.addLocation(generateReference(ResourceType.Location, facility));
     prefetch.setPractitionerRole(pr);
-    dr.setPerformer(generateReference(pr));
+    dr.setPerformer(generateReference(ResourceType.PractitionerRole, pr));
     prefetch.setPractitionerRole(pr);
 
     // create a Coverage object with ID set
@@ -96,8 +96,8 @@ public class CrdRequestCreator {
     Coverage.ClassComponent coverageClass = new Coverage.ClassComponent();
     coverageClass.setType(planCode).setValue("Medicare Part D");
     coverage.addClass_(coverageClass);
-    coverage.addPayor(generateReference(insurer));
-    dr.addInsurance(generateReference(coverage));
+    coverage.addPayor(generateReference(ResourceType.Organization, insurer));
+    dr.addInsurance(generateReference(ResourceType.Coverage, coverage));
     prefetch.setCoverage(coverage);
 
     return request;
@@ -108,8 +108,8 @@ public class CrdRequestCreator {
     return uuid.toString();
   }
 
-  private static Reference generateReference(Resource resource) {
+  private static Reference generateReference(ResourceType type, Resource resource) {
     Reference reference = new Reference();
-    return reference.setReference(String.format("urn:uuid:%s", resource.getId()));
+    return reference.setReference(String.format("%s/%s", type.toString(), resource.getId()));
   }
 }

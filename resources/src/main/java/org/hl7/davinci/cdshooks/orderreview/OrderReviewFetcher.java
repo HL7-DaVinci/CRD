@@ -26,7 +26,10 @@ public class OrderReviewFetcher extends AbstractFetcher {
   private NutritionOrder nutritionOrder = null;
   private SupplyRequest supplyRequest = null;
 
-
+  /**
+   * Constructor building the fetcher and parsing the bundles out of the context.
+   * @param request contains data needed by the fetcher
+   */
   public OrderReviewFetcher(OrderReviewRequest request) {
     super(request);
     this.context = request.getContext();
@@ -57,8 +60,11 @@ public class OrderReviewFetcher extends AbstractFetcher {
   }
 
   public DeviceRequest getDeviceRequest() { return deviceRequest; }
+
   public ServiceRequest getServiceRequest() { return serviceRequest; }
+
   public NutritionOrder getNutritionOrder() { return nutritionOrder; }
+
   public SupplyRequest getSupplyRequest() { return supplyRequest; }
 
   /**
@@ -114,7 +120,6 @@ public class OrderReviewFetcher extends AbstractFetcher {
       // add the patient to the resources map
       Pair<ResourceType, String> key = new Pair<>(ResourceType.Patient, deviceRequest.getSubject().getReference());
       resources.put(key, prefetch.getPatient());
-
 
       logger.info("fetcher: performer: " + deviceRequest.getPerformer().getReference());
       logger.info("fetcher: insurance: " + deviceRequest.getInsurance().get(0).getReference());

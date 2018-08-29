@@ -17,6 +17,10 @@ public class MedicationPrescribeFetcher extends AbstractFetcher {
 
   private MedicationRequest medicationRequest = null;
 
+  /**
+   * Constructor building the fetcher and parsing the bundles out of the context.
+   * @param request contains data needed by the fetcher
+   */
   public MedicationPrescribeFetcher(MedicationPrescribeRequest request) {
     super(request);
     this.context = context;

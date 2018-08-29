@@ -123,9 +123,13 @@ public class CrdPrefetch {
 
   public void setOrganization(Organization organization) { this.organization = organization; }
 
-  public void setPerformingPractitioner(Practitioner performingPractitioner) { this.performingPractitioner = performingPractitioner; }
+  public void setPerformingPractitioner(Practitioner performingPractitioner) {
+    this.performingPractitioner = performingPractitioner;
+  }
 
-  public void setPerformingOrganization(Organization performingOrganization) { this.performingOrganization = performingOrganization; }
+  public void setPerformingOrganization(Organization performingOrganization) {
+    this.performingOrganization = performingOrganization;
+  }
 
   public void setLocation(Location location) {
     this.location = location;

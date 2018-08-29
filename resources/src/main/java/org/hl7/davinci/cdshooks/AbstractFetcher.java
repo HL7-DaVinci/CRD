@@ -25,6 +25,10 @@ public abstract class AbstractFetcher {
   protected Map<Pair<ResourceType, String>, Resource> resources;
 
 
+  /**
+   * Constructor called by subclasses that sets member variables based on CdsRequest provided.
+   * @param request contains data needed by the fetcher
+   */
   public AbstractFetcher(CdsRequest request) {
     this.prefetch = request.getPrefetch();
     this.oauth = (LinkedHashMap) request.getOauth();
@@ -33,7 +37,13 @@ public abstract class AbstractFetcher {
     resources = new HashMap<Pair<ResourceType, String>, Resource>();
   }
 
-  final public Resource getResource(ResourceType type, String reference) {
+  /**
+   * Get the resource matching the key values.
+   * @param type is the type of the resource
+   * @param reference is the reference of the resource
+   * @return the indexed Resource
+   */
+  public final Resource getResource(ResourceType type, String reference) {
     Pair<ResourceType, String> key = new Pair<>(type, reference);
     return resources.get(key);
   }
@@ -49,7 +59,7 @@ public abstract class AbstractFetcher {
    */
   public abstract boolean hasRequest();
 
-  final protected IGenericClient composeClient(String server, LinkedHashMap<String,String> oauth) {
+  protected final IGenericClient composeClient(String server, LinkedHashMap<String,String> oauth) {
     FhirContext ctx = FhirContext.forR4();
     BearerTokenAuthInterceptor authInterceptor = new BearerTokenAuthInterceptor(oauth.get("access_token"));
 
