@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.cdshooks.Card;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CardBuilderTest {
   @Test

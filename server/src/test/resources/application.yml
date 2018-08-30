@@ -1,0 +1,21 @@
+# avoid a hibernate error message, fix from https://github.com/pgjdbc/pgjdbc/issues/1102
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation: true
+
+spring:
+  thymeleaf:
+    cache: false
+  datasource:
+    url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.dialect: org.hibernate.dialect.H2Dialect
+      hibernate.hbm2ddl.auto: create-drop
+
+keycloak:
+  auth-server-url: http://localhost:8180/auth
+  realm: SpringBootKeycloak
+  resource: dme-app-access
+  public-client: false
+  principal-attribute: preferred_username

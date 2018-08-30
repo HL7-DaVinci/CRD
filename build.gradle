@@ -28,8 +28,10 @@ subprojects {
         compile 'ca.uhn.hapi.fhir:hapi-fhir-base:3.4.0'
         compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:3.4.0'
 
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.+'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+        testCompileOnly 'junit:junit:4.12'
+        testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.1.0'
     }
 
     test {

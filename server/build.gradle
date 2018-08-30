@@ -39,6 +39,7 @@ dependencies {
     compile 'org.keycloak:keycloak-spring-boot-2-starter:4.0.0.Beta2'
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.h2database:h2')
     compile("org.springframework.boot:spring-boot-devtools")
 
     compile('ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'){

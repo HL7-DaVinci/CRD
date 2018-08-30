@@ -1,5 +1,12 @@
 package org.hl7.davinci;
 
+import org.hl7.fhir.r4.model.Patient;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.Date;
+
 public class Utilities {
   /**
    * Compares the reference to the id of the format: "id", "ResourceType/id".
@@ -30,5 +37,14 @@ public class Utilities {
       }
     }
     return false;
+  }
+
+  public static int calculateAge(Patient patient) {
+    Date birthDate = patient.getBirthDate();
+    if (birthDate == null) {
+      return 0;
+    }
+    LocalDate localBirthDate = birthDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    return Period.between(localBirthDate, LocalDate.now()).getYears();
   }
 }

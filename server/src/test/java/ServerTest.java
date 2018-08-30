@@ -11,6 +11,8 @@ import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import java.io.IOException;
 
+import org.hl7.davinci.endpoint.database.DataRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,6 +37,9 @@ public class ServerTest {
   @Autowired
   private MockMvc mockMvc;
 
+  @Autowired
+  private DataRepository repository;
+
   private String token;
 
   public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
@@ -42,8 +47,20 @@ public class ServerTest {
     return mapper.writeValueAsBytes(object);
   }
 
+  @Before
+  public void setUp() {
+    CoverageRequirementRule retVal = new CoverageRequirementRule();
+    retVal.setInfoLink("https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/downloads/PMDFactSheet07_Quark19.pdf");
+    retVal.setEquipmentCode("abc123");
+    retVal.setNoAuthNeeded(true);
+    retVal.setAgeRangeHigh(42);
+    retVal.setAgeRangeLow(0);
+    retVal.setGenderCode('M');
+    this.repository.save(retVal);
+  }
+
   /**
-   * Build the tewt data.
+   * Build the test data.
    */
   public static CoverageRequirementRule makeTestDatum() {
     CoverageRequirementRule retVal = new CoverageRequirementRule();
