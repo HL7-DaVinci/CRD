@@ -7,20 +7,18 @@ body {
 .left-form { 
   width: 50%;
   float: left;
-  margin-top: 2%;
+  margin-top: 25px;
 
 }
-
+.btn:focus,.btn:active {
+  outline: none !important;
+  box-shadow: none;
+}
 .submit-btn {
   float: left;
 }
 
 
-div {
-  position: relative; /*  make label relate to div  */
-  padding-top: 10px;  /*  make space for label      */
-  font-size: 14px;
-}
 .floating-label {
   position: absolute;
   pointer-events: none;
@@ -59,12 +57,26 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   border-style: solid none solid solid;
 }
 
+.input-text:hover{
+  border-color: #999999;
+}
+
+.input-text:focus{
+  border-color: #555555;
+}
+
 .btn-class{
-  border-width:1px 5px 1px 5px;
+  border-width:1px 5px 3px 1px;
   border-style: solid solid solid solid;
   border-color: black;
   background: linear-gradient(white,white)
 
+}
+
+.submit-btn:hover{
+  border-width:1px 3px 1px 1px;
+  margin-left:2px;
+  margin-top:2px;
 }
 
 .btn-class-correct{
@@ -72,9 +84,11 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
 }
 
 .right-form{
+
   float:right;
   width:50%;
-  margin-top:2%;
+  /* gotta account for the header on the left form */
+  margin-top:52px;
 }
 
 .button-empty-fields{
@@ -85,3 +99,124 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   border-color: #E34531;
 }
 
+.genderBlockMaleUnselected{
+  border-width: 1px 1px 3px 5px;
+  opacity:0.5;
+
+}
+.genderBlockFemaleUnselected{
+  border-width: 1px 5px 3px 1px;
+  opacity:0.5;
+}
+
+.genderBlockMaleSelected{
+  border-width: 1px 1px 1px 3px;
+  background:#DDDDDD;
+
+}
+.genderBlockFemaleSelected{
+
+  border-width: 1px 3px 1px 1px;
+  background:#DDDDDD;
+
+
+}
+
+.genderBlockMale{
+  width:50%;
+  border-top-right-radius: 0cm;
+  border-bottom-right-radius: 0cm;
+  
+
+}
+.genderBlockFemale{
+  width:50%;
+  border-top-left-radius: 0cm;
+  border-bottom-left-radius: 0cm;
+
+}
+.genderBlockFemaleUnselected:hover{
+  border-width:1px 3px 1px 1px;
+  padding-bottom:-2px;
+  margin-bottom:2px;
+}
+
+.genderBlockMaleUnselected:hover{
+  border-width:1px 1px 1px 3px;
+  padding-bottom:-2px;
+  margin-bottom:2px;
+}
+
+.dropdownCode{
+  border-width: 1px 1px 0px 9px !important;
+}
+.dropdownCode:focus{
+  border-color: #555555 !important;
+}
+.header{
+  text-align: center;
+  font-size: 18px;
+  padding:10px;
+}
+
+.checkBox{
+  float:right;
+  border-style: solid;
+  border-width:1px 5px 3px 1px;
+}
+
+.checkBoxClicked{
+  border-width: 1px 3px 1px 1px;
+  float:right;
+  border-color:gray black black gray;
+
+}
+
+.checkBox:hover{
+  border-width:1px 3px 1px 1px;
+  border-color:gray black black gray;
+}
+
+.onOffState{
+  border-style: solid;
+  border-radius:50px;
+  border-width: 0px 5px 0px 5px;
+  margin-left: 5px;
+}
+.onOff{
+  /* border-color: #E34531; */
+  border-color: #C5C5C5;
+}
+
+.onOffActive{
+  /* border-color: #5CB85C; */
+  border-color: #222222;
+
+}
+
+.ui.selection.active.dropdown:hover{
+  border-color:black;
+}
+
+.ui.selection.active.dropdown{
+  border-color:#333333;
+}
+
+.ui{
+  transition: all 2s;
+}
+
+
+.visible{
+  opacity:1;
+}
+.invisible{
+  /* display:none; */
+  opacity:0;
+}
+.spinner{
+  display:inline-block;
+  transition:all 0.5s;
+  margin-left:15px;
+  line-height:3em;
+}

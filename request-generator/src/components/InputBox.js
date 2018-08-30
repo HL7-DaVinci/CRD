@@ -26,7 +26,7 @@ class InputBox extends Component {
             value={this.state.value}
             onChange={this.onInputChange}
 
-            ></input><span className="floating-label">{this.props.elementName}</span>
+            ></input>
             </div>
         )
     }
