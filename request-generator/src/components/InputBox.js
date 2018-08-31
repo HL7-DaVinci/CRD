@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 
 
-class InputBox extends Component {
+export default class InputBox extends Component {
     constructor(props){
         super(props);
         this.state={
@@ -31,8 +31,3 @@ class InputBox extends Component {
         )
     }
 }
-
-function mapStateToProps({value}){
-    return {value};
-}
-export default connect(mapStateToProps)(InputBox);

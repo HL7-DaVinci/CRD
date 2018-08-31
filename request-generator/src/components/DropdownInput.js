@@ -11,8 +11,10 @@ const options = [
     { key: 'Nebulizer', text: '94640', value:'94640' },
     { key: 'Glucose Test Strip', text:'82947', value:'82947'},
   ]
+
+  let blackBorder = "blackBorder";
   
-class DropdownInput extends Component {
+export default class DropdownInput extends Component {
     constructor(props){
         super(props);
         this.state = { options }
@@ -30,12 +32,17 @@ class DropdownInput extends Component {
     this.setState({ currentValue: value })
   }
 
+
   render() {
     const { currentValue } = this.state
-
+    if(currentValue){
+        blackBorder = "blackBorder";
+    }else{
+        blackBorder = "";
+    }
     return (
       <Dropdown
-      className="dropdownCode"
+      className={"dropdownCode " +blackBorder}
         options={this.state.options}
         placeholder='Choose Code'
         search
@@ -49,9 +56,3 @@ class DropdownInput extends Component {
     )
   }
 }
-
-
-function mapStateToProps({value}){
-    return {value};
-}
-export default connect(mapStateToProps)(DropdownInput);

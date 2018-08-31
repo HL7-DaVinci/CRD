@@ -11,7 +11,7 @@ import '../index.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
 
-class RequestBuilder extends Component{
+export default class RequestBuilder extends Component{
     constructor(props){
         super(props);
         this.state = { 
@@ -318,28 +318,28 @@ class RequestBuilder extends Component{
                 {Object.keys(this.validateMap)
                 .map((key) => {
 
-                  // Make type of input and the associated options available in some
+                  // Make type of input and the associated options available in some 
                   // top level json instead of hard-coding the if-else per key
                   // e.g., gender should have a "toggle" attribute and the options
                   // it wants should be written in the JSON.  This way if we want more
                   // options later they're easy to add.
                     if(key!=="response" && key!=="validateMap"){
-                      if(key=="gender"){
+                      if(key==="gender"){
                         return <div key={key}>
                         <div className="header">
                           Gender
                         </div>
                         <Toggle
-                        elementName={key}
+                        elementName={key} 
                         updateCB={this.updateStateElement}
                         options={options}
                         extraClass={!validationResult[key] ? "error-border" : "regular-border"}
                         ></Toggle>
                         <br />
                         </div>
-
-                      }else if(key=="code"){
-                        return <div key={key}>
+                        
+                      }else if(key==="code"){
+                        return <div key={key}> 
                         <div className="header">
                           Code
                         </div>
@@ -347,7 +347,7 @@ class RequestBuilder extends Component{
                             elementName={key}
                             updateCB={this.updateStateElement}
                             />
-
+                            
                           <br />
                           </div>
                       }else{
@@ -377,18 +377,20 @@ class RequestBuilder extends Component{
                 <CheckBox elementName="oauth" updateCB={this.updateStateElement}/>
 
                 <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
-                <Loader
+                <Loader 
                   type="Oval"
                   color="#222222"
-                  height="16"
+                  height="16"	
                   width="16"
-                />
+                />  
                 </div>
             </div>
+
             <div className="right-form">
                 <DisplayBox 
                 response = {this.state.response}/>    
             </div>
+
             </div>
 
 
@@ -398,7 +400,4 @@ class RequestBuilder extends Component{
         )
     }
 }
-function mapDispatchToProps(dispatch) {
-    return bindActionCreators({fetchCrdResponse},dispatch);
-}
-export default connect(null,mapDispatchToProps)(RequestBuilder);
+

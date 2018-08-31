@@ -37,7 +37,7 @@ const propTypes = {
     cardResponses: PropTypes.object,
   };
 
-class DisplayBox extends Component{
+export default class DisplayBox extends Component{
     constructor(props){
         super(props);
         this.launchLink = this.launchLink.bind(this);
@@ -298,9 +298,3 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl) {
           return <div>{renderedCards}</div>;
         }
       }
-
-
-function mapStateToProps({value}){
-    return {value};
-}
-export default connect(mapStateToProps)(DisplayBox);

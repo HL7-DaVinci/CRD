@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 
 
-class CheckBox extends Component {
+export default class CheckBox extends Component {
     constructor(props){
         super(props);
         this.state={
@@ -37,8 +37,3 @@ class CheckBox extends Component {
         )
     }
 }
-
-function mapStateToProps({value}){
-    return {value};
-}
-export default connect(mapStateToProps)(CheckBox);

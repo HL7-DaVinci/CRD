@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 
 
-class Toggle extends Component {
+export default class Toggle extends Component {
     constructor(props){
         super(props);
         this.state={
@@ -17,11 +17,11 @@ class Toggle extends Component {
 
 
     clickedOption1(){
-        if(this.state.option1class=="genderBlockMaleUnselected"){
+        if(this.state.option1class==="genderBlockMaleUnselected"){
             this.setState({option1class : "genderBlockMaleSelected"})
             this.props.updateCB(this.props.elementName, this.props.options.option1.value);
 
-            if(this.state.option2class=="genderBlockFemaleSelected"){
+            if(this.state.option2class==="genderBlockFemaleSelected"){
                 this.setState({option2class : "genderBlockFemaleUnselected"})
             }
         }else{
@@ -32,10 +32,10 @@ class Toggle extends Component {
     }
 
     clickedOption2(){
-        if(this.state.option2class=="genderBlockFemaleUnselected"){
+        if(this.state.option2class==="genderBlockFemaleUnselected"){
             this.setState({option2class : "genderBlockFemaleSelected"})
             this.props.updateCB(this.props.elementName, this.props.options.option2.value);
-            if(this.state.option1class=="genderBlockMaleSelected"){
+            if(this.state.option1class==="genderBlockMaleSelected"){
                 this.setState({option1class : "genderBlockMaleUnselected"})
             }
         }else{
@@ -58,8 +58,3 @@ class Toggle extends Component {
 
     }
 }
-
-function mapStateToProps({value}){
-    return {value};
-}
-export default connect(mapStateToProps)(Toggle);
