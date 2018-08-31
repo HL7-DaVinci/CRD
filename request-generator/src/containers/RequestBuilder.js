@@ -74,51 +74,9 @@ class RequestBuilder extends Component{
 
     submit_info(){
         const birthYear = 2018-parseInt(this.state.age,10);
-        // let json_request = {
-        //     hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-        //     fhirServer: "http://hooks.smarthealthit.org:9080",
-        //     hook: "order-review",
-        //     fhirAuthorization: {
-        //       access_token: "some-opaque-fhir-access-token",
-        //       token_type: "Bearer",
-        //       expires_in: 300,
-        //       scope: "patient/Patient.read patient/Observation.read",
-        //       subject: "cds-service4"
-        //     },
-        //     user: "Practitioner/example",
-        //     context: {
-        //       patientId: "1288992",
-        //       encounterId: "89284",
-        //       orders: {
-        //         resourceType: "Bundle",
-        //         entry: [
-        //           {
-        //             resource: {
-        //               resourceType: "DeviceRequest",
-        //               note: [
-        //                 {
-        //                   text: "a sample device request"
-        //                 }
-        //               ]
-        //             }
-        //           }
-        //         ]
-        //       }
-        //     },
-        //     prefetch: {
-        //       patient: {
-        //         resourceType: "Patient",
-        //         gender: this.state.gender,
-        //         birthDate: birthYear + "-12-23",
-        //         id: "1288992",
-        //         active: true
-        //       }
-        //     }
-        // };
-        
 
         (async () => {
-        await this.login();
+        //await this.login();
         let json_request = {
             hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
             fhirServer: "http://localhost:8080/fhir-server",
@@ -132,7 +90,7 @@ class RequestBuilder extends Component{
             },
             user: "Practitioner/example",
             context: {
-              patientId: "1234",
+              patientId: "12",
               encounterId: "89284",
               orders: {
                 resourceType: "Bundle",
@@ -145,7 +103,7 @@ class RequestBuilder extends Component{
                         coding: [
                           {
                             system: "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
-                            code: "E0424"
+                            code: this.state.code
                           }
                         ],
                         text: "Stationary Compressed Gaseous Oxygen System, Rental"
@@ -167,9 +125,10 @@ class RequestBuilder extends Component{
             },
             prefetch: {
               patient: {
+                id: "12",
                 resourceType: "Patient",
-                gender: "male",
-                birthDate: "1970-07-04"
+                gender: this.state.gender,
+                birthDate: birthYear + "-12-23"
               },
               coverage: {
                 resourceType: "Coverage",
@@ -241,7 +200,7 @@ class RequestBuilder extends Component{
             }
           };
 
-            const fhirResponse = await fetch("http://localhost:8090/cds-services/coverage-requirements-discovery",{
+            const fhirResponse = await fetch("http://localhost:8090/cds-services/order-review-crd",{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

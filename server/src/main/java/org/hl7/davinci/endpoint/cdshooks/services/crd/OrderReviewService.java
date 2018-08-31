@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.orderreview.OrderReviewFetcher;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 
@@ -13,8 +14,13 @@ import org.hl7.davinci.cdshooks.Prefetch;
 
 import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
 
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -31,6 +37,9 @@ public class OrderReviewService extends CdsService {
       "Get information regarding the coverage requirements for durable medical equipment";
   public static final Prefetch PREFETCH = null;
 
+  @Autowired
+  CoverageRequirementRuleFinder ruleFinder;
+
   public OrderReviewService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
   }
@@ -45,7 +54,7 @@ public class OrderReviewService extends CdsService {
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
 
     OrderReviewFetcher fetcher = new OrderReviewFetcher(request);
-    fetcher.fetch();
+    //fetcher.fetch();
 
     // output some of the data
     if (request.getPrefetch().getPatient() != null) {
@@ -78,19 +87,26 @@ public class OrderReviewService extends CdsService {
 
     CdsResponse response = new CdsResponse();
 
-    // TODO - Replace this with database lookup logic
-    response.addCard(CardBuilder.summaryCard("Responses from this service are currently hard coded."));
+    Patient patient = request.getPrefetch().getPatient();
+    CodeableConcept cc = null;
+    try {
+      cc = request.getContext().firstOrderCode();
+    } catch (FHIRException fe) {
+      response.addCard(CardBuilder.summaryCard("Unable to parse the device code out of the request"));
+    }
+    if (patient == null) {
+      response.addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
+    }
 
-    CoverageRequirementRule crr = new CoverageRequirementRule();
-    crr.setAgeRangeHigh(80);
-    crr.setAgeRangeLow(55);
-    crr.setEquipmentCode("E0424");
-    crr.setGenderCode("F".charAt(0));
-    crr.setNoAuthNeeded(false);
-    crr.setInfoLink("https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/"
-        + "MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf");
-
-    response.addCard(CardBuilder.transform(crr));
+    if (patient != null && cc != null) {
+      int patientAge = Utilities.calculateAge(patient);
+      CoverageRequirementRule crr = ruleFinder.findRule(patientAge, patient.getGender(), cc.getCoding().get(0).getCode());
+      if (crr != null) {
+        response.addCard(CardBuilder.transform(crr));
+      } else {
+        response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+      }
+    }
     logger.info("handleRequest: end");
     return response;
   }

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hl7.davinci.JacksonBundleDeserializer;
 import org.hl7.davinci.JacksonHapiSerializer;
-import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.r4.model.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -47,5 +48,15 @@ public class OrderReviewContext {
 
   public void setOrders(Bundle orders) {
     this.orders = orders;
+  }
+
+  public CodeableConcept firstOrderCode() throws FHIRException {
+    Resource r = this.getOrders().getEntry().get(0).getResource();
+    if (r.getResourceType() == ResourceType.DeviceRequest) {
+      DeviceRequest dr = (DeviceRequest) r;
+      return dr.getCodeCodeableConcept();
+    } else {
+      return null;
+    }
   }
 }
