@@ -1,17 +1,24 @@
 package org.hl7.davinci.endpoint.components.prefetchHydrator;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.davinci.cdshooks.CdsRequest;
-import org.hl7.davinci.cdshooks.PrefetchResponse;
+import org.hl7.davinci.cdshooks.CrdPrefetch;
 import org.hl7.davinci.cdshooks.CdsService;
+import org.hl7.davinci.endpoint.components.FhirComponents;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 public class PrefetchHydrator {
 
@@ -21,26 +28,38 @@ public class PrefetchHydrator {
   private CdsService cdsService;
   private CdsRequest cdsRequest;
   private Object dataForPrefetchToken;
+  private FhirComponents fhirComponents;
 
-  public PrefetchHydrator(CdsService cdsService, CdsRequest cdsRequest) {
+  public PrefetchHydrator(CdsService cdsService, CdsRequest cdsRequest,
+      FhirComponents fhirComponents) {
     this.cdsService = cdsService;
     this.cdsRequest = cdsRequest;
     this.dataForPrefetchToken = cdsRequest.getDataForPrefetchToken();
+    this.fhirComponents = fhirComponents;
   }
 
   public void hydrate(){
-    PrefetchResponse prefetchResponse = cdsRequest.getPrefetch();
+    CrdPrefetch crdResponse = cdsRequest.getPrefetch();
     for (String prefetchKey: cdsService.prefetch.keySet()){
-      if (!prefetchResponse.containsKey(prefetchKey)){
+      //check if the
+      Boolean alreadyIncluded = false;
+      try {
+        alreadyIncluded = (PropertyUtils.getProperty(crdResponse,prefetchKey) != null);
+      } catch (Exception e) {
+        throw new java.lang.RuntimeException("System error: Mismatch in prefetch keys between the "
+            + "CrdPrefetch and the key templates set in the service.");
+      }
+      if (!alreadyIncluded){
         // check if the bundle actually has element
         String prefetchQuery = cdsService.prefetch.get(prefetchKey);
         String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
         // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
-        // e.g. this could be a query template for a different order type than the one we got
+        // e.g. this could be a query template for a medication order but we have a device request
         if (hydratedPrefetchQuery != null) {
           try {
-            prefetchResponse.put(prefetchKey, executeFhirQuery(hydratedPrefetchQuery));
+            PropertyUtils.setProperty(crdResponse,prefetchKey,executeFhirQuery(hydratedPrefetchQuery));
           } catch (Exception e) {
+            System.out.println("Failed to fill prefetch for key: "+prefetchKey);
             //TODO: log?
           }
         }
@@ -49,11 +68,21 @@ public class PrefetchHydrator {
   }
 
   private Bundle executeFhirQuery(String query) {
-    FhirContext ctx = FhirContext.forR4();
-    String serverBase = cdsRequest.getFhirServer();
-    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+    String fullUrl = cdsRequest.getFhirServer() + query;
+//    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+//    return client.search().byUrl(query).encodedJson().returnBundle(Bundle.class).execute();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders headers = new HttpHeaders();
+    headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    HttpEntity<String> entity = new HttpEntity<>("", headers);
+    try {
+      ResponseEntity<String> response = restTemplate.exchange(fullUrl, HttpMethod.GET,
+          entity, String.class);
+      return (Bundle) fhirComponents.getJsonParser().parseResource(response.getBody());
+    } catch (Exception e) {
+      return null;
+    }
 
-    return client.search().byUrl(query).returnBundle(Bundle.class).execute();
   }
 
   private String hydratePrefetchQuery(String prefetchQuery) {
@@ -83,8 +112,14 @@ public class PrefetchHydrator {
       elementList.add(object.toString());
       return;
     }
+
     try {
-      object = PropertyUtils.getProperty(object, pathList.get(0));
+      //special logic for "id" since hapi puts the unqualified id part kind of deep
+      if (pathList.get(0).equals("id")) {
+        object = ((IBaseResource) object).getIdElement().getIdPart();
+      } else {
+        object = PropertyUtils.getProperty(object, pathList.get(0));
+      }
     } catch(Exception e) {
       return;
     }

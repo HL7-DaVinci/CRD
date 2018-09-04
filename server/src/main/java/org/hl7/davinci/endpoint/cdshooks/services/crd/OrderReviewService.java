@@ -3,6 +3,7 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd;
 import java.util.HashMap;
 import java.util.List;
 import org.hl7.davinci.Utilities;
+import org.hl7.davinci.cdshooks.CrdPrefetch;
 import org.hl7.davinci.cdshooks.PrefetchResponse;
 import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.orderreview.OrderReviewFetcher;
@@ -10,6 +11,7 @@ import org.hl7.davinci.endpoint.components.CardBuilder;
 
 import javax.validation.Valid;
 
+import org.hl7.davinci.endpoint.components.FhirComponents;
 import org.hl7.davinci.endpoint.components.prefetchHydrator.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.cdshooks.CdsResponse;
@@ -50,53 +52,18 @@ public class OrderReviewService extends CdsService {
   public static final Prefetch PREFETCH;
   static {
     PREFETCH = new Prefetch();
-    PREFETCH.put("DeviceRequestBundle","DeviceRequest?id={{context.orders.DeviceRequest.id}}"
-        + "&_include=DeviceRequest:patient"
-        + "&_include=DeviceRequest:performer"
-        + "&_include=DeviceRequest:requester"
-        + "&_include=DeviceRequest:device"
-        + "&_include=PractitionerRole:organization"
-        + "&_include=PractitionerRole:practitioner"
-        + "&_include=DeviceRequest:insurance:Coverage");
-    PREFETCH.put("MedicationRequestBundle","MedicationRequest?id={{context.orders.MedicationRequest.id}}"
-        + "&_include=MedicationRequest:patient"
-        + "&_include=MedicationRequest:intended-dispenser"
-        + "&_include=MedicationRequest:requester:PractitionerRole"
-        + "&_include=MedicationRequest:medication"
-        + "&_include=PractitionerRole:organization"
-        + "&_include=PractitionerRole:practitioner"
-        + "&_include=MedicationRequest:insurance:Coverage");
-    PREFETCH.put("NutritionOrderBundle","NutritionOrder?id={{context.orders.NutritionOrder.id}}"
-        + "&_include=NutritionOrder:patient"
-        + "&_include=NutritionOrder:provider"
-        + "&_include=NutritionOrder:requester"
-        + "&_include=PractitionerRole:organization"
-        + "&_include=PractitionerRole:practitioner"
-        + "&_include=NutritionOrder:encounter"
-        + "&_include=Encounter:location"
-        + "&_include=NutritionOrder:insurance:Coverage");
-    PREFETCH.put("ServiceRequestBundle","ServiceRequest?id={{context.orders.ServiceRequest.id}}"
-        + "&_include=ServiceRequest:patient"
-        + "&_include=ServiceRequest:performer"
-        + "&_include=ServiceRequest:requester"
-        + "&_include=PractitionerRole:organization"
-        + "&_include=PractitionerRole:practitioner"
-        + "&_include=ServiceRequest:insurance:Coverage");
-    PREFETCH.put("SupplyRequestBundle","SupplyRequest?id={{context.orders.SupplyRequest.id}}&"
-        + "_include=SupplyRequest:patient"
-        + "&_include=SupplyRequest:supplier:Organization"
-        + "&_include=SupplyRequest:requester:Practitioner"
-        + "&_include=SupplyRequest:requester:Organization"
-        + "&_include=SupplyRequest:Requester:PractitionerRole"
-        + "&_include=PractitionerRole:organization"
-        + "&_include=PractitionerRole:practitioner"
-        + "&_include=SupplyRequest:insurance:Coverage");
+    PREFETCH.put(CrdPrefetch.supplyRequestBundleKey,CrdPrefetch.supplyRequestBundleQuery);
+    PREFETCH.put(CrdPrefetch.serviceRequestBundleKey,CrdPrefetch.serviceRequestBundleQuery);
+    PREFETCH.put(CrdPrefetch.nutritionOrderBundleKey,CrdPrefetch.nutritionOrderBundleQuery);
+    PREFETCH.put(CrdPrefetch.medicationRequestBundleKey,CrdPrefetch.medicationRequestBundleQuery);
+    PREFETCH.put(CrdPrefetch.deviceRequestBundleKey,CrdPrefetch.deviceRequestBundleQuery);
   }
-
-
 
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
+
+  @Autowired
+  FhirComponents fhirComponents;
 
   public OrderReviewService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
@@ -114,58 +81,47 @@ public class OrderReviewService extends CdsService {
     //note currently we only use the device request if its in the prefetch or we get it into
     //the prefetch, so we dont use it if its just in the context since it wont have patient etc.
 
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request);
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, fhirComponents);
     prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible
 
-    IBaseResource drbResource = request.getPrefetch().get("DeviceRequestBundle");
-    if (drbResource.getClass() != Bundle.class) {
+    CdsResponse response = new CdsResponse();
+
+    IBaseResource drbResource = request.getPrefetch().getDeviceRequestBundle();
+    if (drbResource == null  || drbResource.getClass() != Bundle.class) {
       logger.error("Prefetch DeviceRequestBundle not a bundle");
+      response.addCard(CardBuilder.summaryCard(
+          "DeviceRequestBundle could not be (pre)fetched in this request "));
+      return response;
     }
     List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
         DeviceRequest.class, (Bundle) drbResource);
 
-    CdsResponse response = new CdsResponse();
     for (DeviceRequest deviceRequest: deviceRequestList) {
-      // TODO - Replace this with database lookup logic
-      response.addCard(CardBuilder.summaryCard("Responses from this service are currently hard coded."));
 
-      CoverageRequirementRule crr = new CoverageRequirementRule();
-      crr.setAgeRangeHigh(80);
-      crr.setAgeRangeLow(55);
-      crr.setEquipmentCode("E0424");
-      crr.setGenderCode("F".charAt(0));
-      crr.setNoAuthNeeded(false);
-      crr.setInfoLink("https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/"
-          + "MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf");
+      Patient patient = null;
+      CodeableConcept cc = null;
+      try {
+        cc = deviceRequest.getCodeCodeableConcept();
+      } catch (FHIRException fe) {
+        response.addCard(CardBuilder.summaryCard("Unable to parse the device code out of the request"));
+      }
+      try {
+        patient = (Patient) deviceRequest.getSubject().getResource();
+      } catch (Exception e) {
+        response.addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
+      }
 
-      response.addCard(CardBuilder.transform(crr));
-    }
-
-    logger.info("handleRequest: end");
-    return response;
-
-
-
-    Patient patient = request.getPrefetch().getPatient();
-    CodeableConcept cc = null;
-    try {
-      cc = request.getContext().firstOrderCode();
-    } catch (FHIRException fe) {
-      response.addCard(CardBuilder.summaryCard("Unable to parse the device code out of the request"));
-    }
-    if (patient == null) {
-      response.addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
-    }
-
-    if (patient != null && cc != null) {
-      int patientAge = Utilities.calculateAge(patient);
-      CoverageRequirementRule crr = ruleFinder.findRule(patientAge, patient.getGender(), cc.getCoding().get(0).getCode());
-      if (crr != null) {
-        response.addCard(CardBuilder.transform(crr));
-      } else {
-        response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+      if (patient != null && cc != null) {
+        int patientAge = Utilities.calculateAge(patient);
+        CoverageRequirementRule crr = ruleFinder.findRule(patientAge, patient.getGender(), cc.getCoding().get(0).getCode());
+        if (crr != null) {
+          response.addCard(CardBuilder.transform(crr));
+        } else {
+          response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+        }
       }
     }
+
     logger.info("handleRequest: end");
     return response;
   }

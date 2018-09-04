@@ -77,54 +77,54 @@ public class OrderReviewFetcher extends AbstractFetcher {
     // fetch the remaining resources from the Provider FHIR server
 
     // for now just get the patient
-    logger.info("fetcher: patient ID : " + context.getPatientId());
+//    logger.info("fetcher: patient ID : " + context.getPatientId());
+//
+//    // look in the context to see what is needed
+//    if (deviceRequest != null) {
+//      logger.info("fetcher: subject ref: " + deviceRequest.getSubject().getReference());
+//
+//      boolean fetchPatient = false;
+//      // look in the prefetch
+//      if (prefetch.getPatient() != null) {
+//
+//        if (Utilities.compareReferenceToId(deviceRequest.getSubject().getReference(),
+//            prefetch.getPatient().getId())) {
+//          logger.info("fetch: patient found");
+//        } else {
+//          // fetch it
+//          logger.info("fetching: patient (wrong ID)");
+//          logger.info("    patient.ID: '" + prefetch.getPatient().getId() + "'");
+//          logger.info("    patientID : '" + deviceRequest.getSubject().getReference() + "'");
+//          fetchPatient = true;
+//        }
+//      } else {
+//        // fetch it
+//        logger.info("fetching: patient (missing)");
+//        fetchPatient = true;
+//      }
+//
+//      if (fetchPatient) {
+//        IGenericClient client = composeClient(fhirServer, oauth);
+//
+//        String pip = deviceRequest.getSubject().getReference();
+//        // Change from regex to something more robust in getting references.
+//        String[] resourceToGet = pip.split("/");
+//        IBaseResource fhirResource = client.read()
+//            .resource(resourceToGet[0])
+//            .withId(resourceToGet[1])
+//            .execute();
+//
+//        prefetch.setPatient((Patient) fhirResource);
+//      }
+//
+//      // add the patient to the resources map
+//      Pair<ResourceType, String> key = new Pair<>(ResourceType.Patient, deviceRequest.getSubject().getReference());
+//      resources.put(key, prefetch.getPatient());
+//
+//      logger.info("fetcher: performer: " + deviceRequest.getPerformer().getReference());
+//      logger.info("fetcher: insurance: " + deviceRequest.getInsurance().get(0).getReference());
 
-    // look in the context to see what is needed
-    if (deviceRequest != null) {
-      logger.info("fetcher: subject ref: " + deviceRequest.getSubject().getReference());
-
-      boolean fetchPatient = false;
-      // look in the prefetch
-      if (prefetch.getPatient() != null) {
-
-        if (Utilities.compareReferenceToId(deviceRequest.getSubject().getReference(),
-            prefetch.getPatient().getId())) {
-          logger.info("fetch: patient found");
-        } else {
-          // fetch it
-          logger.info("fetching: patient (wrong ID)");
-          logger.info("    patient.ID: '" + prefetch.getPatient().getId() + "'");
-          logger.info("    patientID : '" + deviceRequest.getSubject().getReference() + "'");
-          fetchPatient = true;
-        }
-      } else {
-        // fetch it
-        logger.info("fetching: patient (missing)");
-        fetchPatient = true;
-      }
-
-      if (fetchPatient) {
-        IGenericClient client = composeClient(fhirServer, oauth);
-
-        String pip = deviceRequest.getSubject().getReference();
-        // Change from regex to something more robust in getting references.
-        String[] resourceToGet = pip.split("/");
-        IBaseResource fhirResource = client.read()
-            .resource(resourceToGet[0])
-            .withId(resourceToGet[1])
-            .execute();
-
-        prefetch.setPatient((Patient) fhirResource);
-      }
-
-      // add the patient to the resources map
-      Pair<ResourceType, String> key = new Pair<>(ResourceType.Patient, deviceRequest.getSubject().getReference());
-      resources.put(key, prefetch.getPatient());
-
-      logger.info("fetcher: performer: " + deviceRequest.getPerformer().getReference());
-      logger.info("fetcher: insurance: " + deviceRequest.getInsurance().get(0).getReference());
-
-    }
+//    }
   }
 
   /**

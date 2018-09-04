@@ -26,7 +26,15 @@ public abstract class CdsRequest {
   //  @NotNull TODO: why does this break validation if we extend this class???
   private Object context = null;
 
-  private PrefetchResponse prefetch = null;
+  public CrdPrefetch getPrefetch() {
+    return prefetch;
+  }
+
+  public void setPrefetch(CrdPrefetch prefetch) {
+    this.prefetch = prefetch;
+  }
+
+  private CrdPrefetch prefetch = null;
 
   public Hook getHook() {
     return hook;
@@ -80,25 +88,6 @@ public abstract class CdsRequest {
   @JsonGetter("hookInstance")
   public String getHookInstanceAsString() {
     return hookInstance.toString();
-  }
-
-  public PrefetchResponse getPrefetch() {
-    return prefetch;
-  }
-
-  @JsonSetter("prefetch")
-  public void setPrefetch(JsonNode prefetchNode) {
-    prefetch = new PrefetchResponse();
-    FhirContext ctxR4 = FhirContext.forR4();
-    IParser parser = ctxR4.newJsonParser();
-
-    Iterator<String> keyIterator = prefetchNode.fieldNames();
-    while (keyIterator.hasNext()) {
-      String prefetchKey = keyIterator.next();
-      String fhirResourceAsJson = prefetchNode.get(prefetchKey).toString();
-      IBaseResource baseResource = parser.parseResource(fhirResourceAsJson);
-      prefetch.put(prefetchKey, baseResource);
-    }
   }
 
 

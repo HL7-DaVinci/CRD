@@ -53,7 +53,7 @@ public class CrdRequestCreator {
     patient.setGender(patientGender);
     patient.setBirthDate(patientBirthdate);
     context.setPatientId(patient.getId());
-    prefetch.setPatient(patient);
+//    prefetch.setPatient(patient);
     dr.setSubject(generateReference(ResourceType.Patient, patient));
 
     // create a Practitioner object with ID set
@@ -67,7 +67,7 @@ public class CrdRequestCreator {
     Organization insurer = new Organization();
     insurer.setId(idString());
     insurer.setName("Centers for Medicare and Medicaid Services");
-    prefetch.setInsurer(insurer);
+//    prefetch.setInsurer(insurer);
 
     // create a Location Object
     Location facility = new Location();
@@ -76,19 +76,19 @@ public class CrdRequestCreator {
         .setCity("Bedford")
         .setState("MA")
         .setPostalCode("01730"));
-    prefetch.setLocation(facility);
+//    prefetch.setLocation(facility);
 
     Device device = new Device();
     device.setType(new CodeableConcept().addCoding(oxygen));
-    prefetch.setDevice(device);
+//    prefetch.setDevice(device);
 
     PractitionerRole pr = new PractitionerRole();
     pr.setId(idString());
     pr.setPractitioner(generateReference(ResourceType.Practitioner, provider));
     pr.addLocation(generateReference(ResourceType.Location, facility));
-    prefetch.setPractitionerRole(pr);
+//    prefetch.setPractitionerRole(pr);
     dr.setPerformer(generateReference(ResourceType.PractitionerRole, pr));
-    prefetch.setPractitionerRole(pr);
+//    prefetch.setPractitionerRole(pr);
 
     // create a Coverage object with ID set
     Coverage coverage = new Coverage();
@@ -99,7 +99,7 @@ public class CrdRequestCreator {
     coverage.addClass_(coverageClass);
     coverage.addPayor(generateReference(ResourceType.Organization, insurer));
     dr.addInsurance(generateReference(ResourceType.Coverage, coverage));
-    prefetch.setCoverage(coverage);
+//    prefetch.setCoverage(coverage);
 
     return request;
   }
