@@ -35,7 +35,51 @@ public class OrderReviewService extends CdsService {
   public static final Hook HOOK = Hook.ORDER_REVIEW;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
-  public static final Prefetch PREFETCH = null;
+  public static Prefetch PREFETCH = null;
+  static {
+    PREFETCH = new Prefetch();
+    PREFETCH.put("deviceRequestBundle","DeviceRequest?id={{context.orders.DeviceRequest.id}}"
+        + "&_include=DeviceRequest:patient"
+        + "&_include=DeviceRequest:performer"
+        + "&_include=DeviceRequest:requester"
+        + "&_include=DeviceRequest:device"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=DeviceRequest:insurance:Coverage");
+    PREFETCH.put("medicationRequestBundle","MedicationRequest?id={{context.orders.MedicationRequest.id}}"
+        + "&_include=MedicationRequest:patient"
+        + "&_include=MedicationRequest:intended-dispenser"
+        + "&_include=MedicationRequest:requester:PractitionerRole"
+        + "&_include=MedicationRequest:medication"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=MedicationRequest:insurance:Coverage");
+    PREFETCH.put("nutritionOrderBundle","NutritionOrder?id={{context.orders.NutritionOrder.id}}"
+        + "&_include=NutritionOrder:patient"
+        + "&_include=NutritionOrder:provider"
+        + "&_include=NutritionOrder:requester"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=NutritionOrder:encounter"
+        + "&_include=Encounter:location"
+        + "&_include=NutritionOrder:insurance:Coverage");
+    PREFETCH.put("serviceRequestBundle","ServiceRequest?id={{context.orders.ServiceRequest.id}}"
+        + "&_include=ServiceRequest:patient"
+        + "&_include=ServiceRequest:performer"
+        + "&_include=ServiceRequest:requester"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=ServiceRequest:insurance:Coverage");
+    PREFETCH.put("supplyRequestBundle","SupplyRequest?id={{context.orders.SupplyRequest.id}}&"
+        + "_include=SupplyRequest:patient"
+        + "&_include=SupplyRequest:supplier:Organization"
+        + "&_include=SupplyRequest:requester:Practitioner"
+        + "&_include=SupplyRequest:requester:Organization"
+        + "&_include=SupplyRequest:Requester:PractitionerRole"
+        + "&_include=PractitionerRole:organization"
+        + "&_include=PractitionerRole:practitioner"
+        + "&_include=SupplyRequest:insurance:Coverage");
+  }
 
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
