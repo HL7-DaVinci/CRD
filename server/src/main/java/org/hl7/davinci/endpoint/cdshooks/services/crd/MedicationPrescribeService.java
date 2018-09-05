@@ -41,7 +41,6 @@ public class MedicationPrescribeService extends CdsService {
   @Autowired
   FhirComponents fhirComponents;
 
-
   public MedicationPrescribeService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
   }

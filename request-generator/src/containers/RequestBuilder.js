@@ -1,12 +1,15 @@
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import { bindActionCreators} from 'redux';
-import { fetchCrdResponse } from '../actions';
-import InputBox from '../components/InputBox';
-import DisplayBox from '../components/DisplayBox';
-import '../index.css';
 
-class RequestBuilder extends Component{
+import InputBox from '../components/InputBox';
+import Toggle from '../components/Toggle';
+import DisplayBox from '../components/DisplayBox';
+import DropdownInput from '../components/DropdownInput';
+import CheckBox from '../components/CheckBox';
+import '../index.css';
+import Loader from 'react-loader-spinner';
+import config from '../properties.json';
+
+export default class RequestBuilder extends Component{
     constructor(props){
         super(props);
         this.state = { 
@@ -14,7 +17,9 @@ class RequestBuilder extends Component{
             gender: null,
             code: null,
             response:null,
-            token: null
+            token: null,
+            oauth:false,
+            loading:false
         };
 
         this.validateMap={
@@ -41,12 +46,12 @@ class RequestBuilder extends Component{
     }
 
     login(){
-        const tokenUrl = "http://localhost:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token"
+        const tokenUrl = "http://localhost:8180/auth/realms/"+config.realm+"/protocol/openid-connect/token"
         let params = {
             grant_type:"password",
             username:"user1",
             password:"password",
-            client_id:"app-login"
+            client_id:config.client
         }
 
         // Encodes the params to be compliant with
@@ -74,9 +79,11 @@ class RequestBuilder extends Component{
 
     submit_info(){
         const birthYear = 2018-parseInt(this.state.age,10);
-
+        this.setState({loading:true});
         (async () => {
-        //await this.login();
+          if(this.state.oauth){
+            await this.login();
+          }
         let json_request = {
             hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
             fhirServer: "http://localhost:8080/fhir-server",
@@ -200,7 +207,7 @@ class RequestBuilder extends Component{
             }
           };
 
-            const fhirResponse = await fetch("http://localhost:8090/cds-services/order-review-crd",{
+            const fhirResponse = await fetch("http://localhost:8090/cds-services/order-review-crd/",{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -259,7 +266,10 @@ class RequestBuilder extends Component{
               }
             fhirResponse.cards.push(extra);
             this.setState({response: fhirResponse});
-          })();  
+            this.setState({loading:false});
+          })();
+
+
     }
 
     validateState(){
@@ -285,6 +295,16 @@ class RequestBuilder extends Component{
 
     render() {
 
+      const options = {
+        option1:{
+          text:"Male",
+          value:"male"
+        },
+        option2:{
+          text:"Female",
+          value:"female"
+        }
+      }
         const validationResult = this.validateState();
         const total = Object.keys(validationResult).reduce((previous,current) =>{
             return validationResult[current]*previous
@@ -296,26 +316,79 @@ class RequestBuilder extends Component{
                 {Object.keys(this.validateMap)
                 .map((key) => {
 
+                  // Make type of input and the associated options available in some 
+                  // top level json instead of hard-coding the if-else per key
+                  // e.g., gender should have a "toggle" attribute and the options
+                  // it wants should be written in the JSON.  This way if we want more
+                  // options later they're easy to add.
                     if(key!=="response" && key!=="validateMap"){
+                      if(key==="gender"){
+                        return <div key={key}>
+                        <div className="header">
+                          Gender
+                        </div>
+                        <Toggle
+                        elementName={key} 
+                        updateCB={this.updateStateElement}
+                        options={options}
+                        extraClass={!validationResult[key] ? "error-border" : "regular-border"}
+                        ></Toggle>
+                        <br />
+                        </div>
+                        
+                      }else if(key==="code"){
                         return <div key={key}> 
-
+                        <div className="header">
+                          Code
+                        </div>
+                        <DropdownInput
+                            elementName={key}
+                            updateCB={this.updateStateElement}
+                            />
+                            
+                          <br />
+                          </div>
+                      }else{
+                        return <div key={key}>
+                        <div className="header">
+                          Age
+                        </div>
                         <InputBox
                             elementName={key} 
                             updateCB={this.updateStateElement}
                             extraClass={!validationResult[key] ? "error-border" : "regular-border"}/>
-                        <br />
-                    </div>
+                          <br />
+                          </div>
+                      }
+
 
                     }
 
                 })}
 
-                <button className={"btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_info}>Submit</button>
+                <br />
+                <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_info}>Submit
+
+                </button>
+
+
+                <CheckBox elementName="oauth" updateCB={this.updateStateElement}/>
+
+                <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
+                <Loader 
+                  type="Oval"
+                  color="#222222"
+                  height="16"	
+                  width="16"
+                />  
+                </div>
             </div>
+
             <div className="right-form">
                 <DisplayBox 
                 response = {this.state.response}/>    
             </div>
+
             </div>
 
 
@@ -325,7 +398,4 @@ class RequestBuilder extends Component{
         )
     }
 }
-function mapDispatchToProps(dispatch) {
-    return bindActionCreators({fetchCrdResponse},dispatch);
-}
-export default connect(null,mapDispatchToProps)(RequestBuilder);
+
