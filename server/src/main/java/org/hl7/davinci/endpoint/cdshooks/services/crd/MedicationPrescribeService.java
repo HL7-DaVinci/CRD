@@ -28,7 +28,19 @@ public class MedicationPrescribeService extends CdsService {
   public static final Hook HOOK = Hook.MEDICATION_PRESCRIBE;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
-  public static final Prefetch PREFETCH = null;
+  public static Prefetch PREFETCH = null;
+  static {
+    PREFETCH = new Prefetch();
+    PREFETCH.put("medicationRequestBundle",
+        "MedicationRequest?id={{context.orders.MedicationRequest.id}}"
+            + "&_include=MedicationRequest:patient"
+            + "&_include=MedicationRequest:intended-dispenser"
+            + "&_include=MedicationRequest:requester:PractitionerRole"
+            + "&_include=MedicationRequest:medication"
+            + "&_include=PractitionerRole:organization"
+            + "&_include=PractitionerRole:practitioner"
+            + "&_include=MedicationRequest:insurance:Coverage");
+  }
 
   public MedicationPrescribeService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
