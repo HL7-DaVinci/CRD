@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import { bindActionCreators} from 'redux';
-import { fetchCrdResponse } from '../actions';
+
 import InputBox from '../components/InputBox';
 import Toggle from '../components/Toggle';
 import DisplayBox from '../components/DisplayBox';
