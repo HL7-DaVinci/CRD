@@ -71,7 +71,6 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   border-style: solid solid solid solid;
   border-color: black;
   background: linear-gradient(white,white)
-
 }
 
 .submit-btn:hover{
@@ -79,9 +78,7 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   margin-left:2px;
   margin-top:2px;
 }
-.button-ready:hover{
-  background: linear-gradient(white, #DDFFDD);
-}
+
 
 .btn-class-correct{
   border-color: #3145C3;
