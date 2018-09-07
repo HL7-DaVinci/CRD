@@ -64,11 +64,6 @@ export default class RequestBuilder extends Component{
         this.setState({ [event.target.name]: event.target.value });
     }
 
-    catchEm(promise) {
-      return promise.then(data => [null, data])
-        .catch(err => [err]);
-    }
-
     async login(){
 
       const tokenUrl = "http://localhost:8180/auth/realms/"+config.realm+"/protocol/openid-connect/token"
@@ -102,19 +97,24 @@ export default class RequestBuilder extends Component{
       }).then((response) =>{
           return response.json();
       }).then(response=>{
-                //console.log(err);
         console.log(response);
-        const token = response?response.access_token:null;
-        if(token){
-          this.consoleLog("Successfully retrieved token",types.info)
-        }else{
-          this.consoleLog("Failed to get token",types.warning)
-        }
+          const token = response?response.access_token:null;
+          if(token){
+            this.consoleLog("Successfully retrieved token",types.info);
+          }else{
+            this.consoleLog("Failed to get token",types.warning);
+            if(response.error_description){
+              this.consoleLog(response.error_description,types.error);
+            }
+          }
 
-        this.setState({token})
-        return token;
+          this.setState({token})
+          return token;
 
-      }).catch(reason => console.log(reason));
+      }).catch(reason =>{
+        this.consoleLog("Failed to get token", types.error);
+        this.consoleLog("Bad request");
+      });
 
       return tokenResponse;
 
@@ -122,7 +122,9 @@ export default class RequestBuilder extends Component{
 
     async submit_info(){
       this.consoleLog("Initiating form submission",types.info);
-      const token = await this.login();
+      if(this.state.oauth){
+        const token = await this.login();
+      }
       let json_request = this.getJson(1);
 
       this.setState({loading:true});
@@ -137,21 +139,24 @@ export default class RequestBuilder extends Component{
             }).then(response => {
               this.consoleLog("Recieved response",types.info);
                 return response.json();
-            });
-            if(fhirResponse.status===500){
+            }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
+
+            if(fhirResponse && fhirResponse.status){
               console.log(fhirResponse);
-              this.consoleLog("Server returned status 500",types.error);
-              this.consoleLog(fhirResponse.error,types.error);
+              this.consoleLog("Server returned status " 
+                              + fhirResponse.status + ": " 
+                              + fhirResponse.error,types.error);
+              this.consoleLog(fhirResponse.message,types.error);
             }else{
               this.setState({response: fhirResponse});
             }
           this.setState({loading:false});
-          }catch(e){
+          }catch(error){
             this.setState({loading:false});
-            this.consoleLog("No response recieved",types.warning)
+            this.consoleLog("Unexpected error occured",types.error)
             // this.consoleLog(e.,types.error);
-            if(e instanceof TypeError){
-              this.consoleLog(e.name + ": " + e.message,types.error);
+            if(error instanceof TypeError){
+              this.consoleLog(error.name + ": " + error.message,types.error);
             }
           }
 
