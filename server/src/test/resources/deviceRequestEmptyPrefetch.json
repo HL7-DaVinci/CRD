@@ -1,0 +1,44 @@
+{
+  "hook": "order-review",
+  "hookInstance": "a4ca4d19-ed2a-491d-87d4-408fefd56ec9",
+  "fhirServer": "http://localhost:9089/",
+  "oauth": null,
+  "user": "Practitioner/1234",
+  "context":{
+    "patientId":"1288992",
+    "encounterId":"89284",
+    "orders":{
+      "resourceType":"Bundle",
+      "entry":[
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "id": "24439",
+            "status": "draft",
+            "intent": "plan",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "code": "E0250"
+                }
+              ],
+              "text": "Stationary Compressed Gaseous Oxygen System, Rental"
+            },
+            "subject": {
+              "reference": "Patient/1288992"
+            },
+            "authoredOn": "2018-08-08",
+            "insurance": {
+              "reference": "Coverage/1234"
+            },
+            "performer": {
+              "reference": "PractitionerRole/1234"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "prefetch": {}
+}

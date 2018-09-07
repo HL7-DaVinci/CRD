@@ -1,11 +1,17 @@
 package org.hl7.davinci.cdshooks;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.annotation.JsonGetter;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Iterator;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 
-public class CdsRequest {
+public abstract class CdsRequest {
   @NotNull(message = "unsupported hook")
   private Hook hook = null;
 
@@ -19,6 +25,14 @@ public class CdsRequest {
 
   //  @NotNull TODO: why does this break validation if we extend this class???
   private Object context = null;
+
+  public CrdPrefetch getPrefetch() {
+    return prefetch;
+  }
+
+  public void setPrefetch(CrdPrefetch prefetch) {
+    this.prefetch = prefetch;
+  }
 
   private CrdPrefetch prefetch = null;
 
@@ -70,16 +84,19 @@ public class CdsRequest {
     this.context = context;
   }
 
-  public CrdPrefetch getPrefetch() {
-    return prefetch;
-  }
-
-  public void setPrefetch(CrdPrefetch prefetch) {
-    this.prefetch = prefetch;
-  }
 
   @JsonGetter("hookInstance")
   public String getHookInstanceAsString() {
     return hookInstance.toString();
   }
+
+
+  /**
+   * This should return a traversible structure that can be used to resolve prefetch tokens.
+   * It is abstract since different hooks have different elements as prefetch tokens.
+   * @return A traversible object (traversible with PropertyUtils)
+   */
+  public abstract Object getDataForPrefetchToken();
+
+
 }

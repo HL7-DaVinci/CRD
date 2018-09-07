@@ -1,5 +1,7 @@
 package org.hl7.davinci.cdshooks.medicationprescribe;
 
+import java.util.HashMap;
+import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.CdsRequest;
 import org.hl7.davinci.cdshooks.CrdPrefetch;
 
@@ -15,5 +17,23 @@ public class MedicationPrescribeRequest extends CdsRequest {
   }
 
   public void setContext(MedicationPrescribeContext context) { this.context = context; }
+
+  private HashMap<String, Object> mapForPrefetchTemplates = null;
+
+  public Object getDataForPrefetchToken() {
+    if (mapForPrefetchTemplates != null) {
+      return mapForPrefetchTemplates;
+    }
+    mapForPrefetchTemplates = new HashMap<>();
+    mapForPrefetchTemplates.put("user", this.getUser());
+
+    HashMap<String, Object> contextMap = new HashMap<>();
+    contextMap.put("patientId",getContext().getPatientId());
+    contextMap.put("encounterId",getContext().getEncounterId());
+    contextMap.put("medications",Utilities.bundleAsHashmap(getContext().getMedications()));
+    mapForPrefetchTemplates.put("context", contextMap);
+
+    return mapForPrefetchTemplates;
+  }
 
 }
