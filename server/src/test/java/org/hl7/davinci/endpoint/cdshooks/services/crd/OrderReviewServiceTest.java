@@ -23,9 +23,7 @@ public class OrderReviewServiceTest {
   @Autowired
   private OrderReviewService service;
 
-  // TODO: once request creator has been updated, un-ignore this test.
   @Test
-  @Ignore
   public void testHandleRequest() {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);

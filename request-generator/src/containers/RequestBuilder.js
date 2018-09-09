@@ -341,76 +341,119 @@ export default class RequestBuilder extends Component{
             }
           },
           prefetch: {
-            patient: {
-              id: "12",
-              resourceType: "Patient",
-              gender: this.state.gender,
-              birthDate: birthYear + "-12-23"
-            },
-            coverage: {
-              resourceType: "Coverage",
-              id: "1234",
-              class: [
+            deviceRequestBundle: {
+              resourceType: "Bundle",
+              type: "collection",
+              entry: [
                 {
-                  type: {
-                    system: "http://hl7.org/fhir/coverage-class",
-                    code: "plan"
-                  },
-                  value: "Medicare Part D"
-                }
-              ],
-              payor: [
+                  resource: {
+                    resourceType: "DeviceRequest",
+                    status: "draft",
+                    codeCodeableConcept: {
+                      coding: [
+                        {
+                          system: "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                          code: this.state.code
+                        }
+                      ],
+                      text: "Stationary Compressed Gaseous Oxygen System, Rental"
+                    },
+                    subject: {
+                      reference: "Patient/12"
+                    },
+                    authoredOn: "2018-08-08",
+                    insurance: [{
+                      reference: "Coverage/1234"
+                    }],
+                    performer: {
+                      reference: "PractitionerRole/1234"
+                    }
+                  }
+                },
                 {
-                  reference: "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
-                }
-              ]
-            },
-            location: {
-              resourceType: "Location",
-              id: "89abea45-75d5-4730-a214-027fcb903ca1",
-              address: {
-                line: [
-                  "100 Good St"
-                ],
-                city: "Bedford",
-                state: "MA",
-                postalCode: "01730"
-              }
-            },
-            practitionerRole: {
-              resourceType: "PractitionerRole",
-              practitioner: {
-                reference: "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
-              },
-              location: [
+                  resource: {
+                    id: "12",
+                    resourceType: "Patient",
+                    gender: this.state.gender,
+                    birthDate: birthYear + "-12-23"
+                  }
+                },
                 {
-                  reference: "Location/89abea45-75d5-4730-a214-027fcb903ca1"
-                }
-              ]
-            },
-            insurer: {
-              resourceType: "Organization",
-              id: "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
-              name: "Centers for Medicare and Medicaid Services"
-            },
-            provider: {
-              resourceType: "Practitioner",
-              id: "13608725-a5f5-4276-b44a-1fe2c7273555",
-              identifier: [
+                  resource: {
+                    resourceType: "Coverage",
+                    id: "1234",
+                    class: [
+                      {
+                        type: {
+                          system: "http://hl7.org/fhir/coverage-class",
+                          code: "plan"
+                        },
+                        value: "Medicare Part D"
+                      }
+                    ],
+                    payor: [
+                      {
+                        reference: "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
+                      }
+                    ]
+                  }
+                },
                 {
-                  system: "http://hl7.org/fhir/sid/us-npi",
-                  value: "1122334455"
-                }
-              ],
-              name: [
+                  resource: {
+                    resourceType: "Location",
+                    id: "89abea45-75d5-4730-a214-027fcb903ca1",
+                    address: {
+                      line: [
+                        "100 Good St"
+                      ],
+                      city: "Bedford",
+                      state: "MA",
+                      postalCode: "01730"
+                    }
+                  }
+                },
                 {
-                  family: "Doe",
-                  given: [
-                    "Jane"
-                  ],
-                  prefix: [
-                    "Dr."
-                  ]
+                  resource: {
+                    resourceType: "PractitionerRole",
+                    practitioner: {
+                      reference: "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
+                    },
+                    location: [
+                      {
+                        reference: "Location/89abea45-75d5-4730-a214-027fcb903ca1"
+                      }
+                    ]
+                  }
+                },
+                {
+                  resource: {
+                    resourceType: "Organization",
+                    id: "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
+                    name: "Centers for Medicare and Medicaid Services"
+                  }
+                },
+                {
+                  resource: {
+                    resourceType: "Practitioner",
+                    id: "13608725-a5f5-4276-b44a-1fe2c7273555",
+                    identifier: [
+                      {
+                        system: "http://hl7.org/fhir/sid/us-npi",
+                        value: "1122334455"
+                      }
+                    ],
+                    name: [
+                      {
+                        family: "Doe",
+                        given: [
+                          "Jane"
+                        ],
+                        prefix: [
+                          "Dr."
+                        ]
+                      }
+                    ]
+                  }
                 }
               ]
             }

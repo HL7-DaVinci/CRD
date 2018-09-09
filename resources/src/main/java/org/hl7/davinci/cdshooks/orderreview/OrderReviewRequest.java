@@ -3,6 +3,8 @@ package org.hl7.davinci.cdshooks.orderreview;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.CdsRequest;
 import org.hl7.davinci.cdshooks.CrdPrefetch;
@@ -26,6 +28,7 @@ public class OrderReviewRequest extends CdsRequest {
 
   private HashMap<String, Object> mapForPrefetchTemplates = null;
 
+  @JsonIgnore
   public Object getDataForPrefetchToken() {
     if (mapForPrefetchTemplates != null) {
       return mapForPrefetchTemplates;

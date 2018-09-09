@@ -1,126 +1,163 @@
 {
-    "hookInstance": "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-    "fhirServer": "http://hooks.smarthealthit.org:9080",
-    "hook": "order-review",
-    "fhirAuthorization": {
-        "access_token": "some-opaque-fhir-access-token",
-        "token_type": "Bearer",
-        "expires_in": 300,
-        "scope": "patient/Patient.read patient/Observation.read",
-        "subject": "cds-service4"
-    },
-    "user": "Practitioner/example",
-    "context": {
-        "patientId": "1288992",
-        "encounterId": "89284",
-        "orders": {
-            "resourceType": "Bundle",
-            "entry": [
+  "hook": "order-review",
+  "hookInstance": "f7012b5b-296a-41de-98fc-6cfdf477debc",
+  "fhirServer": null,
+  "oauth": null,
+  "user": "Practitioner/1234",
+  "context": {
+    "patientId": "57cefb81-b6c8-463d-9c7f-544bccc1da50",
+    "encounterId": null,
+    "orders": {
+      "resourceType": "Bundle",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "id": "123",
+            "status": "draft",
+            "codeCodeableConcept": {
+              "coding": [
                 {
-                    "resourceType": "DeviceRequest",
-                    "status": "draft",
-                    "intent": "plan",
-                    "codeCodeableConcept": {
-                      "resourceType": "CodeableConcept",
-                      "coding": [
-                        {
-                          "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
-                          "code": "E0424"
-                        }
-                      ],
-                      "text": "Stationary Compressed Gaseous Oxygen System, Rental"
-                    },
-                    "subject": {
-                      "reference": "Patient/1288992"
-                    },
-                    "authoredOn": "2018-08-08",
-                    "insurance": {
-                      "reference": "Coverage/1234"
-                    },
-                    "performer": {
-                      "reference": "PractitionerRole/1234"
-                    },
-                    "note": [
-                        {
-                            "text": "a sample device request"
-                        }
-                    ]
+                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "code": "E0424",
+                  "display": "Stationary Compressed Gaseous Oxygen System, Rental"
                 }
+              ]
+            },
+            "subject": {
+              "reference": "Patient/57cefb81-b6c8-463d-9c7f-544bccc1da50"
+            },
+            "performer": {
+              "reference": "PractitionerRole/5fe98df8-831d-4d38-838e-47544585c279"
+            },
+            "insurance": [
+              {
+                "reference": "Coverage/30da1785-0975-4a19-8164-9c5f088828d0"
+              }
             ]
+          }
         }
-    },
-    "prefetch": {
-        "patient": {
-          "resourceType": "Patient",
-          "gender": "male",
-          "birthDate": "1970-07-04"
-        },
-        "coverage": {
-          "resourceType": "Coverage",
-          "id": "1234",
-          "class": [
-            {
-              "type": {
-                "system": "http://hl7.org/fhir/coverage-class",
-                "code": "plan"
-              },
-              "value": "Medicare Part D"
-            }
-          ],
-          "payor": [
-            {
-              "reference": "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
-            }
-          ]
-        },
-        "location": {
-          "resourceType": "Location",
-          "id": "89abea45-75d5-4730-a214-027fcb903ca1",
-          "address": {
-            "line": [
-              "100 Good St"
-            ],
-            "city": "Bedford",
-            "state": "MA",
-            "postalCode": "01730"
+      ]
+    }
+  },
+  "prefetch": {
+    "deviceRequestBundle": {
+      "resourceType": "Bundle",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "id": "123",
+            "status": "draft",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "code": "E0424",
+                  "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+                }
+              ]
+            },
+            "subject": {
+              "reference": "Patient/57cefb81-b6c8-463d-9c7f-544bccc1da50"
+            },
+            "performer": {
+              "reference": "PractitionerRole/5fe98df8-831d-4d38-838e-47544585c279"
+            },
+            "insurance": [
+              {
+                "reference": "Coverage/30da1785-0975-4a19-8164-9c5f088828d0"
+              }
+            ]
           }
         },
-        "practitionerRole": {
-          "resourceType": "PractitionerRole",
-          "practitioner": {
-            "reference": "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
-          },
-          "location": [
-            {
-              "reference": "Location/89abea45-75d5-4730-a214-027fcb903ca1"
-            }
-          ]
+        {
+          "resource": {
+            "resourceType": "Patient",
+            "id": "57cefb81-b6c8-463d-9c7f-544bccc1da50",
+            "gender": "male",
+            "birthDate": "1970-07-04"
+          }
         },
-        "insurer": {
-          "resourceType": "Organization",
-          "id": "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
-          "name": "Centers for Medicare and Medicaid Services"
+        {
+          "resource": {
+            "resourceType": "Practitioner",
+            "id": "039eff78-41c6-4b78-9642-9a251df0df54",
+            "identifier": [
+              {
+                "system": "http://hl7.org/fhir/sid/us-npi",
+                "value": "1122334455"
+              }
+            ],
+            "name": [
+              {
+                "family": "Doe",
+                "given": [
+                  "Jane"
+                ],
+                "prefix": [
+                  "Dr."
+                ]
+              }
+            ]
+          }
         },
-        "provider": {
-          "resourceType": "Practitioner",
-          "id": "13608725-a5f5-4276-b44a-1fe2c7273555",
-          "identifier": [
-            {
-              "system": "http://hl7.org/fhir/sid/us-npi",
-              "value": "1122334455"
-            }
-          ],
-          "name": [
-            {
-              "family": "Doe",
-              "given": [
-                "Jane"
-              ],
-              "prefix": [
-                "Dr."
+        {
+          "resource": {
+            "resourceType": "Organization",
+            "id": "3bd71e8a-4848-4e88-a993-31e9ae3a4557",
+            "name": "Centers for Medicare and Medicaid Services"
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Device",
+            "type": {
+              "coding": [
+                {
+                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "code": "E0424",
+                  "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+                }
               ]
             }
-          ]
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "PractitionerRole",
+            "id": "5fe98df8-831d-4d38-838e-47544585c279",
+            "practitioner": {
+              "reference": "Practitioner/039eff78-41c6-4b78-9642-9a251df0df54"
+            },
+            "location": [
+              {
+                "reference": "Location/00f36f6d-2c2b-4ff9-93ba-12fe0c688ba2"
+              }
+            ]
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Coverage",
+            "id": "30da1785-0975-4a19-8164-9c5f088828d0",
+            "payor": [
+              {
+                "reference": "Organization/3bd71e8a-4848-4e88-a993-31e9ae3a4557"
+              }
+            ],
+            "class": [
+              {
+                "type": {
+                  "system": "http://hl7.org/fhir/coverage-class",
+                  "code": "plan"
+                },
+                "value": "Medicare Part D"
+              }
+            ]
+          }
         }
+      ]
     }
+  }
 }

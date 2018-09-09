@@ -32,7 +32,9 @@ public class CrdRequestCreator {
     OrderReviewContext context = new OrderReviewContext();
     CrdPrefetch prefetch = new CrdPrefetch();
     request.setContext(context);
-//    request.setPrefetch(prefetch);
+    Bundle prefetchBundle = new Bundle();
+    prefetch.setDeviceRequestBundle(prefetchBundle);
+    request.setPrefetch(prefetch);
 
     DeviceRequest dr = new DeviceRequest();
     dr.setStatus(DeviceRequest.DeviceRequestStatus.DRAFT);
@@ -45,6 +47,9 @@ public class CrdRequestCreator {
     Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
     bec.setResource(dr);
     orderBundle.addEntry(bec);
+    Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
+    pfDrBec.setResource(dr);
+    prefetchBundle.addEntry(pfDrBec);
     context.setOrders(orderBundle);
 
     // create a Patient object with Name set
@@ -53,7 +58,9 @@ public class CrdRequestCreator {
     patient.setGender(patientGender);
     patient.setBirthDate(patientBirthdate);
     context.setPatientId(patient.getId());
-//    prefetch.setPatient(patient);
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(patient);
+    prefetchBundle.addEntry(bec);
     dr.setSubject(generateReference(ResourceType.Patient, patient));
 
     // create a Practitioner object with ID set
@@ -61,13 +68,17 @@ public class CrdRequestCreator {
     provider.setId(idString());
     provider.addIdentifier(new Identifier().setSystem("http://hl7.org/fhir/sid/us-npi").setValue("1122334455"));
     provider.addName(new HumanName().addGiven("Jane").setFamily("Doe").addPrefix("Dr."));
-
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(provider);
+    prefetchBundle.addEntry(bec);
 
     // create an Organization object with ID and Name set
     Organization insurer = new Organization();
     insurer.setId(idString());
     insurer.setName("Centers for Medicare and Medicaid Services");
-//    prefetch.setInsurer(insurer);
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(insurer);
+    prefetchBundle.addEntry(bec);
 
     // create a Location Object
     Location facility = new Location();
@@ -76,19 +87,24 @@ public class CrdRequestCreator {
         .setCity("Bedford")
         .setState("MA")
         .setPostalCode("01730"));
-//    prefetch.setLocation(facility);
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(facility);
+    //prefetchBundle.addEntry(bec);
 
     Device device = new Device();
     device.setType(new CodeableConcept().addCoding(oxygen));
-//    prefetch.setDevice(device);
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(device);
+    prefetchBundle.addEntry(bec);
 
     PractitionerRole pr = new PractitionerRole();
     pr.setId(idString());
     pr.setPractitioner(generateReference(ResourceType.Practitioner, provider));
     pr.addLocation(generateReference(ResourceType.Location, facility));
-//    prefetch.setPractitionerRole(pr);
     dr.setPerformer(generateReference(ResourceType.PractitionerRole, pr));
-//    prefetch.setPractitionerRole(pr);
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(pr);
+    prefetchBundle.addEntry(bec);
 
     // create a Coverage object with ID set
     Coverage coverage = new Coverage();
@@ -99,7 +115,9 @@ public class CrdRequestCreator {
     coverage.addClass_(coverageClass);
     coverage.addPayor(generateReference(ResourceType.Organization, insurer));
     dr.addInsurance(generateReference(ResourceType.Coverage, coverage));
-//    prefetch.setCoverage(coverage);
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(coverage);
+    prefetchBundle.addEntry(bec);
 
     return request;
   }

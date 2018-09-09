@@ -100,11 +100,19 @@ public class OrderReviewService extends CdsService {
         response
             .addCard(CardBuilder.summaryCard("Unable to parse the device code out of the request"));
       }
-      try {
-        patient = (Patient) deviceRequest.getSubject().getResource();
-      } catch (Exception e) {
-        response
-            .addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
+
+      // See if the patient is in the prefetch
+      List<Patient> patients = Utilities.getResourcesOfTypeFromBundle(Patient.class, deviceRequestBundle);
+      if (patients.size() == 1) {
+        patient = patients.get(0);
+      } else {
+        // Not in the prefetch, see if it has been fetched.
+        try {
+          patient = (Patient) deviceRequest.getSubject().getResource();
+        } catch (Exception e) {
+          response
+              .addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
+        }
       }
 
       if (patient != null && cc != null) {
