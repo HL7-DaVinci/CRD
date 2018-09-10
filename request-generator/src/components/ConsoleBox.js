@@ -50,7 +50,7 @@ export default class ConsoleBox extends Component {
                 <a className={this.state.headerStatus + " consoleHeader"} onClick={this.toggleConsole} >
 
                 </a>
-            <div id="your_div" className = {this.state.showStatus + " consoleMain"}>
+            <div id="your_div" className = {this.state.showStatus + " consoleMain resize"}>
 
                 {this.props.logs.map(element => {
                     i++;
