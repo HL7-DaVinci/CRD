@@ -1,11 +1,11 @@
-package org.hl7.davinci.endpoint.cdshooks.services.crd;
+package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.List;
 import javax.validation.Valid;
 import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.CdsService;
-import org.hl7.davinci.cdshooks.CrdPrefetchTemplateElements;
+import org.hl7.davinci.cdshooks.r4.CrdPrefetchTemplateElements;
 import org.hl7.davinci.cdshooks.Hook;
 import org.hl7.davinci.cdshooks.Prefetch;
 import org.hl7.davinci.cdshooks.medicationprescribe.MedicationPrescribeRequest;
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Component
+@Component("r4_MedicationPrescribeService")
 public class MedicationPrescribeService extends CdsService {
 
   public static final String ID = "medication-prescribe-crd";

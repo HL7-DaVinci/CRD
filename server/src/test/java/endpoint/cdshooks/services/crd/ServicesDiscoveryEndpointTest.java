@@ -25,17 +25,31 @@ public class ServicesDiscoveryEndpointTest {
   private TestRestTemplate restTemplate;
 
   @Test
-  public void shouldReturnServiceList() {
-    JsonNode cdsServiceInformation = restTemplate.getForObject(
-        "http://localhost:" + port + "/cds-services/", JsonNode.class);
-    JsonNode orderReviewCrd = cdsServiceInformation.get("services").get(0);
-    JsonNode medicationPrescribeCrd = cdsServiceInformation.get("services").get(1);
+  public void shouldReturnServiceListR4() {
+    JsonNode r4CdsServiceInformation = restTemplate.getForObject(
+        "http://localhost:" + port + "/r4/cds-services/", JsonNode.class);
+    JsonNode r4OrderReviewCrd = r4CdsServiceInformation.get("services").get(0);
+    JsonNode r4MedicationPrescribeCrd = r4CdsServiceInformation.get("services").get(1);
 
-    assertEquals(orderReviewCrd.get("id").textValue(), "order-review-crd");
-    assertEquals(orderReviewCrd.get("hook").textValue(), "order-review");
+    assertEquals(r4OrderReviewCrd.get("id").textValue(), "order-review-crd");
+    assertEquals(r4OrderReviewCrd.get("hook").textValue(), "order-review");
 
-    assertEquals(medicationPrescribeCrd.get("id").textValue(), "medication-prescribe-crd");
-    assertEquals(medicationPrescribeCrd.get("hook").textValue(), "medication-prescribe");
+    assertEquals(r4MedicationPrescribeCrd.get("id").textValue(), "medication-prescribe-crd");
+    assertEquals(r4MedicationPrescribeCrd.get("hook").textValue(), "medication-prescribe");
+  }
+
+  @Test
+  public void shouldReturnServiceListStu3() {
+    JsonNode stu3CdsServiceInformation = restTemplate.getForObject(
+        "http://localhost:" + port + "/stu3/cds-services/", JsonNode.class);
+    JsonNode stu3OrderReviewCrd = stu3CdsServiceInformation.get("services").get(0);
+    JsonNode stu3MedicationPrescribeCrd = stu3CdsServiceInformation.get("services").get(1);
+
+    assertEquals(stu3OrderReviewCrd.get("id").textValue(), "order-review-crd");
+    assertEquals(stu3OrderReviewCrd.get("hook").textValue(), "order-review");
+
+    assertEquals(stu3MedicationPrescribeCrd.get("id").textValue(), "medication-prescribe-crd");
+    assertEquals(stu3MedicationPrescribeCrd.get("hook").textValue(), "medication-prescribe");
   }
 }
 
