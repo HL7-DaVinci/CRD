@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.cdshooks.services.crd;
+package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,8 +6,8 @@ import javax.validation.Valid;
 import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.CdsResponse;
 import org.hl7.davinci.cdshooks.CdsService;
-import org.hl7.davinci.cdshooks.CrdPrefetchTemplateElements;
-import org.hl7.davinci.cdshooks.CrdPrefetchTemplateElements.PrefetchTemplateElement;
+import org.hl7.davinci.cdshooks.r4.CrdPrefetchTemplateElements;
+import org.hl7.davinci.cdshooks.r4.CrdPrefetchTemplateElements.PrefetchTemplateElement;
 import org.hl7.davinci.cdshooks.Hook;
 import org.hl7.davinci.cdshooks.Prefetch;
 import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
-@Component
+@Component("r4_OrderReviewService")
 public class OrderReviewService extends CdsService {
 
   public static final String ID = "order-review-crd";
