@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS coverage_requirement_rules (
     age_range_high integer NOT NULL,
     gender_code character(1),
     equipment_code character varying(255) NOT NULL,
+    code_system character varying(255) NOT NULL,
     no_auth_needed boolean NOT NULL,
     info_link character varying(2000)
 );
