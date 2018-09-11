@@ -25,6 +25,9 @@ public class CoverageRequirementRule {
   @Column(name = "equipment_code", nullable = false)
   private String equipmentCode;
 
+  @Column(name = "code_system", nullable = false)
+  private String codeSystem;
+
   @Column(name = "age_range_low", nullable = false)
   private int ageRangeLow;
 
@@ -97,25 +100,19 @@ public class CoverageRequirementRule {
     this.equipmentCode = equipmentCode;
   }
 
+  public String getCodeSystem() {
+    return codeSystem;
+  }
+
+  public void setCodeSystem(String codeSystem) {
+    this.codeSystem = codeSystem;
+  }
+
   @Override
   public String toString() {
-    return "(row id:"
-        + id
-        + ") "
-        + "  Rule [equipment_code: "
-        + equipmentCode
-        + ", ageRangeLow: "
-        + ageRangeLow
-        + ", ageRangeHigh: "
-        + ageRangeHigh
-        + ", genderCode: "
-        + genderCode
-        + "] "
-        + "  Outcome [noAuthNeeded: "
-        + noAuthNeeded
-        + ", infoLink: '"
-        + infoLink
-        + "']";
+    return String.format("(row id: %d) Rule [equipment_code: %s, code_system %s, age_range_low %d, age_range_high: %d" +
+        ", gender_code: %s] Outcome: [no_auth_needed: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
+        ageRangeHigh, genderCode, noAuthNeeded, infoLink);
   }
 
   public CoverageRequirementRule() {}

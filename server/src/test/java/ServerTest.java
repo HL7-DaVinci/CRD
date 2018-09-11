@@ -52,6 +52,7 @@ public class ServerTest {
     CoverageRequirementRule retVal = new CoverageRequirementRule();
     retVal.setInfoLink("https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/downloads/PMDFactSheet07_Quark19.pdf");
     retVal.setEquipmentCode("abc123");
+    retVal.setCodeSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs");
     retVal.setNoAuthNeeded(true);
     retVal.setAgeRangeHigh(42);
     retVal.setAgeRangeLow(0);
@@ -66,6 +67,7 @@ public class ServerTest {
     CoverageRequirementRule retVal = new CoverageRequirementRule();
     retVal.setInfoLink("test.com");
     retVal.setEquipmentCode("abc123");
+    retVal.setCodeSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs");
     retVal.setNoAuthNeeded(true);
     retVal.setAgeRangeHigh(42);
     retVal.setAgeRangeLow(0);

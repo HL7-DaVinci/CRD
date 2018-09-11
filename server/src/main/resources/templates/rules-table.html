@@ -12,6 +12,7 @@
             <td>Rule Ends at Age</td>
             <td>Gender</td>
             <td>Relevant Code (CPT / HCPCS)</td>
+            <td>Code System URL</td>
             <td>Documentation Required</td>
             <td>Coverage Documentation Requirement Information Link</td>
         </tr>
@@ -24,6 +25,7 @@
                 <td th:text="${rule.ageRangeHigh}"></td>
                 <td th:text="${rule.genderCode}"></td>
                 <td th:text="${rule.equipmentCode}"></td>
+                <td th:text="${rule.codeSystem}"></td>
                 <td th:text="! ${rule.noAuthNeeded}"></td>
                 <td th:text="${rule.infoLink}"></td>
             </tr>

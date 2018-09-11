@@ -56,9 +56,9 @@ export default class RequestBuilder extends Component{
       }))
     }
 
-    updateStateElement = (elementName,text) => {
+    updateStateElement = (elementName, text) => {
         this.setState({ [elementName]: text});
-        }
+    }
 
     onInputChange(event){
         this.setState({ [event.target.name]: event.target.value });
@@ -352,11 +352,10 @@ export default class RequestBuilder extends Component{
                     codeCodeableConcept: {
                       coding: [
                         {
-                          system: "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                          system: this.state.codeSystem,
                           code: this.state.code
                         }
-                      ],
-                      text: "Stationary Compressed Gaseous Oxygen System, Rental"
+                      ]
                     },
                     subject: {
                       reference: "Patient/12"
