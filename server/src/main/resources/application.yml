@@ -21,3 +21,5 @@ keycloak:
   resource: dme-app-access
   public-client: false
   principal-attribute: preferred_username
+
+checkJwt: false

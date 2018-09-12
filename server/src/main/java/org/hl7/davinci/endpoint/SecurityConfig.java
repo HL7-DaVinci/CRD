@@ -23,11 +23,16 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+  @Autowired
+  private YamlConfig myConfig;
 
   /**
    * The CORS preflight must be accepted here or it will get rejected by the
@@ -53,17 +58,19 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-
+    List<String> antMatcher = new ArrayList<>();
     http.cors();
-    http.csrf().disable().authorizeRequests()
-        .antMatchers().permitAll()
-        .anyRequest().authenticated()
-        .and()
-        .addFilter(new JWTAuthorizationFilter(authenticationManager()))
-        // urls listed here will be checked for valid JWT
-        .antMatcher("/cds-services/order-review-crd");
+    if (myConfig.getCheckJwt()) {
+      antMatcher.add("/cds-services/order-review-crd");
+    }
+
+    http.csrf().disable();
+
+    for (String matcher : antMatcher) {
+      http.addFilter(new JWTAuthorizationFilter(authenticationManager()))
+          .antMatcher(matcher);
+    }
+
   }
-
-
 
 }
