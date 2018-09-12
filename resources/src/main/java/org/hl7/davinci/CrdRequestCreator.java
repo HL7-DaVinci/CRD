@@ -61,7 +61,7 @@ public class CrdRequestCreator {
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(patient);
     prefetchBundle.addEntry(bec);
-    dr.setSubject(generateReference(ResourceType.Patient, patient));
+    dr.setSubject(new Reference(patient));
 
     // create a Practitioner object with ID set
     Practitioner provider = new Practitioner();
@@ -99,9 +99,9 @@ public class CrdRequestCreator {
 
     PractitionerRole pr = new PractitionerRole();
     pr.setId(idString());
-    pr.setPractitioner(generateReference(ResourceType.Practitioner, provider));
-    pr.addLocation(generateReference(ResourceType.Location, facility));
-    dr.setPerformer(generateReference(ResourceType.PractitionerRole, pr));
+    pr.setPractitioner(new Reference(provider));
+    pr.addLocation(new Reference(facility));
+    dr.setPerformer(new Reference(pr));
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(pr);
     prefetchBundle.addEntry(bec);
@@ -113,8 +113,8 @@ public class CrdRequestCreator {
     Coverage.ClassComponent coverageClass = new Coverage.ClassComponent();
     coverageClass.setType(planCode).setValue("Medicare Part D");
     coverage.addClass_(coverageClass);
-    coverage.addPayor(generateReference(ResourceType.Organization, insurer));
-    dr.addInsurance(generateReference(ResourceType.Coverage, coverage));
+    coverage.addPayor(new Reference(insurer));
+    dr.addInsurance(new Reference(coverage));
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(coverage);
     prefetchBundle.addEntry(bec);
@@ -125,10 +125,5 @@ public class CrdRequestCreator {
   private static String idString() {
     UUID uuid = UUID.randomUUID();
     return uuid.toString();
-  }
-
-  private static Reference generateReference(ResourceType type, Resource resource) {
-    Reference reference = new Reference();
-    return reference.setReference(String.format("%s/%s", type.toString(), resource.getId()));
   }
 }
