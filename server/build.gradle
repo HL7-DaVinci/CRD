@@ -27,7 +27,6 @@ dependencies {
 
     compile project(':resources')
     compile project(':operations')
-    compile 'org.postgresql:postgresql:42.2.2'
 
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
@@ -35,12 +34,11 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
     compile("org.springframework.boot:spring-boot-devtools")
     compile('org.springframework.boot:spring-boot-starter-security')
+    compile("org.springframework.boot:spring-boot-devtools")
 
     compile 'org.keycloak:keycloak-spring-boot-2-starter:4.0.0.Beta2'
 
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('com.h2database:h2')
-    compile("org.springframework.boot:spring-boot-devtools")
+    compile('com.h2database:h2')
 
     compile('ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'){
             exclude group: 'org.thymeleaf'
@@ -48,23 +46,8 @@ dependencies {
 
     compile 'javax.servlet:javax.servlet-api:3.1.0'
 
-    testCompile "com.github.tomakehurst:wiremock-standalone:2.18.0"
-
     compile 'commons-beanutils:commons-beanutils:1.9.3'
-}
 
-
-task setupDB {
-    String setupScriptFullpath = file(".").absolutePath + "/src/main/resources/db/setup_db.sql"
-    String sampleDataFullpath = file(".").absolutePath + "/src/main/resources/db/sample_data.csv"
-    String loadSampleDataSqlCommand = "COPY coverage_requirement_rules FROM '"+sampleDataFullpath+"' DELIMITER ',' NULL as 'null' QUOTE '\"' CSV HEADER;"
-
-    doFirst {
-        exec {
-            commandLine 'psql', 'postgres', '-c', "CREATE DATABASE dme;"
-            ignoreExitValue true  // ignore errors since database might already exist
-        }
-        exec { commandLine 'psql', '-d', 'dme', '-a', '-f', setupScriptFullpath }
-        exec { commandLine 'psql', 'dme', '-c', loadSampleDataSqlCommand }
-    }
+    testCompile "com.github.tomakehurst:wiremock-standalone:2.18.0"
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 }

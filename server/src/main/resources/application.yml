@@ -5,15 +5,15 @@ spring:
   thymeleaf:
     cache: false
   datasource:
-    url: jdbc:postgresql://localhost/dme
+    url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      hibernate.dialect: org.hibernate.dialect.H2Dialect
+      hibernate.hbm2ddl.auto: create-drop
 server:
   port: 8090
-
 
 keycloak:
   auth-server-url: http://localhost:8180/auth

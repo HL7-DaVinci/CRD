@@ -18,9 +18,9 @@ public interface DataRepository extends CrudRepository<CoverageRequirementRule, 
       "SELECT r FROM CoverageRequirementRule r WHERE "
           + "r.ageRangeLow <= :age "
           + "and r.ageRangeHigh >= :age "
-          + "and r.genderCode = :genderCode "
+          + "and (r.genderCode IS NULL OR r.genderCode = :genderCode) "
           + "and r.equipmentCode = :equipmentCode ")
-  List<CoverageRequirementRule> findRule(
+  List<CoverageRequirementRule> findRules(
       @Param("age") int age,
       @Param("genderCode") Character genderCode,
       @Param("equipmentCode") String equipmentCode);

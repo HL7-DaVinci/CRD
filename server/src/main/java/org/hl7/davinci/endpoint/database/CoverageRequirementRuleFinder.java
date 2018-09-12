@@ -26,21 +26,16 @@ public class CoverageRequirementRuleFinder {
    * @param equipmentCode CPT codes for now.
    * @return
    */
-  public CoverageRequirementRule findRule(
+  public List<CoverageRequirementRule> findRules(
       int age, Enumerations.AdministrativeGender gender, String equipmentCode) {
     Character genderCode = gender.getDisplay().charAt(0);
     String queryString =
         String.format("age=%d, genderCode=%c, equipmentCode=%s", age, genderCode, equipmentCode);
 
-    List<CoverageRequirementRule> ruleList = repository.findRule(age, genderCode, equipmentCode);
+    List<CoverageRequirementRule> ruleList = repository.findRules(age, genderCode, equipmentCode);
     if (ruleList.size() == 0) {
       logger.debug("RuleFinder returned no results for query: " + queryString);
-      return null;
     }
-    if (ruleList.size() > 1) {
-      logger.error("RuleFinder returned MULTIPLE results for query: " + queryString);
-      return null;
-    }
-    return ruleList.get(0);
+    return ruleList;
   }
 }
