@@ -17,7 +17,7 @@ import javax.persistence.Table;
 @Table(name = "coverage_requirement_rules")
 public class CoverageRequirementRule {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", updatable = false, nullable = false)
   private long id;
 

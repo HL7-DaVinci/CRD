@@ -117,12 +117,14 @@ public class OrderReviewService extends CdsService {
 
       if (patient != null && cc != null) {
         int patientAge = Utilities.calculateAge(patient);
-        CoverageRequirementRule crr = ruleFinder
-            .findRule(patientAge, patient.getGender(), cc.getCoding().get(0).getCode());
-        if (crr != null) {
-          response.addCard(CardBuilder.transform(crr));
-        } else {
+        List<CoverageRequirementRule> coverageRequirementRules = ruleFinder
+            .findRules(patientAge, patient.getGender(), cc.getCoding().get(0).getCode());
+        if (coverageRequirementRules.size() == 0) {
           response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+        } else {
+          for (CoverageRequirementRule rule: coverageRequirementRules) {
+            response.addCard(CardBuilder.transform(rule));
+          }
         }
       }
     }
