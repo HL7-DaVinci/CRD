@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.hl7.davinci.CoverageRequirementsDiscoveryOperationInterface;
-import org.hl7.davinci.DaVinciEligibilityRequest;
+import org.hl7.davinci.r4.fhirresources.DaVinciEligibilityRequest;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Coverage;

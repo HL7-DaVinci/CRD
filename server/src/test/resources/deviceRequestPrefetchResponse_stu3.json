@@ -1,0 +1,120 @@
+{
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "DeviceRequest",
+        "id": "123",
+        "meta": {
+          "profile": [
+            "http://base.url/DaVinciDeviceRequest"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://base.url/DaVinciDeviceRequest#insurance",
+            "valueReference": {
+              "reference": "Coverage/aa4c7d92-52c8-4ec1-91f4-ef6df5c63d0e"
+            }
+          }
+        ],
+        "status": "draft",
+        "codeCodeableConcept": {
+          "coding": [
+            {
+              "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+              "code": "E0424",
+              "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/9606619b-a209-44e4-8daf-54b246690ae3"
+        },
+        "performer": {
+          "reference": "PractitionerRole/d97e624d-3339-4be8-8303-1e55ac1b083d"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "9606619b-a209-44e4-8daf-54b246690ae3",
+        "gender": "male",
+        "birthDate": "1970-07-04"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "53cec2dd-bcbf-4ce0-a856-f3fda42c6d23",
+        "identifier": [
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "1122334455"
+          }
+        ],
+        "name": [
+          {
+            "family": "Doe",
+            "given": [
+              "Jane"
+            ],
+            "prefix": [
+              "Dr."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "b84dfc36-1cc0-4d9f-b9be-bba62e0a1a40",
+        "name": "Centers for Medicare and Medicaid Services"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Device",
+        "type": {
+          "coding": [
+            {
+              "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+              "code": "E0424",
+              "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "d97e624d-3339-4be8-8303-1e55ac1b083d",
+        "practitioner": {
+          "reference": "Practitioner/53cec2dd-bcbf-4ce0-a856-f3fda42c6d23"
+        },
+        "location": [
+          {
+            "reference": "Location/44729bc7-a39c-499b-8e51-47f96b9d0c07"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "aa4c7d92-52c8-4ec1-91f4-ef6df5c63d0e",
+        "payor": [
+          {
+            "reference": "Organization/b84dfc36-1cc0-4d9f-b9be-bba62e0a1a40"
+          }
+        ],
+        "grouping": {
+          "plan": "Medicare Part D"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "hook": "order-review",
+  "hookInstance": "34295382-52e2-468a-94e3-e6be64df3edf",
+  "fhirServer": "http://localhost:9089/",
+  "oauth": null,
+  "user": "Practitioner/1234",
+  "context": {
+    "patientId": "9606619b-a209-44e4-8daf-54b246690ae3",
+    "encounterId": null,
+    "orders": {
+      "resourceType": "Bundle",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "id": "123",
+            "meta": {
+              "profile": [
+                "http://base.url/DaVinciDeviceRequest"
+              ]
+            },
+            "extension": [
+              {
+                "url": "http://base.url/DaVinciDeviceRequest#insurance",
+                "valueReference": {
+                  "reference": "Coverage/aa4c7d92-52c8-4ec1-91f4-ef6df5c63d0e"
+                }
+              }
+            ],
+            "status": "draft",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "code": "E0424",
+                  "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+                }
+              ]
+            },
+            "subject": {
+              "reference": "Patient/9606619b-a209-44e4-8daf-54b246690ae3"
+            },
+            "performer": {
+              "reference": "PractitionerRole/d97e624d-3339-4be8-8303-1e55ac1b083d"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "prefetch": {}
+}

@@ -3,17 +3,17 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 import java.util.Arrays;
 import java.util.List;
 import javax.validation.Valid;
-import org.hl7.davinci.Utilities;
-import org.hl7.davinci.cdshooks.CdsResponse;
-import org.hl7.davinci.cdshooks.CdsService;
-import org.hl7.davinci.cdshooks.r4.CrdPrefetchTemplateElements;
-import org.hl7.davinci.cdshooks.r4.CrdPrefetchTemplateElements.PrefetchTemplateElement;
-import org.hl7.davinci.cdshooks.Hook;
-import org.hl7.davinci.cdshooks.Prefetch;
-import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
+import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.Utilities;
+import org.cdshooks.CdsResponse;
+import org.cdshooks.CdsService;
+import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
+import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements.PrefetchTemplateElement;
+import org.cdshooks.Hook;
+import org.cdshooks.Prefetch;
+import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.components.FhirComponents;
-import org.hl7.davinci.endpoint.components.prefetchhydrator.PrefetchHydrator;
+import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -56,9 +56,6 @@ public class OrderReviewService extends CdsService {
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
 
-  @Autowired
-  FhirComponents fhirComponents;
-
   public OrderReviewService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
   }
@@ -74,8 +71,9 @@ public class OrderReviewService extends CdsService {
 
     //note currently we only use the device request if its in the prefetch or we get it into
     //the prefetch, so we dont use it if its just in the context since it wont have patient etc.
-
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, fhirComponents);
+    FhirComponents fhirComponents = FhirComponents.getInstance();
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator<Bundle>(this, request,
+        fhirComponents.getFhirContext());
     prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible
 
     CdsResponse response = new CdsResponse();

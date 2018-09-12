@@ -12,10 +12,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.hl7.davinci.CrdRequestCreator;
-import org.hl7.davinci.cdshooks.Card;
-import org.hl7.davinci.cdshooks.CdsResponse;
-import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
+import org.hl7.davinci.r4.CrdRequestCreator;
+import org.cdshooks.Card;
+import org.cdshooks.CdsResponse;
+import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.fhir.r4.model.Enumerations;
 
 public class TestClient {

@@ -2,16 +2,16 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.List;
 import javax.validation.Valid;
-import org.hl7.davinci.Utilities;
-import org.hl7.davinci.cdshooks.CdsResponse;
-import org.hl7.davinci.cdshooks.CdsService;
-import org.hl7.davinci.cdshooks.r4.CrdPrefetchTemplateElements;
-import org.hl7.davinci.cdshooks.Hook;
-import org.hl7.davinci.cdshooks.Prefetch;
-import org.hl7.davinci.cdshooks.medicationprescribe.MedicationPrescribeRequest;
+import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.Utilities;
+import org.cdshooks.CdsResponse;
+import org.cdshooks.CdsService;
+import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
+import org.cdshooks.Hook;
+import org.cdshooks.Prefetch;
+import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.components.FhirComponents;
-import org.hl7.davinci.endpoint.components.prefetchhydrator.PrefetchHydrator;
+import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -21,7 +21,6 @@ import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -42,8 +41,6 @@ public class MedicationPrescribeService extends CdsService {
         CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE.getQuery());
   }
 
-  @Autowired
-  FhirComponents fhirComponents;
 
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
@@ -63,7 +60,9 @@ public class MedicationPrescribeService extends CdsService {
     logger.info(
         "Medications bundle size: " + request.getContext().getMedications().getEntry().size());
 
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, fhirComponents);
+    FhirComponents fhirComponents = FhirComponents.getInstance();
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator<Bundle>(this, request,
+        fhirComponents.getFhirContext());
     prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible
 
     CdsResponse response = new CdsResponse();

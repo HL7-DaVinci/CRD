@@ -1,9 +1,9 @@
 package org.hl7.davinci.endpoint.components;
 
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.cdshooks.Card;
-import org.hl7.davinci.cdshooks.Link;
-import org.hl7.davinci.cdshooks.Source;
+import org.cdshooks.Card;
+import org.cdshooks.Link;
+import org.cdshooks.Source;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,8 +2,8 @@ package org.hl7.davinci.creator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.hl7.davinci.CrdRequestCreator;
-import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
+import org.hl7.davinci.r4.CrdRequestCreator;
+import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.fhir.r4.model.Enumerations;
 
 
