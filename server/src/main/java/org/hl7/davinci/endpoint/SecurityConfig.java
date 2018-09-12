@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint;
 
+import com.google.common.collect.ImmutableList;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
@@ -13,54 +14,56 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
 @Configuration
 @EnableWebSecurity
-@ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
-class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired
-  public void configureGlobal(
-      AuthenticationManagerBuilder auth) throws Exception {
 
-    KeycloakAuthenticationProvider keycloakAuthenticationProvider
-        = keycloakAuthenticationProvider();
-    keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(
-        new SimpleAuthorityMapper());
-    auth.authenticationProvider(keycloakAuthenticationProvider);
-  }
-
+  /**
+   * The CORS preflight must be accepted here or it will get rejected by the
+   * Auth filter.  General CORS settings can be set here.
+   * @return CORS configuration object
+   */
   @Bean
-  public KeycloakSpringBootConfigResolver keycloakConfigResolver() {
-    return new KeycloakSpringBootConfigResolver();
-  }
-
-  @Bean
-  @Override
-  protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-    return new RegisterSessionAuthenticationStrategy(
-        new SessionRegistryImpl());
+  public CorsConfigurationSource corsConfigurationSource() {
+    final CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(ImmutableList.of("*"));
+    configuration.setAllowedMethods(ImmutableList.of("HEAD",
+        "GET", "POST", "PUT", "DELETE", "PATCH"));
+    // setAllowCredentials(true) is important, otherwise:
+    // The value of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
+    configuration.setAllowCredentials(true);
+    // setAllowedHeaders is important! Without it, OPTIONS preflight request
+    // will fail with 403 Invalid CORS request
+    configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type"));
+    final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
   }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    super.configure(http);
-    http.authorizeRequests()
-        .antMatchers()
-        .hasRole("user")
-        .anyRequest()
-        .permitAll();
 
-    //We're not using cookies
-    http.csrf().disable();
-    // CSRF tokens handling
-    //http.addFilterAfter(new CsrfTokenResponseHeaderBindingFilter(), CsrfFilter.class);
+    http.cors();
+    http.csrf().disable().authorizeRequests()
+        .antMatchers().permitAll()
+        .anyRequest().authenticated()
+        .and()
+        .addFilter(new JWTAuthorizationFilter(authenticationManager()))
+        // urls listed here will be checked for valid JWT
+        .antMatcher("/cds-services/order-review-crd");
   }
+
 
 
 }
