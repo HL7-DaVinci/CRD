@@ -22,4 +22,4 @@ keycloak:
   public-client: false
   principal-attribute: preferred_username
 
-checkJwt: false
+checkJwt: true

@@ -10,9 +10,8 @@ import '../index.css';
 import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
-import keypair from 'keypair';
-import base64url from "base64url";
 import KJUR, {KEYUTIL} from 'jsrsasign';
+
 const types = {
   error: "errorClass",
   info: "infoClass",
@@ -58,11 +57,12 @@ export default class RequestBuilder extends Component{
     
 
 
-    createJwt(){
+    async createJwt(){
       
       var keypair = KEYUTIL.generateKeypair('RSA',2048);
       
       var pubKey = keypair.pubKeyObj;
+      
 
       const jwkPrv2 = KEYUTIL.getJWKFromKey(keypair.prvKeyObj);
       const jwkPub2 = KEYUTIL.getJWKFromKey(keypair.pubKeyObj);
@@ -71,12 +71,20 @@ export default class RequestBuilder extends Component{
       const currentTime = KJUR.jws.IntDate.get('now');
       const endTime = KJUR.jws.IntDate.get('now + 1day');
       const kid = KJUR.jws.JWS.getJWKthumbprint(jwkPub2)
-      
+      // pubKey.id = this.makeid();
+      // const alag = await fetch("http://localhost:3000/public_keys",{
+      //   "body": JSON.stringify(jwkPub2),
+      //   "headers":{
+      //     "Content-Type":"application/json"
+      //   },
+      //   "method":"POST"
+      // });
+
       const header = {
         "alg":"RS256",
         "typ":"JWT",
         "kid":kid,
-        "jku":"localhost:8080/public-keys"
+        "jku":"http://localhost:3000/public_keys"
       };
       const body = {
         "iss":"localhost:3000",
@@ -185,7 +193,7 @@ export default class RequestBuilder extends Component{
       });
             this.consoleLog("Fetching response from http://localhost:8090/cds-services/order-review-crd/",types.info)
           try{
-            const fhirResponse= await fetch("http://localhost:8090/cds-services/order-review-crd",{
+            const fhirResponse= await fetch("http://localhost:8090/r4/cds-services/order-review-crd",{
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify(json_request)

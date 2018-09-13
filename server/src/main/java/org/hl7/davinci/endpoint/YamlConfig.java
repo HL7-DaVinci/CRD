@@ -19,5 +19,4 @@ public class YamlConfig {
     checkJwt = check;
   }
 
-
 }

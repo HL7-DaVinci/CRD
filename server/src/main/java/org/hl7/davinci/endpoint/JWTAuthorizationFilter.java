@@ -50,7 +50,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     // ignore this for now, this will be how the key signature gets validated
     // String user = Jwts.parser().setSigningKeyResolver(new SigningKeyResolverCrd()).parseClaimsJws(token).getHeader().getAlgorithm();
-
     if (user != null) {
       logger.info("Validated JWT token structure from " + user);
       return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
@@ -78,16 +77,18 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     String[] tokens = token.split("\\.");
     if (tokens.length != 3) {
+      logger.warn("Token doesn't have proper format, rejecting");
       // tokens without all three sections are invalid
       return null;
     }
     try {
       String header = new String(Base64.getDecoder().decode(tokens[0]));
       String payload = new String(Base64.getDecoder().decode(tokens[1]));
-
       // we just want to make sure the json has the correct fields
       // their contents aren't really important, if the contents are
       // bad we can reject them later.
+
+
       List<String> requiredHeaders = Arrays.asList("alg","typ","kid");
       List<String> requiredPayload = Arrays.asList("iss","aud","exp","iat","jti");
 
@@ -108,12 +109,24 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
       if (validHeader && validPayload) {
         return jsonPayload.get("iss").toString();
       } else {
+        if (!validHeader) {
+          requiredHeaders.removeAll(jsonHeader.keySet());
+          logger.warn("Token header rejected, missing required properties - " + requiredHeaders);
+        }
+        if (!validPayload) {
+          requiredPayload.removeAll(jsonPayload.keySet());
+          logger.warn("Token payload rejected, missing required properties - " + requiredPayload);
+        }
         return null;
       }
-
-    } catch (Exception e) {
       // if any part of the above fails, the token
       // is of invalid format
+    } catch (IllegalArgumentException decodingError) {
+      logger.warn("The token was not properly base64 encoded - cannot parse token");
+      return null;
+
+    } catch (IllegalStateException parsingError) {
+      logger.warn("The token contained invalid JSON");
       return null;
     }
   }
