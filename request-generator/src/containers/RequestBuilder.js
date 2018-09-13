@@ -66,19 +66,18 @@ export default class RequestBuilder extends Component{
 
       const jwkPrv2 = KEYUTIL.getJWKFromKey(keypair.prvKeyObj);
       const jwkPub2 = KEYUTIL.getJWKFromKey(keypair.pubKeyObj);
-      
-      const pubPem = KEYUTIL.getPEM(pubKey);
+      console.log(pubKey);
       const currentTime = KJUR.jws.IntDate.get('now');
       const endTime = KJUR.jws.IntDate.get('now + 1day');
       const kid = KJUR.jws.JWS.getJWKthumbprint(jwkPub2)
-      // pubKey.id = this.makeid();
-      // const alag = await fetch("http://localhost:3000/public_keys",{
-      //   "body": JSON.stringify(jwkPub2),
-      //   "headers":{
-      //     "Content-Type":"application/json"
-      //   },
-      //   "method":"POST"
-      // });
+      const pubPem = {"pem":KEYUTIL.getPEM(pubKey),"id":kid};
+      const alag = await fetch("http://localhost:3000/public_keys",{
+        "body": JSON.stringify(pubPem),
+        "headers":{
+          "Content-Type":"application/json"
+        },
+        "method":"POST"
+      });
 
       const header = {
         "alg":"RS256",
@@ -184,6 +183,7 @@ export default class RequestBuilder extends Component{
         const token = await this.login();
       }
       let json_request = this.getJson(1);
+      console.log(json_request);
       let jwt = await this.createJwt();
       //console.log(jwt);
       jwt = "Bearer " + jwt;
@@ -193,7 +193,7 @@ export default class RequestBuilder extends Component{
       });
             this.consoleLog("Fetching response from http://localhost:8090/cds-services/order-review-crd/",types.info)
           try{
-            const fhirResponse= await fetch("http://localhost:8090/r4/cds-services/order-review-crd",{
+            const fhirResponse= await fetch("http://localhost:8090/cds-services/order-review-crd",{
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify(json_request)
@@ -379,7 +379,7 @@ export default class RequestBuilder extends Component{
                     codeCodeableConcept: {
                       coding: [
                         {
-                          system: "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                          system: this.state.codeSystem,
                           code: this.state.code
                         }
                       ],

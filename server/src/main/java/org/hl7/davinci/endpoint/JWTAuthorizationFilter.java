@@ -4,10 +4,6 @@ package org.hl7.davinci.endpoint;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-
-import java.util.Arrays;
-import java.util.Base64;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,8 +14,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
@@ -48,8 +45,18 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     token = token.replace("Bearer ", "");
     String user = isTokenWellFormed(token);
 
-    // ignore this for now, this will be how the key signature gets validated
-    // String user = Jwts.parser().setSigningKeyResolver(new SigningKeyResolverCrd()).parseClaimsJws(token).getHeader().getAlgorithm();
+    // Check the token's signature.  Throws an exception if the token is rejected
+    try {
+      // The KeyResolver fetches the public key from the jku
+      Jwts.parser()
+          .setSigningKeyResolver(new SigningKeyResolverCrd())
+          .parseClaimsJws(token).getSignature();
+    } catch (io.jsonwebtoken.SignatureException sigEx) {
+      logger.info("Failed to verify token signature, rejecting token.");
+      return null;
+    }
+
+
     if (user != null) {
       logger.info("Validated JWT token structure from " + user);
       return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
