@@ -51,7 +51,8 @@ public class CdsHooksController {
    * @return The card response
    */
   @CrossOrigin
-  @PostMapping(value = URL_BASE + "/" + OrderReviewService.ID, consumes = "application/json;charset=UTF-8")
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderReviewService.ID,
+      consumes = "application/json;charset=UTF-8")
   public CdsResponse handleOrderReview(@Valid @RequestBody OrderReviewRequest request) {
     logger.info("r4/handleOrderReview");
     return orderReviewService.handleRequest(request);
@@ -63,7 +64,8 @@ public class CdsHooksController {
    * @return The card response
    */
   @CrossOrigin
-  @PostMapping(value = URL_BASE + "/" + MedicationPrescribeService.ID, consumes = "application/json;charset=UTF-8")
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + MedicationPrescribeService.ID,
+      consumes = "application/json;charset=UTF-8")
   public CdsResponse handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request) {
     logger.info("r4/handleMedicationPrescribe");
     return medicationPrescribeService.handleRequest(request);
