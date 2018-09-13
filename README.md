@@ -2,7 +2,7 @@
 
 The Coverage Requirements Discovery (CRD) Reference Implementation (RI) is a software project that conforms to the [Implementation Guide](http://build.fhir.org/ig/HL7/davinci-crd/) developed by the [Da Vinci Project](http://www.hl7.org/about/davinci/index.cfm?ref=common) within the [HL7 Standards Organization](http://www.hl7.org/).
 
-The CRD RI project is software that can simulate all of the systems involved in a CRD exchange. The main component in this project is the server, which acts as a healthcare payer information system. This system handles healthcare providers requests to understand what documentation is necessary prior to prescribing a particular treatment. Users are able to formulate a request for durable medical equipment coverage requirements, such as “what are the documentation requirements for prescribing home oxygen therapy (HCPCS E0424) to a 65 year old male living in MA?”. This type of question is not asked in plain English through a user interface, but submitted through [CDS Hooks](https://cds-hooks.org/). The CRD RI consults a small, example database and provides a response, such as a PDF with the requirements back to the requesting system.
+The CRD RI project is software that can simulate all of the systems involved in a CRD exchange. The main component in this project is the server, which acts as a healthcare payer information system. This system handles healthcare providers' requests to understand what documentation is necessary prior to prescribing a particular treatment. Users are able to formulate a request for durable medical equipment coverage requirements, such as “what are the documentation requirements for prescribing home oxygen therapy (HCPCS E0424) to a 65 year old male living in MA?”. This type of question is not asked in plain English through a user interface, but submitted through [CDS Hooks](https://cds-hooks.org/). The CRD RI consults a small, example database and provides a response, such as a PDF with the requirements back to the requesting system.
 
 This software lets EHR vendors and payer organizations examine how the proposed standard will work and test their own implementations of the standard.
 
@@ -75,7 +75,7 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 	* Navigate to the `Users` tab and make a new user.  
 	* Give the new user a password in the `credentials` tab
 	* Go to `Role Mappings` and add the `user` role
-9. Modify config files to point at the your new clients and realms
+9. Modify config files to point at your new clients and realms
 	* Change `server/resources/application.yml` keycloak settings to point at the bearer only client in one of the realms
 	* Change `fhir-server/resources/fhirServer.properties` to have the client ID and secret of the bearer only client in the second realm
 	* Change `request-generator/src/properties.json` to include the second realm and public client ID
