@@ -23,16 +23,17 @@ public class CoverageRequirementRuleFinder {
    *
    * @param age Patient age in years.
    * @param gender Patient gender (enum from hapi fhir).
-   * @param equipmentCode CPT codes for now.
+   * @param equipmentCode desired code
+   * @param codeSystem URL for the code system of the equipmentCode
    * @return
    */
   public List<CoverageRequirementRule> findRules(
-      int age, Enumerations.AdministrativeGender gender, String equipmentCode) {
+      int age, Enumerations.AdministrativeGender gender, String equipmentCode, String codeSystem) {
     Character genderCode = gender.getDisplay().charAt(0);
-    String queryString =
-        String.format("age=%d, genderCode=%c, equipmentCode=%s", age, genderCode, equipmentCode);
+    String queryString = String.format("age=%d, genderCode=%c, equipmentCode=%s, codeSystem=%s",
+        age, genderCode, equipmentCode, codeSystem);
 
-    List<CoverageRequirementRule> ruleList = repository.findRules(age, genderCode, equipmentCode);
+    List<CoverageRequirementRule> ruleList = repository.findRules(age, genderCode, equipmentCode, codeSystem);
     if (ruleList.size() == 0) {
       logger.debug("RuleFinder returned no results for query: " + queryString);
     }
