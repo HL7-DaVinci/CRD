@@ -195,7 +195,8 @@ public class CoverageRequirementsDiscoveryOperation
     // lookup the rule for each cpt code
     StringBuilder responseDescription = new StringBuilder();
     for (String cptCode : cptCodes) {
-      List<CoverageRequirementRule> ruleList = ruleFinder.findRules(age, gender, cptCode);
+      List<CoverageRequirementRule> ruleList = ruleFinder.findRules(age, gender,
+          cptCode, "http://www.ama-assn.org/go/cpt");
       if (ruleList.size() == 0) {
         responseDescription.append(cptCode + " = no information available\n");
       } else {

@@ -112,7 +112,8 @@ public class OrderReviewService extends CdsService {
       if (patient != null && cc != null) {
         int patientAge = Utilities.calculateAge(patient);
         List<CoverageRequirementRule> coverageRequirementRules = ruleFinder
-            .findRules(patientAge, patient.getGender(), cc.getCoding().get(0).getCode());
+            .findRules(patientAge, patient.getGender(), cc.getCoding().get(0).getCode(),
+                cc.getCoding().get(0).getSystem());
         if (coverageRequirementRules.size() == 0) {
           response.addCard(CardBuilder.summaryCard("No documentation rules found"));
         } else {
