@@ -1,0 +1,12 @@
+{
+  "resourceType": "Location",
+  "id": "89abea45-75d5-4730-a214-027fcb903ca1",
+  "address": {
+    "line": [
+      "100 Good St"
+    ],
+    "city": "Bedford",
+    "state": "MA",
+    "postalCode": "01730"
+  }
+}

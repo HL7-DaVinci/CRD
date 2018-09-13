@@ -1,0 +1,25 @@
+{
+  "resourceType": "DeviceRequest",
+  "status": "draft",
+  "codeCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://www.ama-assn.org/go/cpt",
+        "code": "97542"
+      }
+    ],
+    "text": "Wheelchair"
+  },
+  "subject": {
+    "reference": "Patient/12"
+  },
+  "authoredOn": "2018-08-08",
+  "insurance": [
+    {
+      "reference": "Coverage/1234"
+    }
+  ],
+  "performer": {
+    "reference": "PractitionerRole/1234"
+  }
+}
