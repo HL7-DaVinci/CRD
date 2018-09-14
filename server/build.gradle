@@ -40,6 +40,8 @@ dependencies {
 
     compile('com.h2database:h2')
 
+    compile("org.springframework.boot:spring-boot-devtools")
+    compile("io.jsonwebtoken:jjwt:0.7.0")
     compile('ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'){
             exclude group: 'org.thymeleaf'
     }
@@ -48,6 +50,7 @@ dependencies {
 
     compile 'commons-beanutils:commons-beanutils:1.9.3'
 
+    testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile "com.github.tomakehurst:wiremock-standalone:2.18.0"
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }

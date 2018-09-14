@@ -10,7 +10,7 @@ import '../index.css';
 import '../components/consoleBox.css';
 import Loader from 'react-loader-spinner';
 import config from '../properties.json';
-
+import KJUR, {KEYUTIL} from 'jsrsasign';
 
 const types = {
   error: "errorClass",
@@ -31,7 +31,6 @@ export default class RequestBuilder extends Component{
             loading:false,
             logs:[]
         };
-
         this.validateMap={
             age:(foo=>{return isNaN(foo)}),
             gender:(foo=>{return foo!=="male" && foo!=="female"}),
@@ -41,9 +40,62 @@ export default class RequestBuilder extends Component{
 
         
     this.updateStateElement = this.updateStateElement.bind(this);
+    this.startLoading = this.startLoading.bind(this);
     this.submit_info = this.submit_info.bind(this);
     this.consoleLog = this.consoleLog.bind(this);
 
+    }
+    makeid() {
+      var text = [];
+      var possible = "---ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    
+      for (var i = 0; i < 25; i++)
+        text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
+    
+      return text.join('');
+    }
+    
+
+
+    async createJwt(){
+      
+      var keypair = KEYUTIL.generateKeypair('RSA',2048);
+      
+      var pubKey = keypair.pubKeyObj;
+      
+
+      const jwkPrv2 = KEYUTIL.getJWKFromKey(keypair.prvKeyObj);
+      const jwkPub2 = KEYUTIL.getJWKFromKey(keypair.pubKeyObj);
+      console.log(pubKey);
+      const currentTime = KJUR.jws.IntDate.get('now');
+      const endTime = KJUR.jws.IntDate.get('now + 1day');
+      const kid = KJUR.jws.JWS.getJWKthumbprint(jwkPub2)
+      const pubPem = {"pem":KEYUTIL.getPEM(pubKey),"id":kid};
+      const alag = await fetch("http://localhost:3000/public_keys",{
+        "body": JSON.stringify(pubPem),
+        "headers":{
+          "Content-Type":"application/json"
+        },
+        "method":"POST"
+      });
+
+      const header = {
+        "alg":"RS256",
+        "typ":"JWT",
+        "kid":kid,
+        "jku":"http://localhost:3000/public_keys"
+      };
+      const body = {
+        "iss":"localhost:3000",
+        "aud":"r4/order-review-services",
+        "iat": currentTime,
+        "exp": endTime,
+        "jti": this.makeid()
+      }
+      
+      var sJWT = KJUR.jws.JWS.sign("RS256",JSON.stringify(header),JSON.stringify(body),jwkPrv2)
+      
+      return sJWT;
     }
 
     consoleLog(content, type){
@@ -85,9 +137,7 @@ export default class RequestBuilder extends Component{
       const searchParams = Object.keys(params).map((key) => {
           return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
         }).join('&');
-
       // We get the token from the url
-
       const tokenResponse = await fetch(tokenUrl, {
         method: "POST",
         headers: {
@@ -119,22 +169,33 @@ export default class RequestBuilder extends Component{
       return tokenResponse;
 
     }
-
+    startLoading(){
+      this.setState({loading:true}, ()=>{
+        console.log(this.state.loading);
+        this.submit_info();
+      });
+      
+    }
     async submit_info(){
       this.consoleLog("Initiating form submission",types.info);
+
       if(this.state.oauth){
         const token = await this.login();
       }
       let json_request = this.getJson(1);
-
-      this.setState({loading:true});
-          this.consoleLog("Fetching response from http://localhost:8090/cds-services/order-review-crd/",types.info)
+      console.log(json_request);
+      let jwt = await this.createJwt();
+      //console.log(jwt);
+      jwt = "Bearer " + jwt;
+      var myHeaders = new Headers({
+        "Content-Type": "application/json",
+        "authorization": jwt
+      });
+            this.consoleLog("Fetching response from http://localhost:8090/r4/cds-services/order-review-crd/",types.info)
           try{
-            const fhirResponse= await fetch("http://localhost:8090/cds-services/order-review-crd/",{
+            const fhirResponse= await fetch("http://localhost:8090/r4/cds-services/order-review-crd",{
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: myHeaders,
                 body: JSON.stringify(json_request)
             }).then(response => {
               this.consoleLog("Recieved response",types.info);
@@ -258,13 +319,12 @@ export default class RequestBuilder extends Component{
                 })}
 
                 <br />
-                <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.submit_info}>Submit
+                <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
 
                 </button>
 
 
                 <CheckBox elementName="oauth" updateCB={this.updateStateElement}/>
-
                 <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
                 <Loader
                   type="Oval"
@@ -319,11 +379,10 @@ export default class RequestBuilder extends Component{
                     codeCodeableConcept: {
                       coding: [
                         {
-                          system: "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                          system: this.state.codeSystem,
                           code: this.state.code
                         }
-                      ],
-                      text: "Stationary Compressed Gaseous Oxygen System, Rental"
+                      ]
                     },
                     subject: {
                       reference: "Patient/12"
