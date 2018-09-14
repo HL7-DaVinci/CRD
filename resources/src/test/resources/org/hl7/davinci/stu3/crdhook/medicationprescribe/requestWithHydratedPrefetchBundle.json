@@ -1,0 +1,100 @@
+{
+  "context":{
+    "patientId":"1288992",
+    "encounterId":"89284",
+    "medications":{
+      "resourceType":"Bundle",
+      "entry":[
+        {
+          "resource": {
+            "resourceType": "MedicationRequest",
+            "id": "24439",
+            "status": "draft",
+            "intent": "plan",
+            "medicationCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                  "code": "314076"
+                }
+              ],
+              "text": "Lisinopril 10 MG Oral Tablet"
+            },
+            "subject": {
+              "reference": "Patient/1288992"
+            },
+            "authoredOn": "2018-08-08",
+            "insurance": {
+              "reference": "Coverage/1234"
+            },
+            "performer": {
+              "reference": "PractitionerRole/1234"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "prefetch": {
+    "medicationRequestBundle": {
+      "resourceType": "Bundle",
+      "id": "f452a78a-da06-4fe6-8233-ad2a817c96",
+      "meta": {
+        "lastUpdated": "2018-08-29T16:07:48Z"
+      },
+      "type": "searchset",
+      "total": 1,
+      "link": [
+        {
+          "relation": "self",
+          "url": "http://localhost:8080/MedicationRequest/MedicationRequest?id=24439&_include=MedicationRequest:patient"
+        }
+      ],
+      "entry": [
+        {
+          "fullUrl": "http://localhost:8080/MedicationRequest/24439",
+          "resource": {
+            "resourceType": "MedicationRequest",
+            "id": "24439",
+            "status": "draft",
+            "intent": "plan",
+            "medicationCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                  "code": "314076"
+                }
+              ],
+              "text": "Lisinopril 10 MG Oral Tablet"
+            },
+            "subject": {
+              "reference": "Patient/1288992"
+            },
+            "authoredOn": "2018-08-08",
+            "insurance": {
+              "reference": "Coverage/1234"
+            },
+            "performer": {
+              "reference": "PractitionerRole/1234"
+            }
+          },
+          "search": {
+            "mode": "match"
+          }
+        },
+        {
+          "fullUrl": "http://localhost:8080/Patient/1288992",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "1288992",
+            "gender": "male",
+            "birthDate": "1970-07-04"
+          },
+          "search": {
+            "mode": "include"
+          }
+        }
+      ]
+    }
+  }
+}

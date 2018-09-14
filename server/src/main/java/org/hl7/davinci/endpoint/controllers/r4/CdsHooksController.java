@@ -5,10 +5,10 @@ import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderReviewService;
 
 import javax.validation.Valid;
 
-import org.hl7.davinci.cdshooks.CdsResponse;
-import org.hl7.davinci.cdshooks.CdsServiceInformation;
-import org.hl7.davinci.cdshooks.medicationprescribe.MedicationPrescribeRequest;
-import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
+import org.cdshooks.CdsResponse;
+import org.cdshooks.CdsServiceInformation;
+import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
+import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController("r4_CdsHooksController")
 public class CdsHooksController {
 
   static final Logger logger = LoggerFactory.getLogger(CdsHooksController.class);

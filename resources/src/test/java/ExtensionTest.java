@@ -3,8 +3,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.hl7.davinci.DaVinciPractitioner;
-import org.hl7.davinci.ValidationResources;
+import org.hl7.davinci.r4.fhirresources.DaVinciPractitioner;
+import org.hl7.davinci.r4.validation.ValidationResources;
 
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Meta;

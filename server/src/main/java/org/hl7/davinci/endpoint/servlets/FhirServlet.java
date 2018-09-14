@@ -13,7 +13,7 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
-import org.hl7.davinci.DaVinciEligibilityRequest;
+import org.hl7.davinci.r4.fhirresources.DaVinciEligibilityRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.cors.CorsConfiguration;
 

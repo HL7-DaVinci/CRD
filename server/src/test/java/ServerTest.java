@@ -1,5 +1,6 @@
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -118,20 +119,17 @@ public class ServerTest {
         .andExpect(content().string(containsString("test.com")));
   }
 
-  /**
-   * TODO: Reenable this test once we can reset the Db each run (testing db?).
-   * @throws Exception when fails
-   */
-  /*
   @Test
   public void checkDelete() throws Exception {
+    this.mockMvc.perform(put("/api/data/5").contentType(MediaType.APPLICATION_JSON)
+        .content(convertObjectToJsonBytes(makeTestDatum())))
+        .andExpect(status().isNoContent());
     this.mockMvc.perform(delete("/api/data/5"))
         .andExpect(status().isOk());
     this.mockMvc.perform(get("/api/data/5"))
         .andExpect(status()
             .isNotFound());
   }
-  */
 
   @Test
   public void checkNotFound() throws Exception {
