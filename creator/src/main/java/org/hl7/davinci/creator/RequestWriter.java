@@ -2,10 +2,6 @@ package org.hl7.davinci.creator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.hl7.davinci.r4.CrdRequestCreator;
-import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.fhir.r4.model.Enumerations;
-
 
 import java.io.FileWriter;
 import java.nio.file.Paths;
@@ -23,18 +19,42 @@ public class RequestWriter {
    * @param args command line arguments
    * @throws Exception If there is an issue writing the file
    */
-  public static void main(String[] args) throws Exception {
+  public static int main(String[] args) throws Exception {
+    String outputPath = args[0];
+    String version = args[1];
+
+    boolean makeR4 = version.equalsIgnoreCase("r4");
+    boolean makeStu3 = version.equalsIgnoreCase("stu3");
+    if (!makeR4 && !makeStu3) {
+      System.out.println("Second argument should be r4 or stu3");
+      return 1;
+    }
+
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
-    OrderReviewRequest request = CrdRequestCreator.createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
-    ObjectMapper mapper = new ObjectMapper();
-    ObjectWriter w = mapper.writer();
-    String outputPath = args[0];
     if (outputPath == null) {
       outputPath = Paths.get(".").toAbsolutePath().normalize().toString();
     }
-    FileWriter jsonWriter = new FileWriter(outputPath + "/crd_request.json");
-    w.writeValue(jsonWriter, request);
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectWriter w = mapper.writer();
+    String filename = "crd_request_" + version +".json";
+    FileWriter jsonWriter = new FileWriter(outputPath + "/" + filename);
+
+    if (makeR4) {
+      org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest request =
+          org.hl7.davinci.r4.CrdRequestCreator.createOrderReviewRequest(
+              org.hl7.fhir.r4.model.Enumerations.AdministrativeGender.MALE, cal.getTime());
+      w.writeValue(jsonWriter, request);
+    }
+    if (makeStu3) {
+      org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest request =
+          org.hl7.davinci.stu3.CrdRequestCreator.createOrderReviewRequest(
+              org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender.MALE, cal.getTime());
+      w.writeValue(jsonWriter, request);
+    }
+
+    System.out.println("Wrote file '"+filename+"' to path '"+outputPath+"'");
     jsonWriter.close();
+    return 1;
   }
 }
