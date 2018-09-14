@@ -3,6 +3,8 @@ package org.hl7.davinci.endpoint.controllers.stu3;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.CdsServiceInformation;
 import javax.validation.Valid;
+
+import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,4 +54,17 @@ public class CdsHooksController {
     return orderReviewService.handleRequest(request);
   }
 
+
+  /**
+   * The coverage requirement discovery endpoint for the order review hook.
+   * @param request An order review triggered cds request
+   * @return The card response
+   */
+  @CrossOrigin
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + MedicationPrescribeService.ID,
+      consumes = "application/json;charset=UTF-8")
+  public CdsResponse handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request) {
+    logger.info("stu3/handleOrderReview");
+    return medicationPrescribeService.handleRequest(request);
+  }
 }
