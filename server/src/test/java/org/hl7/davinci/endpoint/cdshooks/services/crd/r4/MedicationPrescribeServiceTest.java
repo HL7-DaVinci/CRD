@@ -1,10 +1,8 @@
-package org.hl7.davinci.endpoint.cdshooks.services.crd;
+package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
-import org.hl7.davinci.CrdRequestCreator;
-import org.hl7.davinci.cdshooks.CdsResponse;
-import org.hl7.davinci.cdshooks.medicationprescribe.MedicationPrescribeRequest;
-import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.MedicationPrescribeService;
+import org.cdshooks.CdsResponse;
+import org.hl7.davinci.r4.CrdRequestCreator;
+import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +26,8 @@ public class MedicationPrescribeServiceTest {
   public void testHandleRequest() {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
-    MedicationPrescribeRequest request = CrdRequestCreator.createMedicationPrescribeRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+    MedicationPrescribeRequest request = CrdRequestCreator
+        .createMedicationPrescribeRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());

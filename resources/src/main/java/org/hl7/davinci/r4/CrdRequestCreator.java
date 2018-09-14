@@ -4,15 +4,11 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.cdshooks.Hook;
+import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeContext;
+import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewContext;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
-import org.hl7.davinci.cdshooks.Hook;
-import org.hl7.davinci.cdshooks.medicationprescribe.MedicationPrescribeContext;
-import org.hl7.davinci.cdshooks.medicationprescribe.MedicationPrescribeRequest;
-import org.hl7.davinci.cdshooks.orderreview.OrderReviewRequest;
-import org.hl7.davinci.cdshooks.orderreview.OrderReviewContext;
-import org.hl7.davinci.cdshooks.CrdPrefetch;
 import org.hl7.fhir.r4.model.*;
 
 

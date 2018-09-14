@@ -3,6 +3,7 @@ package org.hl7.davinci.stu3;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
+import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,6 +20,8 @@ public class FhirComponents {
     // defined in the resource profile
     fhirContext.setDefaultTypeForProfile(
         "http://base.url/DaVinciDeviceRequest", DaVinciDeviceRequest.class);
+    fhirContext.setDefaultTypeForProfile(
+        "http://base.url/DaVinciMedicationRequest", DaVinciMedicationRequest.class);
 
     jsonParser = fhirContext.newJsonParser();
   }
