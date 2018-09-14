@@ -8,4 +8,6 @@ VALUES
 (5,0,90,NULL,'94640','http://www.ama-assn.org/go/cpt',FALSE,'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforNebulizersandRelatedDrugs-ICN909469.pdf'),
 (6,18,60,NULL,'82947','http://www.ama-assn.org/go/cpt',FALSE,'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforDiabeticTestStrips-ICN909185.pdf'),
 (7,30,80,NULL,'A5500','https://bluebutton.cms.gov/resources/codesystem/hcpcs',TRUE,'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforDiabeticShoes-ICN909471.pdf'),
-(8,60,90,'M','E0130','https://bluebutton.cms.gov/resources/codesystem/hcpcs',FALSE,'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforWalkers-ICN909483.pdf');
+(8,60,90,'M','E0130','https://bluebutton.cms.gov/resources/codesystem/hcpcs',FALSE,'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforWalkers-ICN909483.pdf'),
+(9,30,80,NULL,'860195','http://www.nlm.nih.gov/research/umls/rxnorm',FALSE,'https://www.medicare.gov/forms-help-and-resources/forms/medicare-forms.html'),
+(10,10,70,NULL,'209431','http://www.nlm.nih.gov/research/umls/rxnorm',TRUE,'https://en.wikipedia.org/wiki/Paracetamol');

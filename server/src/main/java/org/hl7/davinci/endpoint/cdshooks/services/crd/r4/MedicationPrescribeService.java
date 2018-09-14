@@ -13,8 +13,12 @@ import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.FhirComponents;
 import org.hl7.davinci.endpoint.components.prefetchhydrator.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.MedicationRequest;
+import org.hl7.fhir.r4.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +44,9 @@ public class MedicationPrescribeService extends CdsService {
 
   @Autowired
   FhirComponents fhirComponents;
+
+  @Autowired
+  CoverageRequirementRuleFinder ruleFinder;
 
   public MedicationPrescribeService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
@@ -71,21 +78,39 @@ public class MedicationPrescribeService extends CdsService {
     List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(
         MedicationRequest.class, (Bundle) medicationRequestBundle);
 
-    // TODO - Replace this with database lookup logic
-    response
-        .addCard(CardBuilder.summaryCard("Responses from this service are currently hard coded."));
     for (MedicationRequest medicationRequest : medicationRequestList) {
 
-      CoverageRequirementRule crr = new CoverageRequirementRule();
-      crr.setAgeRangeHigh(80);
-      crr.setAgeRangeLow(55);
-      crr.setEquipmentCode("E0424");
-      crr.setGenderCode("F".charAt(0));
-      crr.setNoAuthNeeded(false);
-      crr.setInfoLink("https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/"
-          + "MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf");
+      Patient patient = null;
+      CodeableConcept cc = null;
+      try {
+        cc = medicationRequest.getMedicationCodeableConcept();
+      } catch (FHIRException fe) {
+        response
+            .addCard(CardBuilder.summaryCard("Unable to parse the medication code out of the request"));
+      }
 
-      response.addCard(CardBuilder.transform(crr));
+      // See if the patient is in the prefetch
+      try {
+        patient = (Patient) medicationRequest.getSubject().getResource();
+      } catch (Exception e) {
+        response
+            .addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
+      }
+
+      if (patient != null && cc != null) {
+        int patientAge = Utilities.calculateAge(patient);
+        List<CoverageRequirementRule> coverageRequirementRules = ruleFinder
+            .findRules(patientAge, patient.getGender(), cc.getCoding().get(0).getCode(),
+                cc.getCoding().get(0).getSystem());
+        if (coverageRequirementRules.size() == 0) {
+          response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+        } else {
+          for (CoverageRequirementRule rule: coverageRequirementRules) {
+            response.addCard(CardBuilder.transform(rule));
+          }
+        }
+      }
+
     }
 
     logger.info("handleRequest: end");
