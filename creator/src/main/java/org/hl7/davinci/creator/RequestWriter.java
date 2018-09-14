@@ -26,7 +26,7 @@ public class RequestWriter {
   public static void main(String[] args) throws Exception {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
-    OrderReviewRequest request = CrdRequestCreator.createRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+    OrderReviewRequest request = CrdRequestCreator.createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
     ObjectMapper mapper = new ObjectMapper();
     ObjectWriter w = mapper.writer();
     String outputPath = args[0];
