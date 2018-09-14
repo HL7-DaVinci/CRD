@@ -191,9 +191,9 @@ export default class RequestBuilder extends Component{
         "Content-Type": "application/json",
         "authorization": jwt
       });
-            this.consoleLog("Fetching response from http://localhost:8090/cds-services/order-review-crd/",types.info)
+            this.consoleLog("Fetching response from http://localhost:8090/r4/cds-services/order-review-crd/",types.info)
           try{
-            const fhirResponse= await fetch("http://localhost:8090/cds-services/order-review-crd",{
+            const fhirResponse= await fetch("http://localhost:8090/r4/cds-services/order-review-crd",{
                 method: "POST",
                 headers: myHeaders,
                 body: JSON.stringify(json_request)
@@ -382,8 +382,7 @@ export default class RequestBuilder extends Component{
                           system: this.state.codeSystem,
                           code: this.state.code
                         }
-                      ],
-                      text: "Stationary Compressed Gaseous Oxygen System, Rental"
+                      ]
                     },
                     subject: {
                       reference: "Patient/12"
