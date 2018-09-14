@@ -1,6 +1,8 @@
 package org.hl7.davinci.cdshooks.medicationprescribe;
 
 import java.util.HashMap;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hl7.davinci.Utilities;
 import org.hl7.davinci.cdshooks.CdsRequest;
 import org.hl7.davinci.cdshooks.CrdPrefetch;
@@ -20,6 +22,7 @@ public class MedicationPrescribeRequest extends CdsRequest {
 
   private HashMap<String, Object> mapForPrefetchTemplates = null;
 
+  @JsonIgnore
   public Object getDataForPrefetchToken() {
     if (mapForPrefetchTemplates != null) {
       return mapForPrefetchTemplates;
