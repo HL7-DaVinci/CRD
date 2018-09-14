@@ -1,0 +1,22 @@
+{
+  "cards": [
+    {
+      "summary": "Documentation is required for the desired device or service",
+      "detail": "There are documentation requirements for someone who is null and between the ages of 18 and 80 for a device or service with code: 94660.",
+      "indicator": "info",
+      "source": {
+        "label": "Da Vinci CRD Reference Implementation",
+        "url": null
+      },
+      "suggestions": null,
+      "links": [
+        {
+          "label": "Documentation Requirements",
+          "url": "https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/downloads/PAP_DocCvg_Factsheet_ICN905064.pdf",
+          "type": "absolute",
+          "appContext": null
+        }
+      ]
+    }
+  ]
+}

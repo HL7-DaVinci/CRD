@@ -1,0 +1,168 @@
+{
+  "hookInstance": "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
+  "fhirServer": "http://localhost:8080/fhir-server",
+  "hook": "order-review",
+  "oauth": {
+    "access_token": null,
+    "token_type": "Bearer",
+    "expires_in": 300,
+    "scope": "patient/Patient.read patient/Observation.read",
+    "subject": "cds-service4"
+  },
+  "user": "Practitioner/example",
+  "context": {
+    "patientId": "12",
+    "encounterId": "89284",
+    "orders": {
+      "resourceType": "Bundle",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "status": "draft",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://www.ama-assn.org/go/cpt",
+                  "code": "97542"
+                }
+              ],
+              "text": "Wheelchair"
+            },
+            "subject": {
+              "reference": "Patient/12"
+            },
+            "authoredOn": "2018-08-08",
+            "insurance": [
+              {
+                "reference": "Coverage/1234"
+              }
+            ],
+            "performer": {
+              "reference": "PractitionerRole/1234"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "prefetch": {
+    "deviceRequestBundle": {
+      "resourceType": "Bundle",
+      "type": "collection",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "status": "draft",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://www.ama-assn.org/go/cpt",
+                  "code": "97542"
+                }
+              ]
+            },
+            "subject": {
+              "reference": "Patient/12"
+            },
+            "authoredOn": "2018-08-08",
+            "insurance": [
+              {
+                "reference": "Coverage/1234"
+              }
+            ],
+            "performer": {
+              "reference": "PractitionerRole/1234"
+            }
+          }
+        },
+        {
+          "resource": {
+            "id": "12",
+            "resourceType": "Patient",
+            "gender": "male",
+            "birthDate": "1996-12-23"
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Coverage",
+            "id": "1234",
+            "class": [
+              {
+                "type": {
+                  "system": "http://hl7.org/fhir/coverage-class",
+                  "code": "plan"
+                },
+                "value": "Medicare Part D"
+              }
+            ],
+            "payor": [
+              {
+                "reference": "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
+              }
+            ]
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Location",
+            "id": "89abea45-75d5-4730-a214-027fcb903ca1",
+            "address": {
+              "line": [
+                "100 Good St"
+              ],
+              "city": "Bedford",
+              "state": "MA",
+              "postalCode": "01730"
+            }
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "PractitionerRole",
+            "practitioner": {
+              "reference": "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
+            },
+            "location": [
+              {
+                "reference": "Location/89abea45-75d5-4730-a214-027fcb903ca1"
+              }
+            ]
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Organization",
+            "id": "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
+            "name": "Centers for Medicare and Medicaid Services"
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Practitioner",
+            "id": "13608725-a5f5-4276-b44a-1fe2c7273555",
+            "identifier": [
+              {
+                "system": "http://hl7.org/fhir/sid/us-npi",
+                "value": "1122334455"
+              }
+            ],
+            "name": [
+              {
+                "family": "Doe",
+                "given": [
+                  "Jane"
+                ],
+                "prefix": [
+                  "Dr."
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

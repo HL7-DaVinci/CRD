@@ -1,0 +1,15 @@
+{
+  "cards": [
+    {
+      "summary": "No documentation is required for a device or service with code: 97542",
+      "detail": null,
+      "indicator": "info",
+      "source": {
+        "label": "Da Vinci CRD Reference Implementation",
+        "url": null
+      },
+      "suggestions": null,
+      "links": null
+    }
+  ]
+}

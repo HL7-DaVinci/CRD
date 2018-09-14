@@ -1,0 +1,18 @@
+{
+  "resourceType": "Coverage",
+  "id": "1234",
+  "class": [
+    {
+      "type": {
+        "system": "http://hl7.org/fhir/coverage-class",
+        "code": "plan"
+      },
+      "value": "Medicare Part D"
+    }
+  ],
+  "payor": [
+    {
+      "reference": "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
+    }
+  ]
+}

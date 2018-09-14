@@ -1,0 +1,25 @@
+{
+  "resourceType": "MedicationRequest",
+  "id": "123",
+  "status": "draft",
+  "medicationCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+        "code": "860195",
+        "display": "Botox"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/d6b4c7d0-3c87-4e4e-959c-281f2afd8f69"
+  },
+  "performer": {
+    "reference": "PractitionerRole/8eb3ed37-8391-4817-af48-8c7e0fe89947"
+  },
+  "insurance": [
+    {
+      "reference": "Coverage/f8e19c39-a9ae-4c60-9ab4-a621ce3583ab"
+    }
+  ]
+}

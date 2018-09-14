@@ -1,0 +1,11 @@
+{
+  "resourceType": "PractitionerRole",
+  "practitioner": {
+    "reference": "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
+  },
+  "location": [
+    {
+      "reference": "Location/89abea45-75d5-4730-a214-027fcb903ca1"
+    }
+  ]
+}
