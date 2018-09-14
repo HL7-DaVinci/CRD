@@ -1,0 +1,22 @@
+{
+  "cards": [
+      {
+          "summary": "Documentation is required for the desired device or service",
+          "detail": "There are documentation requirements for someone who is null and between the ages of 30 and 80 for a device or service with code: 860195.",
+          "indicator": "info",
+          "source": {
+              "label": "Da Vinci CRD Reference Implementation",
+              "url": null
+          },
+          "suggestions": null,
+          "links": [
+              {
+                  "label": "Documentation Requirements",
+                  "url": "https://www.medicare.gov/forms-help-and-resources/forms/medicare-forms.html",
+                  "type": "absolute",
+                  "appContext": null
+              }
+          ]
+      }
+  ]
+}
