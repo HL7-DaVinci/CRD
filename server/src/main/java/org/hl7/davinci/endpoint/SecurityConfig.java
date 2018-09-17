@@ -48,11 +48,11 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     http.cors();
     http.csrf().disable();
     if (myConfig.getCheckJwt()) {
-      http.csrf().disable().authorizeRequests()
+      http.authorizeRequests()
           .antMatchers().permitAll()
-          .anyRequest().authenticated();
-      http.addFilter(new JwtAuthorizationFilter(authenticationManager()))
-          .antMatcher("/cds-services/order-review-crd");
+          .anyRequest().authenticated().and()
+          .addFilter(new JwtAuthorizationFilter(authenticationManager()))
+          .antMatcher("/**/cds-services/order-review-crd");
     }
   }
 
