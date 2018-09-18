@@ -5,28 +5,31 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 
-public abstract class CdsRequest<ContextType, PrefetchType> {
+public abstract class CdsRequest<ContextTypeT, prefetchTypeT> {
   @NotNull(message = "unsupported hook")
   private Hook hook = null;
 
-  @NotNull private UUID hookInstance = null;
+  @NotNull
+  private UUID hookInstance = null;
 
   private String fhirServer = null;
 
   private Object oauth = null;
 
-  @NotNull private String user = null;
+  @NotNull
+  private String user = null;
 
-  @NotNull private ContextType context = null;
+  @NotNull
+  private ContextTypeT context = null;
 
-  private PrefetchType prefetch = null;
+  private prefetchTypeT prefetch = null;
 
 
-  public PrefetchType getPrefetch() {
+  public prefetchTypeT getPrefetch() {
     return prefetch;
   }
 
-  public void setPrefetch(PrefetchType prefetch) {
+  public void setPrefetch(prefetchTypeT prefetch) {
     this.prefetch = prefetch;
   }
 
@@ -70,11 +73,11 @@ public abstract class CdsRequest<ContextType, PrefetchType> {
     this.user = user;
   }
 
-  public ContextType getContext() {
+  public ContextTypeT getContext() {
     return context;
   }
 
-  public void setContext(ContextType context) {
+  public void setContext(ContextTypeT context) {
     this.context = context;
   }
 
@@ -88,6 +91,7 @@ public abstract class CdsRequest<ContextType, PrefetchType> {
   /**
    * This should return a traversible structure that can be used to resolve prefetch tokens.
    * It is abstract since different hooks have different elements as prefetch tokens.
+   *
    * @return A traversable object (traversable with PropertyUtils)
    */
   public abstract Object getDataForPrefetchToken();

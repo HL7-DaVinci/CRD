@@ -13,6 +13,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Objects;
 
 public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
   @Override
@@ -26,14 +27,13 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
 
     String result = restTemplate.getForObject(jku + "/" + keyId, String.class);
     JsonParser parser = new JsonParser();
-    JsonObject jwkPub = parser.parse(result).getAsJsonObject();
+    JsonObject jwkPub = parser.parse(Objects
+        .requireNonNull(result))
+        .getAsJsonObject();
 
     try {
       return keyLookup(jwkPub);
-    } catch (NoSuchAlgorithmException e) {
-
-      e.printStackTrace();
-    } catch (InvalidKeySpecException e) {
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       e.printStackTrace();
     }
 

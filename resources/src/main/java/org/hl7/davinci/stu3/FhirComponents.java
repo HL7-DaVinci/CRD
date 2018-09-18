@@ -4,7 +4,6 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
-import org.springframework.stereotype.Component;
 
 /**
  * Build some expensive objects here so we can reuse them.
@@ -34,8 +33,12 @@ public class FhirComponents {
     return jsonParser;
   }
 
+  /**
+   * Gets the current FhirComponents instance.
+   * @return the instance
+   */
   public static FhirComponents getInstance() {
-    if (single_instance == null){
+    if (single_instance == null) {
       single_instance = new FhirComponents();
     }
     return single_instance;

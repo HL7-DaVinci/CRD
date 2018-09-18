@@ -1,4 +1,4 @@
-package org.hl7.davinci.testClient;
+package org.hl7.davinci.testclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;

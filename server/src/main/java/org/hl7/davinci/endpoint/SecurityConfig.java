@@ -31,7 +31,9 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     configuration.setAllowedMethods(ImmutableList.of("HEAD",
         "GET", "POST", "PUT", "DELETE", "PATCH"));
     // setAllowCredentials(true) is important, otherwise:
-    // The value of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
+    // The value of the 'Access-Control-Allow-Origin' header in the
+    // response must not be the wildcard '*' when the request's credentials
+    // mode is 'include'.
     configuration.setAllowCredentials(true);
     // setAllowedHeaders is important! Without it, OPTIONS preflight request
     // will fail with 403 Invalid CORS request
@@ -49,7 +51,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.csrf().disable().authorizeRequests()
           .antMatchers().permitAll()
           .anyRequest().authenticated();
-      http.addFilter(new JWTAuthorizationFilter(authenticationManager()))
+      http.addFilter(new JwtAuthorizationFilter(authenticationManager()))
           .antMatcher("/cds-services/order-review-crd");
     }
   }

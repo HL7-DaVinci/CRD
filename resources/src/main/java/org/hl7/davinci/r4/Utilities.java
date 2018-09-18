@@ -29,7 +29,7 @@ public class Utilities {
       Resource resource = bec.getResource();
       String resourceType = resource.getResourceType().toString();
       if (!bundleMap.containsKey(resourceType)) {
-        bundleMap.put(resourceType, new ArrayList<Resource>());
+        bundleMap.put(resourceType, new ArrayList<>());
       }
       List<Resource> resourceList = (List<Resource>) bundleMap.get(resourceType);
       resourceList.add(resource);

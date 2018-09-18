@@ -10,6 +10,10 @@ public class OrderReviewRequest extends CdsRequest<OrderReviewContext, CrdPrefet
 
   private HashMap<String, Object> mapForPrefetchTemplates = null;
 
+  /**
+   * Gets the data from the context to put into the prefetch token.
+   * @return a map of prefetch attributes to their values
+   */
   @JsonIgnore
   public Object getDataForPrefetchToken() {
     if (mapForPrefetchTemplates != null) {

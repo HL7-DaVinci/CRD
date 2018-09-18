@@ -11,6 +11,10 @@ public class MedicationPrescribeRequest extends
 
   private HashMap<String, Object> mapForPrefetchTemplates = null;
 
+  /**
+   * Gets the data from the context to put into the prefetch template.
+   * @return a map of prefetch attributes to their values
+   */
   @JsonIgnore
   public Object getDataForPrefetchToken() {
     if (mapForPrefetchTemplates != null) {

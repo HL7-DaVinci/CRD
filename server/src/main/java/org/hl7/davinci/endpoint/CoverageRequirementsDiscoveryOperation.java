@@ -198,18 +198,18 @@ public class CoverageRequirementsDiscoveryOperation
       List<CoverageRequirementRule> ruleList = ruleFinder.findRules(age, gender,
           cptCode, "http://www.ama-assn.org/go/cpt");
       if (ruleList.size() == 0) {
-        responseDescription.append(cptCode + " = no information available\n");
+        responseDescription.append(cptCode)
+            .append(" = no information available\n");
       } else {
         for (CoverageRequirementRule rule: ruleList) {
-          responseDescription.append(
-              cptCode
-                  + " = info: "
-                  + rule.getInfoLink()
-                  + " no auth needed:"
-                  + rule.getNoAuthNeeded()
-                  + "\n");
+          responseDescription.append(cptCode)
+              .append(" = info: ")
+              .append(rule.getInfoLink())
+              .append(" no auth needed:")
+              .append(rule.getNoAuthNeeded())
+              .append("\n");
         }
-        }
+      }
     }
 
     // start building the response

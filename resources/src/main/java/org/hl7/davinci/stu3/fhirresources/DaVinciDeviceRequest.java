@@ -17,6 +17,10 @@ public class DaVinciDeviceRequest extends DeviceRequest {
   @Description(shortDefinition = "Associated insurance coverage")
   private List<Reference> insurance;
 
+  /**
+   * Gets the insurance.
+   * @return the insurance
+   */
   public List<Reference> getInsurance() {
     if (insurance == null) {
       insurance = new ArrayList<>();
@@ -28,6 +32,10 @@ public class DaVinciDeviceRequest extends DeviceRequest {
     this.insurance = insurance;
   }
 
+  /**
+   * Adds a new insurance.
+   * @param insurance the reference to the insurance to be added
+   */
   public void addInsurance(Reference insurance) {
     if (this.insurance == null) {
       this.insurance = new ArrayList<>();

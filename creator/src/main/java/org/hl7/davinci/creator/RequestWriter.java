@@ -37,7 +37,7 @@ public class RequestWriter {
     }
     ObjectMapper mapper = new ObjectMapper();
     ObjectWriter w = mapper.writer();
-    String filename = "crd_request_" + version +".json";
+    String filename = "crd_request_" + version + ".json";
     FileWriter jsonWriter = new FileWriter(outputPath + "/" + filename);
 
     if (makeR4) {
@@ -53,7 +53,7 @@ public class RequestWriter {
       w.writeValue(jsonWriter, request);
     }
 
-    System.out.println("Wrote file '"+filename+"' to path '"+outputPath+"'");
+    System.out.println("Wrote file '" + filename + "' to path '" + outputPath + "'");
     jsonWriter.close();
     return 1;
   }

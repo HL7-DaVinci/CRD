@@ -33,6 +33,6 @@ public class Action {
   public enum TypeEnum {
     create,
     update,
-    delete;
+    delete
   }
 }

@@ -34,7 +34,7 @@ public class Suggestion {
    */
   public Suggestion addActionsItem(Action actionsItem) {
     if (this.actions == null) {
-      this.actions = new ArrayList<Action>();
+      this.actions = new ArrayList<>();
     }
     this.actions.add(actionsItem);
     return this;

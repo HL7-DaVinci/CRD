@@ -199,8 +199,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
 
   private Location buildFacility() {
     // create a Location Object
-    Location facility = new Location();
-    return facility;
+    return new Location();
   }
 
 
@@ -272,13 +271,11 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
 
   private Endpoint buildEndpoint() {
     // create an Endpoint object
-    Endpoint endpoint = new Endpoint();
-    return endpoint;
+    return new Endpoint();
   }
 
   private CodeableConcept buildRequestQualification() {
     // create a CodeableConcept requestQualifiction object
-    CodeableConcept requestQualification = new CodeableConcept();
-    return requestQualification;
+    return new CodeableConcept();
   }
 }

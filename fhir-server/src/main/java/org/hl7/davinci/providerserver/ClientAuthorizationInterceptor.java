@@ -1,4 +1,4 @@
-package org.hl7.davinci.providerServer;
+package org.hl7.davinci.providerserver;
 
 import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.interceptor.auth.AuthorizationInterceptor;
@@ -24,6 +24,7 @@ import java.util.List;
 public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
 
   String introspectUrl = "http://localhost:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token/introspect";
+
   @Override
   public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
 
