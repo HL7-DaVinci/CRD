@@ -19,10 +19,11 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
-public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
-  public JWTAuthorizationFilter(AuthenticationManager authManager) {
+public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+  public JwtAuthorizationFilter(AuthenticationManager authManager) {
     super(authManager);
   }
+
   @Override
   protected void doFilterInternal(HttpServletRequest req,
                                   HttpServletResponse res,
@@ -39,6 +40,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     SecurityContextHolder.getContext().setAuthentication(authentication);
     chain.doFilter(req, res);
   }
+
   private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
     String token = request.getHeader("Authorization");
     // parse the token.

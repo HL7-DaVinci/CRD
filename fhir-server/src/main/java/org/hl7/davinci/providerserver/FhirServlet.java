@@ -1,4 +1,4 @@
-package org.hl7.davinci.providerServer;
+package org.hl7.davinci.providerserver;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.server.IResourceProvider;
@@ -22,7 +22,7 @@ import org.springframework.web.cors.CorsConfiguration;
 @WebServlet(
     urlPatterns = {"/*"},
     displayName = "DaVinci FHIR Resource Server ")
-public class fhirServlet extends RestfulServer {
+public class FhirServlet extends RestfulServer {
   private static final long serialVersionUID = 1L;
 
   /**
@@ -36,7 +36,7 @@ public class fhirServlet extends RestfulServer {
     FhirContext ctxR4 = FhirContext.forR4();
     setFhirContext(ctxR4);
 
-    List<IResourceProvider> resourceProviders = new ArrayList<IResourceProvider>();
+    List<IResourceProvider> resourceProviders = new ArrayList<>();
     resourceProviders.add(new RestfulPatientResourceProvider());
     setResourceProviders(resourceProviders);
 

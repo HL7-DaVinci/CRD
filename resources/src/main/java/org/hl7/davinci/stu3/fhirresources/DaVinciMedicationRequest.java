@@ -17,6 +17,10 @@ public class DaVinciMedicationRequest extends MedicationRequest {
   @Description(shortDefinition = "Associated insurance coverage")
   private List<Reference> insurance;
 
+  /**
+   * Gets the insurance.
+   * @return the insurance references
+   */
   public List<Reference> getInsurance() {
     if (insurance == null) {
       insurance = new ArrayList<>();
@@ -28,6 +32,10 @@ public class DaVinciMedicationRequest extends MedicationRequest {
     this.insurance = insurance;
   }
 
+  /**
+   * Adds the insurance to the list of insurance references.
+   * @param insurance the insurance reference to add
+   */
   public void addInsurance(Reference insurance) {
     if (this.insurance == null) {
       this.insurance = new ArrayList<>();

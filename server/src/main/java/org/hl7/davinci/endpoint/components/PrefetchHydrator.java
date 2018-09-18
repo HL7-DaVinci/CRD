@@ -18,7 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-public class PrefetchHydrator<PrefetchElementType> {
+public class PrefetchHydrator<prefetchElementTypeT> {
 
   private static final String PREFETCH_TOKEN_DELIM_OPEN = "{{";
   private static final String PREFETCH_TOKEN_DELIM_CLOSE = "}}";
@@ -110,17 +110,17 @@ public class PrefetchHydrator<PrefetchElementType> {
     }
   }
 
-  private PrefetchElementType executeFhirQuery(String query) {
+  private prefetchElementTypeT executeFhirQuery(String query) {
     String fullUrl = cdsRequest.getFhirServer() + query;
-//    TODO: Once our provider fhir server is up, switch the fetch to use the hapi client instead
-//    cdsRequest.getOauth();
-//    FhirContext ctx = FhirContext.forR4();
-//    BearerTokenAuthInterceptor authInterceptor = new BearerTokenAuthInterceptor(oauth.get("access_token"));
-//    IGenericClient client = ctx.newRestfulGenericClient(server);
-//    client.registerInterceptor(authInterceptor);
-//    return client;
-//    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-//    return client.search().byUrl(query).encodedJson().returnBundle(Bundle.class).execute();
+    //    TODO: Once our provider fhir server is up, switch the fetch to use the hapi client instead
+    //    cdsRequest.getOauth();
+    //    FhirContext ctx = FhirContext.forR4();
+    //    BearerTokenAuthInterceptor authInterceptor = new BearerTokenAuthInterceptor(oauth.get("access_token"));
+    //    IGenericClient client = ctx.newRestfulGenericClient(server);
+    //    client.registerInterceptor(authInterceptor);
+    //    return client;
+    //    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+    //    return client.search().byUrl(query).encodedJson().returnBundle(Bundle.class).execute();
 
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
@@ -129,7 +129,7 @@ public class PrefetchHydrator<PrefetchElementType> {
     try {
       ResponseEntity<String> response = restTemplate.exchange(fullUrl, HttpMethod.GET,
           entity, String.class);
-      return (PrefetchElementType) ctx.newJsonParser().parseResource(response.getBody());
+      return (prefetchElementTypeT) ctx.newJsonParser().parseResource(response.getBody());
     } catch (Exception e) {
       return null;
     }

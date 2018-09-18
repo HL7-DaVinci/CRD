@@ -18,7 +18,7 @@ import org.hl7.fhir.r4.model.*;
 public class CrdRequestCreator {
 
   interface PrefetchCallback {
-    public void callback(PractitionerRole provider, Coverage coverage);
+    void callback(PractitionerRole provider, Coverage coverage);
   }
 
   /**
@@ -31,15 +31,13 @@ public class CrdRequestCreator {
   public static OrderReviewRequest createOrderReviewRequest(Enumerations.AdministrativeGender patientGender,
                                                             Date patientBirthdate) {
 
-    Patient patient = createPatient(patientGender, patientBirthdate);
-    Practitioner provider = createPractitioner();
     OrderReviewRequest request = new OrderReviewRequest();
     request.setUser("Practitioner/1234");
     request.setHook(Hook.ORDER_REVIEW);
     request.setHookInstance(UUID.randomUUID());
     OrderReviewContext context = new OrderReviewContext();
-    CrdPrefetch prefetch = new CrdPrefetch();
     request.setContext(context);
+    Patient patient = createPatient(patientGender, patientBirthdate);
     context.setPatientId(patient.getId());
 
     DeviceRequest dr = new DeviceRequest();
@@ -51,7 +49,9 @@ public class CrdRequestCreator {
       dr.addInsurance(new Reference(c));
     };
     dr.setSubject(new Reference(patient));
+    Practitioner provider = createPractitioner();
     Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback);
+    CrdPrefetch prefetch = new CrdPrefetch();
     prefetch.setDeviceRequestBundle(prefetchBundle);
     request.setPrefetch(prefetch);
 
@@ -77,16 +77,23 @@ public class CrdRequestCreator {
     return request;
   }
 
-  public static MedicationPrescribeRequest createMedicationPrescribeRequest(Enumerations.AdministrativeGender patientGender,
-                                                                            Date patientBirthdate) {
-    Patient patient = createPatient(patientGender, patientBirthdate);
-    Practitioner provider = createPractitioner();
+  /**
+   * Generate a medication prescribe request.
+   *
+   * @param patientGender    Desired gender of the patient in the request
+   * @param patientBirthdate Desired birth date of the patient in the request
+   * @return Fully populated CdsRequest
+   */
+  public static MedicationPrescribeRequest createMedicationPrescribeRequest(
+      Enumerations.AdministrativeGender patientGender,
+      Date patientBirthdate) {
     MedicationPrescribeRequest request = new MedicationPrescribeRequest();
     request.setUser("Practitioner/1234");
     request.setHook(Hook.MEDICATION_PRESCRIBE);
     request.setHookInstance(UUID.randomUUID());
     MedicationPrescribeContext context = new MedicationPrescribeContext();
     request.setContext(context);
+    Patient patient = createPatient(patientGender, patientBirthdate);
     context.setPatientId(patient.getId());
 
     MedicationRequest mr = new MedicationRequest();
@@ -98,6 +105,7 @@ public class CrdRequestCreator {
       mr.addInsurance(new Reference(c));
     };
     mr.setSubject(new Reference(patient));
+    Practitioner provider = createPractitioner();
     Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback);
     CrdPrefetch prefetch = new CrdPrefetch();
     prefetch.setMedicationRequestBundle(prefetchBundle);

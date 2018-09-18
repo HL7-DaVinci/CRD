@@ -27,7 +27,6 @@ public class JacksonBundleDeserializer extends StdDeserializer<Bundle> {
     ObjectMapper mapper = (ObjectMapper) p.getCodec();
     JsonNode node = mapper.readTree(p);
     IBaseResource parsedResource = fhirComponents.getJsonParser().parseResource(mapper.writeValueAsString(node));
-    Bundle b = (Bundle) parsedResource;
-    return b;
+    return (Bundle) parsedResource;
   }
 }

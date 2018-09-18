@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.hapi.ctx.DefaultProfileValidationSupport;
@@ -26,10 +27,8 @@ import org.slf4j.LoggerFactory;
 
 
 public class ValidationResources {
-  private FhirContext ctx;
   private FhirValidator validator;
-  private FhirInstanceValidator instanceValidator;
-  static final Logger logger = LoggerFactory.getLogger(ValidationResources.class);
+  private static final Logger logger = LoggerFactory.getLogger(ValidationResources.class);
 
 
   /**
@@ -39,9 +38,9 @@ public class ValidationResources {
   public ValidationResources() {
 
     //Only support for r4 for now
-    ctx = FhirContext.forR4();
+    FhirContext ctx = FhirContext.forR4();
     validator = ctx.newValidator();
-    instanceValidator = new FhirInstanceValidator();
+    FhirInstanceValidator instanceValidator = new FhirInstanceValidator();
     IValidationSupport valSupport = new DaVinciValidationSupport();
     ValidationSupportChain support = new ValidationSupportChain(valSupport,
         new DefaultProfileValidationSupport());
@@ -55,18 +54,19 @@ public class ValidationResources {
    * @param rootDir the directory to load structure definitions from
    * @return a list of structure definitions
    */
-  public static List<StructureDefinition> loadFromDirectory(String rootDir) {
+  static List<StructureDefinition> loadFromDirectory(String rootDir) {
 
     IParser xmlParser = FhirContext.forR4().newXmlParser();
     xmlParser.setParserErrorHandler(new StrictErrorHandler());
     List<StructureDefinition> definitions = new ArrayList<>();
 
     File[] profiles =
-        new File(ValidationResources.class.getClassLoader()
-            .getResource(rootDir)
+        new File(Objects.requireNonNull(ValidationResources.class.getClassLoader()
+            .getResource(rootDir))
             .getFile())
             .listFiles();
 
+    assert profiles != null;
     Arrays.asList(profiles).forEach(f -> {
       try {
         StructureDefinition sd = xmlParser.parseResource(StructureDefinition.class,

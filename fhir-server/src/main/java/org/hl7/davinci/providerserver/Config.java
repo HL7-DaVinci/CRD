@@ -1,4 +1,4 @@
-package org.hl7.davinci.providerServer;
+package org.hl7.davinci.providerserver;
 
 import java.io.File;
 import java.io.FileNotFoundException;

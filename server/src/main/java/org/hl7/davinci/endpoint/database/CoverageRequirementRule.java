@@ -110,8 +110,8 @@ public class CoverageRequirementRule {
 
   @Override
   public String toString() {
-    return String.format("(row id: %d) Rule [equipment_code: %s, code_system %s, age_range_low %d, age_range_high: %d" +
-        ", gender_code: %s] Outcome: [no_auth_needed: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
+    return String.format("(row id: %d) Rule [equipment_code: %s, code_system %s, age_range_low %d, age_range_high: %d"
+        + ", gender_code: %s] Outcome: [no_auth_needed: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
         ageRangeHigh, genderCode, noAuthNeeded, infoLink);
   }
 

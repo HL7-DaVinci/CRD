@@ -87,7 +87,7 @@ public class OrderReviewService extends CdsService {
       return response;
     }
     List<DaVinciDeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
-        DaVinciDeviceRequest.class, (Bundle) deviceRequestBundle);
+        DaVinciDeviceRequest.class, deviceRequestBundle);
 
     for (DaVinciDeviceRequest deviceRequest : deviceRequestList) {
 

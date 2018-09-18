@@ -1,4 +1,4 @@
-package org.hl7.davinci.providerServer;
+package org.hl7.davinci.providerserver;
 
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.IdParam;
@@ -25,16 +25,20 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * All resource providers must implement IResourceProvider
+ * All resource providers must implement IResourceProvider.
  */
 public class RestfulPatientResourceProvider implements IResourceProvider {
-  private int currentId = 1;
   private Map<String,Patient> repository = new HashMap<>();
 
 
+  /**
+   * Initializes the repository with a random assorment of
+   * patients.
+   */
   public RestfulPatientResourceProvider() {
     // Populate the server with some resources
     Random r = new Random();
+    int currentId = 1;
     for (int i = currentId; i < 50; i++) {
       Patient npatient = new Patient();
       npatient.setId(Integer.toString(i));
@@ -70,8 +74,8 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
    * instance.
    *
    * @param theId
-   *    The read operation takes one parameter, which must be of type
-   *    IdDt and must be annotated with the "@Read.IdParam" annotation.
+   *      The read operation takes one parameter, which must be of type
+   *     IdDt and must be annotated with the "@Read.IdParam" annotation.
    * @return
    *    Returns a resource matching this identifier, or null if none exists.
    */
@@ -108,7 +112,7 @@ public class RestfulPatientResourceProvider implements IResourceProvider {
     patient.addName();
     patient.getName().get(0).setFamily(theFamilyName.getValue());
     patient.getName().get(0).addGiven("PatientOne");
-    patient.setGender(Enumerations.AdministrativeGender.MALE.MALE);
+    patient.setGender(Enumerations.AdministrativeGender.MALE);
     return Collections.singletonList(patient);
   }
 

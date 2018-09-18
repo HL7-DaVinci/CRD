@@ -38,7 +38,7 @@ public class CdsHooksController {
   @CrossOrigin
   @GetMapping(value = FHIR_RELEASE + URL_BASE)
   public CdsServiceInformation serviceDiscovery() {
-    logger.info("r4/ServiceDiscovery");
+    logger.info("r4/serviceDiscovery");
     CdsServiceInformation serviceInformation = new CdsServiceInformation();
     serviceInformation.addServicesItem(orderReviewService);
     serviceInformation.addServicesItem(medicationPrescribeService);
