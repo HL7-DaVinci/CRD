@@ -9,6 +9,10 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties
 public class YamlConfig {
 
+  // Any property can be read from the .yml resource file
+  // in this class.  Ignoring dashes, variables will map to
+  // properties of the same name automatically.
+
   private boolean checkJwt;
 
   public boolean getCheckJwt() {
