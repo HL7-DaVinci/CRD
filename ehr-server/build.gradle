@@ -50,33 +50,3 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-/*
-dependencies {
-    compile "org.eclipse.jetty.websocket:websocket-api:${jetty_version}"
-    compile "org.eclipse.jetty.websocket:websocket-client:${jetty_version}"
-    compile "mysql:mysql-connector-java:6.0.5"
-    compile "ca.uhn.hapi.fhir:hapi-fhir-base:${project.version}"
-    compile "ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:${project.version}"
-    compile "ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:${project.version}"
-    compile "ca.uhn.hapi.fhir:hapi-fhir-jpaserver-elasticsearch:${project.version}"
-    compile "ca.uhn.hapi.fhir:hapi-fhir-testpage-overlay:${project.version}"
-    compile "ca.uhn.hapi.fhir:hapi-fhir-testpage-overlay:${project.version}"
-    compile "ch.qos.logback:logback-classic:*"
-    compile "javax.servlet:javax.servlet-api:*"
-    compile "org.thymeleaf:thymeleaf:*"
-x    compile "org.ebaysf.web:cors-filter:*"
-    compile "org.springframework:spring-web:*"
-x    compile "org.apache.commons:commons-dbcp2:*"
-x    compile "org.apache.derby:derby:*"
-x    compile "org.apache.derby:derbynet:*"
-x    compile "org.apache.derby:derbyclient:*"
-    testCompile "org.eclipse.jetty:jetty-servlets:*"
-    testCompile "org.eclipse.jetty:jetty-servlet:*"
-    testCompile "org.eclipse.jetty.websocket:websocket-server:*"
-    testCompile "org.eclipse.jetty:jetty-server:*"
-    testCompile "org.eclipse.jetty:jetty-util:*"
-    testCompile "org.eclipse.jetty:jetty-webapp:*"
-    compile "com.helger:ph-schematron:*"
-    compile "javax.interceptor:javax.interceptor-api:*"
-}
-*/
