@@ -27,7 +27,12 @@ public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
 
   @Override
   public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
-
+    String use_oauth = Config.get("use_oauth");
+    if (!Boolean.parseBoolean(use_oauth)) {
+      return new RuleBuilder()
+          .allowAll()
+          .build();
+    }
     CloseableHttpClient client = HttpClients.createDefault();
 
     String authHeader = theRequestDetails.getHeader("Authorization");
