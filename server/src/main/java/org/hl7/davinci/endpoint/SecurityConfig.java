@@ -52,7 +52,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
           .antMatchers().permitAll()
           .anyRequest().authenticated().and()
           .addFilter(new JwtAuthorizationFilter(authenticationManager()))
-          .antMatcher("/**/cds-services/order-review-crd");
+          .antMatcher("/**/cds-services/**");
     }
   }
 
