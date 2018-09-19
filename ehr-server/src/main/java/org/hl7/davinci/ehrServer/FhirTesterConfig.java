@@ -1,4 +1,4 @@
-package ca.uhn.fhir.jpa.demo;
+package org.hl7.davinci.ehrServer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
