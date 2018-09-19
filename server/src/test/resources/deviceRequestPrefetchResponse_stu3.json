@@ -7,12 +7,12 @@
         "id": "123",
         "meta": {
           "profile": [
-            "http://base.url/DaVinciDeviceRequest"
+            "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3"
           ]
         },
         "extension": [
           {
-            "url": "http://base.url/DaVinciDeviceRequest#insurance",
+            "url": "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
             "valueReference": {
               "reference": "Coverage/aa4c7d92-52c8-4ec1-91f4-ef6df5c63d0e"
             }
