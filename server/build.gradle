@@ -32,7 +32,6 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('org.springframework.boot:spring-boot-starter-data-rest')
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-    compile("org.springframework.boot:spring-boot-devtools")
     compile('org.springframework.boot:spring-boot-starter-security')
     compile("org.springframework.boot:spring-boot-devtools")
 
@@ -40,7 +39,6 @@ dependencies {
 
     compile('com.h2database:h2')
 
-    compile("org.springframework.boot:spring-boot-devtools")
     compile("io.jsonwebtoken:jjwt:0.7.0")
     compile('ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'){
             exclude group: 'org.thymeleaf'

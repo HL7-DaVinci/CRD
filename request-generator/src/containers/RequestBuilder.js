@@ -29,13 +29,17 @@ export default class RequestBuilder extends Component{
             token: null,
             oauth:false,
             loading:false,
-            logs:[]
+            logs:[],
+            keypair:KEYUTIL.generateKeypair('RSA',2048)
         };
         this.validateMap={
             age:(foo=>{return isNaN(foo)}),
             gender:(foo=>{return foo!=="male" && foo!=="female"}),
             code:(foo=>{return !foo.match(/^[a-z0-9]+$/i)})
         };
+        console.log(this.state.keypair);
+
+
 
 
         
@@ -45,6 +49,7 @@ export default class RequestBuilder extends Component{
     this.consoleLog = this.consoleLog.bind(this);
 
     }
+  
     makeid() {
       var text = [];
       var possible = "---ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -54,36 +59,41 @@ export default class RequestBuilder extends Component{
     
       return text.join('');
     }
-    
-
 
     async createJwt(){
-      
-      var keypair = KEYUTIL.generateKeypair('RSA',2048);
-      
-      var pubKey = keypair.pubKeyObj;
-      
-
-      const jwkPrv2 = KEYUTIL.getJWKFromKey(keypair.prvKeyObj);
-      const jwkPub2 = KEYUTIL.getJWKFromKey(keypair.pubKeyObj);
+      var pubKey = this.state.keypair.pubKeyObj;
+    
+      const jwkPrv2 = KEYUTIL.getJWKFromKey(this.state.keypair.prvKeyObj);
+      const jwkPub2 = KEYUTIL.getJWKFromKey(this.state.keypair.pubKeyObj);
       console.log(pubKey);
       const currentTime = KJUR.jws.IntDate.get('now');
       const endTime = KJUR.jws.IntDate.get('now + 1day');
       const kid = KJUR.jws.JWS.getJWKthumbprint(jwkPub2)
-      const pubPem = {"pem":KEYUTIL.getPEM(pubKey),"id":kid};
-      const alag = await fetch("http://localhost:3000/public_keys",{
-        "body": JSON.stringify(pubPem),
+      // const pubPem = {"pem":KEYUTIL.getPEM(pubKey),"id":kid};
+      const pubPem = {"pem":jwkPub2,"id":kid};
+
+      // Check if the public key is already in the db
+      const checkForPublic = await fetch("http://localhost:3001/public_keys?id="+kid,{
         "headers":{
           "Content-Type":"application/json"
         },
-        "method":"POST"
-      });
-
+        "method":"GET"
+      }).then(response => {return response.json()});
+      if(!checkForPublic.length){
+        // POST key to db if it's not already there
+        const alag = await fetch("http://localhost:3001/public_keys",{
+          "body": JSON.stringify(pubPem),
+          "headers":{
+            "Content-Type":"application/json"
+          },
+          "method":"POST"
+        });
+      }
       const header = {
         "alg":"RS256",
         "typ":"JWT",
         "kid":kid,
-        "jku":"http://localhost:3000/public_keys"
+        "jku":"http://localhost:3001/public_keys"
       };
       const body = {
         "iss":"localhost:3000",
@@ -171,7 +181,6 @@ export default class RequestBuilder extends Component{
     }
     startLoading(){
       this.setState({loading:true}, ()=>{
-        console.log(this.state.loading);
         this.submit_info();
       });
       

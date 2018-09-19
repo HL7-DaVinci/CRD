@@ -50,6 +50,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     // Check the token's signature.  Throws an exception if the token is rejected
     try {
       // The KeyResolver fetches the public key from the jku
+      // will throw an exception if the signature cannot be verified
       Jwts.parser()
           .setSigningKeyResolver(new SigningKeyResolverCrd())
           .parseClaimsJws(token).getSignature();
@@ -57,7 +58,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
       logger.info("Failed to verify token signature, rejecting token.");
       return null;
     }
-
 
     if (user != null) {
       logger.info("Validated JWT token structure from " + user);
@@ -93,11 +93,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     try {
       String header = new String(Base64.getDecoder().decode(tokens[0]));
       String payload = new String(Base64.getDecoder().decode(tokens[1]));
+
+
       // we just want to make sure the json has the correct fields
       // their contents aren't really important, if the contents are
       // bad we can reject them later.
-
-
       List<String> requiredHeaders = Arrays.asList("alg","typ","kid");
       List<String> requiredPayload = Arrays.asList("iss","aud","exp","iat","jti");
 
