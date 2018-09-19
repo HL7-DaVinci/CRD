@@ -9,16 +9,19 @@ import java.util.List;
 import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Reference;
 
-@ResourceDef(name = "DeviceRequest", profile = "http://base.url/DaVinciDeviceRequest")
+@ResourceDef(name = "DeviceRequest", profile =
+    "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3")
 public class DaVinciDeviceRequest extends DeviceRequest {
 
   @Child(name = "insurance")
-  @Extension(url = "http://base.url/DaVinciDeviceRequest#insurance", definedLocally = false, isModifier = false)
+  @Extension(url = "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
+      definedLocally = false, isModifier = false)
   @Description(shortDefinition = "Associated insurance coverage")
   private List<Reference> insurance;
 
   /**
    * Gets the insurance.
+   *
    * @return the insurance
    */
   public List<Reference> getInsurance() {
@@ -34,6 +37,7 @@ public class DaVinciDeviceRequest extends DeviceRequest {
 
   /**
    * Adds a new insurance.
+   *
    * @param insurance the reference to the insurance to be added
    */
   public void addInsurance(Reference insurance) {
