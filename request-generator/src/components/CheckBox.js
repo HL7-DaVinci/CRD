@@ -30,7 +30,7 @@ export default class CheckBox extends Component {
             className={toggleClass +" btn-class btn"}
             name={this.props.elementName}
             onClick={this.onInputChange}
-            >OAuth <a className={indicatorClass + " onOffState"} ></a></button>
+            >{this.props.displayName} <a className={indicatorClass + " onOffState"} ></a></button>
             </span>
         )
     }
