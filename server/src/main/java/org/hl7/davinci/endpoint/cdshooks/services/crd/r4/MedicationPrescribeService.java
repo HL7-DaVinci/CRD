@@ -42,7 +42,6 @@ public class MedicationPrescribeService extends CdsService {
         CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE.getQuery());
   }
 
-
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
 
@@ -113,6 +112,7 @@ public class MedicationPrescribeService extends CdsService {
 
     }
 
+    CardBuilder.errorCardIfNonePresent(response);
     logger.info("handleRequest: end");
     return response;
   }
