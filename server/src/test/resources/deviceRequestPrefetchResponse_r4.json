@@ -9,15 +9,15 @@
   "link": [
     {
       "relation": "self",
-      "url": "http://localhost:8080/DeviceRequest/DeviceRequest?id=24439&_include=DeviceRequest:patient"
+      "url": "http://localhost:8080/DeviceRequest/DeviceRequest?_id=24439&_include=DeviceRequest:patient"
     }
   ],
   "entry": [
     {
-      "fullUrl": "http://localhost:8080/DeviceRequest/24439",
+      "fullUrl": "http://localhost:8080/DeviceRequest/a24439",
       "resource": {
         "resourceType": "DeviceRequest",
-        "id": "24439",
+        "id": "a24439",
         "status": "draft",
         "intent": "plan",
         "codeCodeableConcept": {
@@ -30,7 +30,7 @@
           "text": "Stationary Compressed Gaseous Oxygen System, Rental"
         },
         "subject": {
-          "reference": "Patient/1288992"
+          "reference": "Patient/a1288992"
         },
         "authoredOn": "2018-08-08"
       },
@@ -42,7 +42,7 @@
       "fullUrl": "http://localhost:8080/Patient/1288992",
       "resource": {
         "resourceType": "Patient",
-        "id": "1288992",
+        "id": "a1288992",
         "gender": "male",
         "birthDate": "1970-07-04"
       },
