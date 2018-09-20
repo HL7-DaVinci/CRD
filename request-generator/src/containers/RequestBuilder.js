@@ -191,7 +191,7 @@ export default class RequestBuilder extends Component{
       if(this.state.oauth){
         const token = await this.login();
       }
-      let json_request = this.getJson(1);
+      let json_request = this.getJson();
       console.log(json_request);
       let jwt = await this.createJwt();
       //console.log(jwt);
@@ -333,7 +333,8 @@ export default class RequestBuilder extends Component{
                 </button>
 
 
-                <CheckBox elementName="oauth" updateCB={this.updateStateElement}/>
+                <CheckBox elementName="oauth" displayName="OAuth" updateCB={this.updateStateElement}/>
+                <CheckBox elementName="prefetch" displayName="Include Prefetch" updateCB={this.updateStateElement}/>
                 <div id="fse" className={"spinner " + (this.state.loading?"visible":"invisible")}>
                 <Loader
                   type="Oval"
@@ -352,229 +353,177 @@ export default class RequestBuilder extends Component{
             </div>
 
             </div>
-
-
-
-
-
         )
     }
 
-    getJson(number){
+    getJson(){
       const birthYear = 2018-parseInt(this.state.age,10);
-      if(number===1){
-        return  {
-          hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-          fhirServer: "http://localhost:8080/fhir-server",
-          hook: "order-review",
-          oauth : {
-            "access_token" : this.state.token,
-            "token_type" : "Bearer",
-            "expires_in" : 300,
-            "scope" : "patient/Patient.read patient/Observation.read",
-            "subject" : "cds-service4"
-          },
-          user: "Practitioner/example",
-          context: {
-            patientId: "12",
-            encounterId: "89284",
-            orders: {
-              resourceType: "Bundle",
-              entry: [
-                {
-                  resource: {
-                    resourceType: "DeviceRequest",
-                    status: "draft",
-                    codeCodeableConcept: {
-                      coding: [
-                        {
-                          system: this.state.codeSystem,
-                          code: this.state.code
-                        }
-                      ]
-                    },
-                    subject: {
-                      reference: "Patient/12"
-                    },
-                    authoredOn: "2018-08-08",
-                    insurance: [{
-                      reference: "Coverage/1234"
-                    }],
-                    performer: {
-                      reference: "PractitionerRole/1234"
-                    }
-                  }
-                }
-              ]
-            }
-          },
-          prefetch: {
-            deviceRequestBundle: {
-              resourceType: "Bundle",
-              type: "collection",
-              entry: [
-                {
-                  resource: {
-                    resourceType: "DeviceRequest",
-                    status: "draft",
-                    codeCodeableConcept: {
-                      coding: [
-                        {
-                          system: this.state.codeSystem,
-                          code: this.state.code
-                        }
-                      ]
-                    },
-                    subject: {
-                      reference: "Patient/12"
-                    },
-                    authoredOn: "2018-08-08",
-                    insurance: [{
-                      reference: "Coverage/1234"
-                    }],
-                    performer: {
-                      reference: "PractitionerRole/1234"
-                    }
-                  }
-                },
-                {
-                  resource: {
-                    id: "12",
-                    resourceType: "Patient",
-                    gender: this.state.gender,
-                    birthDate: birthYear + "-12-23"
-                  }
-                },
-                {
-                  resource: {
-                    resourceType: "Coverage",
-                    id: "1234",
-                    class: [
+      let request = {
+        hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
+        fhirServer: "http://localhost:8080/fhir-server",
+        hook: "order-review",
+        oauth : {
+          "access_token" : this.state.token,
+          "token_type" : "Bearer",
+          "expires_in" : 300,
+          "scope" : "patient/Patient.read patient/Observation.read",
+          "subject" : "cds-service4"
+        },
+        user: "Practitioner/example",
+        context: {
+          patientId: "12",
+          encounterId: "89284",
+          orders: {
+            resourceType: "Bundle",
+            entry: [
+              {
+                resource: {
+                  resourceType: "DeviceRequest",
+                  status: "draft",
+                  codeCodeableConcept: {
+                    coding: [
                       {
-                        type: {
-                          system: "http://hl7.org/fhir/coverage-class",
-                          code: "plan"
-                        },
-                        value: "Medicare Part D"
-                      }
-                    ],
-                    payor: [
-                      {
-                        reference: "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
+                        system: this.state.codeSystem,
+                        code: this.state.code
                       }
                     ]
+                  },
+                  subject: {
+                    reference: "Patient/12"
+                  },
+                  authoredOn: "2018-08-08",
+                  insurance: [{
+                    reference: "Coverage/1234"
+                  }],
+                  performer: {
+                    reference: "PractitionerRole/1234"
                   }
-                },
-                {
-                  resource: {
-                    resourceType: "Location",
-                    id: "89abea45-75d5-4730-a214-027fcb903ca1",
-                    address: {
-                      line: [
-                        "100 Good St"
+                }
+              }
+            ]
+          }
+        }
+      };
+      if (this.state.prefetch) {
+        request.prefetch = {
+          deviceRequestBundle: {
+            resourceType: "Bundle",
+            type: "collection",
+            entry: [
+              {
+                resource: {
+                  resourceType: "DeviceRequest",
+                  status: "draft",
+                  codeCodeableConcept: {
+                    coding: [
+                      {
+                        system: this.state.codeSystem,
+                        code: this.state.code
+                      }
+                    ]
+                  },
+                  subject: {
+                    reference: "Patient/12"
+                  },
+                  authoredOn: "2018-08-08",
+                  insurance: [{
+                    reference: "Coverage/1234"
+                  }],
+                  performer: {
+                    reference: "PractitionerRole/1234"
+                  }
+                }
+              },
+              {
+                resource: {
+                  id: "12",
+                  resourceType: "Patient",
+                  gender: this.state.gender,
+                  birthDate: birthYear + "-12-23"
+                }
+              },
+              {
+                resource: {
+                  resourceType: "Coverage",
+                  id: "1234",
+                  class: [
+                    {
+                      type: {
+                        system: "http://hl7.org/fhir/coverage-class",
+                        code: "plan"
+                      },
+                      value: "Medicare Part D"
+                    }
+                  ],
+                  payor: [
+                    {
+                      reference: "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
+                    }
+                  ]
+                }
+              },
+              {
+                resource: {
+                  resourceType: "Location",
+                  id: "89abea45-75d5-4730-a214-027fcb903ca1",
+                  address: {
+                    line: [
+                      "100 Good St"
+                    ],
+                    city: "Bedford",
+                    state: "MA",
+                    postalCode: "01730"
+                  }
+                }
+              },
+              {
+                resource: {
+                  resourceType: "PractitionerRole",
+                  practitioner: {
+                    reference: "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
+                  },
+                  location: [
+                    {
+                      reference: "Location/89abea45-75d5-4730-a214-027fcb903ca1"
+                    }
+                  ]
+                }
+              },
+              {
+                resource: {
+                  resourceType: "Organization",
+                  id: "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
+                  name: "Centers for Medicare and Medicaid Services"
+                }
+              },
+              {
+                resource: {
+                  resourceType: "Practitioner",
+                  id: "13608725-a5f5-4276-b44a-1fe2c7273555",
+                  identifier: [
+                    {
+                      system: "http://hl7.org/fhir/sid/us-npi",
+                      value: "1122334455"
+                    }
+                  ],
+                  name: [
+                    {
+                      family: "Doe",
+                      given: [
+                        "Jane"
                       ],
-                      city: "Bedford",
-                      state: "MA",
-                      postalCode: "01730"
+                      prefix: [
+                        "Dr."
+                      ]
                     }
-                  }
-                },
-                {
-                  resource: {
-                    resourceType: "PractitionerRole",
-                    practitioner: {
-                      reference: "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
-                    },
-                    location: [
-                      {
-                        reference: "Location/89abea45-75d5-4730-a214-027fcb903ca1"
-                      }
-                    ]
-                  }
-                },
-                {
-                  resource: {
-                    resourceType: "Organization",
-                    id: "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
-                    name: "Centers for Medicare and Medicaid Services"
-                  }
-                },
-                {
-                  resource: {
-                    resourceType: "Practitioner",
-                    id: "13608725-a5f5-4276-b44a-1fe2c7273555",
-                    identifier: [
-                      {
-                        system: "http://hl7.org/fhir/sid/us-npi",
-                        value: "1122334455"
-                      }
-                    ],
-                    name: [
-                      {
-                        family: "Doe",
-                        given: [
-                          "Jane"
-                        ],
-                        prefix: [
-                          "Dr."
-                        ]
-                      }
-                    ]
-                  }
+                  ]
                 }
-              ]
-            }
+              }
+            ]
           }
         };
-
-      }else if(number===2){
-        return {
-          summary: "Example Card",
-          indicator: "info",
-          detail: "Add an XYZ complimentary medication OR switch patient order to ABC. See SMART app for more details.",
-          source: {
-            label: "Medicine Library",
-            url: "https://example.com"
-          },
-          links: [
-            {
-              label: "Medication SMART app",
-              url: "https://example.com/launch",
-              type: "smart"
-            }
-          ],
-          suggestions: [
-            {
-              label: "Add Complimentary",
-              uuid: "123",
-              actions: [
-                {
-                  type: "create",
-                  description: "Add XYZ",
-                  resource: {}
-                },
-                {
-                  type: "delete",
-                  description: "Cancel ABC",
-                  resource: "MedicationRequest/ABC"
-                }
-              ]
-            },
-            {
-              label: "Change Order",
-              uuid: "456",
-              actions: [
-                {
-                  type: "modify",
-                  description: "Modify dosage of Medication",
-                  resource: "MedicationRequest/ABC"
-                }
-              ]
-            }
-          ]
-        }
       }
-
+      return request;
     }
 }
 
