@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+}
+
+version 'unspecified'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+apply plugin: 'war'
+apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
+
+dependencies {
+
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'
+
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-testpage-overlay:3.4.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-testpage-overlay:3.4.0:classes'
+
+    compile 'org.apache.commons:commons-dbcp2:2.5.0'
+    compile 'org.ebaysf.web:cors-filter:1.0.1'
+
+    compile 'org.apache.derby:derby:10.14.2.0'
+    compile 'org.apache.derby:derbynet:10.14.2.0'
+    compile 'org.apache.derby:derbyclient:10.14.2.0'
+
+    compile 'javax.servlet:javax.servlet-api:3.1.0'
+
+
+    compile "org.eclipse.jetty.websocket:websocket-api:9.4.12.v20180830"
+    compile "org.eclipse.jetty.websocket:websocket-client:9.4.12.v20180830"
+    compile "mysql:mysql-connector-java:6.0.5"
+    compile "ch.qos.logback:logback-classic:1.2.3"
+    compile "javax.servlet:javax.servlet-api:4.0.1"
+    compile "org.thymeleaf:thymeleaf:3.0.9.RELEASE"
+    compile "org.springframework:spring-web:5.0.9.RELEASE"
+
+
+    testCompile "org.eclipse.jetty:jetty-servlets:9.4.12.v20180830"
+    testCompile "org.eclipse.jetty:jetty-servlet:9.4.12.v20180830"
+    testCompile "org.eclipse.jetty.websocket:websocket-server:9.4.12.v20180830"
+    testCompile "org.eclipse.jetty:jetty-server:9.4.12.v20180830"
+    testCompile "org.eclipse.jetty:jetty-util:9.4.12.v20180830"
+    testCompile "org.eclipse.jetty:jetty-webapp:9.4.12.v20180830"
+    compile "com.helger:ph-schematron:5.0.6"
+    compile "javax.interceptor:javax.interceptor-api:3.1"
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
