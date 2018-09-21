@@ -101,12 +101,16 @@ public class PrefetchHydrator<prefetchElementTypeT> {
         // check if the bundle actually has element
         String prefetchQuery = cdsService.prefetch.get(prefetchKey);
         String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
+        String token = null;
+        if (cdsRequest.getFhirAuthorization() != null) {
+          token = cdsRequest.getFhirAuthorization().getAccessToken();
+        }
         // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
         // e.g. this could be a query template for a medication order but we have a device request
         if (hydratedPrefetchQuery != null) {
           try {
             PropertyUtils
-                .setProperty(crdResponse, prefetchKey, executeFhirQuery(hydratedPrefetchQuery));
+                .setProperty(crdResponse, prefetchKey, executeFhirQuery(hydratedPrefetchQuery, token));
           } catch (Exception e) {
             logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
           }
@@ -115,7 +119,7 @@ public class PrefetchHydrator<prefetchElementTypeT> {
     }
   }
 
-  private prefetchElementTypeT executeFhirQuery(String query) {
+  private prefetchElementTypeT executeFhirQuery(String query, String token) {
     String fullUrl = cdsRequest.getFhirServer() + query;
     //    TODO: Once our provider fhir server is up, switch the fetch to use the hapi client instead
     //    cdsRequest.getOauth();
@@ -130,6 +134,9 @@ public class PrefetchHydrator<prefetchElementTypeT> {
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    if (token != null) {
+      headers.set("Authorization", "Bearer " + token);
+    }
     HttpEntity<String> entity = new HttpEntity<>("", headers);
     try {
       logger.debug("Fetching: " + fullUrl);

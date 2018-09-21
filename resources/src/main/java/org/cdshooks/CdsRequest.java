@@ -14,7 +14,7 @@ public abstract class CdsRequest<ContextTypeT, prefetchTypeT> {
 
   private String fhirServer = null;
 
-  private Object oauth = null;
+  private FhirAuthorization fhirAuthorization = null;
 
   @NotNull
   private String user = null;
@@ -57,12 +57,12 @@ public abstract class CdsRequest<ContextTypeT, prefetchTypeT> {
     this.fhirServer = fhirServer;
   }
 
-  public Object getOauth() {
-    return oauth;
+  public FhirAuthorization getFhirAuthorization() {
+    return fhirAuthorization;
   }
 
-  public void setOauth(Object oauth) {
-    this.oauth = oauth;
+  public void setFhirAuthorization(FhirAuthorization oauth) {
+    this.fhirAuthorization = oauth;
   }
 
   public String getUser() {

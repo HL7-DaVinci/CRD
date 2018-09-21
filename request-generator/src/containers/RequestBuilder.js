@@ -362,7 +362,7 @@ export default class RequestBuilder extends Component{
         hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
         fhirServer: "http://localhost:8080/fhir-server",
         hook: "order-review",
-        oauth : {
+        fhirAuthorization : {
           "access_token" : this.state.token,
           "token_type" : "Bearer",
           "expires_in" : 300,
