@@ -3,11 +3,13 @@ package org.hl7.davinci.stu3.crdhook.medicationprescribe;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.validation.constraints.NotNull;
+
 import org.hl7.davinci.stu3.JacksonBundleDeserializer;
 import org.hl7.davinci.stu3.JacksonHapiSerializer;
+import org.hl7.davinci.stu3.crdhook.ServiceContext;
 import org.hl7.fhir.dstu3.model.Bundle;
 
-public class MedicationPrescribeContext {
+public class MedicationPrescribeContext extends ServiceContext {
   /** The FHIR Patient.id of the current patient in context. REQUIRED */
   @NotNull
   private String patientId;
