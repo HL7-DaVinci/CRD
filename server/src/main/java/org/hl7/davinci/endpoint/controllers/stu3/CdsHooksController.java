@@ -1,7 +1,7 @@
 package org.hl7.davinci.endpoint.controllers.stu3;
 
 import org.cdshooks.CdsResponse;
-import org.cdshooks.CdsServiceInformation;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
 import javax.validation.Valid;
 
 import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest;

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.cdshooks.CdsService;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
