@@ -66,7 +66,7 @@ public class CrdRequestCreator {
     Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
     pfDrBec.setResource(dr);
     prefetchBundle.addEntry(pfDrBec);
-    context.setOrders(orderBundle);
+    context.setServices(orderBundle);
 
     Device device = new Device();
     device.setType(new CodeableConcept().addCoding(oxygen));

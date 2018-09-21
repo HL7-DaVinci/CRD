@@ -2,6 +2,7 @@ package org.hl7.davinci.stu3.crdhook;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hl7.davinci.CrdPrefetchT;
 import org.hl7.davinci.stu3.JacksonBundleDeserializer;
 import org.hl7.davinci.stu3.JacksonHapiSerializer;
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -11,7 +12,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
  * It appears that for CRD, prefetch information will be the same, regardless of hook type (order-review or
  * medication-prescribe).
  */
-public class CrdPrefetch {
+public class CrdPrefetch implements CrdPrefetchT<Bundle> {
   @JsonSerialize(using = JacksonHapiSerializer.class)
   @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle deviceRequestBundle;
@@ -83,4 +84,5 @@ public class CrdPrefetch {
   public void setSupplyRequestBundle(Bundle supplyRequestBundle) {
     this.supplyRequestBundle = supplyRequestBundle;
   }
+
 }

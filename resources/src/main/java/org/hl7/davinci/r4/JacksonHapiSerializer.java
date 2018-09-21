@@ -19,7 +19,7 @@ public class JacksonHapiSerializer extends StdSerializer<Resource> {
 
   @Override
   public void serialize(Resource value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-    FhirComponents fhirComponents = FhirComponents.getInstance();
+    FhirComponents fhirComponents = new FhirComponents();
     String resourceString = fhirComponents.getJsonParser().encodeResourceToString(value);
     gen.writeRawValue(resourceString);
   }
