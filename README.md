@@ -66,19 +66,22 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 3. Run `./standalone.sh -Djboss.socket.binding.port-offset=100` from command line to start the server.  It should run on port 8180
 4. Navigate to the KeyCloak instance in a browser, it should be at [http://localhost:8180/](http://localhost:8180)
 5. When prompted, create a new administrative username and password.
-6. Create two realms, one for the client fhir server, and one for the CRD implementation, choose any name.  Both realms follow the same following steps, the only difference should be the names of the clients
+6. Create a realm, choose any name.  The realm will be protecting the `ehr-server`.
 7. Make two clients by navigating to the `Clients` tab
+	* The name given to the clients will be their `client ID`
 	* Make one client public and the other bearer-only with the `Access-type` dropdown.
-	* Find the `Web Origins` input and add the address of the client fhir server and the CRD server.  Alternatively just 	       put `*` in `Web Origins` if running everything locally.
-	* Add a redirect URL, can generally work fine as the base url of the server such as [http://localhost:8080](http://localhost:8080)
+	* In the public client, find the `Web Origins` input and add the address of the EHR fhir server.  Alternatively just put `*` in `Web Origins` if running everything locally, this is less secure and should not be done in a production setting.
+	* In the public client, add a redirect URL.  It can generally work fine as the base url of the server such as [http://localhost:8080](http://localhost:8080)
 8. Navigate to the `Roles` tab and make a new role called `user`
 	* Navigate to the `Users` tab and make a new user.  
 	* Give the new user a password in the `credentials` tab
 	* Go to `Role Mappings` and add the `user` role
 9. Modify config files to point at your new clients and realms
-	* Change `server/resources/application.yml` keycloak settings to point at the bearer only client in one of the realms
-	* Change `ehr-server/src/main/resources/fhirServer.properties` to have the client ID and secret of the bearer only client in the second realm
-	* Change `request-generator/src/properties.json` to include the second realm and public client ID
+	* Change `ehr-server/src/main/resources/fhirServer.properties` to have the client ID and secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
+		* The bearer only client's secret can be found in the `Credentials` tab
+	* Change `request-generator/src/properties.json` to include the name of the realm and the client ID of the public client
+	
+NOTE: As of right now, the security feature will protect the EHR server in its entirety.  There is no way to choose which endpoints to protect and to what degree.  The security feature will hopefully be able to identify different types of users (e.g `admin` vs `user`) in the future.   
 
 ## Preferred Development Environment
 The core CRD team develops with [IntelliJ IDEA](https://www.jetbrains.com/idea/). There are no requirements on using this as a Java IDE for working on the project and any other Java IDE should work fine.
