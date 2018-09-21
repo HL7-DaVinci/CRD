@@ -1,8 +1,13 @@
 package org.cdshooks;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class FhirAuthorization {
+  @JsonProperty("access_token")
   private String accessToken;
+  @JsonProperty("token_type")
   private String tokenType;
+  @JsonProperty("expires_in")
   private Integer expiresIn;
   private String scope;
   private String subject;

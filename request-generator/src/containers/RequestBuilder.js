@@ -360,7 +360,7 @@ export default class RequestBuilder extends Component{
       const birthYear = 2018-parseInt(this.state.age,10);
       let request = {
         hookInstance: "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-        fhirServer: "http://localhost:8080/fhir-server",
+        fhirServer: "http://localhost:8080/ehr-server/r4/",
         hook: "order-review",
         fhirAuthorization : {
           "access_token" : this.state.token,
@@ -378,6 +378,7 @@ export default class RequestBuilder extends Component{
             entry: [
               {
                 resource: {
+                  id: "a24439",
                   resourceType: "DeviceRequest",
                   status: "draft",
                   codeCodeableConcept: {

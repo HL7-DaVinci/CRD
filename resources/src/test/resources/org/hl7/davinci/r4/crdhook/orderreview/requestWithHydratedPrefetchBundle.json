@@ -2,7 +2,7 @@
   "hook": "order-review",
   "hookInstance": "a4ca4d19-ed2a-491d-87d4-408fefd56ec9",
   "fhirServer": "http://localhost:8080/",
-  "oauth": null,
+  "fhirAuthorization": null,
   "user": "Practitioner/1234",
   "context":{
     "patientId":"1288992",
