@@ -2,19 +2,20 @@ package org.hl7.davinci.stu3;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import org.hl7.davinci.FhirComponentT;
 import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
 
 /**
  * Build some expensive objects here so we can reuse them.
  */
-public class FhirComponents {
+public class FhirComponents implements FhirComponentT {
 
   private static FhirComponents single_instance = null;
   private FhirContext fhirContext;
   private IParser jsonParser;
 
-  private FhirComponents() {
+  public FhirComponents() {
     fhirContext = FhirContext.forDstu3();
     // This is needed to correctly cast an incoming DaVinciEligibilityRequest, url must match that
     // defined in the resource profile
@@ -33,7 +34,7 @@ public class FhirComponents {
    *
    * @return the instance
    */
-  public static FhirComponents getInstance() {
+  public FhirComponents getInstance() {
     if (single_instance == null) {
       single_instance = new FhirComponents();
     }
