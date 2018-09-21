@@ -123,7 +123,7 @@ public class OrderReviewService extends CdsService {
         }
       }
     }
-
+    CardBuilder.errorCardIfNonePresent(response);
     logger.info("handleRequest: end");
     return response;
   }
