@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hl7.davinci.r4.JacksonBundleDeserializer;
 import org.hl7.davinci.r4.JacksonHapiSerializer;
+import org.hl7.davinci.r4.crdhook.ServiceContext;
 import org.hl7.fhir.r4.model.Bundle;
 
 import javax.validation.constraints.NotNull;
 
-public class MedicationPrescribeContext {
+public class MedicationPrescribeContext extends ServiceContext {
   /** The FHIR Patient.id of the current patient in context. REQUIRED */
   @NotNull
   private String patientId;
