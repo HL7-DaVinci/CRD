@@ -7,6 +7,7 @@ import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.Utilities;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.CdsService;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements.PrefetchTemplateElement;
 import org.cdshooks.Hook;
@@ -72,6 +73,8 @@ public class OrderReviewService extends CdsService {
     //note currently we only use the device request if its in the prefetch or we get it into
     //the prefetch, so we dont use it if its just in the context since it wont have patient etc.
     FhirComponents fhirComponents = FhirComponents.getInstance();
+    if (request.getPrefetch() == null)
+      request.setPrefetch(new CrdPrefetch());
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator<Bundle>(this, request,
         fhirComponents.getFhirContext());
     prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible
