@@ -1,22 +1,15 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
-import java.util.Arrays;
-import java.util.List;
-import javax.validation.Valid;
-import org.hl7.davinci.r4.FhirComponents;
-import org.hl7.davinci.r4.Utilities;
-import org.cdshooks.CdsResponse;
-import org.cdshooks.CdsService;
-import org.hl7.davinci.r4.crdhook.CrdPrefetch;
-import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
-import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements.PrefetchTemplateElement;
+import org.cdshooks.CdsRequest;
 import org.cdshooks.Hook;
 import org.cdshooks.Prefetch;
-import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.components.PrefetchHydrator;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.Utilities;
+import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
+import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements.PrefetchTemplateElement;
+import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -26,11 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 @Component("r4_OrderReviewService")
-public class OrderReviewService extends CdsService {
+public class OrderReviewService extends
+    CdsService<Bundle, DeviceRequest, Patient, CodeableConcept> {
 
   public static final String ID = "order-review-crd";
   public static final String TITLE = "order-review Coverage Requirements Discovery";
@@ -39,7 +35,8 @@ public class OrderReviewService extends CdsService {
       "Get information regarding the coverage requirements for durable medical equipment";
   public static final Prefetch PREFETCH;
   static final Logger logger = LoggerFactory.getLogger(OrderReviewService.class);
-
+  static final String FHIRVERSION = "r4";
+  static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   static {
     PREFETCH = new Prefetch();
     List<PrefetchTemplateElement> elements = Arrays.asList(
@@ -58,75 +55,22 @@ public class OrderReviewService extends CdsService {
   CoverageRequirementRuleFinder ruleFinder;
 
   public OrderReviewService() {
-    super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
+    super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH, FHIRCOMPONENTS, FHIRVERSION);
   }
 
-  /**
-   * Handle the post request to the service.
-   *
-   * @param request The json request, parsed.
-   */
-  public CdsResponse handleRequest(@Valid @RequestBody OrderReviewRequest request) {
-    logger.info("handleRequest: start");
-    logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
-
-    //note currently we only use the device request if its in the prefetch or we get it into
-    //the prefetch, so we dont use it if its just in the context since it wont have patient etc.
-    FhirComponents fhirComponents = FhirComponents.getInstance();
-    if (request.getPrefetch() == null)
-      request.setPrefetch(new CrdPrefetch());
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator<Bundle>(this, request,
-        fhirComponents.getFhirContext());
-    prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible
-
-    CdsResponse response = new CdsResponse();
-
-    Bundle deviceRequestBundle = request.getPrefetch().getDeviceRequestBundle();
-    if (deviceRequestBundle == null) {
-      logger.error("Prefetch deviceRequestBundle not a bundle");
-      response.addCard(CardBuilder.summaryCard(
-          "deviceRequestBundle could not be (pre)fetched in this request "));
-      return response;
-    }
-    List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
-        DeviceRequest.class, (Bundle) deviceRequestBundle);
-
-    for (DeviceRequest deviceRequest : deviceRequestList) {
-
-      Patient patient = null;
-      CodeableConcept cc = null;
-      try {
-        cc = deviceRequest.getCodeCodeableConcept();
-      } catch (FHIRException fe) {
-        response
-            .addCard(CardBuilder.summaryCard("Unable to parse the device code out of the request"));
-      }
-
-      // See if the patient is in the prefetch
-      try {
-        patient = (Patient) deviceRequest.getSubject().getResource();
-      } catch (Exception e) {
-        response
-            .addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
-      }
-
-      if (patient != null && cc != null) {
-        int patientAge = Utilities.calculateAge(patient);
-        List<CoverageRequirementRule> coverageRequirementRules = ruleFinder
-            .findRules(patientAge, patient.getGender(), cc.getCoding().get(0).getCode(),
-                cc.getCoding().get(0).getSystem());
-        if (coverageRequirementRules.size() == 0) {
-          response.addCard(CardBuilder.summaryCard("No documentation rules found"));
-        } else {
-          for (CoverageRequirementRule rule: coverageRequirementRules) {
-            response.addCard(CardBuilder.transform(rule));
-          }
-        }
-      }
-    }
-    CardBuilder.errorCardIfNonePresent(response);
-    logger.info("handleRequest: end");
-    return response;
+  public CodeableConcept getCc(DeviceRequest deviceRequest) throws FHIRException {
+    return deviceRequest.getCodeCodeableConcept();
   }
 
+  public Patient getPatient(DeviceRequest deviceRequest) {
+    return (Patient) deviceRequest.getSubject().getResource();
+  }
+
+  @Override
+  public List<DeviceRequest> getRequests(CdsRequest request) {
+    OrderReviewRequest orderReviewRequest = (OrderReviewRequest) request;
+    Bundle orderReviewBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
+    Utilities util = new Utilities();
+    return util.getResourcesOfTypeFromBundle(DeviceRequest.class, orderReviewBundle);
+  }
 }
