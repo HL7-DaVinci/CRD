@@ -1,0 +1,99 @@
+{
+  "hook": "order-review",
+  "hookInstance": "a4ca4d19-ed2a-491d-87d4-408fefd56ec9",
+  "fhirServer": "http://localhost:8080/",
+  "oauth": null,
+  "user": "Practitioner/1234",
+  "context":{
+    "patientId":"1288992",
+    "encounterId":"89284",
+    "orders":{
+      "resourceType":"Bundle",
+      "entry":[
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "id": "24439",
+            "status": "draft",
+            "intent": "plan",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "code": "E0250"
+                }
+              ],
+              "text": "Stationary Compressed Gaseous Oxygen System, Rental"
+            },
+            "subject": {
+              "reference": "Patient/1288992"
+            },
+            "authoredOn": "2018-08-08",
+            "insurance": {
+              "reference": "Coverage/1234"
+            },
+            "performer": {
+              "reference": "PractitionerRole/1234"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "prefetch": {
+    "deviceRequestBundle": {
+      "resourceType": "Bundle",
+      "id": "f452a78a-da06-4fe6-8233-ad2a817c96",
+      "meta": {
+        "lastUpdated": "2018-08-29T16:07:48Z"
+      },
+      "type": "searchset",
+      "total": 1,
+      "link": [
+        {
+          "relation": "self",
+          "url": "http://localhost:8080/DeviceRequest/DeviceRequest?id=24439&_include=DeviceRequest:patient"
+        }
+      ],
+      "entry": [
+        {
+          "fullUrl": "http://localhost:8080/DeviceRequest/24439",
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "id": "24439",
+            "status": "draft",
+            "intent": "plan",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "code": "E0250"
+                }
+              ],
+              "text": "Stationary Compressed Gaseous Oxygen System, Rental"
+            },
+            "subject": {
+              "reference": "Patient/1288992"
+            },
+            "authoredOn": "2018-08-08"
+          },
+          "search": {
+            "mode": "match"
+          }
+        },
+        {
+          "fullUrl": "http://localhost:8080/Patient/1288992",
+          "resource": {
+            "resourceType": "Patient",
+            "id": "1288992",
+            "gender": "male",
+            "birthDate": "1970-07-04"
+          },
+          "search": {
+            "mode": "include"
+          }
+        }
+      ]
+    }
+  }
+}
