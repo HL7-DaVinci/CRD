@@ -39,7 +39,7 @@ public class EndToEndRequestPrefetchTest {
   private String deviceRequestPrefetchResponseJson = FileUtils
       .readFileToString(new ClassPathResource("deviceRequestPrefetchResponse_r4.json").getFile(),
           Charset.defaultCharset());
-  private String prefetchUrl = "/DeviceRequest?id=24439"
+  private String prefetchUrl = "/DeviceRequest?_id=24439"
       + "&_include=DeviceRequest:patient"
       + "&_include=DeviceRequest:performer"
       + "&_include=DeviceRequest:requester"

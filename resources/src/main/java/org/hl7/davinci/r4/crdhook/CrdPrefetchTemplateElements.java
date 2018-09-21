@@ -7,7 +7,7 @@ public class CrdPrefetchTemplateElements {
 
   public static final PrefetchTemplateElement DEVICE_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "deviceRequestBundle",
-      "DeviceRequest?id={{context.orders.DeviceRequest.id}}"
+      "DeviceRequest?_id={{context.orders.DeviceRequest.id}}"
           + "&_include=DeviceRequest:patient"
           + "&_include=DeviceRequest:performer"
           + "&_include=DeviceRequest:requester"
@@ -17,7 +17,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=DeviceRequest:insurance:Coverage");
   public static final PrefetchTemplateElement MEDICATION_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "medicationRequestBundle",
-      "MedicationRequest?id={{context.orders.MedicationRequest.id}}"
+      "MedicationRequest?_id={{context.orders.MedicationRequest.id}}"
           + "&_include=MedicationRequest:patient"
           + "&_include=MedicationRequest:intended-dispenser"
           + "&_include=MedicationRequest:requester:PractitionerRole"
@@ -27,7 +27,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=MedicationRequest:insurance:Coverage");
   public static final PrefetchTemplateElement NUTRITION_ORDER_BUNDLE = new PrefetchTemplateElement(
       "nutritionOrderBundle",
-      "NutritionOrder?id={{context.orders.NutritionOrder.id}}"
+      "NutritionOrder?_id={{context.orders.NutritionOrder.id}}"
           + "&_include=NutritionOrder:patient"
           + "&_include=NutritionOrder:provider"
           + "&_include=NutritionOrder:requester"
@@ -38,7 +38,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=NutritionOrder:insurance:Coverage");
   public static final PrefetchTemplateElement SERVICE_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "serviceRequestBundle",
-      "ServiceRequest?id={{context.orders.ServiceRequest.id}}"
+      "ServiceRequest?_id={{context.orders.ServiceRequest.id}}"
           + "&_include=ServiceRequest:patient"
           + "&_include=ServiceRequest:performer"
           + "&_include=ServiceRequest:requester"
@@ -47,7 +47,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=ServiceRequest:insurance:Coverage");
   public static final PrefetchTemplateElement SUPPLY_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "supplyRequestBundle",
-      "SupplyRequest?id={{context.orders.SupplyRequest.id}}&"
+      "SupplyRequest?_id={{context.orders.SupplyRequest.id}}&"
           + "_include=SupplyRequest:patient"
           + "&_include=SupplyRequest:supplier:Organization"
           + "&_include=SupplyRequest:requester:Practitioner"

@@ -11,14 +11,20 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cdshooks.CdsService;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 public class PrefetchHydrator<prefetchElementTypeT> {
+
+  static final Logger logger =
+      LoggerFactory.getLogger(PrefetchHydrator.class);
 
   private static final String PREFETCH_TOKEN_DELIM_OPEN = "{{";
   private static final String PREFETCH_TOKEN_DELIM_CLOSE = "}}";
@@ -102,8 +108,7 @@ public class PrefetchHydrator<prefetchElementTypeT> {
             PropertyUtils
                 .setProperty(crdResponse, prefetchKey, executeFhirQuery(hydratedPrefetchQuery));
           } catch (Exception e) {
-            System.out.println("Failed to fill prefetch for key: " + prefetchKey);
-            //TODO: log?
+            logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
           }
         }
       }
@@ -127,13 +132,14 @@ public class PrefetchHydrator<prefetchElementTypeT> {
     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     HttpEntity<String> entity = new HttpEntity<>("", headers);
     try {
+      logger.debug("Fetching: " + fullUrl);
       ResponseEntity<String> response = restTemplate.exchange(fullUrl, HttpMethod.GET,
           entity, String.class);
       return (prefetchElementTypeT) ctx.newJsonParser().parseResource(response.getBody());
-    } catch (Exception e) {
+    } catch (RestClientException e) {
+      logger.warn("Unable to make the fetch request", e);
       return null;
     }
-
   }
 
   private String hydratePrefetchQuery(String prefetchQuery) {
