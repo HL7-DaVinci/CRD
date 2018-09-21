@@ -13,6 +13,7 @@ import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
+import org.hl7.davinci.stu3.crdhook.CrdPrefetch;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements.PrefetchTemplateElement;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
@@ -73,6 +74,8 @@ public class OrderReviewService extends CdsService {
     //note currently we only use the device request if its in the prefetch or we get it into
     //the prefetch, so we dont use it if its just in the context since it wont have patient etc.
     FhirComponents fhirComponents = FhirComponents.getInstance();
+    if (request.getPrefetch() == null)
+      request.setPrefetch(new CrdPrefetch());
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator<Bundle>(this, request,
         fhirComponents.getFhirContext());
     prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible

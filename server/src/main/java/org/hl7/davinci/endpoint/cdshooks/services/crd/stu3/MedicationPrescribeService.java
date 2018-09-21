@@ -6,6 +6,7 @@ import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.CdsService;
+import org.hl7.davinci.stu3.crdhook.CrdPrefetch;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
 import org.cdshooks.Hook;
 import org.cdshooks.Prefetch;
@@ -62,6 +63,8 @@ public class MedicationPrescribeService extends CdsService {
         "Medications bundle size: " + request.getContext().getMedications().getEntry().size());
 
     FhirComponents fhirComponents = FhirComponents.getInstance();
+    if (request.getPrefetch() == null)
+      request.setPrefetch(new CrdPrefetch());
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator<Bundle>(this, request,
         fhirComponents.getFhirContext());
     prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible
