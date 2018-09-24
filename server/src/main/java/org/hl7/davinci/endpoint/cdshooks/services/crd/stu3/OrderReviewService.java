@@ -71,9 +71,9 @@ public class OrderReviewService extends
   public List<DaVinciDeviceRequest> getRequests(CdsRequest request) {
     OrderReviewRequest orderReviewRequest = (OrderReviewRequest) request;
     Bundle orderReviewBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
-    System.out.println(orderReviewRequest.getPrefetch());
-    System.out.println(orderReviewRequest.getPrefetch().getDeviceRequestBundle());
-    System.out.println(orderReviewRequest.getPrefetch().getMedicationRequestBundle());
+    if (orderReviewBundle == null) {
+      return null;
+    }
     Utilities util = new Utilities();
     return util.getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, orderReviewBundle);
   }
