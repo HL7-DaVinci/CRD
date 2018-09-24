@@ -70,8 +70,10 @@ public class OrderReviewService extends
   public List<DeviceRequest> getRequests(CdsRequest request) {
     OrderReviewRequest orderReviewRequest = (OrderReviewRequest) request;
     Bundle orderReviewBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
+    if (orderReviewBundle == null) {
+      return null;
+    }
     Utilities util = new Utilities();
-
     return util.getResourcesOfTypeFromBundle(DeviceRequest.class, orderReviewBundle);
   }
 }
