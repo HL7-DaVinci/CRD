@@ -23,7 +23,8 @@ import java.util.List;
 @SuppressWarnings("ConstantConditions")
 public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
 
-  String introspectUrl = "http://localhost:8180/auth/realms/ClientFhirServer/protocol/openid-connect/token/introspect";
+  String introspectUrl = "http://localhost:8180/auth/realms/"
+      + Config.get("realm") + "/protocol/openid-connect/token/introspect";
 
   @Override
   public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {

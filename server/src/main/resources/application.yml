@@ -15,11 +15,4 @@ spring:
 server:
   port: 8090
 
-keycloak:
-  auth-server-url: http://localhost:8180/auth
-  realm: SpringBootKeycloak
-  resource: dme-app-access
-  public-client: false
-  principal-attribute: preferred_username
-
 checkJwt: true
