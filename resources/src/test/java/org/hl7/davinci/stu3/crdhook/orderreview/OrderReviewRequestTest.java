@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.hl7.davinci.stu3.Utilities;
-import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.DeviceRequest;
@@ -25,8 +24,8 @@ public class OrderReviewRequestTest {
     assertEquals("1288992", request.getContext().getPatientId());
 
     Bundle deviceRequestBundle = request.getPrefetch().getDeviceRequestBundle();
-    List<DaVinciDeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
-        DaVinciDeviceRequest.class, deviceRequestBundle);
+    List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
+        DeviceRequest.class, deviceRequestBundle);
 
     DeviceRequest deviceRequest = deviceRequestList.get(0);
     Patient patient = (Patient) deviceRequest.getSubject().getResource();

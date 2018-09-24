@@ -15,7 +15,7 @@ import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
-import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
+import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
@@ -78,10 +78,10 @@ public class MedicationPrescribeService extends CdsService {
           "medicationRequestBundle could not be (pre)fetched in this request "));
       return response;
     }
-    List<DaVinciMedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(
-        DaVinciMedicationRequest.class, medicationRequestBundle);
+    List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(
+        MedicationRequest.class, medicationRequestBundle);
 
-    for (DaVinciMedicationRequest medicationRequest : medicationRequestList) {
+    for (MedicationRequest medicationRequest : medicationRequestList) {
 
       Patient patient = null;
       CodeableConcept cc = null;
