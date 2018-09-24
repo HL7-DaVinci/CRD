@@ -35,8 +35,8 @@ public class OrderReviewService extends
       "Get information regarding the coverage requirements for durable medical equipment";
   public static final Prefetch PREFETCH;
   static final Logger logger = LoggerFactory.getLogger(OrderReviewService.class);
-  static final String FHIRVERSION = "r4";
-  static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
+  public static final String FHIRVERSION = "r4";
+  public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   static {
     PREFETCH = new Prefetch();
     List<PrefetchTemplateElement> elements = Arrays.asList(
@@ -101,6 +101,7 @@ public class OrderReviewService extends
     OrderReviewRequest orderReviewRequest = (OrderReviewRequest) request;
     Bundle orderReviewBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
     Utilities util = new Utilities();
+
     return util.getResourcesOfTypeFromBundle(DeviceRequest.class, orderReviewBundle);
   }
 }

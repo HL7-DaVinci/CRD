@@ -28,7 +28,7 @@ public class MedicationPrescribeRequest extends
     HashMap<String, Object> contextMap = new HashMap<>();
     contextMap.put("patientId", getContext().getPatientId());
     contextMap.put("encounterId", getContext().getEncounterId());
-    contextMap.put("medications", Utilities.bundleAsHashmap((Bundle) getContext().getServices()));
+    contextMap.put("medications", Utilities.bundleAsHashmap((Bundle) getContext().getMedications()));
     mapForPrefetchTemplates.put("context", contextMap);
 
     return mapForPrefetchTemplates;

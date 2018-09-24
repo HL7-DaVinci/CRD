@@ -31,15 +31,15 @@ public class MedicationPrescribeService
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
   public static final Prefetch PREFETCH;
-  static final Logger logger = LoggerFactory.getLogger(MedicationPrescribeService.class);
-  static final String FHIRVERSION = "r4";
+  public static final Logger logger = LoggerFactory.getLogger(MedicationPrescribeService.class);
+  public static final String FHIRVERSION = "r4";
   static {
     PREFETCH = new Prefetch();
     PREFETCH.put(CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE.getKey(),
         CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE.getQuery());
   }
 
-  private static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
+  public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
 

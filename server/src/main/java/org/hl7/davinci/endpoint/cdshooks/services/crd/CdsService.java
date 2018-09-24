@@ -57,9 +57,9 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
    */
   public Prefetch prefetch = null;
 
-  public FhirComponentT fhirComponent =null;
+  private FhirComponentT fhirComponent;
 
-  public String fhirVersion = null;
+  private String fhirVersion = null;
 
   UtilitiesInterface utilities = null;
 
@@ -109,7 +109,7 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
         this.title + ":" + request.getContext()
     );
 
-    FhirComponentT fhirComponents = this.fhirComponent.getInstance();
+    FhirComponentT fhirComponents = this.fhirComponent;
 
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator<bundleTypeT>(this, request,
         fhirComponents.getFhirContext());
@@ -145,6 +145,7 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
       if (patient != null && cc != null) {
         Map<String, String> info = getInfo(patient,cc);
         int patientAge = Integer.parseInt(info.get("patientAge"));
+
         List<CoverageRequirementRule> coverageRequirementRules = ruleFinder
             .findRules(patientAge, info.get("patientGender").charAt(0), (String) info.get("ccCode"),
                 (String) info.get("ccSystem"));
@@ -178,7 +179,7 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
       returnMap.put("patientAge", Integer.toString(org.hl7.davinci.stu3.Utilities.calculateAge(patientStu3)));
       returnMap.put("patientGender", patientStu3.getGender().toCode());
       returnMap.put("ccCode", ccStu3.getCoding().get(0).getCode());
-      returnMap.put("ccSystem", ccStu3.getCoding().get(0).getCode());
+      returnMap.put("ccSystem", ccStu3.getCoding().get(0).getSystem());
       return returnMap;
     } else if (fhirVersion.equalsIgnoreCase("r4")) {
       org.hl7.fhir.r4.model.Patient patientR4 = (org.hl7.fhir.r4.model.Patient) patient;

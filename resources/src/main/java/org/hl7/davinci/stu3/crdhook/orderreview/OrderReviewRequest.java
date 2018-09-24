@@ -27,7 +27,7 @@ public class OrderReviewRequest extends CdsRequest<CrdPrefetch, Bundle, OrderRev
     HashMap<String, Object> contextMap = new HashMap<>();
     contextMap.put("patientId", getContext().getPatientId());
     contextMap.put("encounterId", getContext().getEncounterId());
-    contextMap.put("orders", Utilities.bundleAsHashmap((Bundle) getContext().getServices()));
+    contextMap.put("orders", Utilities.bundleAsHashmap(getContext().getOrders()));
     mapForPrefetchTemplates.put("context", contextMap);
 
     return mapForPrefetchTemplates;

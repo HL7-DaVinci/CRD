@@ -13,7 +13,7 @@ public class CdsServiceInformation {
    */
   public CdsServiceInformation addServicesItem(CdsService servicesItem) {
     if (this.services == null) {
-      this.services = new ArrayList<CdsService>();
+      this.services = new ArrayList<>();
     }
     this.services.add(servicesItem);
     return this;

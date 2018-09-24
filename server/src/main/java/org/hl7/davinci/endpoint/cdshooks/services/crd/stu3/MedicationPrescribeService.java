@@ -33,7 +33,7 @@ public class MedicationPrescribeService extends
   public static final Prefetch PREFETCH;
   static final Logger logger = LoggerFactory.getLogger(MedicationPrescribeService.class);
   static final String FHIRVERSION = "stu3";
-  static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
+  public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   static {
     PREFETCH = new Prefetch();
     PREFETCH.put(CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE.getKey(),
