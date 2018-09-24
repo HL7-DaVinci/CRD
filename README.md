@@ -57,7 +57,6 @@ On the left side of the diagram, we have two components that simulate functional
 Visit the [server README](server/README.md) to see how to run the server or the [request-generator README](request-generator/README.md) for information on running these subprojects.
 
 ## Setting up a KeyCloak instance
-*Note: We are currently reworking how the `server` project interacts with Keycloak. As such, these instructions are out of date. They will be updated when that work is finished.*
 
 If you want to test CRD in a secure fashion using OAuth, you will need to install and configure Keycloak. The following instructions are for configuring Keycloak for all subprojects in the RI:
 
@@ -67,6 +66,7 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 4. Navigate to the KeyCloak instance in a browser, it should be at [http://localhost:8180/](http://localhost:8180)
 5. When prompted, create a new administrative username and password.
 6. Create a realm, choose any name.  The realm will be protecting the `ehr-server`.
+	* The realm can be imported by selecting the `import` option on the realm creation screen.  Importing `ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
 7. Make two clients by navigating to the `Clients` tab
 	* The name given to the clients will be their `client ID`
 	* Make one client public and the other bearer-only with the `Access-type` dropdown.
@@ -77,7 +77,7 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 	* Give the new user a password in the `credentials` tab
 	* Go to `Role Mappings` and add the `user` role
 9. Modify config files to point at your new clients and realms
-	* Change `ehr-server/src/main/resources/fhirServer.properties` to have the client ID and secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
+	* Change `ehr-server/src/main/resources/fhirServer.properties` to use the client ID, realm name, and client secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
 		* The bearer only client's secret can be found in the `Credentials` tab
 	* Change `request-generator/src/properties.json` to include the name of the realm and the client ID of the public client
 	
