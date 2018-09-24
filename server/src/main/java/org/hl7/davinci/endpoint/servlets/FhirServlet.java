@@ -4,7 +4,6 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.CorsInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
-import org.hl7.davinci.endpoint.CoverageRequirementsDiscoveryOperation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,9 +11,6 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-
-import org.hl7.davinci.r4.fhirresources.DaVinciEligibilityRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.cors.CorsConfiguration;
 
 
@@ -31,8 +27,6 @@ import org.springframework.web.cors.CorsConfiguration;
 public class FhirServlet extends RestfulServer {
   private static final long serialVersionUID = 1L;
 
-  @Autowired
-  CoverageRequirementsDiscoveryOperation crdOperation;
 
   /**
    * The initialize method is automatically called when the servlet is starting up, so it can be
@@ -45,13 +39,7 @@ public class FhirServlet extends RestfulServer {
     FhirContext ctxR4 = FhirContext.forR4();
     setFhirContext(ctxR4);
 
-    // This is needed to correctly cast an incoming DaVinciEligibilityRequest, url must match that
-    // defined in the resource profile
-    ctxR4.setDefaultTypeForProfile(
-        "http://base.url/DaVinciEligibilityRequest", DaVinciEligibilityRequest.class);
-
     List<Object> plainProviders = new ArrayList<Object>();
-    plainProviders.add(crdOperation);
     setPlainProviders(plainProviders);
 
     // Now register the logging interceptor
