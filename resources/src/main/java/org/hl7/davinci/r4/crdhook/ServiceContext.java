@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hl7.davinci.ServiceContextT;
 import org.hl7.davinci.r4.JacksonBundleDeserializer;
 import org.hl7.davinci.r4.JacksonHapiSerializer;
-import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.r4.model.Bundle;
 
 import javax.validation.constraints.NotNull;

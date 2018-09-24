@@ -11,11 +11,11 @@ import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
  */
 public class FhirComponents implements FhirComponentT {
 
-  private static FhirComponents single_instance = null;
   private FhirContext fhirContext;
   private IParser jsonParser;
 
   public FhirComponents() {
+
     fhirContext = FhirContext.forDstu3();
     // This is needed to correctly cast an incoming DaVinciEligibilityRequest, url must match that
     // defined in the resource profile
@@ -27,18 +27,6 @@ public class FhirComponents implements FhirComponentT {
         DaVinciMedicationRequest.class);
 
     jsonParser = fhirContext.newJsonParser();
-  }
-
-  /**
-   * Gets the current FhirComponents instance.
-   *
-   * @return the instance
-   */
-  public FhirComponents getInstance() {
-    if (single_instance == null) {
-      single_instance = new FhirComponents();
-    }
-    return single_instance;
   }
 
   public FhirContext getFhirContext() {
