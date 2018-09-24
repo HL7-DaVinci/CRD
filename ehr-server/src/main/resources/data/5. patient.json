@@ -1,0 +1,6 @@
+{
+  "resourceType": "Patient",
+  "id": "pat1234",
+  "gender": "male",
+  "birthDate": "1996-12-23"
+}

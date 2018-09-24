@@ -1,0 +1,12 @@
+{
+  "resourceType": "Location",
+  "id": "loc1234",
+  "address": {
+    "line": [
+      "100 Good St"
+    ],
+    "city": "Bedford",
+    "state": "MA",
+    "postalCode": "01730"
+  }
+}

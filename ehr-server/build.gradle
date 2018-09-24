@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'io.github.http-builder-ng', name: 'http-builder-ng-core', version: '1.0.3'
+    }
+}
+
+
 plugins {
     id 'java'
 }
@@ -49,3 +59,23 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+task loadData{
+    doLast {
+        def dataDir = new File(projectDir, "src/main/resources/data/")
+        def http = groovyx.net.http.HttpBuilder.configure{
+            request.uri = 'http://localhost:8080'
+            request.contentType = 'application/json'
+        }
+        dataDir.listFiles().sort{ it.name }.each { file->
+            println 'Trying to load '+file.name
+            def resource = new groovy.json.JsonSlurper().parseText(file.text)
+            http.put {
+                request.uri.path = '/ehr-server/r4/'+resource.resourceType+'/'+resource.id
+                request.body = file.text
+                response.success {
+                    println '... success. '
+                }
+            }
+        }
+    }
+}

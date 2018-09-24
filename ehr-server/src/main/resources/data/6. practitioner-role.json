@@ -1,0 +1,12 @@
+{
+  "resourceType": "PractitionerRole",
+  "id": "prarol1234",
+  "practitioner": {
+    "reference": "Practitioner/pra1234"
+  },
+  "location": [
+    {
+      "reference": "Location/loc1234"
+    }
+  ]
+}

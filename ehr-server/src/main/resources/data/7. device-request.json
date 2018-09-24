@@ -1,0 +1,26 @@
+{
+  "resourceType": "DeviceRequest",
+  "id": "devreq1234",
+  "status": "draft",
+  "codeCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://www.ama-assn.org/go/cpt",
+        "code": "94660"
+      }
+    ],
+    "text": "CPAP"
+  },
+  "subject": {
+    "reference": "Patient/pat1234"
+  },
+  "authoredOn": "2018-08-08",
+  "insurance": [
+    {
+      "reference": "Coverage/cov1234"
+    }
+  ],
+  "performer": {
+    "reference": "PractitionerRole/prarol1234"
+  }
+}
