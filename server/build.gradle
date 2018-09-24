@@ -35,8 +35,6 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-security')
     compile("org.springframework.boot:spring-boot-devtools")
 
-    compile 'org.keycloak:keycloak-spring-boot-2-starter:4.0.0.Beta2'
-
     compile('com.h2database:h2')
 
     compile("io.jsonwebtoken:jjwt:0.7.0")
