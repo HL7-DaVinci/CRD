@@ -8,8 +8,7 @@ import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeConte
 import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewContext;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
-import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
+
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
@@ -17,6 +16,7 @@ import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Coverage;
 import org.hl7.fhir.dstu3.model.Coverage.GroupComponent;
 import org.hl7.fhir.dstu3.model.Device;
+import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Enumerations;
 import org.hl7.fhir.dstu3.model.HumanName;
 import org.hl7.fhir.dstu3.model.Identifier;
@@ -58,13 +58,12 @@ public class CrdRequestCreator {
     Patient patient = createPatient(patientGender, patientBirthdate);
     context.setPatientId(patient.getId());
 
-    DaVinciDeviceRequest deviceRequest = new DaVinciDeviceRequest();
-    deviceRequest.setStatus(DaVinciDeviceRequest.DeviceRequestStatus.DRAFT);
+    DeviceRequest deviceRequest = new DeviceRequest();
+    deviceRequest.setStatus(DeviceRequest.DeviceRequestStatus.DRAFT);
     deviceRequest.setId("DeviceRequest/123");
 
     PrefetchCallback callback = (p, c) -> {
       deviceRequest.setPerformer(new Reference(p));
-      deviceRequest.addInsurance(new Reference(c));
     };
     deviceRequest.setSubject(new Reference(patient));
     Practitioner provider = createPractitioner();
@@ -114,7 +113,7 @@ public class CrdRequestCreator {
     Patient patient = createPatient(patientGender, patientBirthdate);
     context.setPatientId(patient.getId());
 
-    DaVinciMedicationRequest medicationRequest = new DaVinciMedicationRequest();
+    MedicationRequest medicationRequest = new MedicationRequest();
     medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.DRAFT);
     medicationRequest.setId("MedicationRequest/123");
 
@@ -123,7 +122,6 @@ public class CrdRequestCreator {
           new MedicationRequestRequesterComponent();
       medicationRequestRequesterComponent.setAgent(new Reference(p));
       medicationRequest.setRequester(medicationRequestRequesterComponent);
-      medicationRequest.addInsurance(new Reference(c));
     };
     medicationRequest.setSubject(new Reference(patient));
     Practitioner provider = createPractitioner();

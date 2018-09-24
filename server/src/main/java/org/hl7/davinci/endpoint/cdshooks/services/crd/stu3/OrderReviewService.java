@@ -17,9 +17,9 @@ import org.hl7.davinci.stu3.crdhook.CrdPrefetch;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements.PrefetchTemplateElement;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.slf4j.Logger;
@@ -89,10 +89,10 @@ public class OrderReviewService extends CdsService {
           "deviceRequestBundle could not be (pre)fetched in this request "));
       return response;
     }
-    List<DaVinciDeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
-        DaVinciDeviceRequest.class, deviceRequestBundle);
+    List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
+        DeviceRequest.class, deviceRequestBundle);
 
-    for (DaVinciDeviceRequest deviceRequest : deviceRequestList) {
+    for (DeviceRequest deviceRequest : deviceRequestList) {
 
       Patient patient = null;
       CodeableConcept cc = null;
