@@ -20,6 +20,7 @@ import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.slf4j.Logger;
@@ -89,11 +90,17 @@ public class OrderReviewService extends CdsService {
           "deviceRequestBundle could not be (pre)fetched in this request "));
       return response;
     }
-    List<DaVinciDeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
+    List deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
         DaVinciDeviceRequest.class, deviceRequestBundle);
 
-    for (DaVinciDeviceRequest deviceRequest : deviceRequestList) {
+    if (deviceRequestList.isEmpty()) {
+      logger.warn("Unable to find any profiled DeviceRequests, looking for standard ones.");
+      deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
+          DeviceRequest.class, deviceRequestBundle);
+    }
 
+    for (Object dr : deviceRequestList) {
+      DeviceRequest deviceRequest = (DeviceRequest) dr;
       Patient patient = null;
       CodeableConcept cc = null;
       try {
