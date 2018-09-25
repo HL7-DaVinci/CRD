@@ -53,6 +53,9 @@ public class PrefetchHydrator<prefetchElementTypeT> {
 
   private static void resolvePrefetchTokenRecursive(
       Object object, List<String> pathList, List<String> elementList) {
+    if (object == null) {
+      return;
+    }
     if (pathList.size() == 0) {
       elementList.add(object.toString());
       return;
