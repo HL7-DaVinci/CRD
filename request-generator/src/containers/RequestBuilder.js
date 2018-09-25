@@ -371,8 +371,8 @@ export default class RequestBuilder extends Component{
         },
         user: "Practitioner/example",
         context: {
-          patientId: "12",
-          encounterId: "89284",
+          patientId: "pat1234",
+          encounterId: "enc89284",
           orders: {
             resourceType: "Bundle",
             entry: [
@@ -380,6 +380,7 @@ export default class RequestBuilder extends Component{
                 resource: {
                   id: "a24439",
                   resourceType: "DeviceRequest",
+                  id: "devreq1234",
                   status: "draft",
                   codeCodeableConcept: {
                     coding: [
@@ -390,14 +391,14 @@ export default class RequestBuilder extends Component{
                     ]
                   },
                   subject: {
-                    reference: "Patient/12"
+                    reference: "Patient/pat1234"
                   },
                   authoredOn: "2018-08-08",
                   insurance: [{
-                    reference: "Coverage/1234"
+                    reference: "Coverage/cov1234"
                   }],
                   performer: {
-                    reference: "PractitionerRole/1234"
+                    reference: "PractitionerRole/prarol1234"
                   }
                 }
               }
@@ -414,6 +415,7 @@ export default class RequestBuilder extends Component{
               {
                 resource: {
                   resourceType: "DeviceRequest",
+                  id: "devreq1234",
                   status: "draft",
                   codeCodeableConcept: {
                     coding: [
@@ -424,21 +426,21 @@ export default class RequestBuilder extends Component{
                     ]
                   },
                   subject: {
-                    reference: "Patient/12"
+                    reference: "Patient/pat1234"
                   },
                   authoredOn: "2018-08-08",
                   insurance: [{
-                    reference: "Coverage/1234"
+                    reference: "Coverage/cov1234"
                   }],
                   performer: {
-                    reference: "PractitionerRole/1234"
+                    reference: "PractitionerRole/prarol1234"
                   }
                 }
               },
               {
                 resource: {
-                  id: "12",
                   resourceType: "Patient",
+                  id: "pat1234",
                   gender: this.state.gender,
                   birthDate: birthYear + "-12-23"
                 }
@@ -446,7 +448,7 @@ export default class RequestBuilder extends Component{
               {
                 resource: {
                   resourceType: "Coverage",
-                  id: "1234",
+                  id: "cov1234",
                   class: [
                     {
                       type: {
@@ -458,7 +460,7 @@ export default class RequestBuilder extends Component{
                   ],
                   payor: [
                     {
-                      reference: "Organization/e182fb07-e8c4-4cc0-8710-94f8b3a17b0b"
+                      reference: "Organization/org1234"
                     }
                   ]
                 }
@@ -466,7 +468,7 @@ export default class RequestBuilder extends Component{
               {
                 resource: {
                   resourceType: "Location",
-                  id: "89abea45-75d5-4730-a214-027fcb903ca1",
+                  id: "loc1234",
                   address: {
                     line: [
                       "100 Good St"
@@ -480,12 +482,13 @@ export default class RequestBuilder extends Component{
               {
                 resource: {
                   resourceType: "PractitionerRole",
+                  id: "prarol1234",
                   practitioner: {
-                    reference: "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
+                    reference: "Practitioner/pra1234"
                   },
                   location: [
                     {
-                      reference: "Location/89abea45-75d5-4730-a214-027fcb903ca1"
+                      reference: "Location/loc1234"
                     }
                   ]
                 }
@@ -493,14 +496,14 @@ export default class RequestBuilder extends Component{
               {
                 resource: {
                   resourceType: "Organization",
-                  id: "e182fb07-e8c4-4cc0-8710-94f8b3a17b0b",
+                  id: "org1234",
                   name: "Centers for Medicare and Medicaid Services"
                 }
               },
               {
                 resource: {
                   resourceType: "Practitioner",
-                  id: "13608725-a5f5-4276-b44a-1fe2c7273555",
+                  id: "pra1234",
                   identifier: [
                     {
                       system: "http://hl7.org/fhir/sid/us-npi",
