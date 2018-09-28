@@ -81,6 +81,11 @@ public class HomeController {
     return new ModelAndView("redirect:data");
   }
 
+  @GetMapping("/public")
+  public String public_key(Model model) {
+    return "public";
+  }
+
 
 
 }
