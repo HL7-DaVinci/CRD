@@ -10,7 +10,10 @@ This subproject hosts a HAPI FHIR server that is based on the [hapi-fhir-jpaserv
 This will start the server running on http://localhost:8080/ehr-server.
 
 ## Setup the Request Generator
-See the Request Generator README.
+1. See the Request Generator README to build the Request Generator.
+2. Create a symbolic link to the Request Generator
+  * `cd ehr-server/src/main/webapp/WEB-INF/`
+  * `ln -s ../../../../../request-generator/build reqgen`
 
 ## Server endpoints
 |Relative URL|Endpoint Description|
