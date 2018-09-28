@@ -2,12 +2,15 @@
 This subproject hosts a HAPI FHIR server that is based on the [hapi-fhir-jpaserver-example](https://github.com/jamesagnew/hapi-fhir/tree/master/hapi-fhir-jpaserver-example).
 
 ## Adding resources to the database
-
+`gradle loadData`
 
 ## Running the server
 `gradle appRun`
 
 This will start the server running on http://localhost:8080/ehr-server.
+
+## Setup the Request Generator
+See the Request Generator README.
 
 ## Server endpoints
 |Relative URL|Endpoint Description|
@@ -15,4 +18,5 @@ This will start the server running on http://localhost:8080/ehr-server.
 |`/`|Web page with basic RI information|
 |`/ehr-server/`|Base server endpoint|
 |`/ehr-server/r4`|EHR FHIR Server endpoint|
+|`/ehr-server/reqgen`|Request Generator|
 

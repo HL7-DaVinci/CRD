@@ -2,6 +2,7 @@
   "name": "request-generator",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://localhost:8080/ehr-server/reqgen",
   "dependencies": {
     "axios": "^0.18.0",
     "base64url": "^3.0.0",
