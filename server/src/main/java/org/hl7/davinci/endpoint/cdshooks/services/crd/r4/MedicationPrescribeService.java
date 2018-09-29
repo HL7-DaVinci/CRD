@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 import org.hl7.davinci.r4.FhirComponents;
@@ -16,10 +17,7 @@ import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.fhir.exceptions.FHIRException;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,13 +83,18 @@ public class MedicationPrescribeService extends CdsService {
       Patient patient = null;
       CodeableConcept cc = null;
       try {
-        cc = medicationRequest.getMedicationCodeableConcept();
+        if (medicationRequest.hasMedicationCodeableConcept()) {
+          cc = medicationRequest.getMedicationCodeableConcept();
+        }
+        if (medicationRequest.hasMedicationReference()) {
+          Medication med = (Medication) medicationRequest.getMedicationReference().getResource();
+          cc = med.getCode();
+        }
       } catch (FHIRException fe) {
         response
             .addCard(CardBuilder.summaryCard("Unable to parse the medication code out of the request"));
       }
 
-      // See if the patient is in the prefetch
       try {
         patient = (Patient) medicationRequest.getSubject().getResource();
       } catch (Exception e) {
@@ -101,9 +104,15 @@ public class MedicationPrescribeService extends CdsService {
 
       if (patient != null && cc != null) {
         int patientAge = Utilities.calculateAge(patient);
-        List<CoverageRequirementRule> coverageRequirementRules = ruleFinder
-            .findRules(patientAge, patient.getGender(), cc.getCoding().get(0).getCode(),
-                cc.getCoding().get(0).getSystem());
+        List<CoverageRequirementRule> coverageRequirementRules = new ArrayList();
+        for (Coding c : cc.getCoding()) {
+          List<CoverageRequirementRule> r = ruleFinder
+              .findRules(patientAge, patient.getGender(), c.getCode(),
+                  c.getSystem());
+          if (r.size() > 0) {
+            coverageRequirementRules.addAll(r);
+          }
+        }
         if (coverageRequirementRules.size() == 0) {
           response.addCard(CardBuilder.summaryCard("No documentation rules found"));
         } else {
