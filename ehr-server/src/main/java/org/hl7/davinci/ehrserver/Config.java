@@ -1,4 +1,4 @@
-package org.hl7.davinci.ehrServer;
+package org.hl7.davinci.ehrserver;
 
 import java.io.File;
 import java.io.FileNotFoundException;

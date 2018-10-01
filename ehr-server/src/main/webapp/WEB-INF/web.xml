@@ -13,7 +13,7 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			org.hl7.davinci.ehrServer.FhirServerConfig
+			org.hl7.davinci.ehrserver.FhirServerConfig
 		</param-value>
 	</context-param>
 
@@ -28,14 +28,14 @@
 		</init-param>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>org.hl7.davinci.ehrServer.FhirTesterConfig</param-value>
+			<param-value>org.hl7.davinci.ehrserver.FhirTesterConfig</param-value>
 		</init-param>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 
 	<servlet>
 		<servlet-name>fhirServlet</servlet-name>
-		<servlet-class>org.hl7.davinci.ehrServer.EhrServer</servlet-class>
+		<servlet-class>org.hl7.davinci.ehrserver.EhrServer</servlet-class>
 		<init-param>
 			<param-name>ImplementationDescription</param-name>
 			<param-value>FHIR JPA Server</param-value>
@@ -56,7 +56,7 @@
 		</init-param>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>org.hl7.davinci.ehrServer.requestGenerator.RequestGeneratorMvcConfig</param-value>
+			<param-value>org.hl7.davinci.ehrserver.requestgenerator.RequestGeneratorMvcConfig</param-value>
 		</init-param>
 		<load-on-startup>3</load-on-startup>
 	</servlet>
