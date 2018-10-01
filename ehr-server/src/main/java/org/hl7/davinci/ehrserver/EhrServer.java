@@ -1,4 +1,4 @@
-package org.hl7.davinci.ehrServer;
+package org.hl7.davinci.ehrserver;
 
 import java.util.Collection;
 import java.util.List;
@@ -126,7 +126,7 @@ public class EhrServer extends RestfulServer {
      * with this feature.
      */
     //if (fhirVersion == FhirVersionEnum.R4) {
-    //	 registerProvider(myAppCtx.getBean(TerminologyUploaderProviderR4.class));
+    //  registerProvider(myAppCtx.getBean(TerminologyUploaderProviderR4.class));
     //}
     logger.info("EhrServer::initialize() end");
   }

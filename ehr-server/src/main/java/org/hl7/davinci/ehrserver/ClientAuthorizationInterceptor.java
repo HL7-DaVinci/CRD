@@ -1,4 +1,4 @@
-package org.hl7.davinci.ehrServer;
+package org.hl7.davinci.ehrserver;
 
 import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.interceptor.auth.AuthorizationInterceptor;
@@ -28,8 +28,8 @@ public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
 
   @Override
   public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
-    String use_oauth = Config.get("use_oauth");
-    if (!Boolean.parseBoolean(use_oauth)) {
+    String useOauth = Config.get("use_oauth");
+    if (!Boolean.parseBoolean(useOauth)) {
       return new RuleBuilder()
           .allowAll()
           .build();
