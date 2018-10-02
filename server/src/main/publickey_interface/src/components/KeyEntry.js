@@ -20,6 +20,22 @@ export default class KeyEntry extends Component {
 
         
     }
+
+    componentDidMount(){
+        try{
+            var jwtPub = JSON.parse(this.state.jwt);
+        }catch(e){
+            jwtPub = this.state.jwt;
+        }
+        try{
+            var pubKey = KEYUTIL.getKey(jwtPub);
+            console.log(pubKey);
+            var jwkPub = KEYUTIL.getJWKFromKey(pubKey);
+            this.setState({jwt: JSON.stringify(jwkPub)})
+            this.setState({data: "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jwkPub))});
+        }catch(e){
+        }
+    }
     
     handleChange(event) {
             this.setState({jwt: event.target.value});
@@ -34,7 +50,7 @@ export default class KeyEntry extends Component {
         }
         try{
             var pubKey = KEYUTIL.getKey(jwtPub);
-
+            console.log(pubKey);
             var jwkPub = KEYUTIL.getJWKFromKey(pubKey);
             this.setState({jwt: JSON.stringify(jwkPub)})
             // Dynamically generating a key id is counterintuitive when you 
