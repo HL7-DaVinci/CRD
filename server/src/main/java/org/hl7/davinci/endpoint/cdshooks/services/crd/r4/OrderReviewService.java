@@ -1,8 +1,14 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.validation.Valid;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import org.hl7.davinci.endpoint.database.RequestLog;
+import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.Utilities;
 import org.cdshooks.CdsResponse;
@@ -57,6 +63,9 @@ public class OrderReviewService extends CdsService {
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
 
+  @Autowired
+  RequestService requestService;
+
   public OrderReviewService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH);
   }
@@ -69,6 +78,20 @@ public class OrderReviewService extends CdsService {
   public CdsResponse handleRequest(@Valid @RequestBody OrderReviewRequest request) {
     logger.info("handleRequest: start");
     logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
+
+    // create the RequestLog
+    String requestStr;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectWriter w = mapper.writer();
+      requestStr = w.writeValueAsString(request);
+    } catch (Exception e) {
+      logger.error("failed to write request json: " + e.getMessage());
+      requestStr = "error";
+    }
+    RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date());
+    requestLog = requestService.create(requestLog);
+    requestService.logAll(); //TODO: remove these
 
     //note currently we only use the device request if its in the prefetch or we get it into
     //the prefetch, so we dont use it if its just in the context since it wont have patient etc.
@@ -105,6 +128,7 @@ public class OrderReviewService extends CdsService {
       // See if the patient is in the prefetch
       try {
         patient = (Patient) deviceRequest.getSubject().getResource();
+        requestLog.setPatientAge(Utilities.calculateAge(patient));
       } catch (Exception e) {
         response
             .addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
@@ -124,6 +148,9 @@ public class OrderReviewService extends CdsService {
         }
       }
     }
+    // Update the RequestLog
+    requestService.edit(requestLog);
+    requestService.logAll(); //TODO: remove these
     CardBuilder.errorCardIfNonePresent(response);
     logger.info("handleRequest: end");
     return response;
