@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import './detail.css'
 export default class ErrorDetail extends Component {
     constructor(props){
@@ -24,9 +25,16 @@ export default class ErrorDetail extends Component {
                         <div className="singleRow withNode"><div className="timelineEvent">
                         <span className="labelFormat"> {key}</span>
                         </div><a className={"node circle "+[this.state.events[key]?"success":"failure"]}>
+                        {/* ignoring top nub at top node moves the relative positioning of the lower nub */}
+                        {i!==0?<span className="topDivet"></span>:<span className="topDivet invis"></span>}
+                        
+                        {i!==Object.keys(this.state.events).length-1?<span className="bottomDivet">
+                        </span>:null}
 
                         </a>
+
                     </div>
+                    {/* stops the last node from getting a lower nub */}
                     {i!==Object.keys(this.state.events).length-1?
                                         <div className="singleRow">
                                         <div className="timelineEvent emptyEdge">

@@ -77,15 +77,16 @@ export default class RequestLog extends Component {
 
 
      render() {
+         // page should only render when switching pages. 
+         // on page switch we scroll to top automatically.
         window.scrollTo(0, 0)
          return (
              <div>
                  <div>
+                     {/* header section.  */}
                     <div className="requestHeader fixed">
                         <div className="element timestamp">
                             Timestamp 
-
-
                         </div>
                         <div className="element fhirversion">
                             FHIR version
@@ -101,8 +102,10 @@ export default class RequestLog extends Component {
                             {this.state.page}
                         </div>
                     </div>
-                    <div className="break">
 
+                    <div className="break">
+                    {/* this manually prevents the topmost request entry
+                    from being hidden underneath the header */}
                     </div>
                     <div className="requestEntries">
                         {this.state.dataToShow?this.state.dataToShow.map(element=>{

@@ -107,7 +107,7 @@
     margin-left: 20px;
 }
 .circle{
-    border: 2px solid white;
+    border: 3px solid white;
     font-weight: bold;
     width:14px;
     margin-top: 0px;
@@ -164,4 +164,45 @@
 
     color:#aaaaaa;
     margin-top: 10px;
+}
+
+.topDivet{
+    height:8px;
+    width:1px;
+    display:block;
+    border-radius: 35%;
+    position:relative;
+    left: 2px;
+    bottom:9px;
+    border: 2px solid white;
+}
+
+.circle.success .topDivet{
+    border-color: #28a745;
+}
+
+.circle.failure .topDivet{
+    border-color: #dc3545;
+}
+.circle.success .bottomDivet{
+    border-color: #28a745;
+}
+
+.circle.failure .bottomDivet{
+    border-color: #dc3545;
+}
+
+.bottomDivet{
+    height:8px;
+    width:1px;
+    display:block;
+    border-radius: 35%;
+    position:relative;
+    left: 2px;
+    top:2px;
+    border: 2px solid white;
+}
+
+.invis{
+    visibility: hidden;
 }
