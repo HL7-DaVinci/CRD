@@ -58,36 +58,6 @@ public class OrderReviewService extends
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH, FHIRCOMPONENTS, FHIRVERSION);
   }
 
-  /**
-   * Handle the post request to the service.
-   *
-   * @param request The json request, parsed.
-   */
-  public CdsResponse handleRequest(@Valid @RequestBody OrderReviewRequest request) {
-    logger.info("handleRequest: start");
-    logger.info("Order bundle size: " + request.getContext().getOrders().getEntry().size());
-
-    //note currently we only use the device request if its in the prefetch or we get it into
-    //the prefetch, so we dont use it if its just in the context since it wont have patient etc.
-    FhirComponents fhirComponents = FhirComponents.getInstance();
-    if (request.getPrefetch() == null)
-      request.setPrefetch(new CrdPrefetch());
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator<Bundle>(this, request,
-        fhirComponents.getFhirContext());
-    prefetchHydrator.hydrate(); //prefetch is now as hydrated as possible
-
-    CdsResponse response = new CdsResponse();
-
-    Bundle deviceRequestBundle = request.getPrefetch().getDeviceRequestBundle();
-    if (deviceRequestBundle == null) {
-      logger.error("Prefetch deviceRequestBundle not a bundle");
-      response.addCard(CardBuilder.summaryCard(
-          "deviceRequestBundle could not be (pre)fetched in this request "));
-      return response;
-    }
-    List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
-        DeviceRequest.class, (Bundle) deviceRequestBundle);
-
   public CodeableConcept getCc(DeviceRequest deviceRequest) throws FHIRException {
     return deviceRequest.getCodeCodeableConcept();
   }
