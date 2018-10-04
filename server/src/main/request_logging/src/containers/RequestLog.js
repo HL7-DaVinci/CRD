@@ -5,7 +5,7 @@ import RequestEntry from '../components/RequestEntry';
 let tempDatabase={
 }
 
-let entriesPerPage = 100;
+let entriesPerPage = 90;
 export default class RequestLog extends Component {
     constructor(props){
         super(props);
@@ -41,9 +41,9 @@ export default class RequestLog extends Component {
         return returnArray;
     }
     generateData(){
-        // temp class to make data
+        // temp function to make data
         const currentTime = Date.now();
-        const numberOfDataPoints = 700;
+        const numberOfDataPoints = 92;
         var currentElement = {};
         var variation = 1200000000;
         var returnList = [];

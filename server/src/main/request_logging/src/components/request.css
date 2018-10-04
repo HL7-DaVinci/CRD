@@ -27,6 +27,13 @@
 .requestEntry:hover{
     color:white;
 }
+
+.successRequest.active{
+    color:white;
+}
+.failureRequest.active{
+    color: red;
+}
 .successRequest:hover{
     border-color:#5BDA78;
 }

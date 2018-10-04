@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
+import DetailEntry from './DetailEntry';
 import './request.css';
+
 export default class RequestEntry extends Component {
     constructor(props){
         super(props);
@@ -7,18 +9,32 @@ export default class RequestEntry extends Component {
             hookType:this.props.data.hookType,
             fhirVersion:this.props.data.fhirVersion,
             success: this.props.data.success,
-            timeStamp: new Date(this.props.data.timeStamp)
+            timeStamp: new Date(this.props.data.timeStamp),
+            viewDetails: false
         };
+
+        this.openDetails = this.openDetails.bind(this);
          
     }
 
-    generateData(){
-        console.log("henlo");
+    openDetails(){
+
+        this.setState((prevState)=>{
+            return {viewDetails: !prevState.viewDetails};
+        })
+
+        
     }
      render() {
          return (
              <div>
-                 <div className={"requestEntry " + [this.state.success?"successRequest":"failureRequest"]} onClick={this.generateData}>
+
+                 <div 
+                 className={"requestEntry " + 
+                 [this.state.success?"successRequest ":"failureRequest "] +
+                 [this.state.viewDetails?"active":""]
+                } 
+                 onClick={this.openDetails}>
                     <div className="element timestamp">
                         {this.state.timeStamp.toISOString()}
                     </div>
@@ -32,6 +48,7 @@ export default class RequestEntry extends Component {
                         {this.state.success?"success":"failure"}
                     </div>
                  </div>
+                 {this.state.viewDetails?<DetailEntry />:null}
              </div>
          )
     }
