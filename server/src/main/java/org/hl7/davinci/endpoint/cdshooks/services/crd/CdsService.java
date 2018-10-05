@@ -4,6 +4,7 @@ import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
 import org.cdshooks.Prefetch;
+import org.hl7.davinci.CrdPrefetchT;
 import org.hl7.davinci.FhirComponentT;
 import org.hl7.davinci.UtilitiesInterface;
 import org.hl7.davinci.endpoint.components.CardBuilder;
@@ -12,6 +13,7 @@ import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,12 +146,15 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
       }
 
       if (patient != null && cc != null) {
-        Map<String, String> info = getInfo(patient,cc);
-        int patientAge = Integer.parseInt(info.get("patientAge"));
-
-        List<CoverageRequirementRule> coverageRequirementRules = ruleFinder
-            .findRules(patientAge, info.get("patientGender").charAt(0), (String) info.get("ccCode"),
-                (String) info.get("ccSystem"));
+        List<ExtractedRequestInformation> info = getInfo(patient, cc);
+        List<CoverageRequirementRule> coverageRequirementRules = new ArrayList<>();
+        for (ExtractedRequestInformation ri : info) {
+          List<CoverageRequirementRule> found = ruleFinder.findRules(ri.getPatientAge(),
+              ri.getPatientGender().charAt(0), ri.getCode(), ri.getCodeSystem());
+          if (found.size() > 0) {
+            coverageRequirementRules.addAll(found);
+          }
+        }
         if (coverageRequirementRules.size() == 0) {
           response.addCard(CardBuilder.summaryCard("No documentation rules found"));
         } else {
@@ -170,25 +176,33 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
 
   public abstract List<requestTypeT> getRequests(CdsRequest request);
 
-  public Map<String, String> getInfo(IBaseResource patient,ICompositeType cc) {
-    Map<String,String> returnMap = new HashMap<>();
+  public List<ExtractedRequestInformation> getInfo(IBaseResource patient,ICompositeType cc) {
+    List<ExtractedRequestInformation> ris = new ArrayList<>();
     if (fhirVersion.equalsIgnoreCase("stu3")) {
       Patient patientStu3 = (Patient) patient;
       CodeableConcept ccStu3 = (CodeableConcept) cc;
 
-      returnMap.put("patientAge", Integer.toString(org.hl7.davinci.stu3.Utilities.calculateAge(patientStu3)));
-      returnMap.put("patientGender", patientStu3.getGender().toCode());
-      returnMap.put("ccCode", ccStu3.getCoding().get(0).getCode());
-      returnMap.put("ccSystem", ccStu3.getCoding().get(0).getSystem());
-      return returnMap;
+      for (Coding c : ccStu3.getCoding()) {
+        ExtractedRequestInformation ri = new ExtractedRequestInformation();
+        ri.setPatientGender(patientStu3.getGender().toCode());
+        ri.setPatientAge(org.hl7.davinci.stu3.Utilities.calculateAge(patientStu3));
+        ri.setCode(c.getCode());
+        ri.setCodeSystem(c.getSystem());
+        ris.add(ri);
+      }
+      return ris;
     } else if (fhirVersion.equalsIgnoreCase("r4")) {
       org.hl7.fhir.r4.model.Patient patientR4 = (org.hl7.fhir.r4.model.Patient) patient;
       org.hl7.fhir.r4.model.CodeableConcept ccR4 = (org.hl7.fhir.r4.model.CodeableConcept) cc;
-      returnMap.put("patientAge", Integer.toString(Utilities.calculateAge(patientR4)));
-      returnMap.put("patientGender", patientR4.getGender().toCode());
-      returnMap.put("ccCode" , ccR4.getCoding().get(0).getCode());
-      returnMap.put("ccSystem", ccR4.getCoding().get(0).getSystem());
-      return returnMap;
+      for (org.hl7.fhir.r4.model.Coding c : ccR4.getCoding()) {
+        ExtractedRequestInformation ri = new ExtractedRequestInformation();
+        ri.setPatientGender(patientR4.getGender().toCode());
+        ri.setPatientAge(Utilities.calculateAge(patientR4));
+        ri.setCode(c.getCode());
+        ri.setCodeSystem(c.getSystem());
+        ris.add(ri);
+      }
+      return ris;
     }
     return null;
   }

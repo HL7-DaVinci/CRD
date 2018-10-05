@@ -97,8 +97,8 @@ public class PrefetchHydrator<prefetchElementTypeT> {
       try {
         alreadyIncluded = (PropertyUtils.getProperty(crdResponse, prefetchKey) != null);
       } catch (Exception e) {
-        throw new java.lang.RuntimeException("System error: Mismatch in prefetch keys between the "
-            + "CrdPrefetch and the key templates set in the service.");
+        throw new RuntimeException("System error: Mismatch in prefetch keys between the "
+            + "CrdPrefetch and the key templates set in the service.", e);
       }
       if (!alreadyIncluded) {
         // check if the bundle actually has element
