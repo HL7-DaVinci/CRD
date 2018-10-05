@@ -11,12 +11,11 @@ import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
  */
 public class FhirComponents implements FhirComponentT {
 
-  private FhirContext fhirContext;
+  private static FhirContext fhirContext = FhirContext.forDstu3();
   private IParser jsonParser;
 
   public FhirComponents() {
 
-    fhirContext = FhirContext.forDstu3();
     // This is needed to correctly cast an incoming DaVinciEligibilityRequest, url must match that
     // defined in the resource profile
     fhirContext.setDefaultTypeForProfile(

@@ -72,9 +72,6 @@ public class CdsHooksController {
       consumes = "application/json;charset=UTF-8")
   public CdsResponse handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request) {
     logger.info("r4/handleMedicationPrescribe");
-    if (request.getPrefetch() == null) {
-      request.setPrefetch(new CrdPrefetch());
-    }
     return medicationPrescribeService.handleRequest(request);
   }
 }

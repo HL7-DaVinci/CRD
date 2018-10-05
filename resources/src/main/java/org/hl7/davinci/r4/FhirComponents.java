@@ -8,11 +8,10 @@ import org.hl7.davinci.FhirComponentT;
  * Build some expensive objects here so we can reuse them.
  */
 public class FhirComponents implements FhirComponentT {
-  private FhirContext fhirContext;
+  private static FhirContext fhirContext = FhirContext.forR4();
   private IParser jsonParser;
 
   public FhirComponents() {
-    fhirContext = FhirContext.forR4();
     jsonParser = fhirContext.newJsonParser();
   }
 
