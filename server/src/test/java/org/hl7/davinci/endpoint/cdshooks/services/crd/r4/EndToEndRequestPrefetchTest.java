@@ -90,6 +90,6 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "deviceRequestBundle could not be (pre)fetched in this request ");
+        "order-review Coverage Requirements Discovery could not be (pre)fetched in this request ");
   }
 }

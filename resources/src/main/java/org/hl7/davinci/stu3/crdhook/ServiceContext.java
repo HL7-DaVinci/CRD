@@ -1,15 +1,17 @@
-package org.hl7.davinci.stu3.crdhook.medicationprescribe;
+package org.hl7.davinci.stu3.crdhook;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import javax.validation.constraints.NotNull;
-
+import org.hl7.davinci.ServiceContextT;
 import org.hl7.davinci.stu3.JacksonBundleDeserializer;
 import org.hl7.davinci.stu3.JacksonHapiSerializer;
-import org.hl7.davinci.stu3.crdhook.ServiceContext;
 import org.hl7.fhir.dstu3.model.Bundle;
 
-public class MedicationPrescribeContext extends ServiceContext {
+import javax.validation.constraints.NotNull;
+
+public abstract class ServiceContext implements ServiceContextT<Bundle> {
+
+
   /** The FHIR Patient.id of the current patient in context. REQUIRED */
   @NotNull
   private String patientId;
@@ -18,11 +20,12 @@ public class MedicationPrescribeContext extends ServiceContext {
   private String encounterId;
 
   /**
-   * STU3 - FHIR Bundle of MedicationRequest resources. REQUIRED
+   * STU3 - FHIR Bundle of MedicationRequest, ReferralRequest, ProcedureRequest, NutritionOrder,
+   * VisionPrescription. REQUIRED
    */
   @JsonSerialize(using = JacksonHapiSerializer.class)
   @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle medications;
+  private Bundle services;
 
   public String getPatientId() {
     return patientId;
@@ -40,11 +43,12 @@ public class MedicationPrescribeContext extends ServiceContext {
     this.encounterId = encounterId;
   }
 
-  public Bundle getMedications() {
-    return medications;
+  public Bundle getServices() {
+    return services;
   }
 
-  public void setMedications(Bundle medications) {
-    this.medications = medications;
+  public void setServices(Bundle services) {
+    this.services = services;
   }
+
 }

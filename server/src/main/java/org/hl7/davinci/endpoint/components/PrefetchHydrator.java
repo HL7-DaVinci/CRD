@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.cdshooks.CdsService;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,8 +97,8 @@ public class PrefetchHydrator<prefetchElementTypeT> {
       try {
         alreadyIncluded = (PropertyUtils.getProperty(crdResponse, prefetchKey) != null);
       } catch (Exception e) {
-        throw new java.lang.RuntimeException("System error: Mismatch in prefetch keys between the "
-            + "CrdPrefetch and the key templates set in the service.");
+        throw new RuntimeException("System error: Mismatch in prefetch keys between the "
+            + "CrdPrefetch and the key templates set in the service.", e);
       }
       if (!alreadyIncluded) {
         // check if the bundle actually has element

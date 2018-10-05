@@ -1,12 +1,14 @@
 package org.hl7.davinci.stu3.crdhook.orderreview;
 
-import org.cdshooks.CdsRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.HashMap;
+import org.cdshooks.CdsRequest;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetch;
+import org.hl7.fhir.dstu3.model.Bundle;
 
-public class OrderReviewRequest extends CdsRequest<OrderReviewContext, CrdPrefetch> {
+import java.util.HashMap;
+
+public class OrderReviewRequest extends CdsRequest<CrdPrefetch, Bundle, OrderReviewContext> {
 
   private HashMap<String, Object> mapForPrefetchTemplates = null;
 
