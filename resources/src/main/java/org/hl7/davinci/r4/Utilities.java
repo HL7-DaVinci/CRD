@@ -3,6 +3,8 @@ package org.hl7.davinci.r4;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.hl7.davinci.UtilitiesInterface;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Resource;
@@ -14,7 +16,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.Date;
 
-public class Utilities {
+public class Utilities extends UtilitiesInterface<Resource,Bundle> {
   /**
    * Change a fhir bundle into a hashmap keyed by resources type, where the value is a list of
    * resources of that type.
@@ -45,7 +47,7 @@ public class Utilities {
    * @param <T> The class of the resource you want.
    * @return A list of resources of desired type extracted from the bundle.
    */
-  public static <T extends Resource> List<T> getResourcesOfTypeFromBundle(
+  public <T extends Resource> List<T> getResourcesOfTypeFromBundle(
       Class<T> type, Bundle bundle) {
     List<T> retList = new ArrayList<>();
     for (BundleEntryComponent bec: bundle.getEntry()) {
@@ -73,4 +75,5 @@ public class Utilities {
     LocalDate localBirthDate = birthDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     return Period.between(localBirthDate, LocalDate.now()).getYears();
   }
+
 }

@@ -42,6 +42,7 @@ public class FhirTesterConfig {
   @Bean
   public TesterConfig testerConfig() {
     logger.info("FhirTesterConfig::testerConfig()");
+
     TesterConfig retVal = new TesterConfig();
     retVal
         .addServer()

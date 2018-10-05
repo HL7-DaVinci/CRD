@@ -1,4 +1,4 @@
-package org.cdshooks;
+package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class CdsServiceInformation {
    */
   public CdsServiceInformation addServicesItem(CdsService servicesItem) {
     if (this.services == null) {
-      this.services = new ArrayList<CdsService>();
+      this.services = new ArrayList<>();
     }
     this.services.add(servicesItem);
     return this;
