@@ -7,6 +7,8 @@ import java.net.URI;
 import java.security.Principal;
 import java.util.Optional;
 
+import org.hl7.davinci.endpoint.database.RequestLog;
+import org.hl7.davinci.endpoint.database.RequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
-
-
-
 /**
  * Provides the REST interface that can be interacted with at [base]/api/data.
  */
@@ -38,8 +37,12 @@ public class DataController {
   private DataRepository repository;
 
   @Autowired
-  public DataController(DataRepository repository) {
+  RequestRepository requestRepository;
+
+  @Autowired
+  public DataController(DataRepository repository, RequestRepository requestRepository) {
     this.repository = repository;
+    this.requestRepository = requestRepository;
 
   }
 
@@ -49,6 +52,14 @@ public class DataController {
   public Iterable<CoverageRequirementRule> showAll() {
     return repository.findAll();
   }
+
+
+  @GetMapping(value = "/api/requests")
+  @CrossOrigin
+  public Iterable<RequestLog> showAllLogs() {
+    return requestRepository.findAll();
+  }
+
 
   /**
    * Gets some data from the repository.

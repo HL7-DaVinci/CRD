@@ -22,7 +22,7 @@ export default class DetailEntry extends Component {
 
                     <div className="col1">
                     <div className="healthInfoBox">
-                            <HealthInfo />
+                            <HealthInfo data={this.props.data} />
                     </div>
                     <div className="responseCheckBox">
                             <ResponseCheck />
@@ -33,7 +33,7 @@ export default class DetailEntry extends Component {
                     </div>
 
                     <div className="col1 processTime">
-                    <span>2.56s </span>
+                        <span>2.56s </span>
                         <span className="glyphicon glyphicon-time"> </span>
                     </div>
 

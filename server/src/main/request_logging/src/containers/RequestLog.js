@@ -10,7 +10,7 @@ export default class RequestLog extends Component {
     constructor(props){
         super(props);
         this.state={
-            data:this.generateData().sort(this.compareTime),
+            data:[],
             dataToShow:null,
             page:1
 
@@ -19,14 +19,29 @@ export default class RequestLog extends Component {
         this.generateData = this.generateData.bind(this);
         this.getPage = this.getPage.bind(this);
         this.renderPageNumbers = this.renderPageNumbers.bind(this);
-
+        this.getData = this.getData.bind(this);
     }
 
     
     componentDidMount(){
+        this.getData();
         this.getPage(1);
     }
 
+    async getData(){
+        const requestData = await fetch('http://localhost:8090/api/requests', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+            }).then(response=>{
+                return response.json();
+            }).catch(error=>{
+                console.log("Couldn't load data, make sure the server is running.")
+            });
+        this.setState({data:requestData});
+        this.getPage(1);
+    }
     getPage(pageNumber){
         const startIndex = (pageNumber-1)*entriesPerPage;
         this.setState({dataToShow:this.state.data.slice(startIndex,startIndex+entriesPerPage)})
@@ -63,10 +78,10 @@ export default class RequestLog extends Component {
     }
 
     compareTime(a,b){
-        if (a.timeStamp < b.timeStamp){
+        if (a.timestamp < b.timestamp){
             return 1;
         }
-        if(a.timeStamp > b.timeStamp){
+        if(a.timestamp > b.timestamp){
             return -1;
 
         }
@@ -111,7 +126,7 @@ export default class RequestLog extends Component {
                         {this.state.dataToShow?this.state.dataToShow.map(element=>{
                             return <RequestEntry 
                             data={element}
-                            key={element.timeStamp}
+                            key={element.timestamp}
                             />
                         }):<p></p>}
                     </div>

@@ -9,7 +9,7 @@ export default class RequestEntry extends Component {
             hookType:this.props.data.hookType,
             fhirVersion:this.props.data.fhirVersion,
             success: this.props.data.success,
-            timeStamp: new Date(this.props.data.timeStamp),
+            timeStamp: new Date(this.props.data.timestamp),
             viewDetails: false
         };
 
@@ -48,7 +48,7 @@ export default class RequestEntry extends Component {
                         {this.state.success?"success":"failure"}
                     </div>
                  </div>
-                 {this.state.viewDetails?<DetailEntry />:null}
+                 {this.state.viewDetails?<DetailEntry data={this.props.data} />:null}
              </div>
          )
     }

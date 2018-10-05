@@ -29,8 +29,7 @@ public class RequestLog {
   private byte[] requestBody;
 
   @Column(name = "timestamp", nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private java.util.Date timestamp;
+  private long timestamp;
 
   @Column(name = "patient_age")
   private int patientAge;
@@ -69,9 +68,9 @@ public class RequestLog {
 
   public void setRequestBody(byte[] requestBody) { this.requestBody = requestBody; }
 
-  public java.util.Date getTimestamp() { return this.timestamp; }
+  public long getTimestamp() { return this.timestamp; }
 
-  public void setTimestamp(java.util.Date timestamp) { this.timestamp = timestamp; }
+  public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 
   public int getPatientAge() { return this.patientAge; }
 
@@ -108,15 +107,15 @@ public class RequestLog {
 
   @Override
   public String toString() {
-    return String.format("(row id: %d, ts: %s, age: %d, gender: %s, code: %s, system: %s, "
+    return String.format("(row id: %d, ts: %d, age: %d, gender: %s, code: %s, system: %s, "
             + "type: %s, version: %s, rule: %s, results %s) Request ",
-        id, timestamp.toString(), patientAge, patientGender, code, codeSystem,
+        id, timestamp, patientAge, patientGender, code, codeSystem,
         hookType, fhirVersion, ruleFound, results);
   }
 
   public RequestLog() {}
 
-  public RequestLog(byte[] requestBody, java.util.Date timestamp) {
+  public RequestLog(byte[] requestBody, long timestamp) {
     setRequestBody(requestBody);
     setTimestamp(timestamp);
   }

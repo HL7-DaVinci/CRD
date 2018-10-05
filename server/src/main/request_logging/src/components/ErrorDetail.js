@@ -21,7 +21,7 @@ export default class ErrorDetail extends Component {
                 <div className="errorDetailBox">
                 {Object.keys(this.state.events).map((key,i)=>{
                     return (
-                        <div>
+                        <div key = {key}>
                         <div className="singleRow withNode"><div className="timelineEvent">
                         <span className="labelFormat"> {key}</span>
                         </div><a className={"node circle "+[this.state.events[key]?"success":"failure"]}>
