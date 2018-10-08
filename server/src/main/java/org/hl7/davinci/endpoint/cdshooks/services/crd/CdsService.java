@@ -6,7 +6,6 @@ import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
 import org.cdshooks.Prefetch;
-import org.hl7.davinci.CrdPrefetchT;
 import org.hl7.davinci.FhirComponentT;
 import org.hl7.davinci.UtilitiesInterface;
 import org.hl7.davinci.endpoint.components.CardBuilder;
@@ -33,9 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
@@ -114,7 +111,14 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
   }
 
   public CdsResponse handleRequest(@Valid @RequestBody CdsRequest request) {
+
+
+    boolean[] timeline = new boolean[5];
+
     logger.info("handleRequest: start");
+    // authorized
+    timeline[0] = true;
+
     logger.info(
 
         this.title + ":" + request.getContext()
@@ -132,13 +136,26 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
     }
     RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
     requestLog = requestService.create(requestLog);
-    requestService.logAll(); //TODO: remove these
+    requestLog.setFhirVersion(this.fhirVersion);
+    requestLog.setHookType(this.id);
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
+
+    // Parsed request
+    timeline[1] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
 
     FhirComponentT fhirComponents = this.fhirComponent;
-
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator<bundleTypeT>(this, request,
         fhirComponents.getFhirContext());
     prefetchHydrator.hydrate();
+
+    // hydrated
+    timeline[2] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
+
     CdsResponse response = new CdsResponse();
     List<requestTypeT> requestList = getRequests(request);
     if (requestList == null) {
@@ -147,7 +164,11 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
           this.title + " could not be (pre)fetched in this request "));
       return response;
     }
-    System.out.println(requestList);
+    // got requests
+    timeline[3] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
+
     for (requestTypeT genericRequest : requestList) {
 
       patientTypeT patient = null;
@@ -167,8 +188,7 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
             .addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
       }
 
-      requestLog.setFhirVersion(this.fhirVersion);
-      requestLog.setHookType(this.id);
+
 
       if (patient != null && cc != null) {
         List<ExtractedRequestInformation> info = getInfo(patient, cc);
@@ -195,12 +215,14 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
         }
       }
     }
-
+    // Searched
+    timeline[4] = true;
+    requestLog.setTimeline(timeline);
     requestService.edit(requestLog);
-    requestService.logAll(); //TODO: remove these
     CardBuilder.errorCardIfNonePresent(response);
     logger.info("handleRequest: end");
     return response;
+
   }
 
   // Implement this in child class

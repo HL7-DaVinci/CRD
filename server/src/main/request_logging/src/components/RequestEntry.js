@@ -8,7 +8,7 @@ export default class RequestEntry extends Component {
         this.state={
             hookType:this.props.data.hookType,
             fhirVersion:this.props.data.fhirVersion,
-            success: this.props.data.success,
+            success: this.props.data.timeline?this.props.data.timeline[4]:false,
             timeStamp: new Date(this.props.data.timestamp),
             viewDetails: false
         };
@@ -16,6 +16,7 @@ export default class RequestEntry extends Component {
         this.openDetails = this.openDetails.bind(this);
          
     }
+
 
     openDetails(){
 

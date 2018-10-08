@@ -5,11 +5,11 @@ export default class ErrorDetail extends Component {
     constructor(props){
         super(props);
         this.state={
-            events:{"Parsed":Math.random()<0.5, 
-            "Hydrated":Math.random()<0.5, 
-            "Extracted":Math.random()<0.5, 
-            "Authorized":Math.random()<0.5,
-            "Searched":Math.random()<0.5}
+            events:{"Authorized":this.props.timeline?this.props.timeline[0]:false, 
+            "Parsed":this.props.timeline?this.props.timeline[1]:false, 
+            "Hydrated":this.props.timeline?this.props.timeline[2]:false, 
+            "Extracted":this.props.timeline?this.props.timeline[3]:false,
+            "Searched":this.props.timeline?this.props.timeline[4]:false}
         };
          
     }

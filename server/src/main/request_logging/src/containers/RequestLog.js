@@ -39,8 +39,14 @@ export default class RequestLog extends Component {
             }).catch(error=>{
                 console.log("Couldn't load data, make sure the server is running.")
             });
-        this.setState({data:requestData});
-        this.getPage(1);
+        if(requestData){
+            this.setState({data:requestData});
+            console.log(requestData);
+            var webdata = requestData.requestBody;
+            this.getPage(1);
+        }
+
+
     }
     getPage(pageNumber){
         const startIndex = (pageNumber-1)*entriesPerPage;

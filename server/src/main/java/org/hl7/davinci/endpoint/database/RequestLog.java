@@ -55,6 +55,9 @@ public class RequestLog {
   @Column(name = "results")
   private String results;
 
+  @Column(name = "timeline")
+  private boolean[] timeline;
+
 
   public long getId() {
     return id;
@@ -104,6 +107,9 @@ public class RequestLog {
 
   public void setResults(String results) { this.results = results; }
 
+  public boolean[] getTimeline() { return this.timeline; }
+
+  public void setTimeline(boolean[] timeline) { this.timeline = timeline; }
 
   @Override
   public String toString() {
