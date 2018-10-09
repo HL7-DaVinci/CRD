@@ -6,7 +6,6 @@ import KeyEntry from '../components/KeyEntry';
 import EditEntry from '../components/EditEntry';
 
 
-
 export default class KeyInterface extends Component{
     constructor(props){
         super(props);
@@ -31,15 +30,20 @@ export default class KeyInterface extends Component{
     componentDidMount(){
         this.initData();
     }
-    async saveData(){
-        const jwtData = this.state.jwtJson;
-        const result = {};
-        var key;
-        // convert the array back into JSON
-        jwtData.forEach(element=>{
-            key = Object.keys(element)[0];
-            result[key] = element[key];
-        });
+    async saveData(keyObject){
+        // const jwtData = this.state.jwtJson;
+        // const result = {};
+        // var key;
+        // // convert the array back into JSON
+        // jwtData.forEach(element=>{
+        //     key = Object.keys(element)[0];
+        //     result[key] = element[key];
+        // });
+        const keyId = Object.keys(keyObject)[0];
+        console.log(keyId);
+        const key = keyObject[keyId];
+        const result = {"id":keyId,"key":key};
+        console.log(result);
         await fetch('http://localhost:8090/api/public', {
             method: 'POST',
             headers: {
@@ -52,6 +56,34 @@ export default class KeyInterface extends Component{
             });
     }
 
+    async deleteData(id){
+        await fetch('http://localhost:8090/api/public/'+id, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Contetn': 'application/json'
+            }
+            }).then(response=>{
+                console.log("Deleted the data")
+            });
+    }
+    async editData(oldId,keyObject){
+        console.log(oldId);
+        console.log(keyObject);
+        const keyId = Object.keys(keyObject)[0];
+        const key = keyObject[keyId];
+        const result = {"id":keyId,"key":JSON.stringify(key)};
+        await fetch('http://localhost:8090/api/public/'+oldId, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Contetn': 'application/json'
+            },
+            body: JSON.stringify(result)
+            }).then(response=>{
+                console.log("Saved the data")
+            });
+    }
     async initData(){
         var jwtData = await fetch('http://localhost:8090/api/public', {
             method: 'GET',
@@ -66,26 +98,37 @@ export default class KeyInterface extends Component{
         if(jwtData){
             const peopleArray =[];
             Object.keys(jwtData).map(key =>{
-                peopleArray.push({[key]:jwtData[key]})
+                const id = jwtData[key]["id"];
+                peopleArray.push({[id]:jwtData[key]["key"]})
             })
             this.setState({jwtJson:peopleArray});
         }
 
     }
     updateIdCB(oldId, newId, newContent){
+        let changeBool = true;
+        this.state.jwtJson.map(element=>{
 
-        this.setState(prevState =>{
-            var intermed = prevState.jwtJson;
-            var updatedIdArray = intermed.map(key=>{
-                if(Object.keys(key)[0]==oldId){
-
-                    return {[newId]:newContent};
-                }else{
-                    return key;
-                }
-            });
-            return {jwtJson: updatedIdArray};
+            if(JSON.stringify(element[oldId])==JSON.stringify(newContent)){
+                changeBool = false;
+            }
         });
+        if(changeBool){
+            this.setState(prevState =>{
+                var intermed = prevState.jwtJson;
+                var updatedIdArray = intermed.map(key=>{
+                    if(Object.keys(key)[0]==oldId){
+                        console.log(newContent);
+                        console.log(key[oldId]);
+                        return {[newId]:JSON.stringify(newContent)};
+                    }else{
+                        return key;
+                    }
+                });
+                return {jwtJson: updatedIdArray};
+            }, ()=>this.editData(oldId,{[newId]:newContent}));
+        }
+
            
     }
     deleteContent = (id) =>{
@@ -95,7 +138,7 @@ export default class KeyInterface extends Component{
             // filters object from array if it has the same ID passed into
             // the function.
             return {jwtJson: intermed.filter(key=>Object.keys(key)[0] !== id)};
-        });
+        }, ()=>{this.deleteData(id)});
     }
 
     exitNewItem = (save) =>{
@@ -122,7 +165,7 @@ export default class KeyInterface extends Component{
         const newEntry = {[kid]:jwt};
         this.setState(prevState =>{
             return {jwtJson: [newEntry,...prevState.jwtJson]}
-        });
+        },()=>{this.saveData({[kid]:jwt})});
 
         
     }
@@ -146,17 +189,19 @@ export default class KeyInterface extends Component{
                 <div>
                 <h1 className="titleHeader" >Public Keys</h1>
                 <button className="newEntryButton" onClick={this.newItem}><span className="glyphicon glyphicon-plus-sign"></span></button>
-                <button className="newEntryButton" onClick={this.saveData}><span className="glyphicon glyphicon-floppy-disk"></span></button>
                 <button className="newEntryButton reloadButton" onClick={this.initData}><span className="glyphicon glyphicon-retweet"></span></button>
 
                 <div className = "borderDiv">
                 </div>
                 {this.returnItem()}
-                {console.log(this.state.jwtJson)}
+
                 {this.state.jwtJson.map(key => {
                     keyID = Object.keys(key)[0];
                     i+=0.2;
-                    keyContent = JSON.stringify(key[keyID]);
+                    keyContent = key[keyID];
+                    console.log(key);
+                    console.log(keyID);
+                    console.log(keyContent);
                   return <KeyEntry 
                   extraClass = {this.state.editing}
                   deleteCB={this.deleteContent} 
