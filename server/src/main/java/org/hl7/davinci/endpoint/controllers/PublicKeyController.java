@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,6 +27,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @RestController
@@ -61,6 +63,18 @@ public class PublicKeyController {
 //    }
 
     return publicKeyRepository.findKeys();
+  }
+
+  @CrossOrigin
+  @GetMapping("/api/public/{id}")
+  public PublicKey getPublicKeyById(@PathVariable String id) {
+    Optional<PublicKey> henlo = publicKeyRepository.findById(id);
+    if (henlo.isPresent()) {
+      return henlo.get();
+    } else {
+      return null;
+    }
+
   }
 
   /**
