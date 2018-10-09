@@ -1,7 +1,10 @@
 package org.hl7.davinci.endpoint;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.jsonwebtoken.Claims;
@@ -9,6 +12,7 @@ import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,10 +41,11 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
     String keystorePath = Objects.requireNonNull(classLoader
         .getResource("keystore.json"))
         .getFile();
+    JsonObject keystore = null;
     try (Reader reader = new FileReader(keystorePath)) {
       // check to see if pub key is already in keystore
       Gson gson = new Gson();
-      JsonObject keystore = gson.fromJson(reader,JsonObject.class);
+      keystore = gson.fromJson(reader,JsonObject.class);
       if (keystore.has(keyId)) {
         // if it's already stored, retrieve it
         jwkPub = keystore.get(keyId).getAsJsonObject();
@@ -68,12 +73,16 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
       final PublicKey returnKey = keyLookup(jwkPub);
       // write the new pub key to the key store
       // store it in the form {keyId:jwk}
-      JsonObject pubKeyJson = new JsonObject();
-      pubKeyJson.add(keyId,jwkPub);
 
       try (Writer writer = new FileWriter(keystorePath)) {
+
+        if (keystore == null) {
+          keystore = new JsonObject();
+        }
+        System.out.println(keystore.keySet());
+        keystore.add(keyId,jwkPub);
         Gson gsonBuilder = new GsonBuilder().create();
-        gsonBuilder.toJson(pubKeyJson,writer);
+        gsonBuilder.toJson(keystore,writer);
       } catch (IOException e) {
         e.printStackTrace();
       }
