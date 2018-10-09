@@ -44,12 +44,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  */
 @RestController
 public class DataController {
+  private static Logger logger = Logger.getLogger(Application.class.getName());
 
-  private ClassLoader classLoader = getClass().getClassLoader();
-
-  private String keystorePath = Objects.requireNonNull(classLoader
-      .getResource("keystore.json"))
-      .getFile();
 
   @Autowired
   private DataRepository repository;
@@ -66,7 +62,6 @@ public class DataController {
   public Iterable<CoverageRequirementRule> showAll() {
     return repository.findAll();
   }
-  private static Logger logger = Logger.getLogger(Application.class.getName());
   /**
    * Gets some data from the repository.
    * @param id the id of the desired data.
@@ -140,50 +135,6 @@ public class DataController {
     System.out.println(object);
     return "Thanks for posting";
   }
-
-  /**
-   * Gets the json of the keystore.
-   * @return a string version of the keystore json file
-   */
-  @CrossOrigin
-  @RequestMapping(value = "/api/public", method = RequestMethod.GET, produces = "application/json")
-  public String getPublicKeys() {
-
-    JsonObject keystore = null;
-    try (Reader reader = new FileReader(keystorePath)) {
-      // check to see if pub key is already in keystore
-      Gson gson = new Gson();
-
-      keystore = gson.fromJson(reader,JsonObject.class);
-      logger.info("keystore requested");
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return keystore.toString();
-  }
-
-  /**
-   * Allows post requests to modify the keystore.
-   * @param jsonData the new keystore data
-   * @return the response from the server
-   */
-  @CrossOrigin
-  @PostMapping("/api/public")
-  public ResponseEntity<Object> setPublicKeys(@RequestBody String jsonData) {
-    Gson gson = new GsonBuilder().create();
-
-    JsonParser parser = new JsonParser();
-    JsonObject jwtObject = parser.parse(jsonData).getAsJsonObject();
-
-    try (Writer writer = new FileWriter(keystorePath)) {
-      gson.toJson(jwtObject, writer);
-      logger.info("saved keystore");
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return ResponseEntity.noContent().build();
-  }
-
 
 
 
