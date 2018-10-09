@@ -54,6 +54,7 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
       if (response.getBody() != null) {
         jwkString = response.getBody().getKey();
         jwkPub = new JsonParser().parse(jwkString).getAsJsonObject();
+        logger.info("Public Key found in keystore");
       } else {
         logger.info("Public Key not found in keystore");
       }
