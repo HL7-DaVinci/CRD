@@ -41,6 +41,7 @@ export default class KeyEntry extends Component {
             this.setState({jwt: event.target.value});
       }
     updateContent(event){
+        event.preventDefault();
         this.setState({animationClasses:"keyEntry"});
         console.log(this.state.animationClasses)
         try{
@@ -50,7 +51,6 @@ export default class KeyEntry extends Component {
         }
         try{
             var pubKey = KEYUTIL.getKey(jwtPub);
-            console.log(pubKey);
             var jwkPub = KEYUTIL.getJWKFromKey(pubKey);
             this.setState({jwt: JSON.stringify(jwkPub)})
             // Dynamically generating a key id is counterintuitive when you 
@@ -60,19 +60,22 @@ export default class KeyEntry extends Component {
             // the PEM string, or the JSON) this could be useful, but I doubt that anybody
             // will be changing individual characters in an encoded string.  
             
-            //var keyID = KJUR.jws.JWS.getJWKthumbprint(jwkPub);
-            //this.props.updateIdCB(this.state.kid,keyID, jwkPub);
-            //this.setState({kid: keyID});
+            var keyID = KJUR.jws.JWS.getJWKthumbprint(jwkPub);
+            if(keyID !=this.state.kid){
+                this.props.updateIdCB(this.state.kid,keyID, jwkPub);
+                this.setState({kid: keyID});
+            }
             this.setState({data: "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jwkPub))});
             
 
             
         }catch(e){
+            this.props.updateIdCB(this.state.kid,this.state.kid,this.state.jwt);
         }
 
         
         
-        event.preventDefault();
+
         if(!this.state.editMode){
             this.setState({editMode:true});
         }else{
@@ -117,7 +120,7 @@ export default class KeyEntry extends Component {
     
                 </div>
                 <div className="buttonContent">
-                    <button className={"editingButton addButton "+ this.props.extraClass} onClick={this.updateContent}><span className="glyphicon glyphicon-pencil"></span></button>
+                <button className={"editingButton addButton "+ this.props.extraClass} onClick={this.state.editMode?this.updateContent:()=>{this.setState({editMode: !this.state.editMode})}}>{this.state.editMode? <span className="glyphicon glyphicon-remove"></span>:<span className="glyphicon glyphicon-pencil"></span>}</button>
                     <button className={"editingButton deleteButton "+this.props.extraClass} onClick={this.deleteContent}><span className="glyphicon glyphicon-trash"></span></button>
                     <a href={"data:"+this.state.data} download={this.state.kid + ".json"}><button className={"editingButton downloadButton "+this.props.extraClass} ><span className="glyphicon glyphicon-download-alt"></span></button></a>
                 </div>
