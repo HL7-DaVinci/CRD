@@ -36,7 +36,7 @@ public class PublicKeyController {
       .getFile();
 
   @Autowired
-  PublicKeyRepository publicKeyRepository;
+  private PublicKeyRepository publicKeyRepository;
 
   /**
    * Gets the json of the keystore.
@@ -48,6 +48,11 @@ public class PublicKeyController {
     return publicKeyRepository.findKeys();
   }
 
+  /**
+   * Retrieves specific public key using its keyID.
+   * @param id the keyID (kid) of a key.
+   * @return the public key associated with the id.
+   */
   @CrossOrigin
   @GetMapping("/api/public/{id}")
   public PublicKey getPublicKeyById(@PathVariable String id) {
@@ -73,47 +78,48 @@ public class PublicKeyController {
     JsonObject jwtObject = parser.parse(jsonData).getAsJsonObject();
     String id = jwtObject.get("id").getAsString();
     String key = jwtObject.get("key").getAsString();
-    PublicKey pKey = new PublicKey();
-    pKey.setId(id);
-    pKey.setKey(key);
+    PublicKey publicKey = new PublicKey();
+    publicKey.setId(id);
+    publicKey.setKey(key);
 
-    publicKeyRepository.save(pKey);
+    publicKeyRepository.save(publicKey);
     return ResponseEntity.noContent().build();
   }
 
+  /**
+   * Updates a key already in the repository.
+   * @param jsonData the content to replace the key's old content
+   * @param id the keyID of the key to be updated
+   * @return an empty response
+   */
   @CrossOrigin
   @PutMapping("/api/public/{id}")
   public ResponseEntity<Object> changeKey(@RequestBody String jsonData, @PathVariable String id) {
     if (publicKeyRepository.findById(id) != null) {
       publicKeyRepository.deleteById(id);
-      Gson gson = new GsonBuilder().create();
       JsonParser parser = new JsonParser();
       JsonObject jwtObject = parser.parse(jsonData).getAsJsonObject();
       String newId = jwtObject.get("id").getAsString();
       String key = jwtObject.get("key").getAsString();
-//    try (Writer writer = new FileWriter(keystorePath)) {
-//      gson.toJson(jwtObject, writer);
-//      logger.info("saved keystore");
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-      PublicKey pKey = new PublicKey();
-      pKey.setId(newId);
-      pKey.setKey(key);
+      PublicKey publicKey = new PublicKey();
+      publicKey.setId(newId);
+      publicKey.setKey(key);
 
-      publicKeyRepository.save(pKey);
-
+      publicKeyRepository.save(publicKey);
     }
     return ResponseEntity.noContent().build();
-
   }
 
+  /**
+   * Deletes specific key.
+   * @param id the keyID of the key to be deleted
+   * @return an empty response
+   */
   @CrossOrigin
   @DeleteMapping("/api/public/{id}")
   public ResponseEntity<Object> deleteKey(@PathVariable String id) {
     publicKeyRepository.deleteById(id);
     return ResponseEntity.noContent().build();
-
   }
 
 

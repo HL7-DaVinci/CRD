@@ -1,7 +1,5 @@
 package org.hl7.davinci.endpoint.database;
 
-import com.google.gson.JsonObject;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;

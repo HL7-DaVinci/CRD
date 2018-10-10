@@ -1,24 +1,8 @@
 package org.hl7.davinci.endpoint.controllers;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
-
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.net.URI;
-import java.security.Principal;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.logging.Logger;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +18,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.security.Principal;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 
 
@@ -62,6 +51,7 @@ public class DataController {
   public Iterable<CoverageRequirementRule> showAll() {
     return repository.findAll();
   }
+
   /**
    * Gets some data from the repository.
    * @param id the id of the desired data.

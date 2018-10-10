@@ -30,6 +30,7 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
 
     RestTemplate restTemplate = new RestTemplate();
 
+    // TODO: update this url if the location of /public changes.
     String keyUrl = "http://localhost:8090/api/public/";
     String jwkString = null;
     try {
@@ -72,10 +73,9 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
       }
     }
     try {
-      final PublicKey returnKey = keyLookup(jwkPub);
       // write the new pub key to the key store
       // store it in the form {keyId:jwk}
-      return returnKey;
+      return keyLookup(jwkPub);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       e.printStackTrace();
     }
