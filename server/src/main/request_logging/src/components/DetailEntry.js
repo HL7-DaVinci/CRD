@@ -11,15 +11,23 @@ export default class DetailEntry extends Component {
         this.state={
             slideIn: "slideInStart",
             requestInfo: {},
-            showRequestBody:false
+            showRequestBody:false,
+            showResults: false
         };
          this.showRequestBody = this.showRequestBody.bind(this);
+         this.showResults = this.showResults.bind(this);
     }
 
     showRequestBody(){
         this.setState(prevState=>{
             return {showRequestBody:!prevState.showRequestBody}
-        })
+        });
+    }
+
+    showResults(){
+        this.setState(prevState=>{
+            return {showResults:!prevState.showResults}
+        });
     }
     unfurlJson(jsonData){
         var divStyle = {
@@ -28,6 +36,7 @@ export default class DetailEntry extends Component {
 
         if(jsonData){
             return Object.keys(jsonData).map(element=>{
+                // we don't want to show the actual token that was used
                 if(element==="access_token"){
                     return(              
                     <div className="jsonData" key={element} style={divStyle}>
@@ -50,15 +59,24 @@ export default class DetailEntry extends Component {
      render() {
          return (
              <div>
-                    <div className="detailWindow">
+                    <div className="detailWindow" 
+                    onClick={()=>{
+                        if(this.state.showRequestBody){
+                            this.setState({showRequestBody:false})
+                        }
+                        if(this.state.showResults){
+                            this.setState({showResults: false})
+                        }
+                    
+                    }}>
 
                     <div className="col1">
                     <div className="healthInfoBox">
                             <HealthInfo data={this.props.data} />
                     </div>
-                    <div className="responseCheckBox">
+                    {/* <div className="responseCheckBox">
                             <ResponseCheck />
-                    </div>
+                    </div> */}
                     </div>
                     <div className="col1">
                     <ErrorDetail timeline={this.props.data.timeline}/>
@@ -67,6 +85,9 @@ export default class DetailEntry extends Component {
                     <div className="col1 processTime">
                         <div className={"errorDetail " + [this.state.showRequestBody?"filled":"empty"]} onClick={this.showRequestBody}>
                             Show Request Body
+                        </div>
+                        <div className={"errorDetail " + [this.state.showResults?"filled":"empty"]} onClick={this.showResults}>
+                            Results <span>[ {this.props.data.rulesFound.length} ]</span>
                         </div>
                     </div>
 
@@ -77,6 +98,11 @@ export default class DetailEntry extends Component {
                  </div>
                  :
                  null}
+                 {this.state.showResults?
+                 <div className="requestBody">
+                 <ResponseCheck results={this.props.data.rulesFound}></ResponseCheck></div>
+                 :null
+                 }
                
 
              </div>
