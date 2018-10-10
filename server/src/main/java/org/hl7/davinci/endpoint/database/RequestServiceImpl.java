@@ -48,6 +48,9 @@ public class RequestServiceImpl implements RequestService {
     Iterable<RequestLog> fullLog = findAll();
     for (RequestLog entry : fullLog) {
       logger.info("request log entry: " + entry.toString());
+      for (CoverageRequirementRule rule : entry.getRulesFound()) {
+        logger.info("  --> rule found: " + rule.toString());
+      }
     }
   }
 

@@ -3,6 +3,8 @@ package org.hl7.davinci.endpoint.database;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import javax.persistence.*;
 
 
@@ -14,8 +16,9 @@ import javax.persistence.*;
 // code_system: string
 // hook_type: string
 // fhir_version: string
-// rule_found: string
+// rules_found: Set<CoverageRequirementRule>
 // results: string (“rule found is: x”, “no record found”, “error: xyz”)
+// timeline: boolean[]
 
 @Entity
 @Table(name = "request_log")
@@ -49,14 +52,21 @@ public class RequestLog {
   @Column(name = "fhir_version")
   private String fhirVersion;
 
-  @Column(name = "rule_found")
-  private String ruleFound;
-
   @Column(name = "results")
   private String results;
 
   @Column(name = "timeline")
   private boolean[] timeline;
+
+  @ManyToMany(cascade = {
+      CascadeType.PERSIST,
+      CascadeType.MERGE
+  })
+  @JoinTable(name = "request_rule",
+      joinColumns = @JoinColumn(name = "reququest_id"),
+      inverseJoinColumns = @JoinColumn(name = "rule_id")
+  )
+  private Set<CoverageRequirementRule> rulesFound = new HashSet<>();
 
 
   public long getId() {
@@ -99,10 +109,6 @@ public class RequestLog {
 
   public void setFhirVersion(String fhirVersion) { this.fhirVersion = fhirVersion; }
 
-  public String getRuleFound() { return this.ruleFound; }
-
-  public void setRuleFound(String ruleFound) { this.ruleFound = ruleFound; }
-
   public String getResults() { return this.results; }
 
   public void setResults(String results) { this.results = results; }
@@ -111,12 +117,22 @@ public class RequestLog {
 
   public void setTimeline(boolean[] timeline) { this.timeline = timeline; }
 
+  public Set<CoverageRequirementRule> getRulesFound() { return this.rulesFound; }
+
+  public void addRuleFound(CoverageRequirementRule coverageRequirementRule) {
+    this.rulesFound.add(coverageRequirementRule);
+  }
+
+  public void addRulesFound(List<CoverageRequirementRule> rules) {
+    this.rulesFound.addAll(rules);
+  }
+
   @Override
   public String toString() {
     return String.format("(row id: %d, ts: %d, age: %d, gender: %s, code: %s, system: %s, "
-            + "type: %s, version: %s, rule: %s, results %s) Request ",
+            + "type: %s, version: %s results %s) Request ",
         id, timestamp, patientAge, patientGender, code, codeSystem,
-        hookType, fhirVersion, ruleFound, results);
+        hookType, fhirVersion, results);
   }
 
   public RequestLog() {}

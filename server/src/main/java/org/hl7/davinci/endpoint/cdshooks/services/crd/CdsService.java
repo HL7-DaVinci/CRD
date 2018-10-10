@@ -160,8 +160,10 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
     List<requestTypeT> requestList = getRequests(request);
     if (requestList == null) {
       logger.error("Prefetch " + this.title + " not a bundle");
-      response.addCard(CardBuilder.summaryCard(
-          this.title + " could not be (pre)fetched in this request "));
+      String errorStr = this.title + " could not be (pre)fetched in this request ";
+      response.addCard(CardBuilder.summaryCard(errorStr));
+      requestLog.setResults(errorStr);
+      requestService.edit(requestLog);
       return response;
     }
     // got requests
@@ -176,18 +178,19 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
       try {
         cc = getCc(genericRequest);
       } catch (FHIRException fe) {
-        response
-            .addCard(CardBuilder.summaryCard("Unable to parse the medication code out of the request"));
+        String errorStr = "Unable to parse the medication code out of the request";
+        response.addCard(CardBuilder.summaryCard(errorStr));
+        requestLog.setResults(errorStr);
       }
 
       // See if the patient is in the prefetch
       try {
         patient = getPatient(genericRequest);
       } catch (Exception e) {
-        response
-            .addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
+        String errorStr = "No patient could be (pre)fetched in this request";
+        response.addCard(CardBuilder.summaryCard(errorStr));
+        requestLog.setResults(errorStr);
       }
-
 
 
       if (patient != null && cc != null) {
@@ -207,8 +210,12 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
           }
         }
         if (coverageRequirementRules.size() == 0) {
-          response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+          String errorStr = "No documentation rules found";
+          response.addCard(CardBuilder.summaryCard(errorStr));
+          requestLog.setResults(errorStr);
         } else {
+          requestLog.addRulesFound(coverageRequirementRules);
+          requestLog.setResults(String.valueOf(coverageRequirementRules.size()) + " documentation rule(s) found");
           for (CoverageRequirementRule rule: coverageRequirementRules) {
             response.addCard(CardBuilder.transform(rule));
           }
