@@ -20,11 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,18 +45,6 @@ public class PublicKeyController {
   @CrossOrigin
   @RequestMapping(value = "/api/public", method = RequestMethod.GET, produces = "application/json")
   public List<PublicKey> getPublicKeys() {
-
-//    JsonObject keystore = null;
-//    try (Reader reader = new FileReader(keystorePath)) {
-//      // check to see if pub key is already in keystore
-//      Gson gson = new Gson();
-//
-//      keystore = gson.fromJson(reader,JsonObject.class);
-//      logger.info("keystore requested");
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-
     return publicKeyRepository.findKeys();
   }
 
