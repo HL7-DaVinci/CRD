@@ -1,9 +1,13 @@
 package org.hl7.davinci.endpoint;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.jsonwebtoken.Jwts;
+import org.hl7.davinci.endpoint.database.RequestLog;
+import org.hl7.davinci.endpoint.database.RequestService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,20 +21,42 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 
+
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
-  public JwtAuthorizationFilter(AuthenticationManager authManager) {
+
+  RequestService requestService;
+
+  public JwtAuthorizationFilter(AuthenticationManager authManager, RequestService requestService) {
     super(authManager);
+    this.requestService = requestService;
   }
+
+
 
   @Override
   protected void doFilterInternal(HttpServletRequest req,
                                   HttpServletResponse res,
                                   FilterChain chain) throws IOException, ServletException {
 
+    String requestStr;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectWriter w = mapper.writer();
+      requestStr = w.writeValueAsString(req);
+    } catch (Exception e) {
+      logger.error("failed to write request json: " + e.getMessage());
+      requestStr = "{\"error\": \"Authorization failed, request rejected\"}";
+    }
+
+    RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
+
+
     String header = req.getHeader("Authorization");
     if (header == null || !header.startsWith("Bearer")) {
+      requestService.create(requestLog);
       logger.warn("JWT authorization failed - no bearer auth token present");
       chain.doFilter(req, res);
       return;
@@ -38,6 +64,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     logger.info("Bearer auth token recieved");
     UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
     SecurityContextHolder.getContext().setAuthentication(authentication);
+    if (authentication == null) {
+      requestService.create(requestLog);
+    }
     chain.doFilter(req, res);
   }
 
