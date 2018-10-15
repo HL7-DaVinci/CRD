@@ -13,14 +13,14 @@ class FormContainer extends Component {
 
     this.state = {
       newRule: {
-        ruleID: "",
+        id: "",
         equipmentCode: "",
         codeSystem: "",
-        ageLow: "",
-        ageHigh: "",
-        gender: [],
+        ageRangeLow: "",
+        ageRangeHigh: "",
+        genderCode: [],
         infoLink: "",
-        authNeeded: ""
+        noAuthNeeded: ""
       },
 
       genderOptions: ["Male", "Female", "Other"],
@@ -86,7 +86,7 @@ class FormContainer extends Component {
     e.preventDefault();
     let ruleData = this.state.newUser;
 
-    fetch("http://localhost:8090/data/api", {
+    fetch("http://localhost:8090/api/data", {
       method: "POST",
       body: JSON.stringify(ruleData),
       headers: {
@@ -104,14 +104,14 @@ class FormContainer extends Component {
     e.preventDefault();
     this.setState({
       newRule: {
-          ruleID: "",
+          id: "",
           equipmentCode: "",
           codeSystem: "",
-          ageLow: "",
-          ageHigh: "",
-          gender: [],
+          ageRangeLow: "",
+          ageRangeHigh: "",
+          genderCode: [],
           infoLink: "",//how to add link?,
-          authNeeded: ""
+          noAuthNeeded: ""
       }
     });
   }
