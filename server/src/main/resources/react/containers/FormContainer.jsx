@@ -68,16 +68,16 @@ class FormContainer extends Component {
     const newSelection = e.target.value;
     let newSelectionArray;
 
-    if (this.state.newRule.gender.indexOf(newSelection) > -1) {
-      newSelectionArray = this.state.newRule.gender.filter(
+    if (this.state.newRule.genderCode.indexOf(newSelection) > -1) {
+      newSelectionArray = this.state.newRule.genderCode.filter(
         s => s !== newSelection
       );
     } else {
-      newSelectionArray = [...this.state.newRule.gender, newSelection];
+      newSelectionArray = [...this.state.newRule.genderCode, newSelection];
     }
 
     this.setState(prevState => ({
-      newRule: { ...prevState.newRule, gender: newSelectionArray }
+      newRule: { ...prevState.newRule, genderCode: newSelectionArray }
     }));
   }
 
@@ -139,18 +139,18 @@ class FormContainer extends Component {
 
           <Input
               inputType={"number"}
-              name={"ageLow"}
+              name={"ageRangeLow"}
               title={"Age Range Low"}
-              value={this.state.newRule.ageLow}
+              value={this.state.newRule.ageRangeLow}
               placeholder={"Enter the low age range boundary"}
               handleChange={this.handleInput}
           />{" "}
 
           <Input
               inputType={"number"}
-              name={"ageHigh"}
+              name={"ageRangeHigh"}
               title={"Age Range High"}
-              value={this.state.newRule.age}
+              value={this.state.newRule.ageRangeHigh}
               placeholder={"Enter the high age range boundary"}
               handleChange={this.handleInput}
           />{" "}
@@ -158,7 +158,7 @@ class FormContainer extends Component {
           title={"Gender"}
           name={"gender"}
           options={this.state.genderOptions}
-          value={this.state.newRule.gender}
+          value={this.state.newRule.genderCode}
           placeholder={"Select Gender"}
           handleChange={this.handleInput}
         />{" "}
@@ -167,7 +167,7 @@ class FormContainer extends Component {
           title={"Authorization Required?"}
           name={"authNeeded"}
           options={this.state.authNeededOptions}
-          selectedOptions={this.state.newRule.authNeeded}
+          selectedOptions={this.state.newRule.noAuthNeeded}
           handleChange={this.handleCheckBox}
         />{" "}
 
