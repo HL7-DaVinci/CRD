@@ -52,6 +52,14 @@ describe("Buttons function properly", function(){
     expect(wrapper.find("#editEntry").exists()).to.equal(false);
   });
 
+  it("Submits new entries",()=>{
+    wrapper.find("#addButton").simulate('click');
+    wrapper.find(".checkBox").simulate('click');
+    wrapper.find("#editEntry").find(".jwtTextArea").simulate('change', {target: {value:"-----BEGIN PUBLIC KEY-----MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB-----END PUBLIC KEY-----"}});
+    wrapper.find("#editEntry").find(".clickButton").simulate('click');
+    expect(wrapper.find(".keyData").text()).to.equal('{"kty":"RSA","n":"qhirpDtQ3u84WY-vh9KrY05FccEwqbynuHgmdBT6q4tHG9iWX1yfw4GEher1KcJiRvMFUGSo3hnIwzi-VJbLrrBZ3As1gUO0SjVEnrJkETEhpFW9f94_rJGelLVvubtPZRzbI-rUOdbNUj6wgZHnWzX9E6dBmzCQ8keHvU9OGWc","e":"AQAB"}');
+  })
+
 });
 
 describe("Function unit testing",()=>{
@@ -69,13 +77,8 @@ describe("Function unit testing",()=>{
 
   it("Allows ID changes",()=>{
     wrapper.setState({jwtJson:[{ex1:"ex1key"}]});
-    console.log(wrapper.state());
-
     wrapper.instance().updateIdCB("ex1","ex2","ex2key");
     expect(wrapper.state().jwtJson[0].ex2).to.equal('"ex2key"');
-    console.log(wrapper.state());
   });
-
-
 
 })
