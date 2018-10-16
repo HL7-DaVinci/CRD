@@ -1,6 +1,7 @@
 package org.hl7.davinci.endpoint;
 
 import com.google.common.collect.ImmutableList;
+import org.hl7.davinci.endpoint.database.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,9 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
   private YamlConfig myConfig;
+
+  @Autowired
+  private RequestService requestService;
 
   /**
    * The CORS preflight must be accepted here or it will get rejected by the
@@ -51,7 +55,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
       http.authorizeRequests()
           .antMatchers().permitAll()
           .anyRequest().authenticated().and()
-          .addFilter(new JwtAuthorizationFilter(authenticationManager()))
+          .addFilter(new JwtAuthorizationFilter(authenticationManager(), requestService))
           .antMatcher("/**/cds-services/**");
     }
   }

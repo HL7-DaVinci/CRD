@@ -1,16 +1,19 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
 import org.cdshooks.Prefetch;
-import org.hl7.davinci.CrdPrefetchT;
 import org.hl7.davinci.FhirComponentT;
 import org.hl7.davinci.UtilitiesInterface;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.database.RequestLog;
+import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
@@ -28,9 +31,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
@@ -70,6 +72,9 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
 
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
+
+  @Autowired
+  RequestService requestService;
   /**
    * Create a new cdsservice.
    * @param id  Will be used in the url, should be unique.
@@ -106,26 +111,66 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
   }
 
   public CdsResponse handleRequest(@Valid @RequestBody CdsRequest request) {
+
+
+    boolean[] timeline = new boolean[5];
+
     logger.info("handleRequest: start");
+    // authorized
+    timeline[0] = true;
+
     logger.info(
 
         this.title + ":" + request.getContext()
     );
 
-    FhirComponentT fhirComponents = this.fhirComponent;
+    // create the RequestLog
+    String requestStr;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectWriter w = mapper.writer();
+      requestStr = w.writeValueAsString(request);
+    } catch (Exception e) {
+      logger.error("failed to write request json: " + e.getMessage());
+      requestStr = "error";
+    }
+    RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
+    requestLog = requestService.create(requestLog);
+    requestLog.setFhirVersion(this.fhirVersion);
+    requestLog.setHookType(this.id);
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
 
+    // Parsed request
+    timeline[1] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
+
+    FhirComponentT fhirComponents = this.fhirComponent;
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator<bundleTypeT>(this, request,
         fhirComponents.getFhirContext());
     prefetchHydrator.hydrate();
+
+    // hydrated
+    timeline[2] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
+
     CdsResponse response = new CdsResponse();
     List<requestTypeT> requestList = getRequests(request);
     if (requestList == null) {
       logger.error("Prefetch " + this.title + " not a bundle");
-      response.addCard(CardBuilder.summaryCard(
-          this.title + " could not be (pre)fetched in this request "));
+      String errorStr = this.title + " could not be (pre)fetched in this request ";
+      response.addCard(CardBuilder.summaryCard(errorStr));
+      requestLog.setResults(errorStr);
+      requestService.edit(requestLog);
       return response;
     }
-    System.out.println(requestList);
+    // got requests
+    timeline[3] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
+
     for (requestTypeT genericRequest : requestList) {
 
       patientTypeT patient = null;
@@ -133,22 +178,31 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
       try {
         cc = getCc(genericRequest);
       } catch (FHIRException fe) {
-        response
-            .addCard(CardBuilder.summaryCard("Unable to parse the medication code out of the request"));
+        String errorStr = "Unable to parse the medication code out of the request";
+        response.addCard(CardBuilder.summaryCard(errorStr));
+        requestLog.setResults(errorStr);
       }
 
       // See if the patient is in the prefetch
       try {
         patient = getPatient(genericRequest);
       } catch (Exception e) {
-        response
-            .addCard(CardBuilder.summaryCard("No patient could be (pre)fetched in this request"));
+        String errorStr = "No patient could be (pre)fetched in this request";
+        response.addCard(CardBuilder.summaryCard(errorStr));
+        requestLog.setResults(errorStr);
       }
+
 
       if (patient != null && cc != null) {
         List<ExtractedRequestInformation> info = getInfo(patient, cc);
         List<CoverageRequirementRule> coverageRequirementRules = new ArrayList<>();
         for (ExtractedRequestInformation ri : info) {
+          // request logging
+          requestLog.setPatientAge(ri.getPatientAge());
+          requestLog.setPatientGender(ri.getPatientGender());
+          requestLog.setCode(ri.getCode());
+          requestLog.setCodeSystem(ri.getCodeSystem());
+
           List<CoverageRequirementRule> found = ruleFinder.findRules(ri.getPatientAge(),
               ri.getPatientGender().charAt(0), ri.getCode(), ri.getCodeSystem());
           if (found.size() > 0) {
@@ -156,17 +210,26 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
           }
         }
         if (coverageRequirementRules.size() == 0) {
-          response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+          String errorStr = "No documentation rules found";
+          response.addCard(CardBuilder.summaryCard(errorStr));
+          requestLog.setResults(errorStr);
         } else {
+          requestLog.addRulesFound(coverageRequirementRules);
+          requestLog.setResults(String.valueOf(coverageRequirementRules.size()) + " documentation rule(s) found");
           for (CoverageRequirementRule rule: coverageRequirementRules) {
             response.addCard(CardBuilder.transform(rule));
           }
         }
       }
     }
+    // Searched
+    timeline[4] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
     CardBuilder.errorCardIfNonePresent(response);
     logger.info("handleRequest: end");
     return response;
+
   }
 
   // Implement this in child class
@@ -186,6 +249,7 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
         ExtractedRequestInformation ri = new ExtractedRequestInformation();
         ri.setPatientGender(patientStu3.getGender().toCode());
         ri.setPatientAge(org.hl7.davinci.stu3.Utilities.calculateAge(patientStu3));
+
         ri.setCode(c.getCode());
         ri.setCodeSystem(c.getSystem());
         ris.add(ri);

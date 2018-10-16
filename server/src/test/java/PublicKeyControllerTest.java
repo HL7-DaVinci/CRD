@@ -1,7 +1,9 @@
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hl7.davinci.endpoint.Application;
+
 import org.hl7.davinci.endpoint.database.PublicKey;
 import org.hl7.davinci.endpoint.database.PublicKeyRepository;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +14,9 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -49,6 +53,7 @@ public class PublicKeyControllerTest {
   }
   @Test
   public void testGetKeys() {
+
     JsonNode hea = restTemplate.getForObject(
         "http://localhost:" + port + "/api/public", JsonNode.class);
     assertEquals(hea.get(0).get("key").textValue(),"genericKey");

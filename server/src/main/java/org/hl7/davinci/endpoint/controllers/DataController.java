@@ -3,6 +3,10 @@ package org.hl7.davinci.endpoint.controllers;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
+
+import org.hl7.davinci.endpoint.database.RequestLog;
+import org.hl7.davinci.endpoint.database.RequestRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +28,6 @@ import java.security.Principal;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-
-
-
-
 /**
  * Provides the REST interface that can be interacted with at [base]/api/data.
  */
@@ -40,11 +40,20 @@ public class DataController {
   private DataRepository repository;
 
   @Autowired
-  public DataController(DataRepository repository) {
+  private RequestRepository requestRepository;
+
+  @Autowired
+  public DataController(DataRepository repository, RequestRepository requestRepository) {
     this.repository = repository;
+    this.requestRepository = requestRepository;
 
   }
 
+  @GetMapping(value = "/api/requests")
+  @CrossOrigin
+  public Iterable<RequestLog> showAllLogs() {
+    return requestRepository.findAll();
+  }
 
   @GetMapping(value = "/api/data")
   @CrossOrigin

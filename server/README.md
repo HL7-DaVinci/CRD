@@ -48,4 +48,18 @@ After the public key is acquired, it is used to verify the signature of the toke
 
 This functionality can be turned off and on by changing the `checkJWt` property in [application.yml](src/main/resources/application.yml).  Setting it to false will cause the server to automatically approve all incoming requests.  
 
+## Building Web Apps
+
+React based pages like the `/public` and `/requests` must be built into static javascript and css to be served.
+
+The react .jsx code should be edited directly in their respective folders in `/server/resources` and then be built.
+To build them, follow these steps:
+
+1.  Navigate into the desired directory in a terminal or command prompt
+2.  Run `npm run build`
+3.  Transfer the .js and .css files to the static folder
+4.  Change the respective .html file to reference the new files
+
+
+
 
