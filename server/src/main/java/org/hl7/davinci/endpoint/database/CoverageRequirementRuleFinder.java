@@ -21,21 +21,15 @@ public class CoverageRequirementRuleFinder {
   /**
    * Find and return the relevant coverage rule in the database.
    *
-   * @param age Patient age in years.
-   * @param genderCode Patient gender as a character.
-   * @param equipmentCode desired code
-   * @param codeSystem URL for the code system of the equipmentCode
+   * @param criteria The search criteria object
    */
-  public List<CoverageRequirementRule> findRules(
-      int age, char genderCode, String equipmentCode, String codeSystem, String patientAddressState,
-      String providerAddressState) {
-    String queryString = String.format("age=%d, genderCode=%c, equipmentCode=%s, codeSystem=%s, patientAddressState=%s, providerAddressState=%s",
-        age, genderCode, equipmentCode, codeSystem, patientAddressState, providerAddressState);
-
+  public List<CoverageRequirementRule> findRules(CoverageRequirementRuleQuery.Criteria criteria) {
     List<CoverageRequirementRule> ruleList = repository.findRules(
-        age, genderCode, equipmentCode, codeSystem, patientAddressState, providerAddressState);
+        criteria.getAge(), criteria.getGenderCode(), criteria.getEquipmentCode(),
+        criteria.getCodeSystem(), criteria.getPatientAddressState(),
+        criteria.getProviderAddressState());
     if (ruleList.size() == 0) {
-      logger.debug("RuleFinder returned no results for query: " + queryString);
+      logger.debug("RuleFinder returned no results for query: " + criteria.toString());
     }
     return ruleList;
   }

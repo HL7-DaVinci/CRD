@@ -3,11 +3,11 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.stu3;
 import java.util.ArrayList;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PatientInfo;
+import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
@@ -19,7 +19,6 @@ import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -45,23 +44,16 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
         CrdPrefetchTemplateElements.REFERRAL_REQUEST_BUNDLE
     );
 
-
-  @Autowired
-  CoverageRequirementRuleFinder ruleFinder;
-
   public OrderReviewService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
-  public List<CoverageRequirementRule> findRules(OrderReviewRequest orderReviewRequest)
+  public List<CoverageRequirementRuleQuery> makeQueries(OrderReviewRequest orderReviewRequest)
       throws RequestIncompleteException {
-    Boolean parsedAtLeastOneResource = false;
-    List<CoverageRequirementRule> coverageRequirementRules = new ArrayList<>();
-
+    List<CoverageRequirementRuleQuery> queries = new ArrayList<>();
     Bundle deviceRequestBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
     List<DaVinciDeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, deviceRequestBundle);
     for (DeviceRequest deviceRequest : deviceRequestList) {
-
       List<Coding> codings = null;
       Patient patient = null;
       PatientInfo patientInfo = null;
@@ -70,36 +62,16 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
         patient = (Patient) deviceRequest.getSubject().getResource();
 
         patientInfo = Utilities.getPatientInfo(patient);
+
+        queries.addAll(this.resourcesToQueries(codings, patient, null, patientInfo,
+            new PractitionerRoleInfo()));
       } catch (RequestIncompleteException e) {
         throw e;
       } catch (Exception e) {
         logger.error("Error parsing needed info from the device request bundle.", e);
       }
-      if (codings == null || codings.size() == 0) {
-        throw new RequestIncompleteException("Unable to parse a device code out of the request.");
-      }
-      if (patient == null) {
-        throw new RequestIncompleteException("No patient could be (pre)fetched in this request.");
-      }
-      for (Coding coding : codings) {
-        if (coding.getCode() == null || coding.getSystem() == null) {
-          logger.error("Found coding with a null code or system.");
-          continue;
-        }
-        parsedAtLeastOneResource = true;
-        coverageRequirementRules.addAll(ruleFinder
-            .findRules(patientInfo.getPatientAge(), patientInfo.getPatientGenderCode(),
-                coding.getCode(),
-                coding.getSystem(), patientInfo.getPatientAddressState(),
-                null));
-      }
     }
-
-    if (!parsedAtLeastOneResource) {
-      throw new RequestIncompleteException("Unable to (pre)fetch any supported resources from the bundle.");
-    }
-
-    return coverageRequirementRules;
+    return queries;
   }
 
 }

@@ -13,12 +13,12 @@ public class FhirComponents implements FhirComponentsT {
 
   private static FhirContext fhirContext;
   private static IParser jsonParser;
-  private static String fhirVersion;
+  private static FhirComponentsT.Version fhirVersion;
 
   static {
     fhirContext = FhirContext.forDstu3();
     jsonParser = fhirContext.newJsonParser();
-    fhirVersion = "stu3";
+    fhirVersion = Version.STU3;
 
     // This is needed to correctly cast an incoming DaVinciEligibilityRequest, url must match that
     // defined in the resource profile
@@ -42,7 +42,7 @@ public class FhirComponents implements FhirComponentsT {
     return jsonParser;
   }
 
-  public String getFhirVersion() {
+  public Version getFhirVersion() {
     return fhirVersion;
   }
 }

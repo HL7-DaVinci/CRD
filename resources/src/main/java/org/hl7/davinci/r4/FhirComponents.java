@@ -11,14 +11,14 @@ public class FhirComponents implements FhirComponentsT {
 
   private static FhirContext fhirContext;
   private static IParser jsonParser;
-  private static String fhirVersion;
+  private static Version fhirVersion;
 
 
 
   static {
     fhirContext = FhirContext.forR4();
     jsonParser = fhirContext.newJsonParser();
-    fhirVersion = "r4";
+    fhirVersion = Version.R4;
   }
 
   public FhirComponents() {
@@ -33,7 +33,7 @@ public class FhirComponents implements FhirComponentsT {
     return jsonParser;
   }
 
-  public String getFhirVersion() {
+  public Version getFhirVersion() {
     return fhirVersion;
   }
 }
