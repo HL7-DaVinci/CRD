@@ -2,14 +2,14 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PatientInfo;
 import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
@@ -21,10 +21,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.PractitionerRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("r4_MedicationPrescribeService")
 public class MedicationPrescribeService extends CdsService<MedicationPrescribeRequest> {
@@ -40,23 +37,18 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
 
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
 
-  @Autowired
-  CoverageRequirementRuleFinder ruleFinder;
-
   public MedicationPrescribeService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
-  public List<CoverageRequirementRule> findRules(MedicationPrescribeRequest orderReviewRequest)
+  public List<CoverageRequirementRuleQuery> makeQueries(
+      MedicationPrescribeRequest orderReviewRequest)
       throws RequestIncompleteException {
-    Boolean parsedAtLeastOneResource = false;
-    List<CoverageRequirementRule> coverageRequirementRules = new ArrayList<>();
-
+    List<CoverageRequirementRuleQuery> queries = new ArrayList<>();
     Bundle medicationRequestBundle = orderReviewRequest.getPrefetch().getMedicationRequestBundle();
     List<MedicationRequest> medicationRequestList = Utilities
         .getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
     for (MedicationRequest medicationRequest : medicationRequestList) {
-
       List<Coding> codings = null;
       Patient patient = null;
       PractitionerRole practitionerRole = null;
@@ -69,38 +61,15 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
 
         patientInfo = Utilities.getPatientInfo(patient);
         practitionerRoleInfo = Utilities.getPractitionerRoleInfo(practitionerRole);
+
+        queries.addAll(this.resourcesToQueries(codings, patient, practitionerRole, patientInfo,
+            practitionerRoleInfo));
       } catch (RequestIncompleteException e) {
         throw e;
       } catch (Exception e) {
-        logger.error("Error parsing needed info from the medication request bundle.", e);
-      }
-      if (codings == null || codings.size() == 0) {
-        throw new RequestIncompleteException("Unable to parse a medication code out of the request.");
-      }
-      if (patient == null) {
-        throw new RequestIncompleteException("No patient could be (pre)fetched in this request.");
-      }
-      if (practitionerRole == null) {
-        throw new RequestIncompleteException("Unable to find the practitioner role.");
-      }
-      for (Coding coding : codings) {
-        if (coding.getCode() == null || coding.getSystem() == null) {
-          logger.error("Found coding with a null code or system.");
-          continue;
-        }
-        parsedAtLeastOneResource = true;
-        coverageRequirementRules.addAll(ruleFinder
-            .findRules(patientInfo.getPatientAge(), patientInfo.getPatientGenderCode(),
-                coding.getCode(),
-                coding.getSystem(), patientInfo.getPatientAddressState(),
-                practitionerRoleInfo.getLocationAddressState()));
+        logger.error("Error parsing needed info from the device request bundle.", e);
       }
     }
-
-    if (!parsedAtLeastOneResource) {
-      throw new RequestIncompleteException("Unable to (pre)fetch any supported resources from the bundle.");
-    }
-
-    return coverageRequirementRules;
+    return queries;
   }
 }
