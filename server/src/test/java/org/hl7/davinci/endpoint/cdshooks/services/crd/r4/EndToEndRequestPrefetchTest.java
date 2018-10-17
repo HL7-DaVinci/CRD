@@ -39,7 +39,7 @@ public class EndToEndRequestPrefetchTest {
   private String deviceRequestPrefetchResponseJson = FileUtils
       .readFileToString(new ClassPathResource("deviceRequestPrefetchResponse_r4.json").getFile(),
           Charset.defaultCharset());
-  private String prefetchUrl = "/DeviceRequest?_id=24439"
+  private String prefetchUrl = "/DeviceRequest?_id=123"
       + "&_include=DeviceRequest:patient"
       + "&_include=DeviceRequest:performer"
       + "&_include=DeviceRequest:requester"
@@ -72,7 +72,7 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "No documentation rules found");
+        "No documentation is required for a device or service with code: E0250");
   }
 
   @Test
@@ -90,6 +90,6 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "order-review Coverage Requirements Discovery could not be (pre)fetched in this request ");
+        "Unable to (pre)fetch any supported resources from the bundle.");
   }
 }

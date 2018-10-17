@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.cdshooks.CdsRequest;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
-import org.hl7.fhir.r4.model.Bundle;
 
 import java.util.HashMap;
 
-public class OrderReviewRequest extends CdsRequest<CrdPrefetch, Bundle, OrderReviewContext> {
+public class OrderReviewRequest extends CdsRequest<CrdPrefetch, OrderReviewContext> {
 
   private HashMap<String, Object> mapForPrefetchTemplates = null;
 

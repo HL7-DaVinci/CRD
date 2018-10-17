@@ -1,6 +1,5 @@
 package org.hl7.davinci.endpoint.components;
 
-import ca.uhn.fhir.context.FhirContext;
 import org.cdshooks.CdsRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +8,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hl7.davinci.FhirComponentsT;
+import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-public class PrefetchHydrator<prefetchElementTypeT> {
+public class PrefetchHydrator {
 
   static final Logger logger =
       LoggerFactory.getLogger(PrefetchHydrator.class);
@@ -29,10 +30,10 @@ public class PrefetchHydrator<prefetchElementTypeT> {
   private static final String PREFETCH_TOKEN_DELIM_OPEN = "{{";
   private static final String PREFETCH_TOKEN_DELIM_CLOSE = "}}";
 
-  private CdsService cdsService;
-  private CdsRequest cdsRequest;
+  private CdsService<?> cdsService;
+  private CdsRequest<?, ?> cdsRequest;
   private Object dataForPrefetchToken;
-  private FhirContext ctx;
+  private FhirComponentsT fhirComponents;
 
   /**
    * Constructor should take in a service and a request that service is processing. This class can
@@ -40,15 +41,15 @@ public class PrefetchHydrator<prefetchElementTypeT> {
    *
    * @param cdsService The service that is processing the request.
    * @param cdsRequest The request in question, the prefetch will be hydrated if possible. Note that
-   *     this object gets modified.
-   * @param ctx Fhir context, you should get this autowired in the calling class.
+   * this object gets modified.
+   * @param fhirComponents The fhir components object.
    */
   public PrefetchHydrator(CdsService cdsService, CdsRequest cdsRequest,
-      FhirContext ctx) {
+      FhirComponentsT fhirComponents) {
     this.cdsService = cdsService;
     this.cdsRequest = cdsRequest;
     this.dataForPrefetchToken = cdsRequest.getDataForPrefetchToken();
-    this.ctx = ctx;
+    this.fhirComponents = fhirComponents;
   }
 
   private static void resolvePrefetchTokenRecursive(
@@ -91,8 +92,9 @@ public class PrefetchHydrator<prefetchElementTypeT> {
       return; //can't prefetch without a fhir server!
     }
     Object crdResponse = cdsRequest.getPrefetch();
-    for (String prefetchKey : cdsService.prefetch.keySet()) {
-      //check if the
+    for (PrefetchTemplateElement prefetchElement : cdsService.getPrefetchElements()) {
+      String prefetchKey = prefetchElement.getKey();
+      //check if the prefetch has already been populated with that key
       Boolean alreadyIncluded = false;
       try {
         alreadyIncluded = (PropertyUtils.getProperty(crdResponse, prefetchKey) != null);
@@ -113,7 +115,9 @@ public class PrefetchHydrator<prefetchElementTypeT> {
         if (hydratedPrefetchQuery != null) {
           try {
             PropertyUtils
-                .setProperty(crdResponse, prefetchKey, executeFhirQuery(hydratedPrefetchQuery, token));
+                .setProperty(crdResponse, prefetchKey,
+                    prefetchElement.getReturnType().cast(
+                        executeFhirQuery(hydratedPrefetchQuery, token)));
           } catch (Exception e) {
             logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
           }
@@ -122,7 +126,7 @@ public class PrefetchHydrator<prefetchElementTypeT> {
     }
   }
 
-  private prefetchElementTypeT executeFhirQuery(String query, String token) {
+  private IBaseResource executeFhirQuery(String query, String token) {
     String fullUrl = cdsRequest.getFhirServer() + query;
     //    TODO: Once our provider fhir server is up, switch the fetch to use the hapi client instead
     //    cdsRequest.getOauth();
@@ -145,7 +149,7 @@ public class PrefetchHydrator<prefetchElementTypeT> {
       logger.debug("Fetching: " + fullUrl);
       ResponseEntity<String> response = restTemplate.exchange(fullUrl, HttpMethod.GET,
           entity, String.class);
-      return (prefetchElementTypeT) ctx.newJsonParser().parseResource(response.getBody());
+      return fhirComponents.getJsonParser().parseResource(response.getBody());
     } catch (RestClientException e) {
       logger.warn("Unable to make the fetch request", e);
       return null;

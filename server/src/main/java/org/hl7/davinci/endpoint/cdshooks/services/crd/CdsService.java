@@ -6,26 +6,16 @@ import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
 import org.cdshooks.Prefetch;
-import org.hl7.davinci.FhirComponentT;
-import org.hl7.davinci.UtilitiesInterface;
+import org.hl7.davinci.FhirComponentsT;
+import org.hl7.davinci.PrefetchTemplateElement;
+import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.database.RequestLog;
-import org.hl7.davinci.endpoint.database.RequestService;
-import org.hl7.davinci.r4.Utilities;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.exceptions.FHIRException;
-import org.hl7.fhir.instance.model.api.IBaseBundle;
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.instance.model.api.ICompositeType;
-import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hl7.davinci.endpoint.database.RequestLog;
+import org.hl7.davinci.endpoint.database.RequestService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -35,8 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
-    patientTypeT extends IDomainResource, codeableConceptTypeT extends ICompositeType> {
+public abstract class CdsService<requestTypeT extends CdsRequest<?,?>> {
 
   static final Logger logger = LoggerFactory.getLogger(CdsService.class);
 
@@ -62,11 +51,13 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
    */
   public Prefetch prefetch = null;
 
-  private FhirComponentT fhirComponent;
+  private List<PrefetchTemplateElement> prefetchElements = null;
 
-  private String fhirVersion = null;
+  private FhirComponentsT fhirComponents;
 
-  UtilitiesInterface utilities = null;
+  public List<PrefetchTemplateElement> getPrefetchElements() {
+    return prefetchElements;
+  }
 
   Class<?> requestClass = null;
 
@@ -77,14 +68,15 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
   RequestService requestService;
   /**
    * Create a new cdsservice.
-   * @param id  Will be used in the url, should be unique.
-   * @param hook  Which hook can call this.
+   * @param id Will be used in the url, should be unique.
+   * @param hook Which hook can call this.
    * @param title Human title.
    * @param description Human description.
-   * @param prefetch What to prefetch.
+   * @param prefetchElements List of prefetch elements, will be in prefetch template.
+   * @param fhirComponents Fhir components to use
    */
-  public CdsService(String id, Hook hook, String title,String description,
-                    Prefetch prefetch, FhirComponentT fhirComponent, String fhirVersion) {
+  public CdsService(String id, Hook hook, String title, String description,
+      List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents) {
     if (id == null) {
       throw new NullPointerException("CDSService id cannot be null");
     }
@@ -98,20 +90,15 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
     this.hook = hook;
     this.title = title;
     this.description = description;
-    this.prefetch = prefetch;
-    this.fhirComponent = fhirComponent;
-    this.fhirVersion = fhirVersion;
-    if (fhirVersion.equalsIgnoreCase("stu3")) {
-      this.utilities = new org.hl7.davinci.stu3.Utilities();
-    }else if (fhirVersion.equalsIgnoreCase("r4")) {
-      this.utilities = new Utilities();
+    this.prefetchElements = prefetchElements;
+    prefetch = new Prefetch();
+    for (PrefetchTemplateElement prefetchElement : prefetchElements) {
+      this.prefetch.put(prefetchElement.getKey(), prefetchElement.getQuery());
     }
-    this.requestClass = requestClass;
-
+    this.fhirComponents = fhirComponents;
   }
 
-  public CdsResponse handleRequest(@Valid @RequestBody CdsRequest request) {
-
+  public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request) {
 
     boolean[] timeline = new boolean[5];
 
@@ -120,10 +107,11 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
     timeline[0] = true;
 
     logger.info(
-
         this.title + ":" + request.getContext()
     );
 
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
+        this.fhirComponents);
     // create the RequestLog
     String requestStr;
     try {
@@ -146,7 +134,6 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
     requestLog.setTimeline(timeline);
     requestService.edit(requestLog);
 
-    FhirComponentT fhirComponents = this.fhirComponent;
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator<bundleTypeT>(this, request,
         fhirComponents.getFhirContext());
     prefetchHydrator.hydrate();
@@ -157,69 +144,36 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
     requestService.edit(requestLog);
 
     CdsResponse response = new CdsResponse();
-    List<requestTypeT> requestList = getRequests(request);
-    if (requestList == null) {
-      logger.error("Prefetch " + this.title + " not a bundle");
-      String errorStr = this.title + " could not be (pre)fetched in this request ";
-      response.addCard(CardBuilder.summaryCard(errorStr));
-      requestLog.setResults(errorStr);
-      requestService.edit(requestLog);
-      return response;
-    }
+
     // got requests
     timeline[3] = true;
     requestLog.setTimeline(timeline);
     requestService.edit(requestLog);
 
-    for (requestTypeT genericRequest : requestList) {
+    requestLog.setPatientAge(ri.getPatientAge());
+    requestLog.setPatientGender(ri.getPatientGender());
+    requestLog.setCode(ri.getCode());
+    requestLog.setCodeSystem(ri.getCodeSystem());
 
-      patientTypeT patient = null;
-      codeableConceptTypeT cc = null;
-      try {
-        cc = getCc(genericRequest);
-      } catch (FHIRException fe) {
-        String errorStr = "Unable to parse the medication code out of the request";
-        response.addCard(CardBuilder.summaryCard(errorStr));
-        requestLog.setResults(errorStr);
-      }
+    List<CoverageRequirementRule> coverageRequirementRules;
+    try {
+      coverageRequirementRules = this.findRules(request);
+    } catch (RequestIncompleteException e) {
+      response.addCard(CardBuilder.summaryCard(e.getMessage()));
+      requestLog.setResults(e.getMessage());
+      logger.error(e.getMessage());
+      requestService.edit(requestLog);
+      return response;
+    }
 
-      // See if the patient is in the prefetch
-      try {
-        patient = getPatient(genericRequest);
-      } catch (Exception e) {
-        String errorStr = "No patient could be (pre)fetched in this request";
-        response.addCard(CardBuilder.summaryCard(errorStr));
-        requestLog.setResults(errorStr);
-      }
-
-
-      if (patient != null && cc != null) {
-        List<ExtractedRequestInformation> info = getInfo(patient, cc);
-        List<CoverageRequirementRule> coverageRequirementRules = new ArrayList<>();
-        for (ExtractedRequestInformation ri : info) {
-          // request logging
-          requestLog.setPatientAge(ri.getPatientAge());
-          requestLog.setPatientGender(ri.getPatientGender());
-          requestLog.setCode(ri.getCode());
-          requestLog.setCodeSystem(ri.getCodeSystem());
-
-          List<CoverageRequirementRule> found = ruleFinder.findRules(ri.getPatientAge(),
-              ri.getPatientGender().charAt(0), ri.getCode(), ri.getCodeSystem());
-          if (found.size() > 0) {
-            coverageRequirementRules.addAll(found);
-          }
-        }
-        if (coverageRequirementRules.size() == 0) {
-          String errorStr = "No documentation rules found";
-          response.addCard(CardBuilder.summaryCard(errorStr));
-          requestLog.setResults(errorStr);
-        } else {
-          requestLog.addRulesFound(coverageRequirementRules);
-          requestLog.setResults(String.valueOf(coverageRequirementRules.size()) + " documentation rule(s) found");
-          for (CoverageRequirementRule rule: coverageRequirementRules) {
-            response.addCard(CardBuilder.transform(rule));
-          }
-        }
+    if (coverageRequirementRules.size() == 0) {
+      response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+      requestLog.setResults(errorStr);
+    } else {
+      requestLog.addRulesFound(coverageRequirementRules);
+      requestLog.setResults(String.valueOf(coverageRequirementRules.size()) + " documentation rule(s) found");
+      for (CoverageRequirementRule rule : coverageRequirementRules) {
+        response.addCard(CardBuilder.transform(rule));
       }
     }
     // Searched
@@ -229,47 +183,11 @@ public abstract class CdsService<bundleTypeT extends IBaseBundle, requestTypeT,
     CardBuilder.errorCardIfNonePresent(response);
     logger.info("handleRequest: end");
     return response;
-
   }
 
   // Implement this in child class
-  public abstract codeableConceptTypeT getCc(requestTypeT request) throws FHIRException;
+  public abstract List<CoverageRequirementRule> findRules(requestTypeT request) throws RequestIncompleteException;
 
-  public abstract patientTypeT getPatient(requestTypeT request);
-
-  public abstract List<requestTypeT> getRequests(CdsRequest request);
-
-  public List<ExtractedRequestInformation> getInfo(IBaseResource patient,ICompositeType cc) {
-    List<ExtractedRequestInformation> ris = new ArrayList<>();
-    if (fhirVersion.equalsIgnoreCase("stu3")) {
-      Patient patientStu3 = (Patient) patient;
-      CodeableConcept ccStu3 = (CodeableConcept) cc;
-
-      for (Coding c : ccStu3.getCoding()) {
-        ExtractedRequestInformation ri = new ExtractedRequestInformation();
-        ri.setPatientGender(patientStu3.getGender().toCode());
-        ri.setPatientAge(org.hl7.davinci.stu3.Utilities.calculateAge(patientStu3));
-
-        ri.setCode(c.getCode());
-        ri.setCodeSystem(c.getSystem());
-        ris.add(ri);
-      }
-      return ris;
-    } else if (fhirVersion.equalsIgnoreCase("r4")) {
-      org.hl7.fhir.r4.model.Patient patientR4 = (org.hl7.fhir.r4.model.Patient) patient;
-      org.hl7.fhir.r4.model.CodeableConcept ccR4 = (org.hl7.fhir.r4.model.CodeableConcept) cc;
-      for (org.hl7.fhir.r4.model.Coding c : ccR4.getCoding()) {
-        ExtractedRequestInformation ri = new ExtractedRequestInformation();
-        ri.setPatientGender(patientR4.getGender().toCode());
-        ri.setPatientAge(Utilities.calculateAge(patientR4));
-        ri.setCode(c.getCode());
-        ri.setCodeSystem(c.getSystem());
-        ris.add(ri);
-      }
-      return ris;
-    }
-    return null;
-  }
 }
 
 
