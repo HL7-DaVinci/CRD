@@ -19,7 +19,7 @@ public class RequestWriter {
    * @param args command line arguments
    * @throws Exception If there is an issue writing the file
    */
-  public static int main(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     String outputPath = args[0];
     String version = args[1];
 
@@ -27,7 +27,7 @@ public class RequestWriter {
     boolean makeStu3 = version.equalsIgnoreCase("stu3");
     if (!makeR4 && !makeStu3) {
       System.out.println("Second argument should be r4 or stu3");
-      return 1;
+      return;
     }
 
     Calendar cal = Calendar.getInstance();
@@ -37,24 +37,36 @@ public class RequestWriter {
     }
     ObjectMapper mapper = new ObjectMapper();
     ObjectWriter w = mapper.writer();
-    String filename = "crd_request_" + version + ".json";
-    FileWriter jsonWriter = new FileWriter(outputPath + "/" + filename);
 
     if (makeR4) {
-      org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest request =
+      String filename = "crd_order_review_request_" + version + ".json";
+      org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest ord_request =
           org.hl7.davinci.r4.CrdRequestCreator.createOrderReviewRequest(
-              org.hl7.fhir.r4.model.Enumerations.AdministrativeGender.MALE, cal.getTime());
-      w.writeValue(jsonWriter, request);
+              org.hl7.fhir.r4.model.Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
+      w.writeValue(new FileWriter(outputPath + "/" + filename), ord_request);
+      System.out.println("Wrote file '" + filename + "' to path '" + outputPath + "'");
+
+      filename = "crd_medication_request_" + version + ".json";
+      org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest med_request =
+          org.hl7.davinci.r4.CrdRequestCreator.createMedicationPrescribeRequest(
+              org.hl7.fhir.r4.model.Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
+      w.writeValue(new FileWriter(outputPath + "/" + filename), med_request);
+      System.out.println("Wrote file '" + filename + "' to path '" + outputPath + "'");
     }
     if (makeStu3) {
-      org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest request =
+      String filename = "crd_order_review_request_" + version + ".json";
+      org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest ord_request =
           org.hl7.davinci.stu3.CrdRequestCreator.createOrderReviewRequest(
-              org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender.MALE, cal.getTime());
-      w.writeValue(jsonWriter, request);
-    }
+              org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
+      w.writeValue(new FileWriter(outputPath + "/" + filename), ord_request);
+      System.out.println("Wrote file '" + filename + "' to path '" + outputPath + "'");
 
-    System.out.println("Wrote file '" + filename + "' to path '" + outputPath + "'");
-    jsonWriter.close();
-    return 1;
+      filename = "crd_medication_request_" + version + ".json";
+      org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest med_request =
+          org.hl7.davinci.stu3.CrdRequestCreator.createMedicationPrescribeRequest(
+              org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
+      w.writeValue(new FileWriter(outputPath + "/" + filename), med_request);
+      System.out.println("Wrote file '" + filename + "' to path '" + outputPath + "'");
+    }
   }
 }

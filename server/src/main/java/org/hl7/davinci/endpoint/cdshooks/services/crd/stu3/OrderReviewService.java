@@ -1,20 +1,22 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.stu3;
 
-import org.cdshooks.CdsRequest;
+import java.util.ArrayList;
 import org.cdshooks.Hook;
-import org.cdshooks.Prefetch;
+import org.hl7.davinci.PatientInfo;
+import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
+import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
-import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements.PrefetchTemplateElement;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.exceptions.FHIRException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,21 +27,16 @@ import java.util.List;
 
 
 @Component("stu3_OrderReviewService")
-public class OrderReviewService extends
-    CdsService<Bundle, DaVinciDeviceRequest, Patient, CodeableConcept>  {
+public class OrderReviewService extends CdsService<OrderReviewRequest>  {
 
   public static final String ID = "order-review-crd";
   public static final String TITLE = "order-review Coverage Requirements Discovery";
   public static final Hook HOOK = Hook.ORDER_REVIEW;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
-  public static final Prefetch PREFETCH;
   static final Logger logger = LoggerFactory.getLogger(OrderReviewService.class);
-  public static final String FHIRVERSION = "stu3";
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
-  static {
-    PREFETCH = new Prefetch();
-    List<PrefetchTemplateElement> elements = Arrays.asList(
+  public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
         CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
         CrdPrefetchTemplateElements.SUPPLY_REQUEST_BUNDLE,
         CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
@@ -47,35 +44,62 @@ public class OrderReviewService extends
         CrdPrefetchTemplateElements.PROCEDURE_REQUEST_BUNDLE,
         CrdPrefetchTemplateElements.REFERRAL_REQUEST_BUNDLE
     );
-    for (PrefetchTemplateElement element : elements) {
-      PREFETCH.put(element.getKey(), element.getQuery());
-    }
-  }
+
 
   @Autowired
   CoverageRequirementRuleFinder ruleFinder;
 
   public OrderReviewService() {
-    super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH, FHIRCOMPONENTS, FHIRVERSION);
+    super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
-  public CodeableConcept getCc(DaVinciDeviceRequest deviceRequest) throws FHIRException {
-    return deviceRequest.getCodeCodeableConcept();
-  }
+  public List<CoverageRequirementRule> findRules(OrderReviewRequest orderReviewRequest)
+      throws RequestIncompleteException {
+    Boolean parsedAtLeastOneResource = false;
+    List<CoverageRequirementRule> coverageRequirementRules = new ArrayList<>();
 
-  public Patient getPatient(DaVinciDeviceRequest deviceRequest) {
-    return (Patient) deviceRequest.getSubject().getResource();
-  }
+    Bundle deviceRequestBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
+    List<DaVinciDeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, deviceRequestBundle);
+    for (DeviceRequest deviceRequest : deviceRequestList) {
 
-  @Override
-  public List<DaVinciDeviceRequest> getRequests(CdsRequest request) {
-    OrderReviewRequest orderReviewRequest = (OrderReviewRequest) request;
-    Bundle orderReviewBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
-    if (orderReviewBundle == null) {
-      return null;
+      List<Coding> codings = null;
+      Patient patient = null;
+      PatientInfo patientInfo = null;
+      try {
+        codings = deviceRequest.getCodeCodeableConcept().getCoding();
+        patient = (Patient) deviceRequest.getSubject().getResource();
+
+        patientInfo = Utilities.getPatientInfo(patient);
+      } catch (RequestIncompleteException e) {
+        throw e;
+      } catch (Exception e) {
+        logger.error("Error parsing needed info from the device request bundle.", e);
+      }
+      if (codings == null || codings.size() == 0) {
+        throw new RequestIncompleteException("Unable to parse a device code out of the request.");
+      }
+      if (patient == null) {
+        throw new RequestIncompleteException("No patient could be (pre)fetched in this request.");
+      }
+      for (Coding coding : codings) {
+        if (coding.getCode() == null || coding.getSystem() == null) {
+          logger.error("Found coding with a null code or system.");
+          continue;
+        }
+        parsedAtLeastOneResource = true;
+        coverageRequirementRules.addAll(ruleFinder
+            .findRules(patientInfo.getPatientAge(), patientInfo.getPatientGenderCode(),
+                coding.getCode(),
+                coding.getSystem(), patientInfo.getPatientAddressState(),
+                null));
+      }
     }
-    Utilities util = new Utilities();
-    return util.getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, orderReviewBundle);
+
+    if (!parsedAtLeastOneResource) {
+      throw new RequestIncompleteException("Unable to (pre)fetch any supported resources from the bundle.");
+    }
+
+    return coverageRequirementRules;
   }
 
 }

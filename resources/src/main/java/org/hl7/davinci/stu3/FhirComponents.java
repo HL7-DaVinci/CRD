@@ -2,19 +2,23 @@ package org.hl7.davinci.stu3;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import org.hl7.davinci.FhirComponentT;
+import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
 
 /**
  * Build some expensive objects here so we can reuse them.
  */
-public class FhirComponents implements FhirComponentT {
+public class FhirComponents implements FhirComponentsT {
 
-  private static FhirContext fhirContext = FhirContext.forDstu3();
-  private IParser jsonParser;
+  private static FhirContext fhirContext;
+  private static IParser jsonParser;
+  private static String fhirVersion;
 
-  public FhirComponents() {
+  static {
+    fhirContext = FhirContext.forDstu3();
+    jsonParser = fhirContext.newJsonParser();
+    fhirVersion = "stu3";
 
     // This is needed to correctly cast an incoming DaVinciEligibilityRequest, url must match that
     // defined in the resource profile
@@ -24,8 +28,10 @@ public class FhirComponents implements FhirComponentT {
     fhirContext.setDefaultTypeForProfile(
         "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-medicationrequest-stu3",
         DaVinciMedicationRequest.class);
+  }
 
-    jsonParser = fhirContext.newJsonParser();
+  public FhirComponents() {
+
   }
 
   public FhirContext getFhirContext() {
@@ -34,5 +40,9 @@ public class FhirComponents implements FhirComponentT {
 
   public IParser getJsonParser() {
     return jsonParser;
+  }
+
+  public String getFhirVersion() {
+    return fhirVersion;
   }
 }

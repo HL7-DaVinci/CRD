@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 public class OrderReviewRequestTest {
   @Test
   public void testReadingJson() throws IOException, FHIRException {
-    Utilities utilities = new Utilities();
     InputStream requestStream = this.getClass().getResourceAsStream("requestWithHydratedPrefetchBundle.json");
     ObjectMapper mapper = new ObjectMapper();
     OrderReviewRequest request = mapper.readValue(requestStream, OrderReviewRequest.class);
@@ -26,7 +25,7 @@ public class OrderReviewRequestTest {
     assertEquals("1288992", request.getContext().getPatientId());
 
     Bundle deviceRequestBundle = request.getPrefetch().getDeviceRequestBundle();
-    List<DaVinciDeviceRequest> deviceRequestList = utilities.getResourcesOfTypeFromBundle(
+    List<DaVinciDeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
         DaVinciDeviceRequest.class, deviceRequestBundle);
 
     DeviceRequest deviceRequest = deviceRequestList.get(0);

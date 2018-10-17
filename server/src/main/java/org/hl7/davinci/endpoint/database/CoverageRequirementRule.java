@@ -37,6 +37,12 @@ public class CoverageRequirementRule {
   @Column(name = "gender_code", nullable = true)
   private Character genderCode;
 
+  @Column(name = "patient_address_state", nullable = true, length = 2)
+  private String patientAddressState;
+
+  @Column(name = "provider_address_state", nullable = true, length = 2)
+  private String providerAddressState;
+
   //    The following fields describe the rule outcome
   @Column(name = "info_link", nullable = true, length = 2000)
   private String infoLink;
@@ -106,6 +112,22 @@ public class CoverageRequirementRule {
 
   public void setCodeSystem(String codeSystem) {
     this.codeSystem = codeSystem;
+  }
+
+  public String getPatientAddressState() {
+    return patientAddressState;
+  }
+
+  public void setPatientAddressState(String patientAddressState) {
+    this.patientAddressState = patientAddressState;
+  }
+
+  public String getProviderAddressState() {
+    return providerAddressState;
+  }
+
+  public void setProviderAddressState(String providerAddressState) {
+    this.providerAddressState = providerAddressState;
   }
 
   @Override

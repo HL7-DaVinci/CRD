@@ -1,17 +1,11 @@
 package org.cdshooks;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import org.hl7.davinci.CrdPrefetchT;
-import org.hl7.davinci.ServiceContextT;
-import org.hl7.davinci.r4.crdhook.CrdPrefetch;
-import org.hl7.davinci.r4.crdhook.ServiceContext;
-import org.hl7.fhir.instance.model.api.IBaseBundle;
 
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 
-public abstract class CdsRequest<prefetchTypeT extends CrdPrefetchT,
-    bundleTypeT extends IBaseBundle, serviceContextTypeT extends ServiceContextT<bundleTypeT>> {
+public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT> {
   @NotNull(message = "unsupported hook")
   private Hook hook = null;
 

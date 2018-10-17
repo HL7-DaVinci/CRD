@@ -3,51 +3,23 @@
   "entry": [
     {
       "resource": {
-        "resourceType": "DeviceRequest",
-        "id": "123",
-        "meta": {
-          "profile": [
-            "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3"
-          ]
-        },
-        "extension": [
-          {
-            "url": "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
-            "valueReference": {
-              "reference": "Coverage/aa4c7d92-52c8-4ec1-91f4-ef6df5c63d0e"
-            }
-          }
-        ],
-        "status": "draft",
-        "codeCodeableConcept": {
-          "coding": [
-            {
-              "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
-              "code": "E0424",
-              "display": "Stationary Compressed Gaseous Oxygen System, Rental"
-            }
-          ]
-        },
-        "subject": {
-          "reference": "Patient/9606619b-a209-44e4-8daf-54b246690ae3"
-        },
-        "performer": {
-          "reference": "PractitionerRole/d97e624d-3339-4be8-8303-1e55ac1b083d"
-        }
-      }
-    },
-    {
-      "resource": {
         "resourceType": "Patient",
-        "id": "9606619b-a209-44e4-8daf-54b246690ae3",
+        "id": "f31500e8-15cb-4e8e-8c6e-a001edc6604e",
         "gender": "male",
-        "birthDate": "1970-07-04"
+        "birthDate": "1970-07-04",
+        "address": [
+          {
+            "use": "home",
+            "type": "both",
+            "state": "MA"
+          }
+        ]
       }
     },
     {
       "resource": {
         "resourceType": "Practitioner",
-        "id": "53cec2dd-bcbf-4ce0-a856-f3fda42c6d23",
+        "id": "0fab22ec-49a2-4465-bd62-33b53283de21",
         "identifier": [
           {
             "system": "http://hl7.org/fhir/sid/us-npi",
@@ -70,8 +42,85 @@
     {
       "resource": {
         "resourceType": "Organization",
-        "id": "b84dfc36-1cc0-4d9f-b9be-bba62e0a1a40",
+        "id": "75f39025-65db-43c8-9127-693cdf75e712",
         "name": "Centers for Medicare and Medicaid Services"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Location",
+        "id": "99595dfb-cdd8-4813-8477-4a9fb40d6c54",
+        "address": {
+          "line": [
+            "100 Good St"
+          ],
+          "city": "Bedford",
+          "state": "MA",
+          "postalCode": "01730"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "f0b0cf14-4066-403f-b217-e92e73c350eb",
+        "practitioner": {
+          "reference": "Practitioner/0fab22ec-49a2-4465-bd62-33b53283de21"
+        },
+        "location": [
+          {
+            "reference": "Location/99595dfb-cdd8-4813-8477-4a9fb40d6c54"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "0f58e588-eecd-4ab3-9316-f3d02a3ba39d",
+        "payor": [
+          {
+            "reference": "Organization/75f39025-65db-43c8-9127-693cdf75e712"
+          }
+        ],
+        "grouping": {
+          "plan": "Medicare Part D"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DeviceRequest",
+        "id": "123",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
+            "valueReference": {
+              "reference": "Coverage/0f58e588-eecd-4ab3-9316-f3d02a3ba39d"
+            }
+          }
+        ],
+        "status": "draft",
+        "codeCodeableConcept": {
+          "coding": [
+            {
+              "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+              "code": "E0424",
+              "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/f31500e8-15cb-4e8e-8c6e-a001edc6604e"
+        },
+        "performer": {
+          "reference": "PractitionerRole/f0b0cf14-4066-403f-b217-e92e73c350eb"
+        }
       }
     },
     {
@@ -85,34 +134,6 @@
               "display": "Stationary Compressed Gaseous Oxygen System, Rental"
             }
           ]
-        }
-      }
-    },
-    {
-      "resource": {
-        "resourceType": "PractitionerRole",
-        "id": "d97e624d-3339-4be8-8303-1e55ac1b083d",
-        "practitioner": {
-          "reference": "Practitioner/53cec2dd-bcbf-4ce0-a856-f3fda42c6d23"
-        },
-        "location": [
-          {
-            "reference": "Location/44729bc7-a39c-499b-8e51-47f96b9d0c07"
-          }
-        ]
-      }
-    },
-    {
-      "resource": {
-        "resourceType": "Coverage",
-        "id": "aa4c7d92-52c8-4ec1-91f4-ef6df5c63d0e",
-        "payor": [
-          {
-            "reference": "Organization/b84dfc36-1cc0-4d9f-b9be-bba62e0a1a40"
-          }
-        ],
-        "grouping": {
-          "plan": "Medicare Part D"
         }
       }
     }

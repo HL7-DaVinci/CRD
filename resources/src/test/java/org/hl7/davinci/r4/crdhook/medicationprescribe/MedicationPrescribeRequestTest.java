@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class MedicationPrescribeRequestTest {
   @Test
   public void testReadingJson() throws IOException, FHIRException {
-    Utilities utilities = new Utilities();
-
     InputStream requestStream = this.getClass().getResourceAsStream("requestWithHydratedPrefetchBundle.json");
     ObjectMapper mapper = new ObjectMapper();
     MedicationPrescribeRequest request = mapper.readValue(requestStream, MedicationPrescribeRequest.class);
@@ -27,7 +25,7 @@ public class MedicationPrescribeRequestTest {
     assertEquals("1288992", request.getContext().getPatientId());
 
     Bundle medicationRequestBundle = request.getPrefetch().getMedicationRequestBundle();
-    List<MedicationRequest> medicationRequestList = utilities.getResourcesOfTypeFromBundle(
+    List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(
         MedicationRequest.class, medicationRequestBundle);
 
     MedicationRequest medicationRequest = medicationRequestList.get(0);
