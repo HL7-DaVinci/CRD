@@ -225,3 +225,15 @@ input:not(:focus):not([value=""]):valid ~ .floating-label{
   margin-left:15px;
   line-height:3em;
 }
+
+.rightStateInput{
+  width:48%;
+  float:right;
+  margin-bottom:25px;
+}
+
+.leftStateInput{
+  width:48%;
+  float:left;
+  margin-bottom:25px;
+}
