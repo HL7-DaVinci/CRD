@@ -1,4 +1,4 @@
-package org.hl7.davinci.ehrServer;
+package org.hl7.davinci.ehrserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

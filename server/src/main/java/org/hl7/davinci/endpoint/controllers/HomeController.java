@@ -86,6 +86,12 @@ public class HomeController {
     return "public";
   }
 
+  @GetMapping("/requests")
+  public String request_log(Model model) {
+    return "requests";
+  }
+
+
 
 
 }

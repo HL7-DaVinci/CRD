@@ -1,4 +1,4 @@
-package org.hl7.davinci.ehrServer;
+package org.hl7.davinci.ehrserver;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -10,8 +10,6 @@ import ca.uhn.fhir.jpa.search.LuceneSearchMappingFactory;
 import ca.uhn.fhir.jpa.util.DerbyTenSevenHapiFhirDialect;
 import ca.uhn.fhir.rest.server.interceptor.CorsInterceptor;
 import org.apache.commons.dbcp2.BasicDataSource;
-//import org.apache.commons.lang3.time.DateUtils;
-//import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
@@ -30,7 +28,7 @@ import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
 import org.springframework.web.cors.CorsConfiguration;
 
 /**
- * This is the primary configuration file for the example server
+ * This is the primary configuration file for the example server.
  */
 @Configuration
 @EnableTransactionManagement()
@@ -49,10 +47,12 @@ public class FhirServerConfig extends BaseJavaConfigR4 {
   }
 
   /**
-   * The following bean configures the database connection. The 'url' property value of "jdbc:derby:directory:jpaserver_derby_files;create=true" indicates that the server should save resources in a
+   * The following bean configures the database connection. The 'url' property value of
+   * "jdbc:derby:directory:jpaserver_derby_files;create=true" indicates that the server should save resources in a
    * directory called "jpaserver_derby_files".
    * <p>
-   * A URL to a remote database could also be placed here, along with login credentials and other properties supported by BasicDataSource.
+   * A URL to a remote database could also be placed here, along with login credentials and other properties supported
+   * by BasicDataSource.
    */
   @Bean(destroyMethod = "close")
   public DataSource dataSource() {
@@ -92,7 +92,7 @@ public class FhirServerConfig extends BaseJavaConfigR4 {
     extraProperties.put("hibernate.search.default.directory_provider", "filesystem");
     extraProperties.put("hibernate.search.default.indexBase", "target/lucenefiles");
     extraProperties.put("hibernate.search.lucene_version", "LUCENE_CURRENT");
-//		extraProperties.put("hibernate.search.default.worker.execution", "async");
+    //extraProperties.put("hibernate.search.default.worker.execution", "async");
     return extraProperties;
   }
 
@@ -104,14 +104,16 @@ public class FhirServerConfig extends BaseJavaConfigR4 {
     LoggingInterceptor retVal = new LoggingInterceptor();
     retVal.setLoggerName("fhirtest.access");
     retVal.setMessageFormat(
-        "Path[${servletPath}] Source[${requestHeader.x-forwarded-for}] Operation[${operationType} ${operationName} ${idOrResourceName}] UA[${requestHeader.user-agent}] Params[${requestParameters}] ResponseEncoding[${responseEncodingNoDefault}]");
+        "Path[${servletPath}] Source[${requestHeader.x-forwarded-for}] Operation[${operationType} "
+            + "${operationName} ${idOrResourceName}] UA[${requestHeader.user-agent}] Params[${requestParameters}] "
+            + "ResponseEncoding[${responseEncodingNoDefault}]");
     retVal.setLogExceptions(true);
     retVal.setErrorMessageFormat("ERROR - ${requestVerb} ${requestUrl}");
     return retVal;
   }
 
   /**
-   * This interceptor adds some pretty syntax highlighting in responses when a browser is detected
+   * This interceptor adds some pretty syntax highlighting in responses when a browser is detected.
    */
   @Bean(autowire = Autowire.BY_TYPE)
   public IServerInterceptor responseHighlighterInterceptor() {
@@ -132,6 +134,9 @@ public class FhirServerConfig extends BaseJavaConfigR4 {
     return new ClientAuthorizationInterceptor();
   }
 
+  /**
+   * This interceptor filters the headers, origin of the data, and the methods.
+   */
   @Bean(autowire = Autowire.BY_TYPE)
   public IServerInterceptor corsInterceptor() {
     logger.info("FhirServerConfig::corsInterceptor");
@@ -153,6 +158,9 @@ public class FhirServerConfig extends BaseJavaConfigR4 {
     return new CorsInterceptor(config);
   }
 
+  /**
+   * Setup a new JPA transaction manager.
+   */
   @Bean()
   public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
     logger.info("FhirServerConfig::transactionManager()");
