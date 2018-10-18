@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 import ReactSixteenAdapter from 'enzyme-adapter-react-16';
 import KeyInterface from '../containers/KeyInterface';
 Enzyme.configure({ adapter: new ReactSixteenAdapter() });
-const wrapper = mount(<KeyInterface />)
+const wrapper = mount(<KeyInterface doFetch={false}/>)
 describe("Component mounting tests", function() {
   it('Renders header', function() {
     expect(wrapper.find('h1').text()).to.equal("Public Keys");
