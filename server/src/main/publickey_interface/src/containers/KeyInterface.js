@@ -28,7 +28,7 @@ export default class KeyInterface extends Component{
 
     async componentDidMount(){
         if(this.props.doFetch){
-            var jwtData = await fetch('https://localhost:8090/api/public', {
+            var jwtData = await fetch('http://localhost:8090/api/public', {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
@@ -56,7 +56,7 @@ export default class KeyInterface extends Component{
         const key = keyObject[keyId];
         const result = {"id":keyId,"key":key};
         if(this.props.doFetch){
-            await fetch('https://localhost:8090/api/public', {
+            await fetch('http://localhost:8090/api/public', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -74,7 +74,7 @@ export default class KeyInterface extends Component{
 
     async deleteData(id){
         if(this.props.doFetch){
-            await fetch('https://localhost:8090/api/public/'+id, {
+            await fetch('http://localhost:8090/api/public/'+id, {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json',
@@ -89,42 +89,11 @@ export default class KeyInterface extends Component{
 
     }
     async editData(oldId,keyObject){
-        console.log(oldId);
-        console.log(keyObject);
-        const keyId = Object.keys(keyObject)[0];
-        const key = keyObject[keyId];
-        const result = {"id":keyId,"key":JSON.stringify(key)};
-        await fetch('http://localhost:8090/api/public/'+oldId, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content': 'application/json'
-            },
-            body: JSON.stringify(result)
-            }).then(response=>{
-                console.log("Saved the data")
-            });
-    }
-    async initData(){
-        var jwtData = await fetch('http://localhost:8090/api/public', {
-            method: 'GET',
-
-            headers: {
-                'Accept': 'application/json',
-                'Content': 'application/json'
-            }
-            }).then(response=>{
-                console.log("Deleted the data")
-            }).catch(error=>{
-                console.log("Could not save data");
-            });;
-    }
-    async editData(oldId,keyObject){
         const keyId = Object.keys(keyObject)[0];
         const key = keyObject[keyId];
         const result = {"id":keyId,"key":JSON.stringify(key)};
         if(this.props.doFetch){
-            await fetch('https://localhost:8090/api/public/'+oldId, {
+            await fetch('http://localhost:8090/api/public/'+oldId, {
                 method: 'PUT',
                 headers: {
                     'Accept': 'application/json',
