@@ -65,8 +65,9 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
         patientInfo = Utilities.getPatientInfo(patient);
         practitionerRoleInfo = Utilities.getPractitionerRoleInfo(practitionerRole);
 
-        queries.addAll(this.resourcesToQueries(codings, patient, practitionerRole, patientInfo,
-            practitionerRoleInfo));
+        queries.addAll(
+            this.resourcesToQueries(codings, patient == null, practitionerRole == null, patientInfo,
+                practitionerRoleInfo));
       } catch (RequestIncompleteException e) {
         throw e;
       } catch (Exception e) {

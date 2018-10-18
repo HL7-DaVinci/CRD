@@ -200,8 +200,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
 
 
-  protected List<CoverageRequirementRuleQuery> resourcesToQueries(List<?> codings, Object patient,
-      Object practitionerRole,
+  protected List<CoverageRequirementRuleQuery> resourcesToQueries(List<?> codings, boolean patientIsNull,
+      boolean practitionerRoleIsNull,
       PatientInfo patientInfo, PractitionerRoleInfo practitionerRoleInfo)
       throws RequestIncompleteException {
 
@@ -211,10 +211,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     if (codings == null || codings.size() == 0) {
       throw new RequestIncompleteException("Unable to parse a device code out of the request.");
     }
-    if (patient == null) {
+    if (patientIsNull) {
       throw new RequestIncompleteException("No patient could be (pre)fetched in this request.");
     }
-    if (practitionerRole == null) {
+    if (practitionerRoleIsNull) {
       if (doR4) {
         throw new RequestIncompleteException("Unable to find the practitioner role.");
       }
