@@ -58,7 +58,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
 
         patientInfo = Utilities.getPatientInfo(patient);
 
-        queries.addAll(this.resourcesToQueries(codings, patient, null, patientInfo,
+        queries.addAll(this.resourcesToQueries(codings, patient == null, true, patientInfo,
             new PractitionerRoleInfo()));
       } catch (RequestIncompleteException e) {
         throw e;
