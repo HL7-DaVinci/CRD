@@ -23,11 +23,8 @@ public class CoverageRequirementRuleFinder {
    *
    * @param criteria The search criteria object
    */
-  public List<CoverageRequirementRule> findRules(CoverageRequirementRuleQuery.Criteria criteria) {
-    List<CoverageRequirementRule> ruleList = repository.findRules(
-        criteria.getAge(), criteria.getGenderCode(), criteria.getEquipmentCode(),
-        criteria.getCodeSystem(), criteria.getPatientAddressState(),
-        criteria.getProviderAddressState());
+  public List<CoverageRequirementRule> findRules(CoverageRequirementRuleCriteria criteria) {
+    List<CoverageRequirementRule> ruleList = repository.findRules(criteria);
     if (ruleList.size() == 0) {
       logger.debug("RuleFinder returned no results for query: " + criteria.toString());
     }
