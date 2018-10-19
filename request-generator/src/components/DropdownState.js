@@ -83,7 +83,6 @@ export default class DropdownState extends Component {
         search
         selection
         fluid
-        value={"MA"}
         onChange={this.handleChange}
       />
     )
