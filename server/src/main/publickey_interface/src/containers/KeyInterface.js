@@ -5,7 +5,6 @@ import KJUR, {KEYUTIL} from 'jsrsasign';
 import KeyEntry from '../components/KeyEntry';
 import EditEntry from '../components/EditEntry';
 
-
 export default class KeyInterface extends Component{
     constructor(props){
         super(props);
@@ -27,8 +26,21 @@ export default class KeyInterface extends Component{
 
     }
 
-    componentDidMount(){
-        this.initData();
+    async componentDidMount(){
+        if(this.props.doFetch){
+            var jwtData = await fetch('http://localhost:8090/api/public', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+                }).then(response=>{
+                    return response.json();
+                }).catch(error=>{
+                    console.log("Could not load data, make sure the server is running.")
+                });
+            this.initData(jwtData);
+        }
+
     }
     async saveData(keyObject){
         // const jwtData = this.state.jwtJson;
@@ -40,61 +52,62 @@ export default class KeyInterface extends Component{
         //     result[key] = element[key];
         // });
         const keyId = Object.keys(keyObject)[0];
-        console.log(keyId);
+
         const key = keyObject[keyId];
         const result = {"id":keyId,"key":key};
-        console.log(result);
-        await fetch('http://localhost:8090/api/public', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Contetn': 'application/json'
-            },
-            body: JSON.stringify(result)
-            }).then(response=>{
-                console.log("Saved the data")
-            });
+        if(this.props.doFetch){
+            await fetch('http://localhost:8090/api/public', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content': 'application/json'
+                },
+                body: JSON.stringify(result)
+                }).then(response=>{
+                    console.log("Saved the data")
+                }).catch(error=>{
+                    console.log("Could not save data");
+                });
+        }
+
     }
 
     async deleteData(id){
-        await fetch('http://localhost:8090/api/public/'+id, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json',
-                'Contetn': 'application/json'
-            }
-            }).then(response=>{
-                console.log("Deleted the data")
-            });
+        if(this.props.doFetch){
+            await fetch('http://localhost:8090/api/public/'+id, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content': 'application/json'
+                }
+                }).then(response=>{
+                    console.log("Deleted the data")
+                }).catch(error=>{
+                    console.log("Could not save data");
+                });;
+        }
+
     }
     async editData(oldId,keyObject){
-        console.log(oldId);
-        console.log(keyObject);
         const keyId = Object.keys(keyObject)[0];
         const key = keyObject[keyId];
         const result = {"id":keyId,"key":JSON.stringify(key)};
-        await fetch('http://localhost:8090/api/public/'+oldId, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Contetn': 'application/json'
-            },
-            body: JSON.stringify(result)
-            }).then(response=>{
-                console.log("Saved the data")
-            });
+        if(this.props.doFetch){
+            await fetch('http://localhost:8090/api/public/'+oldId, {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Contetn': 'application/json'
+                },
+                body: JSON.stringify(result)
+                }).then(response=>{
+                    console.log("Saved the data")
+                }).catch(error=>{
+                    console.log("Could not save data");
+                });;
+        }
     }
-    async initData(){
-        var jwtData = await fetch('http://localhost:8090/api/public', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            }
-            }).then(response=>{
-                return response.json();
-            }).catch(error=>{
-                console.log("Couldn't load data, make sure the server is running.")
-            });
+    initData(jwtData){
         if(jwtData){
             const peopleArray =[];
             Object.keys(jwtData).map(key =>{
@@ -188,7 +201,9 @@ export default class KeyInterface extends Component{
             return (
                 <div>
                 <h1 className="titleHeader" >Public Keys</h1>
-                <button className="newEntryButton" onClick={this.newItem}><span className="glyphicon glyphicon-plus-sign"></span></button>
+
+                <button id="addButton" className="newEntryButton" onClick={this.newItem}><span className="glyphicon glyphicon-plus-sign"></span></button>
+
                 <button className="newEntryButton reloadButton" onClick={this.initData}><span className="glyphicon glyphicon-retweet"></span></button>
 
                 <div className = "borderDiv">
@@ -199,10 +214,8 @@ export default class KeyInterface extends Component{
                     keyID = Object.keys(key)[0];
                     i+=0.2;
                     keyContent = key[keyID];
-                    console.log(key);
-                    console.log(keyID);
-                    console.log(keyContent);
-                  return <KeyEntry 
+
+                  return <KeyEntry
                   extraClass = {this.state.editing}
                   deleteCB={this.deleteContent} 
                   updateIdCB={this.updateIdCB}

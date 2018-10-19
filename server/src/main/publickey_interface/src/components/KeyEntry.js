@@ -29,7 +29,6 @@ export default class KeyEntry extends Component {
         }
         try{
             var pubKey = KEYUTIL.getKey(jwtPub);
-            console.log(pubKey);
             var jwkPub = KEYUTIL.getJWKFromKey(pubKey);
             this.setState({jwt: JSON.stringify(jwkPub)})
             this.setState({data: "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jwkPub))});
@@ -101,7 +100,7 @@ export default class KeyEntry extends Component {
                 style={styles}
                 >
                 <div className="jwtContent">
-                <form onSubmit={this.updateContent}>
+                <form onSubmit={this.updateContent} className="keyEntryForm">
                 <div className="kidBox">ID: {this.state.kid}
                 </div>
                     {/* <div>ID: {this.state.kid}</div> */}
@@ -114,7 +113,7 @@ export default class KeyEntry extends Component {
                     </input>
                 </div>
                 :
-                <div>{this.state.jwt}</div>}
+                <div className="keyData">{this.state.jwt}</div>}
                 </form>
     
     

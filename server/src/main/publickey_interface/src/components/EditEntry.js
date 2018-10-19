@@ -112,14 +112,14 @@ export default class EditEntry extends Component {
           }
 
             return (
-                <div>
+                <div id="editEntry">
                 <div
                 className={animationClasses}
                 value={this.state.value}
                 style={styles}
                 >
                 <div className="jwtContent">
-                <button className="editingButton" onClick={this.deleteContent}>X</button>
+                <button id="editDeleteButton" className="editingButton" onClick={this.deleteContent}>X</button>
                 <form onSubmit={this.submitContent}>
                 <div className = "kidBox">
                 <div className="kidBox">Key ID: </div>
