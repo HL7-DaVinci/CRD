@@ -2,11 +2,19 @@ package org.hl7.davinci.endpoint.database;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
-import javax.persistence.*;
-
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 
 // request_body: BLOB
 // timestamp: timestamp
@@ -23,12 +31,13 @@ import javax.persistence.*;
 @Entity
 @Table(name = "request_log")
 public class RequestLog {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", updatable = false, nullable = false)
   private long id;
 
-  @Column(name = "request_body", length=10000, nullable = false)
+  @Column(name = "request_body", length = 10000, nullable = false)
   private byte[] requestBody;
 
   @Column(name = "timestamp", nullable = false)
@@ -39,6 +48,12 @@ public class RequestLog {
 
   @Column(name = "patient_gender")
   private String patientGender;
+
+  @Column(name = "patient_address_state")
+  private String patientAddressState;
+
+  @Column(name = "provider_address_state")
+  private String providerAddressState;
 
   @Column(name = "code")
   private String code;
@@ -69,73 +84,8 @@ public class RequestLog {
   private Set<CoverageRequirementRule> rulesFound = new HashSet<>();
 
 
-  public long getId() {
-    return id;
+  public RequestLog() {
   }
-
-  public void setId(long id) {
-    this.id = id;
-  }
-
-  public byte[] getRequestBody() { return requestBody; }
-
-  public void setRequestBody(byte[] requestBody) { this.requestBody = requestBody; }
-
-  public long getTimestamp() { return this.timestamp; }
-
-  public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
-
-  public int getPatientAge() { return this.patientAge; }
-
-  public void setPatientAge(int patientAge) { this.patientAge = patientAge; }
-
-  public String getPatientGender() { return this.patientGender; }
-
-  public void setPatientGender(String patientGender) { this.patientGender = patientGender; }
-
-  public String getCode() { return this.code; }
-
-  public void setCode(String code) { this.code = code; }
-
-  public String getCodeSystem() { return this.codeSystem; }
-
-  public void setCodeSystem(String codeSystem) { this.codeSystem = codeSystem; }
-
-  public String getHookType() { return this.hookType; }
-
-  public void setHookType(String hookType) { this.hookType = hookType; }
-
-  public String getFhirVersion() { return this.fhirVersion; }
-
-  public void setFhirVersion(String fhirVersion) { this.fhirVersion = fhirVersion; }
-
-  public String getResults() { return this.results; }
-
-  public void setResults(String results) { this.results = results; }
-
-  public boolean[] getTimeline() { return this.timeline; }
-
-  public void setTimeline(boolean[] timeline) { this.timeline = timeline; }
-
-  public Set<CoverageRequirementRule> getRulesFound() { return this.rulesFound; }
-
-  public void addRuleFound(CoverageRequirementRule coverageRequirementRule) {
-    this.rulesFound.add(coverageRequirementRule);
-  }
-
-  public void addRulesFound(List<CoverageRequirementRule> rules) {
-    this.rulesFound.addAll(rules);
-  }
-
-  @Override
-  public String toString() {
-    return String.format("(row id: %d, ts: %d, age: %d, gender: %s, code: %s, system: %s, "
-            + "type: %s, version: %s results %s) Request ",
-        id, timestamp, patientAge, patientGender, code, codeSystem,
-        hookType, fhirVersion, results);
-  }
-
-  public RequestLog() {}
 
   public RequestLog(byte[] requestBody, long timestamp) {
     setRequestBody(requestBody);
@@ -154,5 +104,130 @@ public class RequestLog {
       fieldList.add(name);
     }
     return fieldList;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public byte[] getRequestBody() {
+    return requestBody;
+  }
+
+  public void setRequestBody(byte[] requestBody) {
+    this.requestBody = requestBody;
+  }
+
+  public long getTimestamp() {
+    return this.timestamp;
+  }
+
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  public int getPatientAge() {
+    return this.patientAge;
+  }
+
+  public void setPatientAge(int patientAge) {
+    this.patientAge = patientAge;
+  }
+
+  public String getPatientGender() {
+    return this.patientGender;
+  }
+
+  public void setPatientGender(String patientGender) {
+    this.patientGender = patientGender;
+  }
+
+  public String getPatientAddressState() {
+    return patientAddressState;
+  }
+
+  public void setPatientAddressState(String patientAddressState) {
+    this.patientAddressState = patientAddressState;
+  }
+
+  public String getProviderAddressState() {
+    return providerAddressState;
+  }
+
+  public void setProviderAddressState(String providerAddressState) {
+    this.providerAddressState = providerAddressState;
+  }
+
+  public String getCode() {
+    return this.code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  public String getCodeSystem() {
+    return this.codeSystem;
+  }
+
+  public void setCodeSystem(String codeSystem) {
+    this.codeSystem = codeSystem;
+  }
+
+  public String getHookType() {
+    return this.hookType;
+  }
+
+  public void setHookType(String hookType) {
+    this.hookType = hookType;
+  }
+
+  public String getFhirVersion() {
+    return this.fhirVersion;
+  }
+
+  public void setFhirVersion(String fhirVersion) {
+    this.fhirVersion = fhirVersion;
+  }
+
+  public String getResults() {
+    return this.results;
+  }
+
+  public void setResults(String results) {
+    this.results = results;
+  }
+
+  public boolean[] getTimeline() {
+    return this.timeline;
+  }
+
+  public void setTimeline(boolean[] timeline) {
+    this.timeline = timeline;
+  }
+
+  public Set<CoverageRequirementRule> getRulesFound() {
+    return this.rulesFound;
+  }
+
+  public void addRuleFound(CoverageRequirementRule coverageRequirementRule) {
+    this.rulesFound.add(coverageRequirementRule);
+  }
+
+  public void addRulesFound(List<CoverageRequirementRule> rules) {
+    this.rulesFound.addAll(rules);
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "(row id: %d, ts: %d, age: %d, gender: %s, code: %s, system: %s, patient state: %s, "
+            + "provider state: %s, type: %s, version: %s results %s) Request ",
+        id, timestamp, patientAge, patientGender, code, codeSystem, patientAddressState,
+        providerAddressState, hookType, fhirVersion, results);
   }
 }

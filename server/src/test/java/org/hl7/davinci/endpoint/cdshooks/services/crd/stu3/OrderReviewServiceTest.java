@@ -26,7 +26,7 @@ public class OrderReviewServiceTest {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
     OrderReviewRequest request = CrdRequestCreator
-        .createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+        .createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());

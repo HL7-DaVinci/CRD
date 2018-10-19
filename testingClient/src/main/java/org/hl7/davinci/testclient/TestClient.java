@@ -27,7 +27,7 @@ public class TestClient {
     Calendar cal = Calendar.getInstance();
     cal.set(1948, Calendar.JULY, 4);
     OrderReviewRequest hookRequest = CrdRequestCreator
-            .createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+            .createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(),"MA","MA");
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpPost httpPost = new HttpPost("http://localhost:8090/cds-services/order-review-crd");
@@ -48,7 +48,5 @@ public class TestClient {
       System.out.println("Card Summary: " + card.getSummary());
       System.out.println("Card Detail: " + card.getDetail());
     }
-
   }
-
 }

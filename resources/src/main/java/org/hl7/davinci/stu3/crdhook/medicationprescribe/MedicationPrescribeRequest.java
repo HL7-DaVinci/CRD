@@ -9,7 +9,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import java.util.HashMap;
 
 public class MedicationPrescribeRequest extends
-    CdsRequest<CrdPrefetch, Bundle, MedicationPrescribeContext> {
+    CdsRequest<CrdPrefetch, MedicationPrescribeContext> {
 
   private HashMap<String, Object> mapForPrefetchTemplates = null;
 

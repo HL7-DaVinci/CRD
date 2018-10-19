@@ -2,17 +2,27 @@ package org.hl7.davinci.r4;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import org.hl7.davinci.FhirComponentT;
+import org.hl7.davinci.FhirComponentsT;
 
 /**
  * Build some expensive objects here so we can reuse them.
  */
-public class FhirComponents implements FhirComponentT {
-  private static FhirContext fhirContext = FhirContext.forR4();
-  private IParser jsonParser;
+public class FhirComponents implements FhirComponentsT {
+
+  private static FhirContext fhirContext;
+  private static IParser jsonParser;
+  private static Version fhirVersion;
+
+
+
+  static {
+    fhirContext = FhirContext.forR4();
+    jsonParser = fhirContext.newJsonParser();
+    fhirVersion = Version.R4;
+  }
 
   public FhirComponents() {
-    jsonParser = fhirContext.newJsonParser();
+
   }
 
   public FhirContext getFhirContext() {
@@ -23,4 +33,7 @@ public class FhirComponents implements FhirComponentT {
     return jsonParser;
   }
 
+  public Version getFhirVersion() {
+    return fhirVersion;
+  }
 }

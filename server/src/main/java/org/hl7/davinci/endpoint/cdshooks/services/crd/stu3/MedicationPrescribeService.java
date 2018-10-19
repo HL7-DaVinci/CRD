@@ -1,66 +1,71 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.stu3;
 
-import org.cdshooks.CdsRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.cdshooks.Hook;
-import org.cdshooks.Prefetch;
+import org.hl7.davinci.PatientInfo;
+import org.hl7.davinci.PractitionerRoleInfo;
+import org.hl7.davinci.PrefetchTemplateElement;
+import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.exceptions.FHIRException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component("stu3_MedicationPrescribeService")
-public class MedicationPrescribeService extends
-    CdsService<Bundle, DaVinciMedicationRequest, Patient, CodeableConcept>  {
+public class MedicationPrescribeService extends CdsService<MedicationPrescribeRequest> {
 
   public static final String ID = "medication-prescribe-crd";
   public static final String TITLE = "medication-prescribe Coverage Requirements Discovery";
   public static final Hook HOOK = Hook.MEDICATION_PRESCRIBE;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
-  public static final Prefetch PREFETCH;
-  static final Logger logger = LoggerFactory.getLogger(MedicationPrescribeService.class);
-  static final String FHIRVERSION = "stu3";
+  public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays
+      .asList(CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE);
+  public static final Logger logger = LoggerFactory.getLogger(MedicationPrescribeService.class);
+
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
-  static {
-    PREFETCH = new Prefetch();
-    PREFETCH.put(CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE.getKey(),
-        CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE.getQuery());
-  }
-
-
-  @Autowired
-  CoverageRequirementRuleFinder ruleFinder;
 
   public MedicationPrescribeService() {
-    super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH, FHIRCOMPONENTS,FHIRVERSION);
+    super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
-  public CodeableConcept getCc(DaVinciMedicationRequest medicationRequest) throws FHIRException {
-    return medicationRequest.getMedicationCodeableConcept();
-  }
-  public Patient getPatient(DaVinciMedicationRequest medicationRequest) {
-    return (Patient) medicationRequest.getSubject().getResource();
-  }
+  public List<CoverageRequirementRuleQuery> makeQueries(
+      MedicationPrescribeRequest medicationPrescribeRequest)
+      throws RequestIncompleteException {
+    List<CoverageRequirementRuleQuery> queries = new ArrayList<>();
+    Bundle medicationRequestBundle = medicationPrescribeRequest.getPrefetch()
+        .getMedicationRequestBundle();
+    List<DaVinciMedicationRequest> medicationRequestList = Utilities
+        .getResourcesOfTypeFromBundle(DaVinciMedicationRequest.class, medicationRequestBundle);
+    for (DaVinciMedicationRequest medicationRequest : medicationRequestList) {
+      List<Coding> codings = null;
+      Patient patient = null;
+      PatientInfo patientInfo = null;
+      try {
+        codings = medicationRequest.getMedicationCodeableConcept().getCoding();
+        patient = (Patient) medicationRequest.getSubject().getResource();
 
-  @Override
-  public List<DaVinciMedicationRequest> getRequests(CdsRequest request) {
-    MedicationPrescribeRequest medicationPrescribeRequest = (MedicationPrescribeRequest) request;
-    Bundle medicationRequestBundle = medicationPrescribeRequest.getPrefetch().getMedicationRequestBundle();
-    Utilities util = new Utilities();
-    return util.getResourcesOfTypeFromBundle(DaVinciMedicationRequest.class, medicationRequestBundle);
+        patientInfo = Utilities.getPatientInfo(patient);
+
+        queries.addAll(this.resourcesToQueries(codings, patient == null, true, patientInfo,
+            new PractitionerRoleInfo()));
+      } catch (RequestIncompleteException e) {
+        throw e;
+      } catch (Exception e) {
+        logger.error("Error parsing needed info from the device request bundle.", e);
+      }
+    }
+    return queries;
   }
 }
-

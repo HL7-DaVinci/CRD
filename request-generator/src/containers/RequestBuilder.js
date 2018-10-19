@@ -4,6 +4,7 @@ import InputBox from '../components/InputBox';
 import Toggle from '../components/Toggle';
 import DisplayBox from '../components/DisplayBox';
 import DropdownInput from '../components/DropdownInput';
+import DropdownState from '../components/DropdownState';
 import CheckBox from '../components/CheckBox';
 import ConsoleBox from '../components/ConsoleBox';
 import '../index.css';
@@ -25,6 +26,8 @@ export default class RequestBuilder extends Component{
             age: null,
             gender: null,
             code: null,
+            patientState: null,
+            practitionerState: null,
             response:null,
             token: null,
             oauth:false,
@@ -255,7 +258,6 @@ export default class RequestBuilder extends Component{
     }
 
     render() {
-
       const options = {
         option1:{
           text:"Male",
@@ -282,7 +284,6 @@ export default class RequestBuilder extends Component{
                   // e.g., gender should have a "toggle" attribute and the options
                   // it wants should be written in the JSON.  This way if we want more
                   // options later they're easy to add.
-                    if(key!=="response" && key!=="validateMap"){
                       if(key==="gender"){
                         return <div key={key}>
                         <div className="header">
@@ -321,11 +322,28 @@ export default class RequestBuilder extends Component{
                           <br />
                           </div>
                       }
-
-
-                    }
-
                 })}
+                <div>
+                  <div className="leftStateInput">
+                  <div className="header">
+                          Patient State
+                  </div>
+                  <DropdownState 
+                    elementName="patientState"
+                    updateCB={this.updateStateElement}
+                  />
+                  </div>
+                  <div className="rightStateInput">
+                  <div className="header">
+                          Practitioner State
+                        </div>
+                  <DropdownState 
+                    elementName="practitionerState"
+                    updateCB={this.updateStateElement}
+                  />
+                  </div>
+                </div>
+
 
                 <br />
                 <button className={"submit-btn btn btn-class "+ (!total ? "button-error" : total===1 ? "button-ready":"button-empty-fields")} onClick={this.startLoading}>Submit
@@ -442,7 +460,14 @@ export default class RequestBuilder extends Component{
                   resourceType: "Patient",
                   id: "pat1234",
                   gender: this.state.gender,
-                  birthDate: birthYear + "-12-23"
+                  birthDate: birthYear + "-12-23",
+                  address: [
+                    {
+                      use: "home",
+                      type: "both",
+                      state: this.state.patientState
+                    }
+                  ]
                 }
               },
               {
@@ -474,7 +499,7 @@ export default class RequestBuilder extends Component{
                       "100 Good St"
                     ],
                     city: "Bedford",
-                    state: "MA",
+                    state: this.state.practitionerState,
                     postalCode: "01730"
                   }
                 }

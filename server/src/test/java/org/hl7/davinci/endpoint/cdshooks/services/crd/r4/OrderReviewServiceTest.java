@@ -26,10 +26,10 @@ public class OrderReviewServiceTest {
   public void testHandleRequest() {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
-    OrderReviewRequest request = CrdRequestCreator.createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+    OrderReviewRequest request = CrdRequestCreator.createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
-    assertEquals("No documentation rules found", response.getCards().get(0).getSummary());
+    assertEquals("Documentation is required for the desired device or service", response.getCards().get(0).getSummary());
   }
 }
