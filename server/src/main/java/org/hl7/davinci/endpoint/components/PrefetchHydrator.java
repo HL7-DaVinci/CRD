@@ -100,10 +100,6 @@ public class PrefetchHydrator {
    * Attempt to hydrate missing prefetch elements, note that this modifies the request object.
    */
   public void hydrate() {
-    if (cdsRequest.getFhirServer() == null) {
-      throw new FatalRequestIncompleteException("Attempting to fill the prefetch, but no fhir "
-          + "server provided. Either provide a full prefetch or provide a fhir server.");
-    }
     Object crdResponse = cdsRequest.getPrefetch();
     for (PrefetchTemplateElement prefetchElement : cdsService.getPrefetchElements()) {
       String prefetchKey = prefetchElement.getKey();
@@ -126,6 +122,10 @@ public class PrefetchHydrator {
         // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
         // e.g. this could be a query template for a medication order but we have a device request
         if (hydratedPrefetchQuery != null) {
+          if (cdsRequest.getFhirServer() == null) {
+            throw new FatalRequestIncompleteException("Attempting to fill the prefetch, but no fhir "
+                + "server provided. Either provide a full prefetch or provide a fhir server.");
+          }
           try {
             PropertyUtils
                 .setProperty(crdResponse, prefetchKey,
