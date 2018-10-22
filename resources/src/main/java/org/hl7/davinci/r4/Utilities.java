@@ -7,6 +7,7 @@ import java.util.List;
 import org.hl7.davinci.UtilitiesInterface;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.DomainResource;
 import org.hl7.fhir.r4.model.Resource;
 
 import org.hl7.fhir.r4.model.Patient;
@@ -58,6 +59,52 @@ public class Utilities extends UtilitiesInterface<Resource,Bundle> {
       if (resource.getClass() == type) {
         retList.add(type.cast(resource));
       }
+    }
+    return retList;
+  }
+
+  /**
+   * Gets all resources of some supertype.
+   * @param type The class of the resources you want.
+   * @param bundle The bundle that might have some the resources you want.
+   * @param <T> The class of the resource you want.
+   * @return A list of resources of desired type extracted from the bundle.
+   */
+  public <T extends Resource> List<T> getResourcesOfSuperTypeFromBundle(
+      Class<T> type, Bundle bundle) {
+    List<T> retList = new ArrayList<>();
+    for (BundleEntryComponent bec: bundle.getEntry()) {
+      if (!bec.hasResource()) {
+        continue;
+      }
+      Resource resource = bec.getResource();
+      if (type.isAssignableFrom(resource.getClass())) {
+        retList.add(type.cast(resource));
+      }
+    }
+    return retList;
+  }
+
+  /**
+   * Gets all resources that are any of multiple types.
+   * @param types The classes of the resources you want.
+   * @param bundle The bundle that might have some the resources you want.
+   * @return A list of resources of desired type extracted from the bundle.
+   */
+  public List<DomainResource> getResourcesOfTypesFromBundle(
+      List<Class<? extends DomainResource>> types, Bundle bundle) {
+    List<DomainResource> retList = new ArrayList<>();
+    for (BundleEntryComponent bec: bundle.getEntry()) {
+      if (!bec.hasResource()) {
+        continue;
+      }
+      Resource resource = bec.getResource();
+      for (Class<? extends DomainResource> type:types) {
+        if (resource.getClass() == type) {
+          retList.add(type.cast(resource));
+        }
+      }
+
     }
     return retList;
   }
