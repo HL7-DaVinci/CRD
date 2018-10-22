@@ -13,6 +13,7 @@ import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Address.AddressUse;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.DomainResource;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.PractitionerRole;
@@ -66,6 +67,31 @@ public class Utilities {
     }
     return retList;
   }
+
+  /**
+   * Gets all resources that are any of multiple types.
+   * @param types The classes of the resources you want.
+   * @param bundle The bundle that might have some the resources you want.
+   * @return A list of resources of desired type extracted from the bundle.
+   */
+  public List<DomainResource> getResourcesOfTypesFromBundle(
+      List<Class<? extends DomainResource>> types, Bundle bundle) {
+    List<DomainResource> retList = new ArrayList<>();
+    for (BundleEntryComponent bec: bundle.getEntry()) {
+      if (!bec.hasResource()) {
+        continue;
+      }
+      Resource resource = bec.getResource();
+      for (Class<? extends DomainResource> type:types) {
+        if (resource.getClass() == type) {
+          retList.add(type.cast(resource));
+        }
+      }
+
+    }
+    return retList;
+  }
+
 
   public static Address getFirstPhysicalHomeAddress(List<Address> addresses) {
     for (Address address : addresses) {
