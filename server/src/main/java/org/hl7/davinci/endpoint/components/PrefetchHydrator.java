@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hl7.davinci.FatalRequestIncompleteException;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
@@ -35,6 +36,8 @@ public class PrefetchHydrator {
   private Object dataForPrefetchToken;
   private FhirComponentsT fhirComponents;
 
+  private String currentlyResolvingPrefetchToken;
+
   /**
    * Constructor should take in a service and a request that service is processing. This class can
    * fill out the prefetch elements that are missing.
@@ -52,7 +55,7 @@ public class PrefetchHydrator {
     this.fhirComponents = fhirComponents;
   }
 
-  private static void resolvePrefetchTokenRecursive(
+  private void resolvePrefetchTokenRecursive(
       Object object, List<String> pathList, List<String> elementList) {
     if (object == null) {
       return;
@@ -62,16 +65,25 @@ public class PrefetchHydrator {
       return;
     }
 
-    try {
-      //special logic for "id" since hapi puts the unqualified id part kind of deep
-      if (pathList.get(0).equals("id")) {
+
+    // if a resource exists but has no id, throw an error rather than continuing
+    if (pathList.get(0).equals("id")) {
+      try {
+        //special logic for "id" since hapi puts the unqualified id part kind of deep
         object = ((IBaseResource) object).getIdElement().getIdPart();
-      } else {
-        object = PropertyUtils.getProperty(object, pathList.get(0));
+      } catch (Exception e) {
+        return;
       }
-    } catch (Exception e) {
+      if (object == null) throw new FatalRequestIncompleteException("While attempting to resolve prefetch "
+          + "token '"+currentlyResolvingPrefetchToken+"', a resource was found without an ID.");
+    }
+    else
+      try {
+        object = PropertyUtils.getProperty(object, pathList.get(0));
+      } catch (Exception e) {
       return;
     }
+
     List<String> remaingPathList = pathList.subList(1, pathList.size());
 
     if (object instanceof List) {
@@ -89,7 +101,8 @@ public class PrefetchHydrator {
    */
   public void hydrate() {
     if (cdsRequest.getFhirServer() == null) {
-      return; //can't prefetch without a fhir server!
+      throw new FatalRequestIncompleteException("Attempting to fill the prefetch, but no fhir "
+          + "server provided. Either provide a full prefetch or provide a fhir server.");
     }
     Object crdResponse = cdsRequest.getPrefetch();
     for (PrefetchTemplateElement prefetchElement : cdsService.getPrefetchElements()) {
@@ -171,6 +184,7 @@ public class PrefetchHydrator {
   }
 
   private String resolvePrefetchToken(String prefetchToken) {
+    currentlyResolvingPrefetchToken = prefetchToken;
     List<String> elementList = new ArrayList<>();
     List<String> pathList = Arrays.asList(prefetchToken.split("\\."));
     resolvePrefetchTokenRecursive(dataForPrefetchToken, pathList, elementList);
