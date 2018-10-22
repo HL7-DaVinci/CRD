@@ -13,6 +13,7 @@ import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.DomainResource;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.slf4j.Logger;
@@ -20,13 +21,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 
 @Component("stu3_OrderReviewService")
 public class OrderReviewService extends
-    CdsService<Bundle, DaVinciDeviceRequest, Patient, CodeableConcept>  {
+    CdsService<Bundle, DomainResource, Patient, CodeableConcept>  {
 
   public static final String ID = "order-review-crd";
   public static final String TITLE = "order-review Coverage Requirements Discovery";
@@ -59,23 +61,49 @@ public class OrderReviewService extends
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH, FHIRCOMPONENTS, FHIRVERSION);
   }
 
-  public CodeableConcept getCc(DaVinciDeviceRequest deviceRequest) throws FHIRException {
-    return deviceRequest.getCodeCodeableConcept();
+
+  public List<Bundle> getOrderReviewBundles(OrderReviewRequest request) {
+    ArrayList<Bundle> retList = new ArrayList<>();
+    retList.add(request.getPrefetch().getDeviceRequestBundle());
+    // STU3 doesn't seem to support service request yet
+    //retList.add(request.getPrefetch().getServiceRequestBundle());
+    return retList;
+  }
+  public CodeableConcept getCc(DomainResource deviceRequest) throws FHIRException {
+    if(deviceRequest instanceof  DaVinciDeviceRequest) {
+      return ((DaVinciDeviceRequest) deviceRequest).getCodeCodeableConcept();
+    }
+    return null;
+
   }
 
-  public Patient getPatient(DaVinciDeviceRequest deviceRequest) {
-    return (Patient) deviceRequest.getSubject().getResource();
+  public Patient getPatient(DomainResource deviceRequest) {
+    if (deviceRequest instanceof DaVinciDeviceRequest) {
+      return (Patient) ((DaVinciDeviceRequest) deviceRequest).getSubject().getResource();
+    }
+    return null;
   }
 
   @Override
-  public List<DaVinciDeviceRequest> getRequests(CdsRequest request) {
+  public List<DomainResource> getRequests(CdsRequest request) {
     OrderReviewRequest orderReviewRequest = (OrderReviewRequest) request;
-    Bundle orderReviewBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
-    if (orderReviewBundle == null) {
+    List<Bundle> allBundles = getOrderReviewBundles(orderReviewRequest);
+    ArrayList<DomainResource> retList = new ArrayList<>();
+    ArrayList<Class<? extends DomainResource>> types = new ArrayList<>();
+    types.add(DaVinciDeviceRequest.class);
+    // more types here
+    // ****
+    for (Bundle orderReviewBundle : allBundles) {
+      if (orderReviewBundle != null) {
+        Utilities util = new Utilities();
+        retList.addAll(util.getResourcesOfTypesFromBundle(types, orderReviewBundle));
+      }
+    }
+    if (retList.size() > 0) {
+      return retList;
+    } else {
       return null;
     }
-    Utilities util = new Utilities();
-    return util.getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, orderReviewBundle);
   }
 
 }
