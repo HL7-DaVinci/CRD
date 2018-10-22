@@ -16,6 +16,8 @@ public class CrdPrefetchTemplateElements {
           + "&_include=DeviceRequest:device"
           + "&_include=PractitionerRole:organization"
           + "&_include=PractitionerRole:practitioner"
+          + "&_include:recurse=PractitionerRole:location"
+          + "&_include:iterate=PractitionerRole:location"
           + "&_include=DeviceRequest:insurance:Coverage",
       Bundle.class);
 
