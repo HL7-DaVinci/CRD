@@ -11,6 +11,10 @@ public class CoverageRequirementRuleCriteria {
 
   public CoverageRequirementRuleCriteria(){}
 
+  /**
+   * Converts the coverage requirement rule to a string.
+   * @return the formatted string representation of the object
+   */
   public String toString() {
     return String.format(
         "age=%d, genderCode=%c, equipmentCode=%s, codeSystem=%s, patientAddressState=%s, providerAddressState=%s",

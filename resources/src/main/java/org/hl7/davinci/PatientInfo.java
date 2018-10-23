@@ -5,6 +5,12 @@ public class PatientInfo {
   private String patientAddressState = null;
   private Integer patientAge = null;
 
+  /**
+   * Constructor for the patientInfo class.
+   * @param patientGenderCode the gender code, a single character
+   * @param patientAddressState the two letter code for a patients state
+   * @param patientAge the ingteger value of the patients age
+   */
   public PatientInfo(Character patientGenderCode, String patientAddressState,
       Integer patientAge) {
     this.patientGenderCode = patientGenderCode;

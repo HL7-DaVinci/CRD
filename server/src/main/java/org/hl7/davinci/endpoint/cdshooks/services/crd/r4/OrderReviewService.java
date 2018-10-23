@@ -47,13 +47,26 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
-  public List<Bundle> getOrderReviewBundles(OrderReviewRequest request) {
+  /**
+   * Puts all the different bundles in a request into a single list.
+   * @param request the request to be searched.
+   * @return a list of all the different types of bundles.
+   */
+  private List<Bundle> getOrderReviewBundles(OrderReviewRequest request) {
     ArrayList<Bundle> retList = new ArrayList<>();
     retList.add(request.getPrefetch().getDeviceRequestBundle());
     retList.add(request.getPrefetch().getServiceRequestBundle());
     return retList;
   }
 
+  /**
+   * Acquires the specific information needed by the parent request handling
+   * function.  This function checks for multiple types of bundles instead
+   * of just one.
+   * @param orderReviewRequest the request to extract information from
+   * @return a list of the information required.
+   * @throws RequestIncompleteException if the request cannot be parsed.
+   */
   public List<CoverageRequirementRuleQuery> makeQueries(OrderReviewRequest orderReviewRequest)
       throws RequestIncompleteException {
     List<CoverageRequirementRuleQuery> queries = new ArrayList<>();

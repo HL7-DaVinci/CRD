@@ -106,6 +106,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return prefetchElements;
   }
 
+  /**
+   * Performs generic operations for incoming requests of any type.
+   * @param request the generically typed incoming request
+   * @return The response from the server
+   */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request) {
 
     boolean[] timeline = new boolean[5];
@@ -164,7 +169,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestService.edit(requestLog);
 
     List<String> codes = new ArrayList<>();
-    List<String> codeSystems = new ArrayList<>();
+
     List<CoverageRequirementRule> rules = new ArrayList<>();
     for (CoverageRequirementRuleQuery query : queries) {
       query.execute();
@@ -177,6 +182,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestLog.setPatientAddressState(queries.get(0).getCriteria().getPatientAddressState());
     requestLog.setProviderAddressState(queries.get(0).getCriteria().getProviderAddressState());
     requestLog.setCode(String.join(", ", codes));
+
+    List<String> codeSystems = new ArrayList<>();
     requestLog.setCodeSystem(String.join(", ", codeSystems));
 
     if (rules.size() == 0) {
