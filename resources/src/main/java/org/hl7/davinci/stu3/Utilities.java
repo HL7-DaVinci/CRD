@@ -64,32 +64,47 @@ public class Utilities {
     return retList;
   }
 
+  /**
+   * Returns the first match for an address in a list of addresses that is a
+   * physical home.
+   * @param addresses the list of addresses.
+   * @return the first physical home in the list
+   */
   public static Address getFirstPhysicalHomeAddress(List<Address> addresses) {
     for (Address address : addresses) {
-      if (address.getUse() == AddressUse.HOME && (address.getType() == AddressType.BOTH || address.getType() == AddressType.PHYSICAL)) {
+      if (address.getUse() == AddressUse.HOME
+          && (address.getType() == AddressType.BOTH
+          || address.getType() == AddressType.PHYSICAL)) {
         return address;
       }
     }
     return null;
   }
 
-  public static PatientInfo getPatientInfo(Patient patient) throws RequestIncompleteException{
+  /**
+   * Acquires all the needed information from the patient resource.
+   * @param patient the patient to get info from
+   * @return a PatientInfo object containing the age/gender/address of the patient
+   * @throws RequestIncompleteException thrown if information is missing.
+   */
+  public static PatientInfo getPatientInfo(Patient patient) throws RequestIncompleteException {
     Character patientGenderCode = null;
     String patientAddressState = null;
     Integer patientAge = null;
 
     try {
-      patientGenderCode = patient.getGender().getDisplay().charAt(0);;
+      patientGenderCode = patient.getGender().getDisplay().charAt(0);
       patientAddressState = Utilities.getFirstPhysicalHomeAddress(patient.getAddress()).getState();
       patientAge = SharedUtilities.calculateAge(patient.getBirthDate());
-    } catch (Exception e){
+    } catch (Exception e) {
       //TODO: logger.error("Error parsing needed info from the device request bundle.", e);
     }
     if (patientGenderCode == null) {
       throw new RequestIncompleteException("Patient found with no gender. Looking in Patient -> gender");
     }
     if (patientAddressState == null) {
-      throw new RequestIncompleteException("Patient found with no home state. Looking in Patient -> address [searching for the first physical home address] -> state.");
+      throw new RequestIncompleteException("Patient found with no home state. "
+          + "Looking in Patient -> address [searching for the first physical home address] -> state.");
     }
     if (patientAge == null) {
       throw new RequestIncompleteException("Patient found with no birthdate. Looking in Patient -> birthDate.");

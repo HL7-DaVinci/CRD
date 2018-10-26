@@ -93,32 +93,47 @@ public class Utilities {
   }
 
 
+  /**
+   * Returns the first match for an address in a list of addresses that is a
+   * physical home.
+   * @param addresses the list of addresses.
+   * @return the first physical home in the list
+   */
   public static Address getFirstPhysicalHomeAddress(List<Address> addresses) {
     for (Address address : addresses) {
-      if (address.getUse() == AddressUse.HOME && (address.getType() == AddressType.BOTH || address.getType() == AddressType.PHYSICAL)) {
+      if (address.getUse() == AddressUse.HOME
+          && (address.getType() == AddressType.BOTH
+          ||  address.getType() == AddressType.PHYSICAL)) {
         return address;
       }
     }
     return null;
   }
 
+  /**
+   * Acquires all the needed information from the patient resource.
+   * @param patient the patient to get info from
+   * @return a PatientInfo object containing the age/gender/address of the patient
+   * @throws RequestIncompleteException thrown if information is missing.
+   */
   public static PatientInfo getPatientInfo(Patient patient) throws RequestIncompleteException {
     Character patientGenderCode = null;
     String patientAddressState = null;
     Integer patientAge = null;
 
     try {
-      patientGenderCode = patient.getGender().getDisplay().charAt(0);;
+      patientGenderCode = patient.getGender().getDisplay().charAt(0);
       patientAddressState = Utilities.getFirstPhysicalHomeAddress(patient.getAddress()).getState();
       patientAge = SharedUtilities.calculateAge(patient.getBirthDate());
-    } catch (Exception e){
+    } catch (Exception e) {
       //TODO: logger.error("Error parsing needed info from the device request bundle.", e);
     }
     if (patientGenderCode == null) {
       throw new RequestIncompleteException("Patient found with no gender. Looking in Patient -> gender");
     }
     if (patientAddressState == null) {
-      throw new RequestIncompleteException("Patient found with no home state. Looking in Patient -> address [searching for the first physical home address] -> state.");
+      throw new RequestIncompleteException("Patient found with no home state. "
+          + "Looking in Patient -> address [searching for the first physical home address] -> state.");
     }
     if (patientAge == null) {
       throw new RequestIncompleteException("Patient found with no birthdate. Looking in Patient -> birthDate.");
@@ -127,14 +142,21 @@ public class Utilities {
     return new PatientInfo(patientGenderCode, patientAddressState, patientAge);
   }
 
-  public static PractitionerRoleInfo getPractitionerRoleInfo(PractitionerRole practitionerRole) throws RequestIncompleteException {
+  /**
+   * Extracts information from the practitioner role resource.
+   * @param practitionerRole the resource to be searched
+   * @return an object containing only the needed information from the resource.
+   * @throws RequestIncompleteException thrown if critical information is missing.
+   */
+  public static PractitionerRoleInfo getPractitionerRoleInfo(
+      PractitionerRole practitionerRole) throws RequestIncompleteException {
     Location practitionerRoleLocation = null;
     String locationAddressState = null;
 
     try {
-        practitionerRoleLocation = (Location) practitionerRole.getLocationFirstRep().getResource();
-        locationAddressState = practitionerRoleLocation.getAddress().getState();
-    } catch (Exception e){
+      practitionerRoleLocation = (Location) practitionerRole.getLocationFirstRep().getResource();
+      locationAddressState = practitionerRoleLocation.getAddress().getState();
+    } catch (Exception e) {
       //TODO: logger.error("Error parsing needed info from the device request bundle.", e);
     }
     if (practitionerRoleLocation == null) {

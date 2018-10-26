@@ -44,7 +44,7 @@ public class PrefetchHydrator {
    *
    * @param cdsService The service that is processing the request.
    * @param cdsRequest The request in question, the prefetch will be hydrated if possible. Note that
-   * this object gets modified.
+   *                   this object gets modified.
    * @param fhirComponents The fhir components object.
    */
   public PrefetchHydrator(CdsService cdsService, CdsRequest cdsRequest,
@@ -74,16 +74,17 @@ public class PrefetchHydrator {
       } catch (Exception e) {
         return;
       }
-      if (object == null) throw new FatalRequestIncompleteException("While attempting to resolve prefetch "
-          + "token '"+currentlyResolvingPrefetchToken+"', a resource was found without an ID.");
-    }
-    else
+      if (object == null) {
+        throw new FatalRequestIncompleteException("While attempting to resolve prefetch "
+            + "token '" + currentlyResolvingPrefetchToken + "', a resource was found without an ID.");
+      }
+    } else {
       try {
         object = PropertyUtils.getProperty(object, pathList.get(0));
       } catch (Exception e) {
-      return;
+        return;
+      }
     }
-
     List<String> remaingPathList = pathList.subList(1, pathList.size());
 
     if (object instanceof List) {

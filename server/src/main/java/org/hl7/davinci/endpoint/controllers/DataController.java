@@ -42,6 +42,11 @@ public class DataController {
   @Autowired
   private RequestRepository requestRepository;
 
+  /**
+   * Basic constructor to initialize both data repositories.
+   * @param repository the database for the data (rules)
+   * @param requestRepository the database for request logging
+   */
   @Autowired
   public DataController(DataRepository repository, RequestRepository requestRepository) {
     this.repository = repository;

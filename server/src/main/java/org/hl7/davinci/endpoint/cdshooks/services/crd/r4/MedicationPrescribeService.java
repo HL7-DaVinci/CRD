@@ -41,6 +41,13 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
+  /**
+   * Acquires the specific information needed by the parent request handling
+   * function.
+   * @param orderReviewRequest the request to extract information from
+   * @return a list of the information required.
+   * @throws RequestIncompleteException if the request cannot be parsed.
+   */
   public List<CoverageRequirementRuleQuery> makeQueries(
       MedicationPrescribeRequest orderReviewRequest)
       throws RequestIncompleteException {

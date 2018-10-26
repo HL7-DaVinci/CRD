@@ -13,7 +13,7 @@ public class CoverageRequirementRuleQuery {
     this.criteria = new CoverageRequirementRuleCriteria();
   }
 
-  public void execute(){
+  public void execute() {
     response = finder.findRules(criteria);
   }
 

@@ -48,11 +48,19 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
+  /**
+   * Acquires the specific information needed by the parent request handling
+   * function.
+   * @param orderReviewRequest the request to extract information from
+   * @return a list of the information required.
+   * @throws RequestIncompleteException if the request cannot be parsed.
+   */
   public List<CoverageRequirementRuleQuery> makeQueries(OrderReviewRequest orderReviewRequest)
       throws RequestIncompleteException {
     List<CoverageRequirementRuleQuery> queries = new ArrayList<>();
     Bundle deviceRequestBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
-    List<DaVinciDeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, deviceRequestBundle);
+    List<DaVinciDeviceRequest> deviceRequestList = Utilities
+        .getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, deviceRequestBundle);
     for (DeviceRequest deviceRequest : deviceRequestList) {
       List<Coding> codings = null;
       Patient patient = null;
