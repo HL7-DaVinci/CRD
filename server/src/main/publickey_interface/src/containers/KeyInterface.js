@@ -200,7 +200,6 @@ export default class KeyInterface extends Component{
         var keyContent;
             return (
                 <div>
-                <h1 className="titleHeader" >Public Keys</h1>
 
                 <button id="addButton" className="newEntryButton" onClick={this.newItem}><span className="glyphicon glyphicon-plus-sign"></span></button>
 
