@@ -27,6 +27,7 @@ export default class CheckBox extends Component {
         return (
             <span>
             <button
+            id="checkbox"
             className={toggleClass +" btn-class btn"}
             name={this.props.elementName}
             onClick={this.onInputChange}

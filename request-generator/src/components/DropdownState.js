@@ -77,7 +77,8 @@ export default class DropdownState extends Component {
     }
     return (
       <Dropdown
-      className={blackBorder}
+
+      className={blackBorder + " dropdownState"}
         options={stateOptions}
         placeholder='Choose State'
         search
