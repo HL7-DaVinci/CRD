@@ -36,7 +36,11 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.6.0",
     "fs": "0.0.1-security",
-    "jju": "^1.4.0"
+    "jju": "^1.4.0",
+    "sinon": "^7.0.0"
   }
 }

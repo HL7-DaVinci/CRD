@@ -4,7 +4,7 @@ export default class App extends Component {
     render() {
         return (
             <div>
-                <RequestBuilder />
+                <RequestBuilder createJWT={true}/>
             </div>
         );
     }
