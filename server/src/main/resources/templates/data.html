@@ -18,7 +18,7 @@
 <div class="container-fluid">
 <h1 th:text="${foo}"></h1>
 
-<div th:replace="rules-table :: table"></div>
+<div th:replace="rules-table :: table(headers = ${headers})"></div>
 
 <div>
     <form action="#" th:action="@{/data}" th:object="${datum}" method="post">
