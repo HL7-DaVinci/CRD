@@ -18,7 +18,7 @@ export default class HealthInfo extends Component {
     componentDidMount(){
         // temporarily hard code the data
         var dataProps = this.props.data;
-        this.setState({requestInfo: {"age":dataProps.patientAge,"gender":dataProps.patientGender,"code":dataProps.code,"codeSystem":codeSystemConversion[dataProps.codeSystem]}})
+        this.setState({requestInfo: {"age":dataProps.patientAge,"gender":dataProps.patientGender,"Patient State":dataProps.patientAddressState,"Provider State":dataProps.providerAddressState,"code":dataProps.code,"codeSystem":codeSystemConversion[dataProps.codeSystem]}})
     }
 
      render() {

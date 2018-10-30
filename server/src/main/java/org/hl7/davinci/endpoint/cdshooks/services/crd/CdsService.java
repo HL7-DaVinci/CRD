@@ -169,13 +169,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestService.edit(requestLog);
 
     List<String> codes = new ArrayList<>();
-
+    List<String> codeSystems = new ArrayList<>();
     List<CoverageRequirementRule> rules = new ArrayList<>();
     for (CoverageRequirementRuleQuery query : queries) {
       query.execute();
       rules.addAll(query.getResponse()); // will be zero or more
       codes.add(query.getCriteria().getEquipmentCode());
-      codes.add(query.getCriteria().getCodeSystem());
+      codeSystems.add(query.getCriteria().getCodeSystem());
     }
     requestLog.setPatientAge(queries.get(0).getCriteria().getAge());
     requestLog.setPatientGender(String.valueOf(queries.get(0).getCriteria().getGenderCode()));
@@ -183,7 +183,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestLog.setProviderAddressState(queries.get(0).getCriteria().getProviderAddressState());
     requestLog.setCode(String.join(", ", codes));
 
-    List<String> codeSystems = new ArrayList<>();
+
     requestLog.setCodeSystem(String.join(", ", codeSystems));
 
     if (rules.size() == 0) {
