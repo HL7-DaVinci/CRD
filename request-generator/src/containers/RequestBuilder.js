@@ -213,10 +213,13 @@ export default class RequestBuilder extends Component{
             }).then(response => {
               this.consoleLog("Recieved response",types.info);
                 return response.json();
-            }).catch(reason => this.consoleLog("No response recieved from the server", types.error));
+            }).catch(reason => {
+              this.consoleLog("No response recieved from the server", types.error)
+              this.setState({response: null});
+            });
 
             if(fhirResponse && fhirResponse.status){
-              console.log(fhirResponse);
+              this.setState({response: null});
               this.consoleLog("Server returned status " 
                               + fhirResponse.status + ": " 
                               + fhirResponse.error,types.error);
@@ -227,6 +230,7 @@ export default class RequestBuilder extends Component{
           this.setState({loading:false});
           }catch(error){
             this.setState({loading:false});
+
             this.consoleLog("Unexpected error occured",types.error)
             // this.consoleLog(e.,types.error);
             if(error instanceof TypeError){
