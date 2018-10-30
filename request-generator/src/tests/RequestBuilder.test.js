@@ -46,29 +46,30 @@ describe("Function testing", function() {
     });
   });
 
-  describe("Components Mount", function() {
-      it("mounts checkboxes",function(){
-          expect(wrapper.find("#checkbox").length).to.equal(2);
-      });
-      it("mounts console box",function(){
-          expect(wrapper.find("#your_div").length).to.equal(1);
-      });
-      it("mounts dropdown box",function(){
-          // the dropdown is a semantic-ui component and the class
-          // dropdownCode refers to two components despite only one
-          // getting rendered
-          expect(wrapper.find(".dropdownCode").length).to.equal(2);
-        //   expect(wrapper.find("#henlo").length).to.equal(1);
-      });
+describe("Components Mount", function() {
+    it("mounts checkboxes",function(){
+        expect(wrapper.find("#checkbox").length).to.equal(2);
+    });
+    it("mounts console box",function(){
+        expect(wrapper.find("#your_div").length).to.equal(1);
+    });
+    it("mounts dropdown box",function(){
+        // the dropdown is a semantic-ui component and the class
+        // dropdownCode refers to two components despite only one
+        // getting rendered
+        expect(wrapper.find(".dropdownCode").length).to.equal(2);
+    //   expect(wrapper.find("#henlo").length).to.equal(1);
+    });
 
-      it("mounts state dropdowns",function(){
-          expect(wrapper.find(".dropdownState").length).to.equal(4);
-      })
-      it("mounts text input",function(){
-        expect(wrapper.find(".input-text").length).to.equal(1);
+    it("mounts state dropdowns",function(){
+        expect(wrapper.find(".dropdownState").length).to.equal(4);
+    })
+    it("mounts text input",function(){
+    expect(wrapper.find(".input-text").length).to.equal(1);
     });
     it("mounts toggle", function(){
         expect(wrapper.find(".genderBlockMale").length).to.equal(1);
         expect(wrapper.find(".genderBlockFemale").length).to.equal(1);
     })
-  })
+});
+
