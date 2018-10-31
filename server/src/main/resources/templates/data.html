@@ -20,6 +20,7 @@
 
 <div th:replace="rules-table :: table"></div>
 
+
 <div>
     <form action="#" th:action="@{/data}" th:object="${datum}" method="post">
         <table border="1">
@@ -60,6 +61,7 @@
             <!--</tr>-->
             <tr>
                 <td><input type="submit" value="Submit" /></td>
+                <td><input type="delete" value="Delete" /></td>
             </tr>
         </table>
     </form>

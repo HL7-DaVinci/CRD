@@ -31,6 +31,7 @@ class FormContainer extends Component {
     this.handleClearForm = this.handleClearForm.bind(this);
     this.handleCheckBox = this.handleCheckBox.bind(this);
     this.handleInput = this.handleInput.bind(this);
+    this.handleRuleDelete = this.handleRuleDelete.bind(this);
   }
 
   /* This lifecycle hook gets executed when the component mounts */
@@ -84,7 +85,7 @@ class FormContainer extends Component {
   //posting data to the rule's database upon Submit
   handleFormSubmit(e) {
     e.preventDefault();
-    let ruleData = this.state.newUser;
+    let ruleData = this.state.newRule;
 
     fetch("http://localhost:8090/api/data", {
       method: "POST",
@@ -99,6 +100,29 @@ class FormContainer extends Component {
       });
     });
   }
+  
+  //Deleting rule from rule db
+  handleRuleDelete(rule){
+    var data = {
+        id: rule.id
+    }
+    fetch("http://localhost:8090/api/data", {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(function(response) {
+        if (response.status >= 400) {
+          throw new Error("Bad response from server");
+        }
+        return response.json();
+    }).then(function(data) {
+        if(data === "success"){
+           this.setState({msg: "Rule has been deleted."});  
+        }
+    }).catch(function(err) {
+        console.log(err)
+    });
+}
 
   handleClearForm(e) {
     e.preventDefault();
