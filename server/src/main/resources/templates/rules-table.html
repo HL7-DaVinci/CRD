@@ -13,12 +13,20 @@
             <td>Gender</td>
             <td>Relevant Code (CPT / HCPCS)</td>
             <td>Code System URL</td>
+            <td>Patient Address</td>
+            <td>Practitioner Address</td>
             <td>Documentation Required</td>
             <td>Coverage Documentation Requirement Information Link</td>
         </tr>
         </thead>
         <tbody>
         <th:block th:each="rule : ${rules}">
+            <!--<tr>-->
+                <!--<th:block th:each="header : ${headers}">-->
+                    <!--<td th:text="${rule.__${header}__}"></td>-->
+                <!--</th:block>-->
+            <!--</tr>-->
+
             <tr>
                 <td th:text="${rule.id}"></td>
                 <td th:text="${rule.ageRangeLow}"></td>
@@ -26,6 +34,8 @@
                 <td th:text="${rule.genderCode}"></td>
                 <td th:text="${rule.equipmentCode}"></td>
                 <td th:text="${rule.codeSystem}"></td>
+                <td th:text="${rule.patientAddressState}"></td>
+                <td th:text="${rule.providerAddressState}"></td>
                 <td th:text="! ${rule.noAuthNeeded}"></td>
                 <td th:text="${rule.infoLink}"></td>
             </tr>

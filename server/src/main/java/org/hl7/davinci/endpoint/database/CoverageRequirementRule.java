@@ -16,18 +16,17 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "coverage_requirement_rules")
 public class CoverageRequirementRule {
+  // the order in which these fields appear will be the order
+  // in which they are organized in the data table.
+  // The desired configuration is:
+  // ID | AGELOW | AGEHIGH | GENDER | CODE |
+  // SYSTEM | PATIENTADDRESS | PRACTITIONERADDRESS | DOC REQ | LINK |
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", updatable = false, nullable = false)
   private long id;
 
   //    The following fields describe the rule
-  @Column(name = "equipment_code", nullable = false)
-  private String equipmentCode;
-
-  @Column(name = "code_system", nullable = false)
-  private String codeSystem;
-
   @Column(name = "age_range_low", nullable = false)
   private int ageRangeLow;
 
@@ -37,18 +36,26 @@ public class CoverageRequirementRule {
   @Column(name = "gender_code", nullable = true)
   private Character genderCode;
 
+  @Column(name = "equipment_code", nullable = false)
+  private String equipmentCode;
+
+  @Column(name = "code_system", nullable = false)
+  private String codeSystem;
+
   @Column(name = "patient_address_state", nullable = true, length = 2)
   private String patientAddressState;
 
   @Column(name = "provider_address_state", nullable = true, length = 2)
   private String providerAddressState;
 
+  @Column(name = "no_auth_needed", nullable = false)
+  private boolean noAuthNeeded;
+
   //    The following fields describe the rule outcome
   @Column(name = "info_link", nullable = true, length = 2000)
   private String infoLink;
 
-  @Column(name = "no_auth_needed", nullable = false)
-  private boolean noAuthNeeded;
+
 
   public long getId() {
     return id;
@@ -133,8 +140,8 @@ public class CoverageRequirementRule {
   @Override
   public String toString() {
     return String.format("(row id: %d) Rule [equipment_code: %s, code_system %s, age_range_low %d, age_range_high: %d"
-        + ", gender_code: %s] Outcome: [no_auth_needed: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
-        ageRangeHigh, genderCode, noAuthNeeded, infoLink);
+        + ", gender_code: %s, patient_address_state: %s, practitioner_address_state] Outcome: [no_auth_needed: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
+        ageRangeHigh, genderCode, patientAddressState, providerAddressState, noAuthNeeded, infoLink);
   }
 
   public CoverageRequirementRule() {}
