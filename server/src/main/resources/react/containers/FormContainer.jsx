@@ -106,16 +106,15 @@ class FormContainer extends Component {
     var data = {
         id: rule.id
     }
-    fetch("http://localhost:8090/api/data", {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+    fetch("http://localhost:8090/api/data/{id}", {
+        method: 'DELETE',
         body: JSON.stringify(data)
     }).then(function(response) {
         if (response.status >= 400) {
           throw new Error("Bad response from server");
         }
         return response.json();
-    }).then(function(data) {
+    }).then(function(rule) {
         if(data === "success"){
            this.setState({msg: "Rule has been deleted."});  
         }
