@@ -19,10 +19,10 @@ public class RequestGeneratorMvcConfig implements WebMvcConfigurer {
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry theRegistry) {
-    theRegistry.addResourceHandler("/**").addResourceLocations("/WEB-INF/reqgen/");
-    theRegistry.addResourceHandler("/static/css/**").addResourceLocations("/WEB-INF/reqgen/static/css/");
-    theRegistry.addResourceHandler("/static/js/**").addResourceLocations("/WEB-INF/reqgen/static/js/");
-    theRegistry.addResourceHandler("/static/media/**").addResourceLocations("/WEB-INF/reqgen/static/media/");
+    theRegistry.addResourceHandler("/**").addResourceLocations("/WEB-INF/build/");
+    theRegistry.addResourceHandler("/static/css/**").addResourceLocations("/WEB-INF/build/static/css/");
+    theRegistry.addResourceHandler("/static/js/**").addResourceLocations("/WEB-INF/build/static/js/");
+    theRegistry.addResourceHandler("/static/media/**").addResourceLocations("/WEB-INF/build/static/media/");
   }
 
   /**
@@ -31,7 +31,7 @@ public class RequestGeneratorMvcConfig implements WebMvcConfigurer {
   @Bean
   public SpringResourceTemplateResolver templateResolver() {
     SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-    resolver.setPrefix("/WEB-INF/reqgen/");
+    resolver.setPrefix("/WEB-INF/build/");
     resolver.setSuffix(".html");
     resolver.setTemplateMode(TemplateMode.HTML);
     resolver.setCharacterEncoding("UTF-8");

@@ -10,6 +10,8 @@ buildscript {
 
 plugins {
     id 'java'
+
+
 }
 
 version 'unspecified'
@@ -77,5 +79,46 @@ task loadData{
                 }
             }
         }
+    }
+}
+task loadRequestBuilder() {
+    doLast {
+        setup()
+        cleanup()
+    }
+}
+
+void setup() {
+    exec {
+        workingDir 'src/main/webapp/'
+        commandLine 'git','clone','https://github.com/HL7-DaVinci/crd-request-generator.git','tempFolder'
+    }
+    exec {
+        workingDir 'src/main/webapp/tempFolder'
+        commandLine 'npm', 'install'
+    }
+    exec {
+        workingDir 'src/main/webapp/tempFolder'
+        commandLine 'npm','run-script', 'build'
+    }
+
+}
+
+void cleanup(){
+    def folder = new File( 'src/main/webapp/WEB-INF/build')
+    if(folder.exists()){
+        exec {
+            workingDir 'src/main/webapp/'
+//            commandLine 'rm -rf .'
+            commandLine 'rm','-rf','WEB-INF/build'
+        }
+    }
+    exec {
+        workingDir 'src/main/webapp'
+        commandLine 'mv','tempFolder/build', 'WEB-INF/'
+    }
+    exec {
+        workingDir 'src/main/webapp'
+        commandLine 'rm','-rf','tempFolder'
     }
 }
