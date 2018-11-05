@@ -32,6 +32,7 @@ class FormContainer extends Component {
     this.handleCheckBox = this.handleCheckBox.bind(this);
     this.handleInput = this.handleInput.bind(this);
     this.handleRuleDelete = this.handleRuleDelete.bind(this);
+    this.handleRuleUpdate = this.handleRuleUpdate.bind(this);
   }
 
   /* This lifecycle hook gets executed when the component mounts */
@@ -227,6 +228,12 @@ class FormContainer extends Component {
           style={buttonStyle}
         />{" "}
 
+		<Button
+          action={this.handleRuleUpdate}
+          type={"secondary"}
+          title={"Clear"}
+          style={buttonStyle}
+        />{" "}
       </form>
     );
   }
