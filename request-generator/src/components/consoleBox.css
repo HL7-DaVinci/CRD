@@ -2,8 +2,8 @@
     border-width:1px 5px 3px 5px;
     border-style: solid solid solid solid;
     border-color: black;
-    background-color: #ffffff; //changed from black to keep consistency 
-    color:white;
+    background-color: #ffffff;  
+    color:black;
     overflow-y:scroll;
     overflow-x: wrap;
     word-break:break-all;
@@ -12,6 +12,19 @@
     transition-duration: .2s;
     transition-delay: .25s;
 }
+
+//dark theme
+.consoleDark{
+    background-color: #000000;
+    color: white;
+}
+
+//light theme
+.consoleLight{
+    background-color: #ffffff;
+    color: black;
+}
+
 .resize{
     resize: vertical;
     transition-duration:0s;
