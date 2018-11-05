@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title= title
+    script(src='/javascripts/client.js')
+    script(src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js")
+
+    block scripts
+    link(rel='stylesheet', href='/stylesheets/style.css')
+
+  body
+    block content

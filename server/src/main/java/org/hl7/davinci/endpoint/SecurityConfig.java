@@ -51,6 +51,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     http.cors();
     http.csrf().disable();
+    http.headers().frameOptions().disable();
     if (myConfig.getCheckJwt()) {
       http.authorizeRequests()
           .antMatchers().permitAll()
