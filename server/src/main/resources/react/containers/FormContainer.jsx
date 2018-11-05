@@ -106,7 +106,7 @@ class FormContainer extends Component {
     var data = {
         id: rule.id
     }
-    fetch("http://localhost:8090/api/data/{id}", {
+    fetch('"http://localhost:8090/api/data/"+rule.id', {
         method: 'DELETE',
         body: JSON.stringify(data)
     }).then(function(response) {
@@ -120,6 +120,16 @@ class FormContainer extends Component {
         }
     }).catch(function(err) {
         console.log(err)
+    });
+}
+    //allow updating of rule
+	handleRuleUpdate(rule) {
+	const request = new Request('"http://localhost:8090/api/data/"+rule.id', {
+      method: 'PUT',
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }), 
+      body: JSON.stringify({rules: rule})
     });
 }
 
