@@ -124,7 +124,8 @@ class FormContainer extends Component {
     });
 }
     //allow updating of rule
-	handleRuleUpdate(rule) {
+	handleRuleUpdate() {
+	action=(()=>{handleRuleUpdate(newRule)})
 	const request = new Request('"http://localhost:8090/api/data/"+rule.id', {
       method: 'PUT',
       headers: new Headers({
