@@ -10,6 +10,7 @@
     "edit-json-file": "^1.1.0",
     "jsrsasign": "^8.0.12",
     "lodash": "^4.17.10",
+    "merge": "^1.2.1",
     "react-scripts": "^1.1.5",
     "sticky-table-headers": "^0.1.24"
   },
