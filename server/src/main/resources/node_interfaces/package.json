@@ -1,17 +1,14 @@
 {
-  "name": "resources",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "name": "request_logging",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "edit-json-file": "^1.1.0",
-    "jsrsasign": "^8.0.12",
-    "lodash": "^4.17.10",
-    "react-scripts": "^1.1.5",
-    "sticky-table-headers": "^0.1.24"
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "1.1.5",
+    "jsrsasign": "^8.0.12"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
