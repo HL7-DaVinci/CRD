@@ -109,7 +109,7 @@ class FormContainer extends Component {
     }
     fetch('"http://localhost:8090/api/data/"+rule.id', {
         method: 'DELETE',
-        body: JSON.stringify(data)
+        body: JSON.stringify(rule)
     }).then(function(response) {
         if (response.status >= 400) {
           throw new Error("Bad response from server");
@@ -130,7 +130,7 @@ class FormContainer extends Component {
       headers: new Headers({
         'Content-Type': 'application/json'
       }), 
-      body: JSON.stringify({rules: rule})
+      body: JSON.stringify(rule)
     });
 }
 
