@@ -36,7 +36,7 @@ public class HomeController {
   public String index(Model model) {
     return "index";
   }
-  
+
   @GetMapping("/data")
   public String data(Model model) {
     return "index";
