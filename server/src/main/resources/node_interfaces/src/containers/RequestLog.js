@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './RequestLog.css';
-import '../components/request.css';
-import RequestEntry from '../components/RequestEntry';
+import '../components/requestLog/request.css';
+import RequestEntry from '../components/requestLog/RequestEntry';
 let tempDatabase={
 }
 
@@ -102,7 +102,7 @@ export default class RequestLog extends Component {
          // on page switch we scroll to top automatically.
         window.scrollTo(0, 0)
          return (
-             <div>
+             <div className="fontSetter">
                  <div>
                      {/* header section.  */}
                     <div className="requestHeader fixed">

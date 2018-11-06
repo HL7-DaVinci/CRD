@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 
-import '../index.css';
+import './KeyInterface.css';
 import KJUR, {KEYUTIL} from 'jsrsasign';
-import KeyEntry from '../components/KeyEntry';
-import EditEntry from '../components/EditEntry';
+import KeyEntry from '../components/publicKey/KeyEntry';
+import EditEntry from '../components/publicKey/EditEntry';
 
 export default class KeyInterface extends Component{
     constructor(props){
@@ -199,7 +199,7 @@ export default class KeyInterface extends Component{
         var keyID;
         var keyContent;
             return (
-                <div>
+                <div className="publicKeyInterface">
 
                 <button id="addButton" className="newEntryButton" onClick={this.newItem}><span className="glyphicon glyphicon-plus-sign"></span></button>
 

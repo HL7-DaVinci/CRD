@@ -1,10 +1,7 @@
-body {
-  margin: 0;
-  font-family: sans-serif;
-  background-color: black;
 
+body{
+  background-color:black;
 }
-
 
 button:focus{
   outline:0;
@@ -94,7 +91,7 @@ textarea:focus{
   width:35px;
 }
 .borderDiv{
-  margin-top:15px; 
+  margin-top:15px;
   border-top:2px dotted white;
 }
 .newEntryButton{
@@ -131,7 +128,7 @@ textarea:focus{
   border-width: 1px 1px 1px 1px;
   border-color:white;
   transition:all .2s ease-in;
-  
+
 }
 
 .addButton{
