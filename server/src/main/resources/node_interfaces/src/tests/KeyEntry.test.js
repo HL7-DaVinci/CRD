@@ -4,7 +4,7 @@ import { mount, shallow } from 'enzyme';
 import Enzyme from 'enzyme';
 import { spy } from 'sinon';
 import ReactSixteenAdapter from 'enzyme-adapter-react-16';
-import KeyEntry from '../components/KeyEntry';
+import KeyEntry from '../components/publicKey/KeyEntry';
 Enzyme.configure({ adapter: new ReactSixteenAdapter() });
 const wrapper = shallow(<KeyEntry kid="exKey1" jwt="-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0

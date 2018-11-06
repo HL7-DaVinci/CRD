@@ -4,7 +4,7 @@ import { mount, shallow } from 'enzyme';
 import Enzyme from 'enzyme';
 import { spy } from 'sinon';
 import ReactSixteenAdapter from 'enzyme-adapter-react-16';
-import EditEntry from '../components/EditEntry';
+import EditEntry from '../components/publicKey/EditEntry';
 Enzyme.configure({ adapter: new ReactSixteenAdapter() });
 const wrapper = shallow(<EditEntry />);
 

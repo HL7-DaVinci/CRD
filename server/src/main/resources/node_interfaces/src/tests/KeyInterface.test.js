@@ -8,9 +8,6 @@ import KeyInterface from '../containers/KeyInterface';
 Enzyme.configure({ adapter: new ReactSixteenAdapter() });
 const wrapper = mount(<KeyInterface doFetch={false}/>)
 describe("Component mounting tests", function() {
-  it('Renders header', function() {
-    expect(wrapper.find('h1').text()).to.equal("Public Keys");
-  });
   it("Renders buttons",()=>{
     expect(wrapper.find("button").getElements().length).to.equal(2);
   });
