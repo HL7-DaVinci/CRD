@@ -125,7 +125,6 @@ class FormContainer extends Component {
 }
     //allow updating of rule
 	handleRuleUpdate() {
-	action=(()=>{handleRuleUpdate(newRule)})
 	const request = new Request('"http://localhost:8090/api/data/"+rule.id', {
       method: 'PUT',
       headers: new Headers({
@@ -228,11 +227,19 @@ class FormContainer extends Component {
           title={"Clear"}
           style={buttonStyle}
         />{" "}
+        
+        <Button
+          action={this.handleRuleDelete}
+          type={"secondary"}
+          title={"Delete"}
+          style={buttonStyle}
+        />{" "}
 
 		<Button
-          action={this.handleRuleUpdate}
+          action=(()=>{handleRuleUpdate()})
+          handleChange={this.state.newRule}
           type={"secondary"}
-          title={"Clear"}
+          title={"Edit"}
           style={buttonStyle}
         />{" "}
       </form>
