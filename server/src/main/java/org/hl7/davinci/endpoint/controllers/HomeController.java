@@ -32,33 +32,14 @@ public class HomeController {
   @Autowired
   private DataService dataService;
 
-  /**
-   * Maps the home page (the base url) and gives the model some attributes.
-   * @param model an object that describes the structure and variables available for some page
-   * @return a string which maps the page to some html file in the /templates directory
-   */
   @RequestMapping("/")
   public String index(Model model) {
-    Iterable<CoverageRequirementRule> rules = dataService.findAll();
-    model.addAttribute("rules", rules);
     return "index";
   }
 
-
-  /**
-   * Maps the database to a specific page, hooks up the model with relevant information.
-   * @param model an object with attributes that can be accessed and put on the html page
-   * @return a string which corresponds with the html file to be displayed
-   */
   @GetMapping("/data")
   public String data(Model model) {
-    Iterable<CoverageRequirementRule> rules = dataService.findAll();
-    model.addAttribute("rules", rules);
-    List<String> headers = CoverageRequirementRule.getFields();
-    model.addAttribute("headers", headers);
-    model.addAttribute("datum", new CoverageRequirementRule());
-
-    return "data";
+    return "index";
   }
 
   /**
@@ -78,17 +59,17 @@ public class HomeController {
     }
     dataService.create(datum);
 
-    return new ModelAndView("redirect:data");
+    return new ModelAndView("redirect:index");
   }
 
   @GetMapping("/public")
   public String public_key(Model model) {
-    return "public";
+    return "index";
   }
 
   @GetMapping("/requests")
   public String request_log(Model model) {
-    return "requests";
+    return "index";
   }
 
 
