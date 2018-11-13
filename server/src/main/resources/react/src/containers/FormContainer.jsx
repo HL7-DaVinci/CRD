@@ -24,7 +24,7 @@ class FormContainer extends Component {
       },
 
       genderOptions: ["Male", "Female", "Other"],
-      authNeededOptions: ["True", "False"]
+      authNeededOptions: ["Yes", "No"]
     };
     this.handleTextArea = this.handleTextArea.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -33,6 +33,7 @@ class FormContainer extends Component {
     this.handleInput = this.handleInput.bind(this);
     this.handleRuleDelete = this.handleRuleDelete.bind(this);
     this.handleRuleUpdate = this.handleRuleUpdate.bind(this);
+    //this.handleSelect = this.handleSelect.bind(this);
   }
 
   /* This lifecycle hook gets executed when the component mounts */
@@ -70,16 +71,16 @@ class FormContainer extends Component {
     const newSelection = e.target.value;
     let newSelectionArray;
 
-    if (this.state.newRule.genderCode.indexOf(newSelection) > -1) {
-      newSelectionArray = this.state.newRule.genderCode.filter(
+    if (this.state.newRule.noAuthNeeded.indexOf(newSelection) > -1) {
+      newSelectionArray = this.state.newRule.noAuthNeeded.filter(
         s => s !== newSelection
       );
     } else {
-      newSelectionArray = [...this.state.newRule.genderCode, newSelection];
+      newSelectionArray = [...this.state.newRule.noAuthNeeded, newSelection];
     }
 
     this.setState(prevState => ({
-      newRule: { ...prevState.newRule, genderCode: newSelectionArray }
+      newRule: { ...prevState.newRule, noAuthNeeded: newSelectionArray }
     }));
   }
 
@@ -130,7 +131,7 @@ class FormContainer extends Component {
       headers: new Headers({
         'Content-Type': 'application/json'
       }), 
-      body: JSON.stringify(rule)
+      body: JSON.stringify()
     });
 }
 
@@ -192,7 +193,7 @@ class FormContainer extends Component {
           title={"Gender"}
           name={"gender"}
           options={this.state.genderOptions}
-          value={this.state.newRule.genderCode}
+          value={this.state.newRule.gender}
           placeholder={"Select Gender"}
           handleChange={this.handleInput}
         />{" "}
@@ -236,7 +237,7 @@ class FormContainer extends Component {
         />{" "}
 
 		<Button
-          action=(()=>{handleRuleUpdate()})
+          action={this.handleRuleUpdate}
           handleChange={this.state.newRule}
           type={"secondary"}
           title={"Edit"}
