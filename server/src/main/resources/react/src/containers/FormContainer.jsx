@@ -18,7 +18,7 @@ class FormContainer extends Component {
         codeSystem: "",
         ageRangeLow: "",
         ageRangeHigh: "",
-        genderCode: [],
+        gender: [],
         infoLink: "",
         noAuthNeeded: ""
       },
@@ -54,13 +54,11 @@ class FormContainer extends Component {
   }
 
   handleTextArea(e) {
-    console.log("Inside handleTextArea");
+    console.log("handleTextArea");
     let value = e.target.value;
-    this.setState(
-      prevState => ({
+    this.setState(prevState => ({
         newRule: {
-          ...prevState.newRule,
-          about: value
+          ...prevState.newRule, infoLink: value
         }
       }),
       () => console.log(this.state.newRule)
@@ -97,8 +95,8 @@ class FormContainer extends Component {
         "Content-Type": "application/json"
       }
     }).then(response => {
-      response.json().then(data => {
-        console.log("Successful" + data);
+      response.json().then(rule => {
+        console.log("Successful" + rule);
       });
     });
   }
@@ -144,8 +142,8 @@ class FormContainer extends Component {
           codeSystem: "",
           ageRangeLow: "",
           ageRangeHigh: "",
-          genderCode: [],
-          infoLink: "",//how to add link?,
+          gender: [],
+          infoLink: "",
           noAuthNeeded: ""
       }
     });
