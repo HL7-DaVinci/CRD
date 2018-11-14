@@ -170,23 +170,24 @@ class FormContainer extends Component {
           handleChange={this.handleInput}
         />{" "}
 
-          <Input
-              inputType={"number"}
-              name={"ageRangeLow"}
-              title={"Age Range Low"}
-              value={this.state.newRule.ageRangeLow}
-              placeholder={"Enter the low age range boundary"}
-              handleChange={this.handleInput}
-          />{" "}
+      <Input
+          inputType={"number"}
+          name={"ageRangeLow"}
+          title={"Age Range Low"}
+          value={this.state.newRule.ageRangeLow}
+          placeholder={"Enter the low age range boundary"}
+          handleChange={this.handleInput}
+      />{" "}
 
-          <Input
-              inputType={"number"}
-              name={"ageRangeHigh"}
-              title={"Age Range High"}
-              value={this.state.newRule.ageRangeHigh}
-              placeholder={"Enter the high age range boundary"}
-              handleChange={this.handleInput}
-          />{" "}
+      <Input
+          inputType={"number"}
+          name={"ageRangeHigh"}
+          title={"Age Range High"}
+          value={this.state.newRule.ageRangeHigh}
+          placeholder={"Enter the high age range boundary"}
+          handleChange={this.handleInput}
+      />{" "}
+      
         <Select
           title={"Gender"}
           name={"gender"}
@@ -244,6 +245,39 @@ class FormContainer extends Component {
       </form>
     );
   }
+}
+
+//Trying to add row components to edit and delete individually
+class Row extends Component{
+	constructor(props){
+		super(props);
+	}
+	
+	render(){
+		return (
+			<tr>
+				<td>{this.props.data.id}</td>
+				
+				<td>{this.props.data.equipmentCode}</td>
+				
+				<td>{this.props.data.codeSystem}</td>
+				
+				<td>{this.props.data.ageRangeLow}</td>
+				
+				<td>{this.props.data.ageRangeHigh}</td>
+				
+				<td>{this.props.data.gender}</td>
+				
+				<td>{this.props.data.infoLink}</td>
+				
+				<td>{this.props.data.noAuthNeeded}</td>
+				
+				<td className="glyphicon glyphicon-trash" onClick={() => {this.props.handleRuleDelete(this.props.row)}}></td>
+				<td className="glyphicon glyphicon-edit" onClick={() => {this.props.handleRuleEdit(this.props.row)}} ></td>
+			</tr>
+			
+		);
+	}
 }
 
 const buttonStyle = {
