@@ -247,7 +247,7 @@ class FormContainer extends Component {
   }
 }
 
-//Trying to add row components to edit and delete individually
+//Trying to add row components to edit and delete individually -- should this be part of the above render?
 class Row extends Component{
 	constructor(props){
 		super(props);
