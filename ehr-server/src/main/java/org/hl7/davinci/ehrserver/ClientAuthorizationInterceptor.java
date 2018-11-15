@@ -28,23 +28,27 @@ public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
 
   @Override
   public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
+
+    System.out.println("henlo");
     String useOauth = Config.get("use_oauth");
     if (!Boolean.parseBoolean(useOauth)) {
       return new RuleBuilder()
           .allowAll()
           .build();
     }
+
     CloseableHttpClient client = HttpClients.createDefault();
 
     String authHeader = theRequestDetails.getHeader("Authorization");
     // Get the token and drop the "Bearer"
     if (authHeader == null) {
       return new RuleBuilder()
+          .allow().metadata().andThen()
           .denyAll("No authorization header present")
           .build();
     }
-    String token = authHeader.split(" ")[1];
 
+    String token = authHeader.split(" ")[1];
     String secret = Config.get("client_secret");
     String clientId = Config.get("client_id");
 
@@ -77,6 +81,7 @@ public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
           .build();
     } else {
       return new RuleBuilder()
+          .allow().metadata().andThen()
           .denyAll("Rejected OAuth token - failed to introspect")
           .build();
     }

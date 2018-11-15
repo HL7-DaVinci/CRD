@@ -134,29 +134,6 @@ public class FhirServerConfig extends BaseJavaConfigR4 {
     return new ClientAuthorizationInterceptor();
   }
 
-  /**
-   * This interceptor filters the headers, origin of the data, and the methods.
-   */
-  @Bean(autowire = Autowire.BY_TYPE)
-  public IServerInterceptor corsInterceptor() {
-    logger.info("FhirServerConfig::corsInterceptor");
-    CorsConfiguration config = new CorsConfiguration();
-    config.addAllowedHeader("x-fhir-starter");
-    config.addAllowedHeader("Origin");
-    config.addAllowedHeader("Accept");
-    config.addAllowedHeader("X-Requested-With");
-    config.addAllowedHeader("Content-Type");
-
-    // Allow all origins for now since the port the server gets run on might change
-    config.addAllowedOrigin("*");
-
-    config.addExposedHeader("Location");
-    config.addExposedHeader("Content-Location");
-    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-    // Create the interceptor and register it
-    return new CorsInterceptor(config);
-  }
 
   /**
    * Setup a new JPA transaction manager.
