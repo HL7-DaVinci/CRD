@@ -120,11 +120,13 @@ public class Utilities {
     Character patientGenderCode = null;
     String patientAddressState = null;
     Integer patientAge = null;
+    String patientId = null;
 
     try {
       patientGenderCode = patient.getGender().getDisplay().charAt(0);
       patientAddressState = Utilities.getFirstPhysicalHomeAddress(patient.getAddress()).getState();
       patientAge = SharedUtilities.calculateAge(patient.getBirthDate());
+      patientId = patient.getId();
     } catch (Exception e) {
       //TODO: logger.error("Error parsing needed info from the device request bundle.", e);
     }
@@ -138,8 +140,11 @@ public class Utilities {
     if (patientAge == null) {
       throw new RequestIncompleteException("Patient found with no birthdate. Looking in Patient -> birthDate.");
     }
+    if (patientId == null) {
+      throw new RequestIncompleteException("Patient found with no ID.");
+    }
 
-    return new PatientInfo(patientGenderCode, patientAddressState, patientAge);
+    return new PatientInfo(patientGenderCode, patientAddressState, patientAge, patientId);
   }
 
   /**

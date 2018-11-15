@@ -8,6 +8,7 @@ public class CoverageRequirementRuleCriteria {
   private String codeSystem;
   private String patientAddressState;
   private String providerAddressState;
+  private String patientId;
 
   public CoverageRequirementRuleCriteria(){}
 
@@ -17,8 +18,8 @@ public class CoverageRequirementRuleCriteria {
    */
   public String toString() {
     return String.format(
-        "age=%d, genderCode=%c, equipmentCode=%s, codeSystem=%s, patientAddressState=%s, providerAddressState=%s",
-        age, genderCode, equipmentCode, codeSystem, patientAddressState, providerAddressState);
+        "age=%d, genderCode=%c, equipmentCode=%s, codeSystem=%s, patientAddressState=%s, providerAddressState=%s, patientId=%s",
+        age, genderCode, equipmentCode, codeSystem, patientAddressState, providerAddressState, patientId);
 
   }
 
@@ -52,6 +53,11 @@ public class CoverageRequirementRuleCriteria {
     return this;
   }
 
+  public CoverageRequirementRuleCriteria setPatientId(String patientId) {
+    this.patientId = patientId;
+    return this;
+  }
+
   public int getAge() {
     return age;
   }
@@ -75,4 +81,6 @@ public class CoverageRequirementRuleCriteria {
   public String getProviderAddressState() {
     return providerAddressState;
   }
+
+  public String getPatientId() { return patientId; }
 }

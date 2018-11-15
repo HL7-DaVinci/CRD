@@ -14,13 +14,18 @@ public class YamlConfig {
   // properties of the same name automatically.
 
   private boolean checkJwt;
+  private String launchUrl;
 
   public boolean getCheckJwt() {
     return checkJwt;
   }
 
+  public String getLaunchUrl() { return launchUrl; }
+
   public void setCheckJwt(boolean check) {
     checkJwt = check;
   }
+
+  public void setLaunchUrl(String launch) { launchUrl = launch; }
 
 }
