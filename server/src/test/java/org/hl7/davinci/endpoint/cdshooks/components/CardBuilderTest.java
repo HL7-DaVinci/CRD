@@ -33,7 +33,7 @@ public class CardBuilderTest {
     crr.setInfoLink("http://www.mitre.org");
     Card card = CardBuilder.transform(crr,"dummyLaunchUrl.com");
     assertEquals("Documentation is required for the desired device or service", card.getSummary());
-    assertEquals(1, card.getLinks().size());
+    assertEquals(2, card.getLinks().size());
     assertEquals("http://www.mitre.org", card.getLinks().get(0).getUrl());
   }
 }
