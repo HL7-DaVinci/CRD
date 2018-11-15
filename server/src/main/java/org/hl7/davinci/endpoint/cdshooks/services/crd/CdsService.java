@@ -16,6 +16,7 @@ import org.hl7.davinci.PatientInfo;
 import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
@@ -62,8 +63,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    */
   public Prefetch prefetch = null;
   Class<?> requestClass = null;
+
+  @Autowired
+  private YamlConfig myConfig;
+
   @Autowired
   RequestService requestService;
+
   @Autowired
   private CoverageRequirementRuleFinder ruleFinder;
   private List<PrefetchTemplateElement> prefetchElements = null;
@@ -130,6 +136,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       logger.error("failed to write request json: " + e.getMessage());
       requestStr = "error";
     }
+
     RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
     requestLog = requestService.create(requestLog);
     requestLog.setFhirVersion(this.fhirComponents.getFhirVersion().toString());
@@ -183,8 +190,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestLog.setProviderAddressState(queries.get(0).getCriteria().getProviderAddressState());
     requestLog.setCode(String.join(", ", codes));
 
-
     requestLog.setCodeSystem(String.join(", ", codeSystems));
+
+    // get the url to launch the SMART app from.
+    String launchSmartUrl = smartUrlBuilder(queries.get(0).getCriteria().getPatientId(),request.getFhirServer());
 
     if (rules.size() == 0) {
       response.addCard(CardBuilder.summaryCard("No documentation rules found"));
@@ -193,7 +202,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       requestLog.addRulesFound(rules);
       requestLog.setResults(String.valueOf(rules.size()) + " documentation rule(s) found");
       for (CoverageRequirementRule rule : rules) {
-        response.addCard(CardBuilder.transform(rule));
+        response.addCard(CardBuilder.transform(rule, launchSmartUrl));
       }
     }
     // Searched
@@ -205,6 +214,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return response;
   }
 
+  protected String smartUrlBuilder(String patientId, String fhirBase) {
+    String launchUrl = myConfig.getLaunchUrl();
+    return launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId;
+  }
 
 
   protected List<CoverageRequirementRuleQuery> resourcesToQueries(List<?> codings, boolean patientIsNull,
@@ -249,7 +262,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           .setPatientAddressState(patientInfo.getPatientAddressState())
           .setCodeSystem(codeSystem)
           .setEquipmentCode(code)
-          .setProviderAddressState(practitionerRoleInfo.getLocationAddressState());
+          .setProviderAddressState(practitionerRoleInfo.getLocationAddressState())
+          .setPatientId(patientInfo.getPatientId());
       queries.add(query);
     }
     return queries;
