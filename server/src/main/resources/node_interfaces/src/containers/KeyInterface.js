@@ -28,7 +28,7 @@ export default class KeyInterface extends Component{
 
     async componentDidMount(){
         if(this.props.doFetch){
-            var jwtData = await fetch('http://localhost:8090/api/public', {
+            var jwtData = await fetch('/api/public', {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
@@ -56,7 +56,7 @@ export default class KeyInterface extends Component{
         const key = keyObject[keyId];
         const result = {"id":keyId,"key":key};
         if(this.props.doFetch){
-            await fetch('http://localhost:8090/api/public', {
+            await fetch('/api/public', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -74,7 +74,7 @@ export default class KeyInterface extends Component{
 
     async deleteData(id){
         if(this.props.doFetch){
-            await fetch('http://localhost:8090/api/public/'+id, {
+            await fetch('/api/public/'+id, {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json',
@@ -93,7 +93,7 @@ export default class KeyInterface extends Component{
         const key = keyObject[keyId];
         const result = {"id":keyId,"key":JSON.stringify(key)};
         if(this.props.doFetch){
-            await fetch('http://localhost:8090/api/public/'+oldId, {
+            await fetch('/api/public/'+oldId, {
                 method: 'PUT',
                 headers: {
                     'Accept': 'application/json',
