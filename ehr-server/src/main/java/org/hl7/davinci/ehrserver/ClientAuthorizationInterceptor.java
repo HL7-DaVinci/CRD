@@ -28,8 +28,6 @@ public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
 
   @Override
   public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
-
-    System.out.println("henlo");
     String useOauth = Config.get("use_oauth");
     if (!Boolean.parseBoolean(useOauth)) {
       return new RuleBuilder()
