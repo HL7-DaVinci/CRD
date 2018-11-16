@@ -1,29 +1,27 @@
 package org.hl7.davinci.ehrserver;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Meta;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.FhirVersionEnum;
 import ca.uhn.fhir.jpa.dao.DaoConfig;
 import ca.uhn.fhir.jpa.dao.IFhirSystemDao;
-import ca.uhn.fhir.jpa.provider.r4.JpaConformanceProviderR4;
 import ca.uhn.fhir.jpa.provider.r4.JpaSystemProviderR4;
 import ca.uhn.fhir.jpa.search.DatabaseBackedPagingProvider;
 import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
 import ca.uhn.fhir.rest.api.EncodingEnum;
-import ca.uhn.fhir.rest.server.*;
+import ca.uhn.fhir.rest.server.ETagSupportEnum;
+import ca.uhn.fhir.rest.server.IResourceProvider;
+import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.IServerInterceptor;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Meta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
+
+import javax.servlet.ServletException;
+import java.util.Collection;
+import java.util.List;
 
 public class EhrServer extends RestfulServer {
   static final Logger logger = LoggerFactory.getLogger(EhrServer.class);
@@ -71,7 +69,7 @@ public class EhrServer extends RestfulServer {
      * is a nice addition.
      */
     IFhirSystemDao<Bundle, Meta> systemDao = myAppCtx.getBean("mySystemDaoR4", IFhirSystemDao.class);
-    JpaConformanceProviderR4 confProvider = new JpaConformanceProviderR4(this, systemDao,
+    ServerConformance confProvider = new ServerConformance(this, systemDao,
         myAppCtx.getBean(DaoConfig.class));
     confProvider.setImplementationDescription("EHR Server");
     setServerConformanceProvider(confProvider);
@@ -107,7 +105,7 @@ public class EhrServer extends RestfulServer {
      */
     Collection<IServerInterceptor> interceptorBeans = myAppCtx.getBeansOfType(IServerInterceptor.class).values();
     for (IServerInterceptor interceptor : interceptorBeans) {
-      this.registerInterceptor(interceptor);
+      registerInterceptor(interceptor);
     }
 
     /*

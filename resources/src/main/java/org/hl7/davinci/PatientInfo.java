@@ -4,6 +4,7 @@ public class PatientInfo {
   private Character patientGenderCode = null;
   private String patientAddressState = null;
   private Integer patientAge = null;
+  private String patientId = null;
 
   /**
    * Constructor for the patientInfo class.
@@ -12,10 +13,11 @@ public class PatientInfo {
    * @param patientAge the ingteger value of the patients age
    */
   public PatientInfo(Character patientGenderCode, String patientAddressState,
-      Integer patientAge) {
+      Integer patientAge, String patientId) {
     this.patientGenderCode = patientGenderCode;
     this.patientAddressState = patientAddressState;
     this.patientAge = patientAge;
+    this.patientId = patientId;
   }
 
   public Character getPatientGenderCode() {
@@ -41,4 +43,12 @@ public class PatientInfo {
   public void setPatientAge(Integer patientAge) {
     this.patientAge = patientAge;
   }
+
+  public String getPatientId() { return patientId; }
+
+  public void setPatientId(String patientId) {
+    this.patientId = patientId;
+  }
+
 }
+

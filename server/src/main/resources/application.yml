@@ -16,3 +16,4 @@ server:
   port: 8090
 
 checkJwt: false
+launchUrl: http://localhost:3050/launch

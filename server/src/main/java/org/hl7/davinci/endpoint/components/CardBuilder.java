@@ -20,7 +20,7 @@ public class CardBuilder {
    * @param crr coverage rule from the database
    * @return card with appropriate information
    */
-  public static Card transform(CoverageRequirementRule crr) {
+  public static Card transform(CoverageRequirementRule crr, String launchUrl) {
     Card card = baseCard();
     if (crr.getNoAuthNeeded()) {
       String summary = String
@@ -33,8 +33,13 @@ public class CardBuilder {
       link.setUrl(crr.getInfoLink());
       link.setType("absolute");
       link.setLabel("Documentation Requirements");
+      Link launchLink = new Link();
+      launchLink.setUrl(launchUrl);
+      launchLink.setType("smart");
+      launchLink.setLabel("SMART App");
       List<Link> links = new ArrayList<>();
       links.add(link);
+      links.add(launchLink);
       card.setLinks(links);
       String detail = "There are documentation requirements for the following criteria:"
           + "\n Patient is of gender: '%s' and between the ages of: %d and %d and lives in state: '%s'"
