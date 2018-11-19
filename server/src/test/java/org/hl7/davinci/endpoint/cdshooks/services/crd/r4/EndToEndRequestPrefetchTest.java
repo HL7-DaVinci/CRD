@@ -4,6 +4,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,14 +40,8 @@ public class EndToEndRequestPrefetchTest {
   private String deviceRequestPrefetchResponseJson = FileUtils
       .readFileToString(new ClassPathResource("deviceRequestPrefetchResponse_r4.json").getFile(),
           Charset.defaultCharset());
-  private String prefetchUrl = "/DeviceRequest?_id=24439"
-      + "&_include=DeviceRequest:patient"
-      + "&_include=DeviceRequest:performer"
-      + "&_include=DeviceRequest:requester"
-      + "&_include=DeviceRequest:device"
-      + "&_include=PractitionerRole:organization"
-      + "&_include=PractitionerRole:practitioner"
-      + "&_include=DeviceRequest:insurance:Coverage";
+  private String prefetchUrlMatcher = "\\/DeviceRequest\\?_id=123.*";
+
   @LocalServerPort
   private int port;
   @Autowired
@@ -57,7 +52,7 @@ public class EndToEndRequestPrefetchTest {
 
   @Test
   public void shouldSuccessfullyFillPreFetch() {
-    stubFor(get(urlEqualTo(prefetchUrl))
+    stubFor(get(urlMatching(prefetchUrlMatcher))
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader("Content-Type", "application/json")
@@ -72,12 +67,12 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "No documentation rules found");
+        "No documentation is required for a device or service with code: E0250");
   }
 
   @Test
   public void shouldFailToFillPrefetch() {
-    stubFor(get(urlEqualTo(prefetchUrl))
+    stubFor(get(urlMatching(prefetchUrlMatcher))
         .willReturn(aResponse()
             .withStatus(404)));
 
@@ -90,6 +85,6 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "deviceRequestBundle could not be (pre)fetched in this request ");
+        "Unable to (pre)fetch any supported resources from the bundle.");
   }
 }

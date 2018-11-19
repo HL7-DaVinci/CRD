@@ -1,13 +1,14 @@
 package org.hl7.davinci.r4.crdhook.medicationprescribe;
 
-import org.cdshooks.CdsRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.HashMap;
+import org.cdshooks.CdsRequest;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 
+import java.util.HashMap;
+
 public class MedicationPrescribeRequest extends
-    CdsRequest<MedicationPrescribeContext, CrdPrefetch> {
+    CdsRequest<CrdPrefetch, MedicationPrescribeContext> {
 
   private HashMap<String, Object> mapForPrefetchTemplates = null;
 

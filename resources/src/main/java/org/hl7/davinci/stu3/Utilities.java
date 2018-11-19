@@ -1,12 +1,15 @@
 package org.hl7.davinci.stu3;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import org.hl7.davinci.PatientInfo;
+import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.SharedUtilities;
+import org.hl7.fhir.dstu3.model.Address;
+import org.hl7.fhir.dstu3.model.Address.AddressType;
+import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Patient;
@@ -46,6 +49,9 @@ public class Utilities {
   public static <T extends Resource> List<T> getResourcesOfTypeFromBundle(
       Class<T> type, Bundle bundle) {
     List<T> retList = new ArrayList<>();
+    if (bundle == null || bundle.getEntry() == null) {
+      return retList;
+    }
     for (BundleEntryComponent bec: bundle.getEntry()) {
       if (!bec.hasResource()) {
         continue;
@@ -59,16 +65,57 @@ public class Utilities {
   }
 
   /**
-   * Calculate the age of a patient on today's date.
-   * @param patient A fhir patient
-   * @return The patients age today.
+   * Returns the first match for an address in a list of addresses that is a
+   * physical home.
+   * @param addresses the list of addresses.
+   * @return the first physical home in the list
    */
-  public static int calculateAge(Patient patient) {
-    Date birthDate = patient.getBirthDate();
-    if (birthDate == null) {
-      return 0;
+  public static Address getFirstPhysicalHomeAddress(List<Address> addresses) {
+    for (Address address : addresses) {
+      if (address.getUse() == AddressUse.HOME
+          && (address.getType() == AddressType.BOTH
+          || address.getType() == AddressType.PHYSICAL)) {
+        return address;
+      }
     }
-    LocalDate localBirthDate = birthDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-    return Period.between(localBirthDate, LocalDate.now()).getYears();
+    return null;
   }
+
+  /**
+   * Acquires all the needed information from the patient resource.
+   * @param patient the patient to get info from
+   * @return a PatientInfo object containing the age/gender/address of the patient
+   * @throws RequestIncompleteException thrown if information is missing.
+   */
+  public static PatientInfo getPatientInfo(Patient patient) throws RequestIncompleteException {
+    Character patientGenderCode = null;
+    String patientAddressState = null;
+    Integer patientAge = null;
+    String patientId = null;
+
+    try {
+      patientGenderCode = patient.getGender().getDisplay().charAt(0);
+      patientAddressState = Utilities.getFirstPhysicalHomeAddress(patient.getAddress()).getState();
+      patientAge = SharedUtilities.calculateAge(patient.getBirthDate());
+      patientId = patient.getId();
+    } catch (Exception e) {
+      //TODO: logger.error("Error parsing needed info from the device request bundle.", e);
+    }
+    if (patientGenderCode == null) {
+      throw new RequestIncompleteException("Patient found with no gender. Looking in Patient -> gender");
+    }
+    if (patientAddressState == null) {
+      throw new RequestIncompleteException("Patient found with no home state. "
+          + "Looking in Patient -> address [searching for the first physical home address] -> state.");
+    }
+    if (patientAge == null) {
+      throw new RequestIncompleteException("Patient found with no birthdate. Looking in Patient -> birthDate.");
+    }
+    if (patientId == null) {
+      throw new RequestIncompleteException("Patient found with no ID.");
+    }
+
+    return new PatientInfo(patientGenderCode, patientAddressState, patientAge, patientId);
+  }
+
 }

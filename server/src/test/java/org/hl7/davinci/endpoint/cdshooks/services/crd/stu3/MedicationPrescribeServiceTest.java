@@ -26,7 +26,7 @@ public class MedicationPrescribeServiceTest {
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
     MedicationPrescribeRequest request = CrdRequestCreator
-        .createMedicationPrescribeRequest(Enumerations.AdministrativeGender.MALE, cal.getTime());
+        .createMedicationPrescribeRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());

@@ -1,11 +1,11 @@
 package org.hl7.davinci.endpoint.controllers;
 
+import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
 
-import java.net.URI;
-import java.security.Principal;
-import java.util.Optional;
+import org.hl7.davinci.endpoint.database.RequestLog;
+import org.hl7.davinci.endpoint.database.RequestRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,26 +23,42 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-
-
-
+import java.net.URI;
+import java.security.Principal;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Provides the REST interface that can be interacted with at [base]/api/data.
  */
 @RestController
 public class DataController {
+  private static Logger logger = Logger.getLogger(Application.class.getName());
 
 
   @Autowired
   private DataRepository repository;
 
   @Autowired
-  public DataController(DataRepository repository) {
+  private RequestRepository requestRepository;
+
+  /**
+   * Basic constructor to initialize both data repositories.
+   * @param repository the database for the data (rules)
+   * @param requestRepository the database for request logging
+   */
+  @Autowired
+  public DataController(DataRepository repository, RequestRepository requestRepository) {
     this.repository = repository;
+    this.requestRepository = requestRepository;
 
   }
 
+  @GetMapping(value = "/api/requests")
+  @CrossOrigin
+  public Iterable<RequestLog> showAllLogs() {
+    return requestRepository.findAll();
+  }
 
   @GetMapping(value = "/api/data")
   @CrossOrigin
@@ -123,6 +139,8 @@ public class DataController {
     System.out.println(object);
     return "Thanks for posting";
   }
+
+
 
 
 }

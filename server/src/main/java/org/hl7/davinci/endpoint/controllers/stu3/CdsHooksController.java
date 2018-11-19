@@ -1,9 +1,10 @@
 package org.hl7.davinci.endpoint.controllers.stu3;
 
 import org.cdshooks.CdsResponse;
-import org.cdshooks.CdsServiceInformation;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
 import javax.validation.Valid;
 
+import org.hl7.davinci.stu3.crdhook.CrdPrefetch;
 import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
 import org.slf4j.Logger;
@@ -51,6 +52,9 @@ public class CdsHooksController {
       consumes = "application/json;charset=UTF-8")
   public CdsResponse handleOrderReview(@Valid @RequestBody OrderReviewRequest request) {
     logger.info("stu3/handleOrderReview");
+    if (request.getPrefetch() == null) {
+      request.setPrefetch(new CrdPrefetch());
+    }
     return orderReviewService.handleRequest(request);
   }
 
@@ -65,6 +69,9 @@ public class CdsHooksController {
       consumes = "application/json;charset=UTF-8")
   public CdsResponse handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request) {
     logger.info("stu3/handleOrderReview");
+    if (request.getPrefetch() == null) {
+      request.setPrefetch(new CrdPrefetch());
+    }
     return medicationPrescribeService.handleRequest(request);
   }
 }

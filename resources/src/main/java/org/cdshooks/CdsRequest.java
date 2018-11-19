@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 
-public abstract class CdsRequest<ContextTypeT, prefetchTypeT> {
+public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT> {
   @NotNull(message = "unsupported hook")
   private Hook hook = null;
 
@@ -20,7 +20,7 @@ public abstract class CdsRequest<ContextTypeT, prefetchTypeT> {
   private String user = null;
 
   @NotNull
-  private ContextTypeT context = null;
+  private serviceContextTypeT context = null;
 
   private prefetchTypeT prefetch = null;
 
@@ -73,11 +73,11 @@ public abstract class CdsRequest<ContextTypeT, prefetchTypeT> {
     this.user = user;
   }
 
-  public ContextTypeT getContext() {
+  public serviceContextTypeT getContext() {
     return context;
   }
 
-  public void setContext(ContextTypeT context) {
+  public void setContext(serviceContextTypeT context) {
     this.context = context;
   }
 

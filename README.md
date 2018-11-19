@@ -17,10 +17,13 @@ Subprojects:
 * examples - JSON examples of service requests and responses
 * ehr-server - FHIR server that acts as a representation of the FHIR server that an EHR would host
 * operations - (now obsolete) Implementation of the CRD FHIR Operation using [HAPI FHIR](http://hapifhir.io/) - this is since been replaced by a CDS Hooks approach
-* request-generator - [react](https://reactjs.org/) based web UI that can generate basic CRD requests and display the returned CDS Hooks cards
 * resources - java objects to represent the data structures involved in CRD requests and responses
 * server - java application that implements the CDS service in CRD
 * testingClient - small java application that makes a CRD request and logs the response
+
+Standalone or supporting apps for this project are contained in other repositories.  These include:
+* [request-generator](https://github.com/HL7-DaVinci/crd-request-generator) - [react](https://reactjs.org/) based web UI that can generate basic CRD requests and display the returned CDS Hooks cards
+* [smart-app](https://github.com/HL7-DaVinci/dtr) - A SMART of FHIR application for Documentation Templates and Rules.
 
 ## System Architecture
 The subprojects in this repository are capable of simulating the entire set of interactions required for CRD. Their interactions can be seen in the following diagram:
@@ -34,7 +37,7 @@ The RI supports the use of [OAuth 2.0](https://oauth.net/2/) as described in the
 ### Healthcare Provider Components
 On the left side of the diagram, we have two components that simulate functionality that is provided by an EHR system. The first is `request-generator`. This is a web application that can generate a simple CRD request via CDS Hook. The web application allows a user to enter basic demographic information as well as a code for the requested service/device. Once the request has been submitted, the application will display any cards that have been returned by the CDS Service.
 
-`ehr-server` provides a basic FHIR server that is intended to satisfy any requests from the CDS Service that have not been populated via prefetch. If the system generating the request completely populates the prefetch, or the CDS Service processing the request is simplistic, this component is not necessary.
+`ehr-server` provides a basic FHIR server that is intended to satisfy any requests from the CDS Service that have not been populated via prefetch. If the system generating the request completely populates the prefetch, or the CDS Service processing the request is simplistic, this component is not necessary.  The `ehr-server` also hosts the request generator.
 
 ### Healthcare Payer Components
 `server` is an implementation of a CDS Service. It handles CDS Hooks requests and returns results. The service performs some basic parsing of the request to extract basic demographic information and the code of the requested item. Based on that information, the service will consult a simple database and then return information from the database in CDS Hook cards. The simplistic documentation requirements rules can be modified via an administrative web interface.

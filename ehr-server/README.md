@@ -2,10 +2,18 @@
 This subproject hosts a HAPI FHIR server that is based on the [hapi-fhir-jpaserver-example](https://github.com/jamesagnew/hapi-fhir/tree/master/hapi-fhir-jpaserver-example).
 
 ## Setup the Request Generator
-1. See the Request Generator README to build the Request Generator.
-2. Create a symbolic link to the Request Generator
-  * `cd ehr-server/src/main/webapp/WEB-INF/`
-  * `ln -s ../../../../../request-generator/build reqgen`
+The request generator can be setup automatically with a gradle task:
+1. Navigate to the `/ehr-server` folder in a terminal
+2. Run `gradle loadRequestBuilder`, this operation should take about a minute
+
+To setup the request generator manually:
+1. Download the code from [request generator repository](https://github.com/HL7-DaVinci/crd-request-generator)
+2. Navigate to the directory containing the request generator code
+3. Run `npm install`
+4. Run `npm run-script build`
+5. Move the build folder that gets created into `ehr-server/src/main/webapp/WEB-INF/`
+
+The request generator will run when the server runs.
 
 ## Running the server
 `gradle appRun`

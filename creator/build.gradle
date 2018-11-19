@@ -6,9 +6,9 @@ dependencies {
     compile project(':resources')
 }
 
-// For gradle run
+// For gradle run. Run the app from the terminal like this: gradle run -PappArgs="['.', 'r4']"
 run {
-    if ( project.hasProperty('appArgs') ) {
+    if (project.hasProperty('appArgs')) {
         args Eval.me(appArgs)
     }
 }

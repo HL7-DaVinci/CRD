@@ -72,8 +72,8 @@ public class EndToEndRequestPrefetchTest {
             JsonNode.class);
 
     System.out.println(cards);
-    assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "No documentation rules found");
+    assertEquals("No documentation rules found",
+        cards.get("cards").get(0).get("summary").textValue());
   }
 
   @Test
@@ -90,7 +90,7 @@ public class EndToEndRequestPrefetchTest {
             JsonNode.class);
 
     System.out.println(cards);
-    assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "deviceRequestBundle could not be (pre)fetched in this request ");
+    assertEquals("Unable to (pre)fetch any supported resources from the bundle.",
+        cards.get("cards").get(0).get("summary").textValue());
   }
 }

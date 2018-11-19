@@ -1,19 +1,14 @@
 package org.hl7.davinci.endpoint;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +16,6 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
@@ -33,28 +27,29 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
 
     String jku = (String) jwsHeader.get("jku");
     JsonObject jwkPub = null;
-    ClassLoader classLoader = getClass().getClassLoader();
-    String keystorePath = Objects.requireNonNull(classLoader
-        .getResource("keystore.json"))
-        .getFile();
-    try (Reader reader = new FileReader(keystorePath)) {
-      // check to see if pub key is already in keystore
-      Gson gson = new Gson();
-      JsonObject keystore = gson.fromJson(reader,JsonObject.class);
-      if (keystore.has(keyId)) {
-        // if it's already stored, retrieve it
-        jwkPub = keystore.get(keyId).getAsJsonObject();
-        logger.info("Retrieved key from keystore");
 
+    RestTemplate restTemplate = new RestTemplate();
+
+    // TODO: update this url if the location of /public changes.
+    String keyUrl = "http://localhost:8090/api/public/";
+    String jwkString = null;
+    try {
+      ResponseEntity<org.hl7.davinci.endpoint.database.PublicKey> response
+          = restTemplate.getForEntity(keyUrl + keyId, org.hl7.davinci.endpoint.database.PublicKey.class);
+      if (response.getBody() != null) {
+        jwkString = response.getBody().getKey();
+        jwkPub = new JsonParser().parse(jwkString).getAsJsonObject();
+        logger.info("Public Key found in keystore");
+      } else {
+        logger.info("Public Key not found in keystore");
       }
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (HttpServerErrorException e) {
+      logger.warning("Public Key not retrieved");
     }
     if (jwkPub == null) {
       // If the key wasn't loaded from the store, we go
       // find it at the jku.
       logger.info("Retrieving public key from " + jku);
-      RestTemplate restTemplate = new RestTemplate();
       // Fetch the public key from the JKU.  Right now
       // only PEM (X509) format is supported.
       String result = restTemplate.getForObject(jku + "/" + keyId, String.class);
@@ -62,27 +57,28 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
       jwkPub = parser.parse(result).getAsJsonObject();
       // "pem" is just the arbitrary key used in the json
       // that gets built in "request-builder"
+      jwkString = jwkPub.get("pem").toString();
       jwkPub = jwkPub.get("pem").getAsJsonObject();
+      org.hl7.davinci.endpoint.database.PublicKey payload =
+          new org.hl7.davinci.endpoint.database.PublicKey();
+      payload.setId(keyId);
+      payload.setKey(jwkString);
+      try {
+        ResponseEntity<String> response
+            = restTemplate.postForEntity(keyUrl,payload, String.class);
+        logger.info("Saved public key to keystore");
+
+      } catch (HttpServerErrorException e) {
+        logger.warning("Key was not saved");
+      }
     }
     try {
-      final PublicKey returnKey = keyLookup(jwkPub);
       // write the new pub key to the key store
       // store it in the form {keyId:jwk}
-      JsonObject pubKeyJson = new JsonObject();
-      pubKeyJson.add(keyId,jwkPub);
-
-      try (Writer writer = new FileWriter(keystorePath)) {
-        Gson gsonBuilder = new GsonBuilder().create();
-        gsonBuilder.toJson(pubKeyJson,writer);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      logger.info("Saved public key to keystore");
-      return returnKey;
+      return keyLookup(jwkPub);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       e.printStackTrace();
     }
-
     return null;
   }
 

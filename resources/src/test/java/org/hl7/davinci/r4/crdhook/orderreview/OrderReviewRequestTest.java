@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 public class OrderReviewRequestTest {
   @Test
   public void testReadingJson() throws IOException, FHIRException {
+
     InputStream requestStream = this.getClass().getResourceAsStream("requestWithHydratedPrefetchBundle.json");
     ObjectMapper mapper = new ObjectMapper();
     OrderReviewRequest request = mapper.readValue(requestStream, OrderReviewRequest.class);

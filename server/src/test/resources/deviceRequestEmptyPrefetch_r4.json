@@ -1,21 +1,21 @@
 {
   "hook": "order-review",
-  "hookInstance": "a4ca4d19-ed2a-491d-87d4-408fefd56ec9",
+  "hookInstance": "ff939efe-1c97-4c2a-b4e5-d34e6edc2f7b",
   "fhirServer": "http://localhost:9089/",
-  "oauth": null,
+  "fhirAuthorization": null,
   "user": "Practitioner/1234",
-  "context":{
-    "patientId":"1288992",
-    "encounterId":"89284",
-    "orders":{
-      "resourceType":"Bundle",
-      "entry":[
+  "context": {
+    "patientId": "c2f0f972-5f84-4518-948f-63d00a1fa5a0",
+    "encounterId": null,
+    "services": null,
+    "orders": {
+      "resourceType": "Bundle",
+      "entry": [
         {
           "resource": {
             "resourceType": "DeviceRequest",
-            "id": "24439",
+            "id": "123",
             "status": "draft",
-            "intent": "plan",
             "codeCodeableConcept": {
               "coding": [
                 {
@@ -26,15 +26,16 @@
               "text": "Stationary Compressed Gaseous Oxygen System, Rental"
             },
             "subject": {
-              "reference": "Patient/1288992"
-            },
-            "authoredOn": "2018-08-08",
-            "insurance": {
-              "reference": "Coverage/1234"
+              "reference": "Patient/c2f0f972-5f84-4518-948f-63d00a1fa5a0"
             },
             "performer": {
-              "reference": "PractitionerRole/1234"
-            }
+              "reference": "PractitionerRole/1eccf4fb-2cf4-400e-891f-54c89b45cfff"
+            },
+            "insurance": [
+              {
+                "reference": "Coverage/c3d24ccd-ad1b-480e-9545-bbf35a3d89ff"
+              }
+            ]
           }
         }
       ]

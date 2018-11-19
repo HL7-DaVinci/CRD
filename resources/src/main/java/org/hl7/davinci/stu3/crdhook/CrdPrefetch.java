@@ -83,4 +83,5 @@ public class CrdPrefetch {
   public void setSupplyRequestBundle(Bundle supplyRequestBundle) {
     this.supplyRequestBundle = supplyRequestBundle;
   }
+
 }

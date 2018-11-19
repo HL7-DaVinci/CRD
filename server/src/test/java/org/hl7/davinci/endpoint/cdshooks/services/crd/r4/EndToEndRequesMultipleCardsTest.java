@@ -46,7 +46,7 @@ public class EndToEndRequesMultipleCardsTest {
         .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
             JsonNode.class);
 
-    assertEquals(cards.get("cards").size(),2);
+    assertEquals(2, cards.get("cards").size());
   }
 
 }
