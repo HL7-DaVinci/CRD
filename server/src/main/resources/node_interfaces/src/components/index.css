@@ -1,0 +1,28 @@
+<Button
+action={this.handleFormSubmit}
+type={"primary"}
+title={"Submit"}
+style={buttonStyle}
+/>{" "}
+
+<Button
+action={this.handleClearForm}
+type={"secondary"}
+title={"Clear"}
+style={buttonStyle}
+/>{" "}
+
+<Button
+action={this.handleRuleDelete}
+type={"secondary"}
+title={"Delete"}
+style={buttonStyle}
+/>{" "}
+
+<Button
+action={this.handleRuleUpdate}
+handleChange={this.state.newRule}
+type={"secondary"}
+title={"Edit"}
+style={buttonStyle}
+/>{" "}
