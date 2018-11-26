@@ -4,6 +4,7 @@ import Input from "../components/Input";
 import TextArea from "../components/TextArea";
 import Select from "../components/Select";
 import Button from "../components/Button";
+import Form from "../components/Form";
 
 import './index.css';
 export default class DataTable extends Component {
