@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.jsonwebtoken.Jwts;
+import org.hl7.davinci.endpoint.database.PublicKeyRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,13 +29,14 @@ import java.util.List;
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
   RequestService requestService;
+  private PublicKeyRepository publicKeyRepository;
 
-  public JwtAuthorizationFilter(AuthenticationManager authManager, RequestService requestService) {
+  public JwtAuthorizationFilter(AuthenticationManager authManager, RequestService requestService,
+                                PublicKeyRepository publicKeyRepository) {
     super(authManager);
     this.requestService = requestService;
+    this.publicKeyRepository = publicKeyRepository;
   }
-
-
 
   @Override
   protected void doFilterInternal(HttpServletRequest req,
@@ -81,7 +83,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
       // The KeyResolver fetches the public key from the jku
       // will throw an exception if the signature cannot be verified
       Jwts.parser()
-          .setSigningKeyResolver(new SigningKeyResolverCrd())
+          .setSigningKeyResolver(new SigningKeyResolverCrd(publicKeyRepository))
           .parseClaimsJws(token).getSignature();
     } catch (io.jsonwebtoken.SignatureException sigEx) {
       logger.info("Failed to verify token signature, rejecting token.");

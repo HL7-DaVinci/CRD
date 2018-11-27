@@ -5,8 +5,7 @@ import com.google.gson.JsonParser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpServerErrorException;
+import org.hl7.davinci.endpoint.database.PublicKeyRepository;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigInteger;
@@ -16,10 +15,18 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
   private static Logger logger = Logger.getLogger(Application.class.getName());
+
+  private PublicKeyRepository publicKeyRepository;
+
+  public SigningKeyResolverCrd(PublicKeyRepository publicKeyRepository) {
+    super();
+    this.publicKeyRepository = publicKeyRepository;
+  }
 
   @Override
   public PublicKey resolveSigningKey(JwsHeader jwsHeader, Claims claims) {
@@ -30,20 +37,17 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
 
     RestTemplate restTemplate = new RestTemplate();
 
-    // TODO: update this url if the location of /public changes.
-    String keyUrl = "http://localhost:8090/api/public/";
     String jwkString = null;
     try {
-      ResponseEntity<org.hl7.davinci.endpoint.database.PublicKey> response
-          = restTemplate.getForEntity(keyUrl + keyId, org.hl7.davinci.endpoint.database.PublicKey.class);
-      if (response.getBody() != null) {
-        jwkString = response.getBody().getKey();
+      Optional<org.hl7.davinci.endpoint.database.PublicKey> response = publicKeyRepository.findById(keyId);
+      if (response.isPresent()) {
+        jwkString = response.get().getKey();
         jwkPub = new JsonParser().parse(jwkString).getAsJsonObject();
         logger.info("Public Key found in keystore");
       } else {
         logger.info("Public Key not found in keystore");
       }
-    } catch (HttpServerErrorException e) {
+    } catch (Exception e) {
       logger.warning("Public Key not retrieved");
     }
     if (jwkPub == null) {
@@ -52,6 +56,7 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
       logger.info("Retrieving public key from " + jku);
       // Fetch the public key from the JKU.  Right now
       // only PEM (X509) format is supported.
+
       String result = restTemplate.getForObject(jku + "/" + keyId, String.class);
       JsonParser parser = new JsonParser();
       jwkPub = parser.parse(result).getAsJsonObject();
@@ -64,11 +69,10 @@ public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
       payload.setId(keyId);
       payload.setKey(jwkString);
       try {
-        ResponseEntity<String> response
-            = restTemplate.postForEntity(keyUrl,payload, String.class);
+        publicKeyRepository.save(payload);
         logger.info("Saved public key to keystore");
 
-      } catch (HttpServerErrorException e) {
+      } catch (Exception e) {
         logger.warning("Key was not saved");
       }
     }
