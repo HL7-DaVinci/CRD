@@ -213,6 +213,35 @@ class Form extends Component {
           handleChange={this.handleTextArea}
           placeholder={"Enter link to further information"}
         />
+
+        <Button
+          action={this.handleFormSubmit}
+          type={"primary"}
+          title={"Submit"}
+          style={buttonStyle}
+          />{" "}
+
+          <Button
+          action={this.handleClearForm}
+          type={"secondary"}
+          title={"Clear"}
+          style={buttonStyle}
+          />{" "}
+
+          <Button
+          action={this.handleRuleDelete}
+          type={"secondary"}
+          title={"Delete"}
+          style={buttonStyle}
+          />{" "}
+
+          <Button
+          action={this.handleRuleUpdate}
+          handleChange={this.state.newRule}
+          type={"secondary"}
+          title={"Edit"}
+          style={buttonStyle}
+          />{" "}
       </form>
     );
   }
@@ -250,9 +279,5 @@ class Row extends Component{
 		);
 	}
 }
-
-const buttonStyle = {
-  margin: "10px 10px 10px 10px"
-};
 
 export default FormContainer;

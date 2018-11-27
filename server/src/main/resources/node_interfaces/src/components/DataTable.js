@@ -11,6 +11,26 @@ export default class DataTable extends Component {
          
     }
 
+    componentDidMount(){
+
+        document.body.style.backgroundColor = "white"// Set the style
+
+        const data = fetch('http://localhost:8090/api/data', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+            }).then(response=>{
+                return response.json();
+            }).then(json=>{
+                this.setState({rules:json});
+            })
+            .catch(error=>{
+                console.log("Couldn't load data, make sure the server is running.")
+            });
+        
+    }
+
         
      render() {
          return (
