@@ -5,7 +5,7 @@ import RequestEntry from '../components/requestLog/RequestEntry';
 let tempDatabase={
 }
 
-let entriesPerPage = 90;
+let entriesPerPage = 10;
 export default class RequestLog extends Component {
     constructor(props){
         super(props);
@@ -39,9 +39,10 @@ export default class RequestLog extends Component {
             }).catch(error=>{
                 console.log("Couldn't load data, make sure the server is running.")
             });
+
         if(requestData){
+            requestData.sort(this.compareTime);
             this.setState({data:requestData});
-            console.log(requestData);
             var webdata = requestData.requestBody;
             this.getPage(1);
         }
