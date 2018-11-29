@@ -216,10 +216,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   protected String smartUrlBuilder(String patientId, String fhirBase) {
     String launchUrl = myConfig.getLaunchUrl();
-    if (fhirBase.endsWith("/")) {
+    if (fhirBase != null && fhirBase.endsWith("/")) {
       fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
     }
-    if (patientId.startsWith("Patient/")) {
+    if (patientId != null && patientId.startsWith("Patient/")) {
       patientId = patientId.substring(8,patientId.length());
     }
     return launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId;
