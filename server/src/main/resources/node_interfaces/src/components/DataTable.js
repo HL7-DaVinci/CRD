@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './index.css';
 
-let componentConstants = require('./ComponentConstants');
+import {codeSystemConversion} from './ComponentConstants'
 
 export default class DataTable extends Component {
     constructor(props){
@@ -60,7 +60,7 @@ export default class DataTable extends Component {
                                 <td >{rule.genderCode}</td>
                                 <td >{rule.equipmentCode}</td>
                                 <td title={rule.codeSystem}>
-                                  <span>{componentConstants.codeSystemConversion[rule.codeSystem]}</span>
+                                  <span>{codeSystemConversion[rule.codeSystem]}</span>
                                 </td>
                                 <td >{rule.patientAddressState}</td>
                                 <td >{rule.providerAddressState}</td>

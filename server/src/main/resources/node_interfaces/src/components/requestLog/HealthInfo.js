@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import './detail.css';
 import './request.css';
 
-let componentConstants = require('../ComponentConstants');
+import {codeSystemConversion} from '../ComponentConstants'
 
 export default class HealthInfo extends Component {
     constructor(props){
@@ -17,7 +17,7 @@ export default class HealthInfo extends Component {
         // temporarily hard code the data
         var dataProps = this.props.data;
         this.setState({requestInfo: {"age":dataProps.patientAge,"gender":dataProps.patientGender,"Patient State":dataProps.patientAddressState,"Provider State":dataProps.providerAddressState,
-            "code":dataProps.code,"codeSystem":componentConstants.codeSystemConversion[dataProps.codeSystem]}})
+            "code":dataProps.code,"codeSystem":codeSystemConversion[dataProps.codeSystem]}})
     }
 
      render() {
