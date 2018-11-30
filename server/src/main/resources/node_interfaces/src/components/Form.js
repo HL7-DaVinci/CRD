@@ -67,18 +67,18 @@ class Form extends Component {
 
   handleCheckBox(e) {
     const newSelection = e.target.value;
-    let newSelectionArray;
+    let newBool;
 
     if (this.state.newRule.noAuthNeeded.indexOf(newSelection) > -1) {
-      newSelectionArray = this.state.newRule.noAuthNeeded.filter(
+      newBool = this.state.newRule.noAuthNeeded.filter(
         s => s !== newSelection
       );
     } else {
-      newSelectionArray = [...this.state.newRule.noAuthNeeded, newSelection];
+      newBool = false;
     }
 
     this.setState(prevState => ({
-      newRule: { ...prevState.newRule, noAuthNeeded: newSelectionArray }
+      newRule: { ...prevState.newRule, noAuthNeeded: newBool }
     }));
   }
 
@@ -108,7 +108,6 @@ class Form extends Component {
     }
     fetch('"http://localhost:8090/api/data/"+rule.id', {
         method: 'DELETE',
-        //body: JSON.stringify(rule)
     }).then(function(response) {
         if (response.status >= 400) {
           throw new Error("Bad response from server");
@@ -122,14 +121,14 @@ class Form extends Component {
         console.log(err)
     });
 }
-    //allow updating of rule
+  //allow editing of rule
 	handleRuleUpdate() {
 	const request = new Request('"http://localhost:8090/api/data/"+rule.id', {
       method: 'PUT',
       headers: new Headers({
         'Content-Type': 'application/json'
       }), 
-      body: JSON.stringify()
+      body: JSON.stringify(data)
     });
 }
 
