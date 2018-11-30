@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
 import './index.css';
+
+let componentConstants = require('./ComponentConstants');
+
 export default class DataTable extends Component {
     constructor(props){
         super(props);
@@ -8,7 +11,6 @@ export default class DataTable extends Component {
         };
          
     }
-
 
     componentDidMount(){
 
@@ -57,7 +59,9 @@ export default class DataTable extends Component {
                                 <td >{rule.ageRangeHigh}</td>
                                 <td >{rule.genderCode}</td>
                                 <td >{rule.equipmentCode}</td>
-                                <td >{rule.codeSystem}</td>
+                                <td title={rule.codeSystem}>
+                                  <span>{componentConstants.codeSystemConversion[rule.codeSystem]}</span>
+                                </td>
                                 <td >{rule.patientAddressState}</td>
                                 <td >{rule.providerAddressState}</td>
                                 <td >{rule.noAuthNeeded?"false":"true"}</td>
