@@ -2,10 +2,8 @@ import React, {Component} from 'react';
 import './detail.css';
 import './request.css';
 
-const codeSystemConversion = {
-    "http://www.ama-assn.org/go/cpt":"CPT",
-    "https://bluebutton.cms.gov/resources/codesystem/hcpcs":"HCPCS"
-}
+import {codeSystemConversion} from '../ComponentConstants'
+
 export default class HealthInfo extends Component {
     constructor(props){
         super(props);
@@ -18,7 +16,8 @@ export default class HealthInfo extends Component {
     componentDidMount(){
         // temporarily hard code the data
         var dataProps = this.props.data;
-        this.setState({requestInfo: {"age":dataProps.patientAge,"gender":dataProps.patientGender,"Patient State":dataProps.patientAddressState,"Provider State":dataProps.providerAddressState,"code":dataProps.code,"codeSystem":codeSystemConversion[dataProps.codeSystem]}})
+        this.setState({requestInfo: {"age":dataProps.patientAge,"gender":dataProps.patientGender,"Patient State":dataProps.patientAddressState,"Provider State":dataProps.providerAddressState,
+            "code":dataProps.code,"codeSystem":codeSystemConversion[dataProps.codeSystem]}})
     }
 
      render() {
