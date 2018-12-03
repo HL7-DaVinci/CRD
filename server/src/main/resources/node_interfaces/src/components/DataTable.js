@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 import Form from "../components/Form";
 
 import './index.css';
+
+import {codeSystemConversion} from './ComponentConstants'
+
 export default class DataTable extends Component {
     constructor(props){
         super(props);
@@ -60,7 +63,9 @@ export default class DataTable extends Component {
                                 <td >{rule.ageRangeHigh}</td>
                                 <td >{rule.genderCode}</td>
                                 <td >{rule.equipmentCode}</td>
-                                <td >{rule.codeSystem}</td>
+                                <td title={rule.codeSystem}>
+                                  <span>{codeSystemConversion[rule.codeSystem]}</span>
+                                </td>
                                 <td >{rule.patientAddressState}</td>
                                 <td >{rule.providerAddressState}</td>
                                 <td >{rule.noAuthNeeded?"false":"true"}</td>
