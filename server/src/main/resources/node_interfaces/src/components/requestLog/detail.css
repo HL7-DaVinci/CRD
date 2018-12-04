@@ -7,7 +7,7 @@
 
     padding-bottom:20px;
     display:flex;
-    border-bottom-color:rgba(255, 255, 255, 0.09) !important;
+    border-bottom-color:#dddddd !important;
 }
 
 .detailWindow.slideInStart{
@@ -31,25 +31,25 @@
 }
 
 .healthInfoHeader{
-    color: white;
+    color: black;
     border-style: solid;
     padding-left: 5px;
     border-width: 0 0 1px 3px;
-    border-bottom-color:rgba(255, 255, 255, 0.09);
+    border-bottom-color:#dddddd;
 }
 
 .infoEntry{
-    color: white;
-    border-left-color: #aaaaaa;
+    color: black;
+    border-left-color: #777777;
     border-style: solid;
     padding-left: 5px;
     margin: 5px 0 0 20px;
     border-width: 0px 0 1px 2px;
-    border-bottom-color:rgba(255, 255, 255, 0.19);
+    border-bottom-color:#dddddd;
 }
 
 .infoTitle{
-    color: #aaaaaa;
+    color: #777777;
     text-transform: capitalize;
 }
 
@@ -214,7 +214,7 @@
     font-family: 'Courier New', Courier, monospace;
     font-size: 14px;
 
-    border-left: 2px solid rgba(255, 255, 255, 0.10);
+    border-left: 2px solid #dddddd;
     border-top:0px;
     padding-left:6px;
 
@@ -230,18 +230,18 @@
 }
 
 .elementBody{
-    color:#888888;
+    color:#adadad;
 }
 .elementKey{
-    color:#ededed
+    color:#343434
 }
 
 .filled{
-    color:white;
+    color:black;
     border-left: 2px solid orange;
 }
 .empty:hover{
-    color: #dddddd;
+    color: #454545;
     border-left: 2px solid rgba(255, 166, 0, 0.8);
 }
 
@@ -260,7 +260,7 @@
 }
 
 .ruleInfoHeader{
-    color: white;
+    color: black;
     border-style: solid;
     border-color: #999999;
     padding-left: 5px;

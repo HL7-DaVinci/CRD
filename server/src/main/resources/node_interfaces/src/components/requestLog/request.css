@@ -1,7 +1,7 @@
 .requestEntry{
     border-width: 0 0 1px 5px;
     border-style: none none solid solid;
-    border-bottom-color:rgba(255, 255, 255, 0.09) !important;
+    border-bottom-color:#dddddd !important;
     height:40px;
     
     margin: 5px 10px 0 10px;
@@ -13,23 +13,23 @@
 
 .requestHeader{
     border-width: 0 0 1px 5px;
-    border-color:white;
+    border-color:black;
     height:40px;
-    color:white;
+    color:black;
     line-height:35px;
     padding-left:5px;
     margin: 65px 10px 0 10px;
 
     border-style: solid;
-    background-color:black;
+    background-color:white;
 }
 
 .requestEntry:hover{
-    color:white;
+    color:black;
 }
 
 .successRequest.active{
-    color:white;
+    color:black;
 }
 .failureRequest.active{
     color: red;
@@ -85,19 +85,19 @@
 .requestEntries{
 }
 .orderButton.active{
-    background-color:white;
-    color:black;
+    background-color:black;
+    color:white;
     font-weight: bold;
 }
 .orderButton{
-    border:1px white solid;
-    background-color:black;
-    color:white;
+    border:1px black solid;
+    background-color:white;
+    color:black;
     margin-left: 5px;
 }
 .orderButton:hover{
-    background-color:white;
-    color:black;
+    background-color:black;
+    color:white;
 }
 
 .pageNumber{
