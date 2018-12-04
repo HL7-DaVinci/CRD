@@ -136,10 +136,11 @@ export default class TableRow extends Component {
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"providerAddressState")}} options={stateOptions} currentState={this.state.data.providerAddressState} />:this.state.data.providerAddressState}</td>
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"noAuthNeeded")}} options={trueFalse} />:this.state.data.noAuthNeeded?"false":"true"}</td>
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"infoLink")}} className="informationInput formInput"placeholder={this.state.data.infoLink}></input>:this.state.data.infoLink}</td>
-                    <td>
+                    {!this.props.home?<td>
                         <span className="delete-button"><span className="delete-button glyphicon glyphicon-trash" onClick={this.handleRuleDelete}></span></span>
                         <span className="edit-button"><span className="edit-button glyphicon glyphicon-edit" onClick={this.handleRuleEdit}></span></span>
-                    </td>
+                    </td>:null}
+                    
                 </tr>
          )
     }

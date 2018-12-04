@@ -82,9 +82,10 @@ export default class DataTable extends Component {
      render() {
          return (
              <div className="dataTable">
-                <div className="button-wrapper">
+             {!this.props.home?<div className="button-wrapper">
                     <button className="add-button" onClick={()=>{this.buttonStuff()}}><span className="glyphicon glyphicon-plus-sign"></span></button>
-                </div>
+                </div>:null}
+               
                 <div>
                     <table className="table-responsive table-striped table">
                         <thead>
@@ -103,7 +104,7 @@ export default class DataTable extends Component {
                         </thead>
                         <tbody>
                         {(this.state.rules instanceof Array)?this.state.rules.map((rule)=>{
-                            return(<TableRow data = {rule} handleDeleteCB = {this.handleDeleteCB} key = {rule.id} edit={rule.id===this.state.editId}></TableRow>)
+                            return(<TableRow data = {rule} handleDeleteCB = {this.handleDeleteCB} key = {rule.id} edit={rule.id===this.state.editId} home={this.props.home}></TableRow>)
                         }):null}
                         </tbody>
 
