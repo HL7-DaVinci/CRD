@@ -86,6 +86,7 @@ class Form extends Component {
   handleFormSubmit(e) {
     e.preventDefault();
     let ruleData = this.state.newRule;
+    ruleData.noAuthNeeded = false;
 
     fetch("http://localhost:8090/api/data", {
       method: "POST",
@@ -95,9 +96,10 @@ class Form extends Component {
         "Content-Type": "application/json"
       }
     }).then(response => {
-      response.json().then(rule => {
-        console.log("Successful" + rule);
-      });
+    console.log(response);
+      response.json();
+      }).then(rule => {
+                console.log("Successful" + rule);;
     });
   }
   
@@ -106,20 +108,7 @@ class Form extends Component {
     var data = {
         id: rule.id
     }
-    fetch('"http://localhost:8090/api/data/"+rule.id', {
-        method: 'DELETE',
-    }).then(function(response) {
-        if (response.status >= 400) {
-          throw new Error("Bad response from server");
-        }
-        return response.json();
-    }).then(function(rule) {
-        if(data === "success"){
-           this.setState({msg: "Rule has been deleted."});  
-        }
-    }).catch(function(err) {
-        console.log(err)
-    });
+    
 }
   //allow editing of rule
 	handleRuleUpdate() {
@@ -128,7 +117,7 @@ class Form extends Component {
       headers: new Headers({
         'Content-Type': 'application/json'
       }), 
-      body: JSON.stringify(data)
+      body: JSON.stringify()
     });
 }
 
@@ -217,21 +206,21 @@ class Form extends Component {
           action={this.handleFormSubmit}
           type={"primary"}
           title={"Submit"}
-          style={buttonStyle}
+
           />{" "}
 
           <Button
           action={this.handleClearForm}
           type={"secondary"}
           title={"Clear"}
-          style={buttonStyle}
+
           />{" "}
 
           <Button
           action={this.handleRuleDelete}
           type={"secondary"}
           title={"Delete"}
-          style={buttonStyle}
+
           />{" "}
 
           <Button
@@ -239,7 +228,7 @@ class Form extends Component {
           handleChange={this.state.newRule}
           type={"secondary"}
           title={"Edit"}
-          style={buttonStyle}
+
           />{" "}
       </form>
     );
@@ -271,12 +260,12 @@ class Row extends Component{
 				
 				<td>{this.props.data.noAuthNeeded}</td>
 				
-				<td className="glyphicon glyphicon-trash" onClick={() => {this.handleRuleDelete(rule)}}></td>
-				<td className="glyphicon glyphicon-edit" onClick={() => {this.handleRuleEdit(rule)}}></td>
+				<td className="glyphicon glyphicon-trash" onClick={() => {this.handleRuleDelete(this.props.data)}}></td>
+				<td className="glyphicon glyphicon-edit" onClick={() => {this.handleRuleEdit(this.props.data)}}></td>
 			</tr>
 			
 		);
 	}
 }
 
-export default FormContainer;
+export default Form;

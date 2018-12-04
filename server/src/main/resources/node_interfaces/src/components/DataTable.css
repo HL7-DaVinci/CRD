@@ -1,0 +1,70 @@
+.formInput{
+    border-width: 2px 0 2px 0;
+    padding-left: 2px;
+    margin-right:10px;
+    min-width:50px;
+}
+
+.ageInput{
+    width:75%;
+}
+
+.codeInput{
+    width:100%;
+}
+
+.informationInput {
+    width:100%;
+}
+
+.selectBox{
+    border-style:none;
+    height:20px;
+    min-width:40px;
+    padding-left: 2px;
+    position:relative;
+    top:1px;
+
+}
+
+.column{
+    width:400px;
+}
+
+.selectBoxWrapper{
+
+    border-style: solid;
+    border-top-color:#888888;
+    border-bottom-color: #DDDDDD;
+    border-width:2px 0 2px 0;
+
+    display:inline;
+    padding:0px 0px 5px 0px;
+}
+
+.delete-button{
+    color:#AAAAAA;
+}
+
+.edit-button{
+    color:#AAAAAA;
+}
+
+.delete-button:hover{
+    color:black;
+}
+.edit-button:hover{
+    color:black;
+}
+
+.add-button{
+    margin-left:5px;
+    line-height:10px;
+    width:25px;
+    height:25px;
+    font-size:15px;
+    color:white;
+    background-color:black;
+    border-style:1px solid white;
+    transition:all .2s ease-in;
+}

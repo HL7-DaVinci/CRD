@@ -1,28 +1,35 @@
 import React from "react";
+import './DataTable.css';
 
 const Select = props => {
+  let currentState = props.currentState;
   return (
-    <div className="form-group">
-      <label for={props.name}> {props.title} </label>
+    
+    <div>
+      <div className="selectBoxWrapper">
+
       <select
-        id={props.name}
-        name={props.name}
-        value={props.value}
-        onChange={props.handleChange}
-        className="form-control"
+      className="selectBox"
+      defaultValue={props.currentState}
+      onChange={props.onChangeCB}
       >
-        <option value="" disabled>
-          {props.placeholder}
-        </option>
         {props.options.map(option => {
           return (
-            <option key={option} value={option} label={option}>
-              {option}
+            <option 
+            key={option.key} 
+            value={option.value} 
+            label={option.text}
+            >
+              {option.value}
             </option>
           );
         })}
+
       </select>
+      </div>
     </div>
+
+
   );
 };
 
