@@ -73,7 +73,7 @@ export default class TableRow extends Component {
         super(props);
         this.state={
             data: this.props.data,
-            edit: false
+            edit: this.props.edit
         };
         this.handleRuleDelete = this.handleRuleDelete.bind(this);
         this.handleRuleEdit = this.handleRuleEdit.bind(this);

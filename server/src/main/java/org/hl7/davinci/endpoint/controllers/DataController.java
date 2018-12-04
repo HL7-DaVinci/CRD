@@ -93,7 +93,7 @@ public class DataController {
     CoverageRequirementRule savedDatum = repository.save(rule);
     URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
         .buildAndExpand(savedDatum.getId()).toUri();
-    return ResponseEntity.created(location).build();
+    return ResponseEntity.created(location).body(savedDatum.getId());
   }
 
   @DeleteMapping("/api/data/{id}")

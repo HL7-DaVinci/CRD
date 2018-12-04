@@ -58,13 +58,24 @@
 }
 
 .add-button{
-    margin-left:5px;
-    line-height:10px;
-    width:25px;
-    height:25px;
-    font-size:15px;
-    color:white;
-    background-color:black;
-    border-style:1px solid white;
+    line-height:14px;
+    width:35px;
+    height:35px;
+    font-size:20px;
+    border:none;
+    background-color:white;
+    color:#555555;
     transition:all .2s ease-in;
+}
+
+.button-wrapper{
+    margin-left:5px;
+    display:inline-block;
+    border: 1px solid black;
+    margin-bottom:10px;
+}
+
+.add-button:hover{
+    background-color:black;
+    color:white;
 }
