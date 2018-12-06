@@ -89,7 +89,7 @@ public class Utilities {
    */
   public static PatientInfo getPatientInfo(Patient patient) throws RequestIncompleteException {
     Character patientGenderCode = null;
-    String patientAddressState = null;
+    Address patientAddressState = null;
     Integer patientAge = null;
     String patientId = null;
 
@@ -98,14 +98,14 @@ public class Utilities {
     }
 
     patientGenderCode = patient.getGender().getDisplay().charAt(0);
-    patientAddressState = Utilities.getFirstPhysicalHomeAddress(patient.getAddress()).getState();
+    patientAddressState = Utilities.getFirstPhysicalHomeAddress(patient.getAddress());
     patientAge = SharedUtilities.calculateAge(patient.getBirthDate());
     patientId = patient.getId();
 
     if (patientGenderCode == null) {
       throw new RequestIncompleteException("Patient found with no gender. Looking in Patient -> gender");
     }
-    if (patientAddressState == null) {
+    if (patientAddressState == null || patientAddressState.getState() == null) {
       throw new RequestIncompleteException("Patient found with no home state. "
           + "Looking in Patient -> address [searching for the first physical home address] -> state.");
     }
@@ -116,7 +116,7 @@ public class Utilities {
       throw new RequestIncompleteException("Patient found with no ID.");
     }
 
-    return new PatientInfo(patientGenderCode, patientAddressState, patientAge, patientId);
+    return new PatientInfo(patientGenderCode, patientAddressState.getState(), patientAge, patientId);
   }
 
 }
