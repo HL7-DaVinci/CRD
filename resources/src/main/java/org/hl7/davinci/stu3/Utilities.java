@@ -93,14 +93,15 @@ public class Utilities {
     Integer patientAge = null;
     String patientId = null;
 
-    try {
-      patientGenderCode = patient.getGender().getDisplay().charAt(0);
-      patientAddressState = Utilities.getFirstPhysicalHomeAddress(patient.getAddress()).getState();
-      patientAge = SharedUtilities.calculateAge(patient.getBirthDate());
-      patientId = patient.getId();
-    } catch (Exception e) {
-      //TODO: logger.error("Error parsing needed info from the device request bundle.", e);
+    if (patient == null) {
+      throw new RequestIncompleteException("Patient could not be found");
     }
+
+    patientGenderCode = patient.getGender().getDisplay().charAt(0);
+    patientAddressState = Utilities.getFirstPhysicalHomeAddress(patient.getAddress()).getState();
+    patientAge = SharedUtilities.calculateAge(patient.getBirthDate());
+    patientId = patient.getId();
+
     if (patientGenderCode == null) {
       throw new RequestIncompleteException("Patient found with no gender. Looking in Patient -> gender");
     }
