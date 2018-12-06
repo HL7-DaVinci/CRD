@@ -18,6 +18,7 @@ import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -60,7 +61,11 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
       Patient patient = null;
       PatientInfo patientInfo = null;
       try {
-        codings = medicationRequest.getMedicationCodeableConcept().getCoding();
+        if (medicationRequest.hasMedicationCodeableConcept()) {
+          codings = medicationRequest.getMedicationCodeableConcept().getCoding();
+        } else {
+          throw new RequestIncompleteException("Request bundle is missing medication code.");
+        }
         patient = (Patient) medicationRequest.getSubject().getResource();
 
         patientInfo = Utilities.getPatientInfo(patient);
@@ -69,8 +74,8 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
             new PractitionerRoleInfo()));
       } catch (RequestIncompleteException e) {
         throw e;
-      } catch (Exception e) {
-        logger.error("Error parsing needed info from the device request bundle.", e);
+      } catch (FHIRException e) {
+        logger.error("Failed to parse medication request bundle.", e);
       }
     }
     return queries;
