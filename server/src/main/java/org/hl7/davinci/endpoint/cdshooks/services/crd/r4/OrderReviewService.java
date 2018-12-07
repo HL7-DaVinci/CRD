@@ -14,6 +14,7 @@ import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.DeviceRequest;
@@ -91,13 +92,21 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
       try {
         if (genericRequest instanceof DeviceRequest) {
           DeviceRequest deviceRequest = (DeviceRequest) genericRequest;
-          codings = deviceRequest.getCodeCodeableConcept().getCoding();
+          if (deviceRequest.hasCodeCodeableConcept()) {
+            codings = deviceRequest.getCodeCodeableConcept().getCoding();
+          } else {
+            throw new RequestIncompleteException("Request bundle is missing device code.");
+          }
           patient = (Patient) deviceRequest.getSubject().getResource();
 
           practitionerRole = (PractitionerRole) deviceRequest.getPerformer().getResource();
         } else if (genericRequest instanceof ServiceRequest) {
           ServiceRequest deviceRequest = (ServiceRequest) genericRequest;
-          codings = deviceRequest.getCode().getCoding();
+          if (deviceRequest.hasCode()) {
+            codings = deviceRequest.getCode().getCoding();
+          } else {
+            throw new RequestIncompleteException("Request bundle is missing device code.");
+          }
           patient = (Patient) deviceRequest.getSubject().getResource();
           practitionerRole = (PractitionerRole) deviceRequest.getPerformer().get(0).getResource();
         }
@@ -109,8 +118,8 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
                 practitionerRoleInfo));
       } catch (RequestIncompleteException e) {
         throw e;
-      } catch (Exception e) {
-        logger.error("Error parsing needed info from the device request bundle.", e);
+      } catch (FHIRException e) {
+        logger.error("Failed to parse device request bundle information.",e);
       }
     }
     return queries;

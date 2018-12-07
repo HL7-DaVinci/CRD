@@ -17,6 +17,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -66,7 +67,11 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
       Patient patient = null;
       PatientInfo patientInfo = null;
       try {
-        codings = deviceRequest.getCodeCodeableConcept().getCoding();
+        if (deviceRequest.hasCodeCodeableConcept()) {
+          codings = deviceRequest.getCodeCodeableConcept().getCoding();
+        } else {
+          throw new RequestIncompleteException("Request bundle is missing device code.");
+        }
         patient = (Patient) deviceRequest.getSubject().getResource();
 
         patientInfo = Utilities.getPatientInfo(patient);
@@ -75,8 +80,8 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
             new PractitionerRoleInfo()));
       } catch (RequestIncompleteException e) {
         throw e;
-      } catch (Exception e) {
-        logger.error("Error parsing needed info from the device request bundle.", e);
+      } catch (FHIRException e) {
+        logger.error("Failed to parse device request bundle information.", e);
       }
     }
     return queries;
