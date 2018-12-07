@@ -1,0 +1,124 @@
+.dataTable{
+    background-color:white;
+    color:black;
+}
+
+
+.formInput{
+    border-width: 2px 0 2px 0;
+    padding-left: 2px;
+    margin-right:10px;
+    min-width:50px;
+}
+
+.ageInput{
+    width:75%;
+}
+
+.codeInput{
+    width:100%;
+}
+
+.informationInput {
+    width:100%;
+}
+
+.selectBox{
+    border-style:none;
+    height:20px;
+    min-width:40px;
+    padding-left: 2px;
+    position:relative;
+    top:1px;
+
+}
+
+.column{
+    width:400px;
+}
+
+.selectBoxWrapper{
+
+    border-style: solid;
+    border-top-color:#888888;
+    border-bottom-color: #DDDDDD;
+    border-width:2px 0 2px 0;
+
+    display:inline;
+    padding:0px 0px 5px 0px;
+}
+
+.delete-button{
+    color:#AAAAAA;
+}
+
+.edit-button{
+    color:#AAAAAA;
+}
+
+.delete-button:hover{
+    color:black;
+}
+.edit-button:hover{
+    color:black;
+}
+
+.add-button{
+    line-height:14px;
+    width:35px;
+    height:35px;
+    font-size:20px;
+    border:none;
+    background-color:white;
+    color:#555555;
+    transition:all .2s ease-in;
+}
+
+.button-wrapper{
+    margin-left:5px;
+    display:inline-block;
+    border: 1px solid black;
+    margin-bottom:10px;
+}
+
+.add-button:hover{
+    background-color:black;
+    color:white;
+}
+
+.modalDelete {
+    position:fixed;
+    border: 2px solid black;
+    background-color: white;
+    width: 50%;
+    height: 15%;
+    text-align: center;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+}
+
+.modal-button {
+    display:inline-block;
+    width: 30%;
+    height: 30px;
+    line-height: 26px;
+    margin: 2px;
+    vertical-align:middle;
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 5px;
+}
+
+.modal-button:hover { 
+    background-color:black;
+    color: white;
+}
+
+.yes-button:hover {
+    border: 2px solid #5cb85c;
+}
+
+.no-button:hover {
+    border: 2px solid #d9534f
+}
