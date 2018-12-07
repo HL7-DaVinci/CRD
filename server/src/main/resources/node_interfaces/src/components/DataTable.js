@@ -7,7 +7,7 @@ export default class DataTable extends Component {
         super(props);
         this.state={
             rules: {},
-            editId: null
+            editId: null,
         };
     this.handleDeleteCB = this.handleDeleteCB.bind(this);
     this.buttonStuff = this.buttonStuff.bind(this);

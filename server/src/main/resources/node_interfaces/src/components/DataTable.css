@@ -85,3 +85,40 @@
     background-color:black;
     color:white;
 }
+
+.modalDelete {
+    position:fixed;
+    border: 2px solid black;
+    background-color: white;
+    width: 50%;
+    height: 15%;
+    text-align: center;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+}
+
+.modal-button {
+    display:inline-block;
+    width: 30%;
+    height: 30px;
+    line-height: 26px;
+    margin: 2px;
+    vertical-align:middle;
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 5px;
+}
+
+.modal-button:hover { 
+    background-color:black;
+    color: white;
+}
+
+.yes-button:hover {
+    border: 2px solid #5cb85c;
+}
+
+.no-button:hover {
+    border: 2px solid #d9534f
+}

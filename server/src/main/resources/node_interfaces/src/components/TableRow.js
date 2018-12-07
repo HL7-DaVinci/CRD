@@ -73,12 +73,15 @@ export default class TableRow extends Component {
         super(props);
         this.state={
             data: this.props.data,
-            edit: this.props.edit
+            edit: this.props.edit,
+            deleteConfirm: false
         };
+        this.handleRuleDeletePre = this.handleRuleDeletePre.bind(this);
         this.handleRuleDelete = this.handleRuleDelete.bind(this);
         this.handleRuleEdit = this.handleRuleEdit.bind(this);
         this.handleUpdate = this.handleUpdate.bind(this);
         this.handleEnter = this.handleEnter.bind(this);
+        
     }
 
     handleRuleDelete() {
@@ -97,6 +100,9 @@ export default class TableRow extends Component {
             });
     }
 
+    handleRuleDeletePre() {
+        this.setState({deleteConfirm:!this.state.deleteConfirm})
+    }
     handleRuleEdit() {
         console.log(this.state.data);
         if(this.state.edit) {
@@ -125,6 +131,7 @@ export default class TableRow extends Component {
 
      render() {
          return(
+
                 <tr>
                     <td >{this.state.data.id}</td>
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"ageRangeLow")}} className="ageInput formInput" placeholder={this.state.data.ageRangeLow} type='number'></input>:this.state.data.ageRangeLow}</td>
@@ -136,14 +143,20 @@ export default class TableRow extends Component {
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"providerAddressState")}} options={stateOptions} currentState={this.state.data.providerAddressState} />:this.state.data.providerAddressState}</td>
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"noAuthNeeded")}} options={trueFalse} />:this.state.data.noAuthNeeded?"false":"true"}</td>
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"infoLink")}} className="informationInput formInput"placeholder={this.state.data.infoLink}></input>:this.state.data.infoLink}</td>
+
                     {!this.props.home?<td>
-                        <span className="delete-button"><span className="delete-button glyphicon glyphicon-trash" onClick={this.handleRuleDelete}></span></span>
+                        <span className="delete-button"><span className="delete-button glyphicon glyphicon-trash" onClick={this.handleRuleDeletePre}></span></span>
                         <span className="edit-button"><span className="edit-button glyphicon glyphicon-edit" onClick={this.handleRuleEdit}></span></span>
                     </td>:null}
-                    
+                    {this.state.deleteConfirm?
+                    <div className="modalDelete">
+                    <h1>Delete rule {this.state.data.id}?</h1>
+                    <button className="yes-button modal-button" onClick={this.handleRuleDelete}>Yes</button>
+                    <button className="no-button modal-button" onClick={this.handleRuleDeletePre}>No</button>
+                    </div>
+                    :null}
                 </tr>
+
          )
     }
-
-    
 } 
