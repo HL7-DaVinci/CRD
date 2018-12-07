@@ -50,16 +50,6 @@ This functionality can be turned off and on by changing the `checkJWt` property 
 
 ## Building Web Apps
 
-React based pages like the `/public` and `/requests` must be built into static javascript and css to be served.
-
-The react .jsx code should be edited directly in their respective folders in `/server/resources` and then be built.
-To build them, follow these steps:
-
-1.  Navigate into the desired directory in a terminal or command prompt
-2.  Run `npm run build`
-3.  Transfer the .js and .css files to the static folder
-4.  Change the respective .html file to reference the new files
-
-
+To edit the web apps, the code in `src/main/resources/node_interfaces` should be updated.  These changes will not be reflected by the server.  To build the jsx files, run `npm run-script buildx`.  This command will run a bash script that will automatically build the files out and move them to the correct directory to be hosted by the spring server.
 
 

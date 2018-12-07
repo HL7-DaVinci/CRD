@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    id 'net.ltgt.apt' version '0.10'
+    
 }
 
 apply plugin: 'war'
