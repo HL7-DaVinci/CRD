@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import Form from "../components/Form";
 import TableRow from './TableRow';
 import './DataTable.css';
 export default class DataTable extends Component {
