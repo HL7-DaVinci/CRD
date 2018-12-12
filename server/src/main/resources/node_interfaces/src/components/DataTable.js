@@ -90,7 +90,7 @@ export default class DataTable extends Component {
                     <table className="table-responsive table-striped table">
                         <thead>
                         <tr>
-                            <td>ID</td>
+                            {/* <td>ID</td> */}
                             <td>Rule Applies at Age</td>
                             <td>Rule Ends at Age</td>
                             <td>Gender</td>
