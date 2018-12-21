@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 // patientAgeRangeLow, patientAgeRangeHigh,
 // patientGender, patientPlanId, equipmentCode,
-// noAuthNeeded, infoLink
+// authRequired, infoLink
 @Entity
 @Table(name = "coverage_requirement_rules")
 public class CoverageRequirementRule {
@@ -48,8 +48,8 @@ public class CoverageRequirementRule {
   @Column(name = "provider_address_state", nullable = true, length = 2)
   private String providerAddressState;
 
-  @Column(name = "no_auth_needed", nullable = false)
-  private boolean noAuthNeeded;
+  @Column(name = "auth_required", nullable = false)
+  private boolean authRequired;
 
   //    The following fields describe the rule outcome
   @Column(name = "info_link", nullable = true, length = 2000)
@@ -73,12 +73,12 @@ public class CoverageRequirementRule {
     this.infoLink = infoLink;
   }
 
-  public boolean getNoAuthNeeded() {
-    return noAuthNeeded;
+  public boolean getAuthRequired() {
+    return authRequired;
   }
 
-  public void setNoAuthNeeded(boolean noAuthNeeded) {
-    this.noAuthNeeded = noAuthNeeded;
+  public void setAuthRequired(boolean authRequired) {
+    this.authRequired = authRequired;
   }
 
   public int getAgeRangeLow() {
@@ -140,8 +140,8 @@ public class CoverageRequirementRule {
   @Override
   public String toString() {
     return String.format("(row id: %d) Rule [equipment_code: %s, code_system %s, age_range_low %d, age_range_high: %d"
-        + ", gender_code: %s, patient_address_state: %s, practitioner_address_state] Outcome: [no_auth_needed: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
-        ageRangeHigh, genderCode, patientAddressState, providerAddressState, noAuthNeeded, infoLink);
+        + ", gender_code: %s, patient_address_state: %s, practitioner_address_state] Outcome: [auth_required: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
+        ageRangeHigh, genderCode, patientAddressState, providerAddressState, authRequired, infoLink);
   }
 
   public CoverageRequirementRule() {}

@@ -141,7 +141,7 @@ export default class TableRow extends Component {
                     <td title={this.state.data.codeSystem}>{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"codeSystem")}} className="formInput" placeholder={this.state.data.codeSystem} ></input>:<span>{codeSystemConversion[this.state.data.codeSystem]}</span>}</td>
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"patientAddressState")}} options={stateOptions} currentState={this.state.data.patientAddressState} />:this.state.data.patientAddressState}</td>
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"providerAddressState")}} options={stateOptions} currentState={this.state.data.providerAddressState} />:this.state.data.providerAddressState}</td>
-                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"noAuthNeeded")}} options={trueFalse} />:this.state.data.noAuthNeeded?"false":"true"}</td>
+                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"authRequired")}} options={trueFalse} />:this.state.data.authRequired?"true":"false"}</td>
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"infoLink")}} className="informationInput formInput"placeholder={this.state.data.infoLink}></input>:this.state.data.infoLink}</td>
 
                     {!this.props.home?<td>
