@@ -14,8 +14,11 @@ export default class DataTable extends Component {
     }
 
     componentDidMount(){
+      
         document.body.style.backgroundColor = "white"// Set the style
-        const data = fetch('http://localhost:8090/api/data', {
+      
+        const data = fetch('/api/data', {
+
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
