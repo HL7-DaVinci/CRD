@@ -22,7 +22,7 @@ public class CardBuilder {
    */
   public static Card transform(CoverageRequirementRule crr, String launchUrl) {
     Card card = baseCard();
-    if (crr.getNoAuthNeeded()) {
+    if (!crr.getAuthRequired()) {
       String summary = String
           .format("No documentation is required for a device or service with code: %s",
               crr.getEquipmentCode());

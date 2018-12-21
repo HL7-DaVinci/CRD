@@ -1,6 +1,6 @@
 
 body{
-  background-color:black;
+  background-color:white;
 }
 
 button:focus{
@@ -15,11 +15,11 @@ textarea:focus{
   outline-color:orange;
 }
 .titleHeader{
-  color:white;
+  color:black;
   font-size: 40px;
   text-align:center;
   border-width: 0px 0px 2px 0px;
-  border-color: white;
+  border-color: black;
   border-style: dotted;
   line-height: 2em;
 }
@@ -30,11 +30,11 @@ textarea:focus{
   display:flex;
   font-family: 'Courier New', Courier, monospace;
   padding:5px;
-  color: #CDCDCD;
+  color: #212121;
   border-style: solid;
   border-width: 3px;
-  border-color: white;
-  background-color: black;
+  border-color: black;
+  background-color: white;
   transition: all 0.7s ease-in;
 }
 
@@ -92,23 +92,25 @@ textarea:focus{
 }
 .borderDiv{
   margin-top:15px;
-  border-top:2px dotted white;
+  border-top:2px dotted black;
 }
 .newEntryButton{
-  margin-left:5px;
+
   line-height:14px;
   width:35px;
   height:35px;
   font-size:20px;
-  color:white;
+  color:black;
   text-align:center;
   vertical-align: middle;
-  background-color:black;
-
-  border-style:1px solid white;
+  background-color:white;
+  border:none;
+  border-style:1px solid #111111;
   transition:all .2s ease-in;
 }
-
+.button-wrapper{
+  margin-left: 5px;
+}
 .reloadButton{
   padding-bottom:4px;
 }
@@ -118,32 +120,28 @@ textarea:focus{
   width:25px;
   height:25px;
   font-size:14px;
-  color:white;
+  color:black;
   text-align:center;
   vertical-align: middle;
   padding:0;
 
-  background-color:black;
+  background-color:white;
   border-style:solid;
   border-width: 1px 1px 1px 1px;
-  border-color:white;
-  transition:all .2s ease-in;
-
-}
-
-.addButton{
+  border-color:black;
+  transition:all .1s ease-in;
 
 }
 
 .editingButton:hover{
-  border-color:white;
-  background-color:white;
-  color:black;
+  border-color:black;
+  background-color:black;
+  color:white;
 }
 
 .newEntryButton:hover{
-  background-color:white;
-  color:black;
+  background-color:black;
+  color:white;
 }
 .deleteButton{
 }
@@ -153,10 +151,10 @@ textarea:focus{
 }
 
 .editInput{
-  background-color:black;
+  background-color:white;
   font-family: 'Courier New', Courier, monospace;
-  color:white;
-  border:1px solid white;
+  color:black;
+  border:1px solid black;
   width:90%;
   padding:4px;
 }
@@ -171,8 +169,8 @@ textarea:focus{
 
 
 .editing{
-  color: #595959;
-  border-color: #595959;
+  color: #a9a9a9;
+  border-color: #a9a9a9;
   transition: all 0.7s ease-in;
 }
 
@@ -188,7 +186,7 @@ textarea:focus{
   background-color:black;
   border-style:solid;
   border-width: 1px 1px 1px 1px;
-  border-color:white;
+  border-color:black;
 }
 
 .modalError{
@@ -207,14 +205,14 @@ textarea:focus{
 }
 .checkBox{
   border-width: 4px;
-  background-color: #121212;
+  background-color: #e5e5e5;
   transition:all 0.1s ease-in;
 }
 
 .clickButton{
   height:26px;
   font-size:13px;
-  color:white;
+  color:black;
   text-align:center;
   font-family: 'Courier New', Courier, monospace;
   float:right;
@@ -224,20 +222,20 @@ textarea:focus{
   margin-top:5px;
   margin-bottom:5px;
   line-height:10px;
-  background-color:black;
+  background-color:#dedede;
   border-style:solid;
   border-width: 2px;
   transition:all 0.2s ease-in;
 
-  border-color:white;
+  border-color:black;
 }
 
 .clickButton:hover{
-  background-color: #343434;
+  background-color: white;
 }
 
 .checkBoxPressed{
-  background-color: #a5a5a5;
+  background-color: #252525;
 }
 
 .jwtTextArea{

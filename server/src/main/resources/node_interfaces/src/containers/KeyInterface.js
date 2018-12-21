@@ -200,10 +200,12 @@ export default class KeyInterface extends Component{
         var keyContent;
             return (
                 <div className="publicKeyInterface">
-
-                <button id="addButton" className="newEntryButton" onClick={this.newItem}><span className="glyphicon glyphicon-plus-sign"></span></button>
-
-                <button className="newEntryButton reloadButton" onClick={this.initData}><span className="glyphicon glyphicon-retweet"></span></button>
+                <div className="button-wrapper">
+                    <button id="addButton" className="newEntryButton" onClick={this.newItem}><span className="glyphicon glyphicon-plus-sign"></span></button>
+                </div>
+                <div className="button-wrapper">
+                    <button className="newEntryButton reloadButton" onClick={this.initData}><span className="glyphicon glyphicon-retweet"></span></button>
+                </div>
 
                 <div className = "borderDiv">
                 </div>

@@ -24,7 +24,7 @@ export default class HomePage extends Component {
         This service returns responses to CRD queries based on a small database of examples it maintains.
         Example responses can be managed through the <a href="/data">administrative interface</a>.
     </p>
-                <DataTable></DataTable>
+                <DataTable home={true}></DataTable>
              </div>
 
          )

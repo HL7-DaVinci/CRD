@@ -14,6 +14,7 @@ import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.MedicationRequest;
@@ -62,7 +63,11 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
       PatientInfo patientInfo = null;
       PractitionerRoleInfo practitionerRoleInfo = null;
       try {
-        codings = medicationRequest.getMedicationCodeableConcept().getCoding();
+        if (medicationRequest.hasMedicationCodeableConcept()) {
+          codings = medicationRequest.getMedicationCodeableConcept().getCoding();
+        } else {
+          throw new RequestIncompleteException("Request bundle is missing medication code.");
+        }
         patient = (Patient) medicationRequest.getSubject().getResource();
         practitionerRole = (PractitionerRole) medicationRequest.getPerformer().getResource();
 
@@ -74,8 +79,8 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
                 practitionerRoleInfo));
       } catch (RequestIncompleteException e) {
         throw e;
-      } catch (Exception e) {
-        logger.error("Error parsing needed info from the device request bundle.", e);
+      } catch (FHIRException e) {
+        logger.error("Failed to parse medication request bundle", e);
       }
     }
     return queries;
