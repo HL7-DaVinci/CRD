@@ -5,6 +5,19 @@
     <groupId>org.mitre</groupId>
     <artifactId>operations</artifactId>
     <version>0.0.1</version>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
