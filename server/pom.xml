@@ -33,7 +33,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.server.Application</mainClass>
+                            <mainClass>org.hl7.davinci.endpoint.Application</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
