@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import DataTable from './DataTable';
-import './HomePage.css';
+//import './HomePage.css';
 export default class HomePage extends Component {
     constructor(props){
         super(props);
