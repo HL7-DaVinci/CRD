@@ -16,7 +16,7 @@ public class CardBuilderTest {
     crr.setAgeRangeLow(55);
     crr.setEquipmentCode("E0424");
     crr.setGenderCode("F".charAt(0));
-    crr.setNoAuthNeeded(true);
+    crr.setAuthRequired(false);
     Card card = CardBuilder.transform(crr,"dummyLaunchUrl.com");
     assertEquals("No documentation is required for a device or service with code: E0424", card.getSummary());
     assertNull(card.getLinks());
@@ -29,7 +29,7 @@ public class CardBuilderTest {
     crr.setAgeRangeLow(55);
     crr.setEquipmentCode("E0424");
     crr.setGenderCode("F".charAt(0));
-    crr.setNoAuthNeeded(false);
+    crr.setAuthRequired(true);
     crr.setInfoLink("http://www.mitre.org");
     Card card = CardBuilder.transform(crr,"dummyLaunchUrl.com");
     assertEquals("Documentation is required for the desired device or service", card.getSummary());

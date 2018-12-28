@@ -14,8 +14,11 @@ export default class DataTable extends Component {
     }
 
     componentDidMount(){
+      
         document.body.style.backgroundColor = "white"// Set the style
-        const data = fetch('http://localhost:8090/api/data', {
+      
+        const data = fetch('/api/data', {
+
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -90,7 +93,7 @@ export default class DataTable extends Component {
                     <table className="table-responsive table-striped table">
                         <thead>
                         <tr>
-                            <td>ID</td>
+                            {/* <td>ID</td> */}
                             <td>Rule Applies at Age</td>
                             <td>Rule Ends at Age</td>
                             <td>Gender</td>
