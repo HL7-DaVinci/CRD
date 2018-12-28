@@ -72,7 +72,7 @@ export default class TableRow extends Component {
     constructor(props){
         super(props);
         this.state={
-            data: this.props.data,
+            data: {},
             edit: this.props.edit,
             deleteConfirm: false
         };
@@ -82,6 +82,17 @@ export default class TableRow extends Component {
         this.handleUpdate = this.handleUpdate.bind(this);
         this.handleEnter = this.handleEnter.bind(this);
         
+    }
+
+    componentDidMount() {
+        const data = this.props.data;
+        Object.keys(data).forEach(key => {
+            if(data[key] == null) {
+                data[key] = "-";
+            }
+        });
+
+        this.setState({data});
     }
 
     handleRuleDelete() {
@@ -133,7 +144,7 @@ export default class TableRow extends Component {
          return(
 
                 <tr>
-                    <td >{this.state.data.id}</td>
+                    {/* <td >{this.state.data.id}</td> */}
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"ageRangeLow")}} className="ageInput formInput" placeholder={this.state.data.ageRangeLow} type='number'></input>:this.state.data.ageRangeLow}</td>
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"ageRangeHigh")}} className="ageInput formInput" placeholder={this.state.data.ageRangeHigh} type='number'></input>:this.state.data.ageRangeHigh}</td>
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"genderCode")}} options={genderCodeOptions} currentState={this.state.data.genderCode} />:this.state.data.genderCode}</td>
@@ -141,7 +152,7 @@ export default class TableRow extends Component {
                     <td title={this.state.data.codeSystem}>{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"codeSystem")}} className="formInput" placeholder={this.state.data.codeSystem} ></input>:<span>{codeSystemConversion[this.state.data.codeSystem]}</span>}</td>
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"patientAddressState")}} options={stateOptions} currentState={this.state.data.patientAddressState} />:this.state.data.patientAddressState}</td>
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"providerAddressState")}} options={stateOptions} currentState={this.state.data.providerAddressState} />:this.state.data.providerAddressState}</td>
-                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"noAuthNeeded")}} options={trueFalse} />:this.state.data.noAuthNeeded?"false":"true"}</td>
+                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"authRequired")}} options={trueFalse} />:this.state.data.authRequired?"No":"Yes"}</td>
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"infoLink")}} className="informationInput formInput"placeholder={this.state.data.infoLink}></input>:this.state.data.infoLink}</td>
 
                     {!this.props.home?<td>
