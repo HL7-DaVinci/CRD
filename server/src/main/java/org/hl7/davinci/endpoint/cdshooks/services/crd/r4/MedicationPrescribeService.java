@@ -2,6 +2,7 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PatientInfo;
@@ -89,5 +90,10 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
       }
     }
     return queries;
+  }
+
+  public List<HashMap<String,Object>> cqlResults(MedicationPrescribeRequest request)
+      throws RequestIncompleteException {
+    throw new RuntimeException("Not implemented yet");
   }
 }

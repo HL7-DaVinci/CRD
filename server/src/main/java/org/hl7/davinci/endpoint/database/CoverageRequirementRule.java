@@ -12,7 +12,7 @@ import javax.persistence.Table;
 
 // patientAgeRangeLow, patientAgeRangeHigh,
 // patientGender, patientPlanId, equipmentCode,
-// authRequired, infoLink
+// noAuthNeeded, infoLink
 @Entity
 @Table(name = "coverage_requirement_rules")
 public class CoverageRequirementRule {
@@ -48,12 +48,8 @@ public class CoverageRequirementRule {
   @Column(name = "provider_address_state", nullable = true, length = 2)
   private String providerAddressState;
 
-  @Column(name = "auth_required", nullable = false)
-  private boolean authRequired;
-
-  //    The following fields describe the rule outcome
-  @Column(name = "info_link", nullable = true, length = 2000)
-  private String infoLink;
+  @Column(name = "cql", nullable = false, length = 4000)
+  private String cql;
 
 
 
@@ -65,20 +61,12 @@ public class CoverageRequirementRule {
     this.id = id;
   }
 
-  public String getInfoLink() {
-    return infoLink;
+  public String getCql() {
+    return cql;
   }
 
-  public void setInfoLink(String infoLink) {
-    this.infoLink = infoLink;
-  }
-
-  public boolean getAuthRequired() {
-    return authRequired;
-  }
-
-  public void setAuthRequired(boolean authRequired) {
-    this.authRequired = authRequired;
+  public void setCql(String cql) {
+    this.cql = cql;
   }
 
   public int getAgeRangeLow() {
@@ -140,8 +128,8 @@ public class CoverageRequirementRule {
   @Override
   public String toString() {
     return String.format("(row id: %d) Rule [equipment_code: %s, code_system %s, age_range_low %d, age_range_high: %d"
-        + ", gender_code: %s, patient_address_state: %s, practitioner_address_state] Outcome: [auth_required: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
-        ageRangeHigh, genderCode, patientAddressState, providerAddressState, authRequired, infoLink);
+        + ", gender_code: %s, patient_address_state: %s, practitioner_address_state] Cql: %s", id, equipmentCode, codeSystem, ageRangeLow,
+        ageRangeHigh, genderCode, patientAddressState, providerAddressState, cql);
   }
 
   public CoverageRequirementRule() {}

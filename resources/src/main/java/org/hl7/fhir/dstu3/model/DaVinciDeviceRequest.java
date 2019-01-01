@@ -1,4 +1,4 @@
-package org.hl7.davinci.stu3.fhirresources;
+package org.hl7.fhir.dstu3.model;
 
 import ca.uhn.fhir.model.api.annotation.Child;
 import ca.uhn.fhir.model.api.annotation.Description;
@@ -6,12 +6,12 @@ import ca.uhn.fhir.model.api.annotation.Extension;
 import ca.uhn.fhir.model.api.annotation.ResourceDef;
 import java.util.ArrayList;
 import java.util.List;
-import org.hl7.fhir.dstu3.model.MedicationRequest;
+import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Reference;
 
-@ResourceDef(name = "MedicationRequest", profile =
-    "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-medicationrequest-stu3")
-public class DaVinciMedicationRequest extends MedicationRequest {
+@ResourceDef(name = "DeviceRequest", profile =
+    "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3")
+public class DaVinciDeviceRequest extends DeviceRequest {
 
   @Child(name = "insurance")
   @Extension(url = "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
@@ -22,7 +22,7 @@ public class DaVinciMedicationRequest extends MedicationRequest {
   /**
    * Gets the insurance.
    *
-   * @return the insurance references
+   * @return the insurance
    */
   public List<Reference> getInsurance() {
     if (insurance == null) {
@@ -36,9 +36,9 @@ public class DaVinciMedicationRequest extends MedicationRequest {
   }
 
   /**
-   * Adds the insurance to the list of insurance references.
+   * Adds a new insurance.
    *
-   * @param insurance the insurance reference to add
+   * @param insurance the reference to the insurance to be added
    */
   public void addInsurance(Reference insurance) {
     if (this.insurance == null) {

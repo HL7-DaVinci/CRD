@@ -1,6 +1,8 @@
 package org.hl7.davinci.endpoint.components;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.cdshooks.Card;
@@ -20,41 +22,22 @@ public class CardBuilder {
    * @param crr coverage rule from the database
    * @return card with appropriate information
    */
-  public static Card transform(CoverageRequirementRule crr, String launchUrl) {
+  public static Card transform(HashMap<String, Object> cqlResult, String launchUrl) {
     Card card = baseCard();
-    if (!crr.getAuthRequired()) {
-      String summary = String
-          .format("No documentation is required for a device or service with code: %s",
-              crr.getEquipmentCode());
-      card.setSummary(summary);
-    } else {
-      card.setSummary("Documentation is required for the desired device or service");
-      Link link = new Link();
-      link.setUrl(crr.getInfoLink());
-      link.setType("absolute");
-      link.setLabel("Documentation Requirements");
-      Link launchLink = new Link();
-      launchLink.setUrl(launchUrl);
-      launchLink.setType("smart");
-      launchLink.setLabel("SMART App");
-      List<Link> links = new ArrayList<>();
-      links.add(link);
-      links.add(launchLink);
-      card.setLinks(links);
-      String detail = "There are [documentation requirements](" + crr.getInfoLink() + ") for the following criteria:"
-          + "\n Patient is of gender: '%s' and between the ages of: %d and %d and lives in state: '%s'"
-          + "\n Device or service has code of '%s'"
-          + "\n Service is requested in state: '%s'.";
-      String genderRule = "Any";
-      if (crr.getGenderCode() != null) {
-        genderRule = crr.getGenderCode().toString();
-      }
-      String patientStateRule = Optional.ofNullable(crr.getPatientAddressState()).orElse("Any");
-      String providerStateRule = Optional.ofNullable(crr.getProviderAddressState()).orElse("Any");
-      card.setDetail(String.format(detail, genderRule, crr.getAgeRangeLow(),
-          crr.getAgeRangeHigh(), patientStateRule, crr.getEquipmentCode(),
-          providerStateRule));
-    }
+
+    Link link = new Link();
+    link.setUrl(cqlResult.get("RESULT_InfoLink").toString());
+    link.setType("absolute");
+    link.setLabel("Documentation Requirements");
+
+    Link launchLink = new Link();
+    launchLink.setUrl(launchUrl);
+    launchLink.setType("smart");
+    launchLink.setLabel("SMART App");
+
+    card.setLinks(Arrays.asList(link, launchLink));
+    card.setSummary(cqlResult.get("RESULT_Summary").toString());
+    card.setDetail(cqlResult.get("RESULT_Detail").toString());
     return card;
   }
 

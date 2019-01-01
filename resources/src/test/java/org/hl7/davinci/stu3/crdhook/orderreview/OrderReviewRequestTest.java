@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.hl7.davinci.stu3.Utilities;
-import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
+import org.hl7.fhir.dstu3.model.DaVinciDeviceRequest;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.DeviceRequest;

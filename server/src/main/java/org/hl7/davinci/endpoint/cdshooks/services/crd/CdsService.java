@@ -1,5 +1,12 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import javax.validation.Valid;
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
@@ -24,14 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 @Component
 public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
-
   static final Logger logger = LoggerFactory.getLogger(CdsService.class);
 
   /**
@@ -117,27 +118,51 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request) {
+
+    boolean[] timeline = new boolean[5];
+
     logger.info("handleRequest: start");
     logger.info(this.title + ":" + request.getContext());
+    // authorized
+    timeline[0] = true;
 
     // create the RequestLog
-    RequestLog requestLog = new RequestLog(request, new Date().getTime(), this.fhirComponents.getFhirVersion().toString(),
-        this.id, requestService,5);
+    String requestStr;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectWriter w = mapper.writer();
+      requestStr = w.writeValueAsString(request);
+    } catch (Exception e) {
+      logger.error("failed to write request json: " + e.getMessage());
+      requestStr = "error";
+    }
+
+    RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
+    requestLog = requestService.create(requestLog);
+    requestLog.setFhirVersion(this.fhirComponents.getFhirVersion().toString());
+    requestLog.setHookType(this.id);
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
 
     // Parsed request
-    requestLog.advanceTimeline(requestService);
+    timeline[1] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
 
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
 
-    // hydrated
-    requestLog.advanceTimeline(requestService);
+    timeline[2] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
 
     CdsResponse response = new CdsResponse();
-    List<CoverageRequirementRuleQuery> queries;
+    String launchSmartUrl = smartUrlBuilder(request.getContext().getPatientId(), request.getFhirServer());
+
+    List<HashMap<String,Object>> cqlResults;
     try {
-      queries = this.getQueries(request);
+      cqlResults = this.cqlResults(request);
     } catch (RequestIncompleteException e) {
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
       logger.error(e.getMessage());
@@ -145,43 +170,25 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       requestService.edit(requestLog);
       return response;
     }
-    // got requests
-    requestLog.advanceTimeline(requestService);
 
-    List<String> codes = new ArrayList<>();
-    List<String> codeSystems = new ArrayList<>();
-    List<CoverageRequirementRule> rules = new ArrayList<>();
-    for (CoverageRequirementRuleQuery query : queries) {
-      query.execute();
-      rules.addAll(query.getResponse()); // will be zero or more
-      codes.add(query.getCriteria().getEquipmentCode());
-      codeSystems.add(query.getCriteria().getCodeSystem());
-    }
-    // log info
-    requestLog.gatherInfo(queries, codes, codeSystems);
-
-    // get the url to launch the SMART app from.
-    String launchSmartUrl = smartUrlBuilder(queries.get(0).getCriteria().getPatientId(),request.getFhirServer());
-
-    if (rules.size() == 0) {
+    if (cqlResults.size() == 0) {
       response.addCard(CardBuilder.summaryCard("No documentation rules found"));
       requestLog.setResults("No documentation rules found");
     } else {
-      requestLog.addRulesFound(rules);
-      requestLog.setResults(String.valueOf(rules.size()) + " documentation rule(s) found");
-      for (CoverageRequirementRule rule : rules) {
-        response.addCard(CardBuilder.transform(rule, launchSmartUrl));
+      for (HashMap<String, Object> cqlResult : cqlResults) {
+        response.addCard(CardBuilder.transform(cqlResult, launchSmartUrl));
       }
     }
     // Searched
-    requestLog.advanceTimeline(requestService);
-
+    timeline[4] = true;
+    requestLog.setTimeline(timeline);
+    requestService.edit(requestLog);
     CardBuilder.errorCardIfNonePresent(response);
     logger.info("handleRequest: end");
     return response;
   }
 
-  protected String smartUrlBuilder(String patientId, String fhirBase) {
+  private String smartUrlBuilder(String patientId, String fhirBase) {
     String launchUrl = myConfig.getLaunchUrl();
     if (fhirBase != null && fhirBase.endsWith("/")) {
       fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
@@ -234,28 +241,27 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           .setPatientAddressState(patientInfo.getPatientAddressState())
           .setCodeSystem(codeSystem)
           .setEquipmentCode(code)
-          .setProviderAddressState(
-              practitionerRoleInfo != null
-                  ? practitionerRoleInfo.getLocationAddressState() : null)
+          .setProviderAddressState(practitionerRoleInfo.getLocationAddressState())
           .setPatientId(patientInfo.getPatientId());
       queries.add(query);
     }
     return queries;
   }
-
-  private List<CoverageRequirementRuleQuery> getQueries(requestTypeT request)
-      throws RequestIncompleteException {
-    List<CoverageRequirementRuleQuery> queries = makeQueries(request, myConfig);
-    if (queries.size() == 0) {
-      throw new RequestIncompleteException(
-          "Unable to (pre)fetch any supported resources from the bundle.");
-    }
-    return queries;
-  }
+//
+//  private List<CoverageRequirementRuleQuery> getQueries(requestTypeT request)
+//      throws RequestIncompleteException {
+//    List<CoverageRequirementRuleQuery> queries = makeQueries(request);
+//    if (queries.size() == 0) {
+//      throw new RequestIncompleteException(
+//          "Unable to (pre)fetch any supported resources from the bundle.");
+//    }
+//    return queries;
+//  }
 
   // Implement this in child class
-  public abstract List<CoverageRequirementRuleQuery> makeQueries(requestTypeT request, YamlConfig options)
+  public abstract List<HashMap<String,Object>> cqlResults(requestTypeT request)
       throws RequestIncompleteException;
+
 
 }
 

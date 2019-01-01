@@ -3,8 +3,8 @@ package org.hl7.davinci.stu3;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import org.hl7.davinci.FhirComponentsT;
-import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
-import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
+import org.hl7.fhir.dstu3.model.DaVinciDeviceRequest;
+import org.hl7.fhir.dstu3.model.DaVinciMedicationRequest;
 
 /**
  * Build some expensive objects here so we can reuse them.

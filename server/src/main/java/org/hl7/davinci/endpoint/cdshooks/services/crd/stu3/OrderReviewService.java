@@ -1,24 +1,27 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.stu3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PatientInfo;
 import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
-import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.CqlRunner;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
+import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewContext;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
+import org.hl7.fhir.dstu3.model.DaVinciDeviceRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.DeviceRequest;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -50,6 +53,13 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
+  private List<DaVinciDeviceRequest> deviceRequestList(OrderReviewRequest orderReviewRequest) {
+    Bundle deviceRequestBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
+    List<DaVinciDeviceRequest> deviceRequestList = Utilities
+        .getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, deviceRequestBundle);
+    return deviceRequestList;
+  }
+
   /**
    * Acquires the specific information needed by the parent request handling
    * function.
@@ -57,35 +67,41 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
    * @return a list of the information required.
    * @throws RequestIncompleteException if the request cannot be parsed.
    */
-  public List<CoverageRequirementRuleQuery> makeQueries(OrderReviewRequest orderReviewRequest,  YamlConfig options)
+  public List<HashMap<String,Object>> cqlResults(OrderReviewRequest orderReviewRequest)
       throws RequestIncompleteException {
-    List<CoverageRequirementRuleQuery> queries = new ArrayList<>();
-    Bundle deviceRequestBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
-    List<DaVinciDeviceRequest> deviceRequestList = Utilities
-        .getResourcesOfTypeFromBundle(DaVinciDeviceRequest.class, deviceRequestBundle);
-    for (DeviceRequest deviceRequest : deviceRequestList) {
-      List<Coding> codings = null;
-      Patient patient = null;
-      PatientInfo patientInfo = null;
+    List<DaVinciDeviceRequest> deviceRequestList = deviceRequestList(orderReviewRequest);
+    List<HashMap<String,Object>> cqlResults = new ArrayList<>();
+    for (DaVinciDeviceRequest deviceRequest : deviceRequestList) {
       try {
-        if (deviceRequest.hasCodeCodeableConcept()) {
-          codings = deviceRequest.getCodeCodeableConcept().getCoding();
-        } else {
-          throw new RequestIncompleteException("Request bundle is missing device code.");
+        List<Coding> codings = deviceRequest.getCodeCodeableConcept().getCoding();
+        Patient patient = (Patient) deviceRequest.getSubject().getResource();
+        PatientInfo patientInfo = Utilities.getPatientInfo(patient);
+
+        List<CoverageRequirementRuleQuery> queries =
+            this.resourcesToQueries(codings,
+                patient == null,
+                true,
+                patientInfo,
+              new PractitionerRoleInfo());
+        for (CoverageRequirementRuleQuery query : queries) {
+          query.execute();
+          for (CoverageRequirementRule rule: query.getResponse()) {
+            cqlResults.add(executeCql(rule.getCql(), deviceRequest));
+          }
         }
-        patient = (Patient) deviceRequest.getSubject().getResource();
-
-        patientInfo = Utilities.getPatientInfo(patient);
-
-        queries.addAll(this.resourcesToQueries(codings, patient == null, true, patientInfo,
-            new PractitionerRoleInfo()));
       } catch (RequestIncompleteException e) {
         throw e;
-      } catch (FHIRException e) {
-        logger.error("Failed to parse device request bundle information.", e);
+      } catch (Exception e) {
+        logger.error("Error parsing needed info from the device request bundle.", e);
       }
     }
-    return queries;
+    return cqlResults;
+  }
+
+  private HashMap<String,Object> executeCql(String cql, DaVinciDeviceRequest deviceRequest) {
+    Resource patientResource = (Resource) deviceRequest.getSubject().getResource();
+    CqlRunner cqlRunner = new CqlRunner(cql, patientResource, deviceRequest);
+    return cqlRunner.execute();
   }
 
 }

@@ -2,6 +2,7 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.stu3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PatientInfo;
@@ -15,7 +16,7 @@ import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest;
-import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
+import org.hl7.fhir.dstu3.model.DaVinciMedicationRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Patient;
@@ -80,5 +81,10 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
       }
     }
     return queries;
+  }
+
+  public List<HashMap<String,Object>> cqlResults(MedicationPrescribeRequest request)
+      throws RequestIncompleteException {
+    throw new RuntimeException("Not implemented yet");
   }
 }
