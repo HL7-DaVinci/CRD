@@ -73,7 +73,12 @@ public class ClientAuthorizationInterceptor extends AuthorizationInterceptor {
       jsonResponse = null;
     }
 
-    if (jsonResponse.get("active").getAsBoolean()) {
+    if (jsonResponse.has("error")) {
+      return new RuleBuilder()
+          .allow().metadata().andThen()
+          .denyAll("Rejected OAuth token - encountered error")
+          .build();
+    } else if (jsonResponse.get("active").getAsBoolean()) {
       return new RuleBuilder()
           .allowAll()
           .build();
