@@ -5,7 +5,7 @@
     <groupId>org.mitre</groupId>
     <artifactId>ehr-server</artifactId>
     <version>0.0.1</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
