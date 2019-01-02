@@ -50,7 +50,14 @@
             "resourceType": "Patient",
             "id": "d6b4c7d0-3c87-4e4e-959c-281f2afd8f69",
             "gender": "male",
-            "birthDate": "1970-07-04"
+            "birthDate": "1970-07-04",
+            "address": [
+              {
+                "use": "home",
+                "type": "both",
+                "state": "MA"
+              }
+            ]
           }
         },
         {
@@ -81,6 +88,20 @@
             "resourceType": "Organization",
             "id": "7d49cae2-3005-4b1d-a3c8-9a18311bb861",
             "name": "Centers for Medicare and Medicaid Services"
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Location",
+            "id": "bd71b906-7c41-4f7c-ac32-c40d2dffb57c",
+            "address": {
+              "line": [
+                "100 Good St"
+              ],
+              "city": "Bedford",
+              "state": "MA",
+              "postalCode": "01730"
+            }
           }
         },
         {

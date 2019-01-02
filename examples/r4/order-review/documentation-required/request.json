@@ -1,6 +1,6 @@
 {
   "hookInstance": "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-  "fhirServer": "http://localhost:8080/fhir-server",
+  "fhirServer": "http://localhost:8080/ehr-server/r4/",
   "hook": "order-review",
   "fhirAuthorization": {
     "access_token": null,
@@ -11,7 +11,7 @@
   },
   "user": "Practitioner/example",
   "context": {
-    "patientId": "12",
+    "patientId": "p12",
     "encounterId": "89284",
     "orders": {
       "resourceType": "Bundle",
@@ -20,6 +20,7 @@
           "resource": {
             "resourceType": "DeviceRequest",
             "status": "draft",
+            "id":"dr2341",
             "codeCodeableConcept": {
               "coding": [
                 {
@@ -30,16 +31,16 @@
               "text": "CPAP"
             },
             "subject": {
-              "reference": "Patient/12"
+              "reference": "Patient/p12"
             },
             "authoredOn": "2018-08-08",
             "insurance": [
               {
-                "reference": "Coverage/1234"
+                "reference": "Coverage/c1234"
               }
             ],
             "performer": {
-              "reference": "PractitionerRole/1234"
+              "reference": "PractitionerRole/pr1234"
             }
           }
         }
@@ -55,6 +56,7 @@
           "resource": {
             "resourceType": "DeviceRequest",
             "status": "draft",
+            "id":"dr2341",
             "codeCodeableConcept": {
               "coding": [
                 {
@@ -64,22 +66,22 @@
               ]
             },
             "subject": {
-              "reference": "Patient/12"
+              "reference": "Patient/p12"
             },
             "authoredOn": "2018-08-08",
             "insurance": [
               {
-                "reference": "Coverage/1234"
+                "reference": "Coverage/c1234"
               }
             ],
             "performer": {
-              "reference": "PractitionerRole/1234"
+              "reference": "PractitionerRole/pr1234"
             }
           }
         },
         {
           "resource": {
-            "id": "12",
+            "id": "p12",
             "resourceType": "Patient",
             "gender": "male",
             "birthDate": "1996-12-23",
@@ -95,7 +97,7 @@
         {
           "resource": {
             "resourceType": "Coverage",
-            "id": "1234",
+            "id": "c1234",
             "class": [
               {
                 "type": {
@@ -129,7 +131,7 @@
         {
           "resource": {
             "resourceType": "PractitionerRole",
-            "id":"1234",
+            "id":"pr1234",
             "practitioner": {
               "reference": "Practitioner/13608725-a5f5-4276-b44a-1fe2c7273555"
             },
