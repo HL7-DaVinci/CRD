@@ -98,8 +98,10 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
             throw new RequestIncompleteException("Request bundle is missing device code.");
           }
           patient = (Patient) deviceRequest.getSubject().getResource();
-
           practitionerRole = (PractitionerRole) deviceRequest.getPerformer().getResource();
+          if (practitionerRole == null) {
+            throw new RequestIncompleteException("Cannot find practitioner role " + deviceRequest.getPerformer().getReference());
+          }
         } else if (genericRequest instanceof ServiceRequest) {
           ServiceRequest deviceRequest = (ServiceRequest) genericRequest;
           if (deviceRequest.hasCode()) {
