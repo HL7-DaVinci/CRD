@@ -4,14 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.mitre</groupId>
     <artifactId>ehr-server</artifactId>
-    <version>0.0.1</version>
+    <version>unspecified</version>
     <packaging>war</packaging>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.3.RELEASE</version>
-        <relativePath /> <!-- lookup parent from repository -->
-    </parent>
+    <build>
+        <finalName>${project.artifactId}</finalName>
+    </build>
     <dependencies>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
