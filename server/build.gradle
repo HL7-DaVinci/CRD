@@ -41,6 +41,12 @@ dependencies {
             exclude group: 'org.thymeleaf'
     }
 
+    compile('info.cqframework:cql:1.2.20')
+    compile('info.cqframework:model:1.2.20')
+    compile('info.cqframework:cql-to-elm:1.2.20')
+    compile('info.cqframework:quick:1.2.20')
+    compile('org.opencds.cqf:cql-engine:1.2.20')
+
     compile 'javax.servlet:javax.servlet-api:3.1.0'
 
     compile 'commons-beanutils:commons-beanutils:1.9.3'
