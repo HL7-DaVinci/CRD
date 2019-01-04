@@ -1,0 +1,43 @@
+{
+  "hookInstance": "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
+  "fhirServer": "http://localhost:8080/ehr-server/r4/",
+  "hook": "order-review",
+  "user": "Practitioner/example",
+  "context": {
+    "patientId": "12",
+    "encounterId": "89284",
+    "orders": {
+      "resourceType": "Bundle",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "id":"dr2341",
+            "status": "draft",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://www.ama-assn.org/go/cpt",
+                  "code": "94660"
+                }
+              ],
+              "text": "CPAP"
+            },
+            "subject": {
+              "reference": "Patient/p12"
+            },
+            "authoredOn": "2018-08-08",
+            "insurance": [
+              {
+                "reference": "Coverage/c1234"
+              }
+            ],
+            "performer": {
+              "reference": "PractitionerRole/pr1234"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

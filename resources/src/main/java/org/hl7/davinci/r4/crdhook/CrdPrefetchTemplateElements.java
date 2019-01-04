@@ -24,9 +24,11 @@ public class CrdPrefetchTemplateElements {
 
   public static final PrefetchTemplateElement MEDICATION_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "medicationRequestBundle",
-      "MedicationRequest?_id={{context.orders.MedicationRequest.id}}"
+      "MedicationRequest?_id={{context.medications.MedicationRequest.id}}"
           + "&_include=MedicationRequest:patient"
           + "&_include=MedicationRequest:intended-dispenser"
+          + "&_include=MedicationRequest:intended-performer"
+          + "&_include:recurse=PractitionerRole:location"
           + "&_include=MedicationRequest:requester:PractitionerRole"
           + "&_include=MedicationRequest:medication"
           + "&_include=PractitionerRole:organization"

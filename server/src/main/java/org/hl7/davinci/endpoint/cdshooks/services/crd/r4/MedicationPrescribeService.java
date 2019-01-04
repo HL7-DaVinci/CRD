@@ -70,7 +70,11 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
         }
         patient = (Patient) medicationRequest.getSubject().getResource();
         practitionerRole = (PractitionerRole) medicationRequest.getPerformer().getResource();
-
+        if (practitionerRole == null) {
+          throw new RequestIncompleteException("Cannot find practitioner role " + medicationRequest
+              .getPerformer()
+              .getReference());
+        }
         patientInfo = Utilities.getPatientInfo(patient);
         practitionerRoleInfo = Utilities.getPractitionerRoleInfo(practitionerRole);
 
