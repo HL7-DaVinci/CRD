@@ -1,0 +1,171 @@
+{
+  "hook": "medication-prescribe",
+  "hookInstance": "660fafe5-9be3-4ffb-8bce-c1ffd04df29f",
+  "fhirServer": null,
+  "fhirAuthorization": null,
+  "user": "Practitioner/1234",
+  "context": {
+    "patientId": "d6b4c7d0-3c87-4e4e-959c-281f2afd8f69",
+    "encounterId": null,
+    "medications": {
+      "resourceType": "Bundle",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "MedicationRequest",
+            "id": "mr123",
+            "status": "draft",
+            "medicationCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                  "code": "860195",
+                  "display": "Botox"
+                }
+              ]
+            },
+            "subject": {
+              "reference": "Patient/d6b4c7d0-3c87-4e4e-959c-281f2afd8f69"
+            },
+            "performer": {
+              "reference": "PractitionerRole/8eb3ed37-8391-4817-af48-8c7e0fe89947"
+            },
+            "insurance": [
+              {
+                "reference": "Coverage/f8e19c39-a9ae-4c60-9ab4-a621ce3583ab"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "prefetch": {
+    "deviceRequestBundle": null,
+    "medicationRequestBundle": {
+      "resourceType": "Bundle",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "Patient",
+            "id": "d6b4c7d0-3c87-4e4e-959c-281f2afd8f69",
+            "gender": "male",
+            "birthDate": "1970-07-04",
+            "address": [
+              {
+                "use": "home",
+                "type": "both",
+                "state": "MA"
+              }
+            ]
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Practitioner",
+            "id": "b02e3427-79cf-4f2e-9a1f-c4f77313b732",
+            "identifier": [
+              {
+                "system": "http://hl7.org/fhir/sid/us-npi",
+                "value": "1122334455"
+              }
+            ],
+            "name": [
+              {
+                "family": "Doe",
+                "given": [
+                  "Jane"
+                ],
+                "prefix": [
+                  "Dr."
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Organization",
+            "id": "7d49cae2-3005-4b1d-a3c8-9a18311bb861",
+            "name": "Centers for Medicare and Medicaid Services"
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Location",
+            "id": "bd71b906-7c41-4f7c-ac32-c40d2dffb57c",
+            "address": {
+              "line": [
+                "100 Good St"
+              ],
+              "city": "Bedford",
+              "state": "MA",
+              "postalCode": "01730"
+            }
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "PractitionerRole",
+            "id": "8eb3ed37-8391-4817-af48-8c7e0fe89947",
+            "practitioner": {
+              "reference": "Practitioner/b02e3427-79cf-4f2e-9a1f-c4f77313b732"
+            },
+            "location": [
+              {
+                "reference": "Location/bd71b906-7c41-4f7c-ac32-c40d2dffb57c"
+              }
+            ]
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "Coverage",
+            "id": "f8e19c39-a9ae-4c60-9ab4-a621ce3583ab",
+            "payor": [
+              {
+                "reference": "Organization/7d49cae2-3005-4b1d-a3c8-9a18311bb861"
+              }
+            ],
+            "class": [
+              {
+                "type": {
+                  "system": "http://hl7.org/fhir/coverage-class",
+                  "code": "plan"
+                },
+                "value": "Medicare Part D"
+              }
+            ]
+          }
+        },
+        {
+          "resource": {
+            "resourceType": "MedicationRequest",
+            "id": "mr123",
+            "status": "draft",
+            "medicationCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                  "code": "860195",
+                  "display": "Botox"
+                }
+              ]
+            },
+            "subject": {
+              "reference": "Patient/d6b4c7d0-3c87-4e4e-959c-281f2afd8f69"
+            },
+            "performer": {
+              "reference": "PractitionerRole/8eb3ed37-8391-4817-af48-8c7e0fe89947"
+            },
+            "insurance": [
+              {
+                "reference": "Coverage/f8e19c39-a9ae-4c60-9ab4-a621ce3583ab"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

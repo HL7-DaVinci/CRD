@@ -55,3 +55,14 @@ dependencies {
     testCompile "com.github.tomakehurst:wiremock-standalone:2.18.0"
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+
+task integrationTest(type: Test) {
+    project(':ehr-server').tasks.appRun.execute()
+
+    test{
+        filter{
+            includeTestsMatching "org.mitre.PrefetchIntegrationTest"
+        }
+    }
+    project(':ehr-server').tasks.appStop.execute()
+}
