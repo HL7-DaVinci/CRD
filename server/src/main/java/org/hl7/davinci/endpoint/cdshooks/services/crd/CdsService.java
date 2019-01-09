@@ -1,11 +1,5 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import javax.validation.Valid;
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
@@ -29,6 +23,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
