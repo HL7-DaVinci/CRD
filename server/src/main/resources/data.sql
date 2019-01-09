@@ -24,6 +24,8 @@ INTO
 ,	(8, 60, 90, 'M', NULL, NULL, 'E0130', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforWalkers-ICN909483.pdf')
 ,	(9, 30, 80, NULL, NULL, NULL, '860195', 'http://www.nlm.nih.gov/research/umls/rxnorm', TRUE, 'https://www.medicare.gov/forms-help-and-resources/forms/medicare-forms.html')
 ,	(10, 10, 70, NULL, NULL, NULL, '209431', 'http://www.nlm.nih.gov/research/umls/rxnorm', FALSE, 'https://en.wikipedia.org/wiki/Paracetamol')
-,	(11, 0, 100, NULL, NULL, NULL, 'E0250', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforHospitalBedsandAccessories-ICN909476.pdf')
-,	(12, 0, 100, NULL, 'MA', 'MA', 'E0424', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/a')
+,	(11, 10, 70, NULL, NULL, NULL, '307675', 'http://www.nlm.nih.gov/research/umls/rxnorm', FALSE, 'https://www.rxlist.com/consumer_acetaminophen_tylenol/drugs-condition.htm')
+,	(12, 0, 100, NULL, NULL, NULL, 'E0250', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforHospitalBedsandAccessories-ICN909476.pdf')
+,	(13, 0, 100, NULL, 'MA', 'MA', 'E0424', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/a')
+
 ;
