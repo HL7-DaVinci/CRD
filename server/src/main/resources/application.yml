@@ -17,3 +17,4 @@ server:
 
 checkJwt: false
 launchUrl: http://localhost:3050/launch
+checkPractitionerLocation: false

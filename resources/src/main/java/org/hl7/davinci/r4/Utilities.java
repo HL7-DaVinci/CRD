@@ -153,7 +153,7 @@ public class Utilities {
    * @throws RequestIncompleteException thrown if critical information is missing.
    */
   public static PractitionerRoleInfo getPractitionerRoleInfo(
-      PractitionerRole practitionerRole) throws RequestIncompleteException {
+      PractitionerRole practitionerRole, boolean checkLocation) throws RequestIncompleteException {
     Location practitionerRoleLocation = null;
     String locationAddressState = null;
 
@@ -163,10 +163,10 @@ public class Utilities {
     } catch (Exception e) {
       //TODO: logger.error("Error parsing needed info from the device request bundle.", e);
     }
-    if (practitionerRoleLocation == null) {
+    if (practitionerRoleLocation == null & checkLocation) {
       throw new RequestIncompleteException("Practitioner Role Location not found.");
     }
-    if (locationAddressState == null) {
+    if (locationAddressState == null & checkLocation) {
       throw new RequestIncompleteException("Patient Role Location found with no Address State.");
     }
 

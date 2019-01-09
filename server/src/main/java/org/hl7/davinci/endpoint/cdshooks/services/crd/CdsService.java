@@ -267,7 +267,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           .setPatientAddressState(patientInfo.getPatientAddressState())
           .setCodeSystem(codeSystem)
           .setEquipmentCode(code)
-          .setProviderAddressState(practitionerRoleInfo.getLocationAddressState())
+          .setProviderAddressState(
+              practitionerRoleInfo != null
+                  ? practitionerRoleInfo.getLocationAddressState() : null)
           .setPatientId(patientInfo.getPatientId());
       queries.add(query);
     }
@@ -276,7 +278,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   private List<CoverageRequirementRuleQuery> getQueries(requestTypeT request)
       throws RequestIncompleteException {
-    List<CoverageRequirementRuleQuery> queries = makeQueries(request);
+    List<CoverageRequirementRuleQuery> queries = makeQueries(request, myConfig);
     if (queries.size() == 0) {
       throw new RequestIncompleteException(
           "Unable to (pre)fetch any supported resources from the bundle.");
@@ -285,7 +287,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   // Implement this in child class
-  public abstract List<CoverageRequirementRuleQuery> makeQueries(requestTypeT request)
+  public abstract List<CoverageRequirementRuleQuery> makeQueries(requestTypeT request, YamlConfig options)
       throws RequestIncompleteException;
 
 }
