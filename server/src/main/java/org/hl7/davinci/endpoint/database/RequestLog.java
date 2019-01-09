@@ -1,5 +1,9 @@
 package org.hl7.davinci.endpoint.database;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -73,6 +77,8 @@ public class RequestLog {
   @Column(name = "timeline")
   private boolean[] timeline;
 
+  private int timelineCounter;
+
   @ManyToMany(cascade = {
       CascadeType.PERSIST,
       CascadeType.MERGE
@@ -83,15 +89,45 @@ public class RequestLog {
   )
   private Set<CoverageRequirementRule> rulesFound = new HashSet<>();
 
-
   public RequestLog() {
   }
 
   public RequestLog(byte[] requestBody, long timestamp) {
+    // needed constructor for auth failure logging.
     setRequestBody(requestBody);
     setTimestamp(timestamp);
   }
+  public RequestLog(Object request, long timestamp, String fhirVersion,
+                    String hookType, RequestService requestService, int sections) {
+    setTimestamp(timestamp);
+    setFhirVersion(fhirVersion);
+    setHookType(hookType);
+    boolean[] timeline = new boolean[sections];
+    // one for free because if we're here, we're authorized
+    timeline[0] = true;
+    setTimeline(timeline);
+    this.timelineCounter = 1;
+    String requestStr;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectWriter w = mapper.writer();
+      requestStr = w.writeValueAsString(request);
+    } catch (Exception e) {
+//      logger.error("failed to write request json: " + e.getMessage());
+      requestStr = "error";
+    }
 
+    setRequestBody(requestStr.getBytes());
+
+    requestService.create(this);
+  }
+
+  public void advanceTimeline(RequestService requestService) {
+    this.timeline[this.timelineCounter] = true;
+    this.timelineCounter++;
+    requestService.edit(this);
+
+  }
   /**
    * Returns the name of the fields for dynamic generation of html files.
    *
@@ -106,6 +142,15 @@ public class RequestLog {
     return fieldList;
   }
 
+  public void gatherInfo(List<CoverageRequirementRuleQuery>  queries, List<String> codes, List<String> codeSystems) {
+    this.setPatientAge(queries.get(0).getCriteria().getAge());
+    this.setPatientGender(String.valueOf(queries.get(0).getCriteria().getGenderCode()));
+    this.setPatientAddressState(queries.get(0).getCriteria().getPatientAddressState());
+    this.setProviderAddressState(queries.get(0).getCriteria().getProviderAddressState());
+    this.setCode(String.join(", ", codes));
+
+    this.setCodeSystem(String.join(", ", codeSystems));
+  }
   public long getId() {
     return id;
   }

@@ -118,48 +118,24 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request) {
-
-    boolean[] timeline = new boolean[5];
-
     logger.info("handleRequest: start");
     logger.info(this.title + ":" + request.getContext());
-    // authorized
-    timeline[0] = true;
 
     // create the RequestLog
-    String requestStr;
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      ObjectWriter w = mapper.writer();
-      requestStr = w.writeValueAsString(request);
-    } catch (Exception e) {
-      logger.error("failed to write request json: " + e.getMessage());
-      requestStr = "error";
-    }
-
-    RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
-    requestLog = requestService.create(requestLog);
-    requestLog.setFhirVersion(this.fhirComponents.getFhirVersion().toString());
-    requestLog.setHookType(this.id);
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+    RequestLog requestLog = new RequestLog(request, new Date().getTime(), this.fhirComponents.getFhirVersion().toString(),
+        this.id, requestService,5);
 
     // Parsed request
-    timeline[1] = true;
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+    requestLog.advanceTimeline(requestService);
 
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
 
     // hydrated
-    timeline[2] = true;
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+    requestLog.advanceTimeline(requestService);
 
     CdsResponse response = new CdsResponse();
-
     List<CoverageRequirementRuleQuery> queries;
     try {
       queries = this.getQueries(request);
@@ -171,9 +147,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return response;
     }
     // got requests
-    timeline[3] = true;
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+    requestLog.advanceTimeline(requestService);
 
     List<String> codes = new ArrayList<>();
     List<String> codeSystems = new ArrayList<>();
@@ -184,13 +158,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       codes.add(query.getCriteria().getEquipmentCode());
       codeSystems.add(query.getCriteria().getCodeSystem());
     }
-    requestLog.setPatientAge(queries.get(0).getCriteria().getAge());
-    requestLog.setPatientGender(String.valueOf(queries.get(0).getCriteria().getGenderCode()));
-    requestLog.setPatientAddressState(queries.get(0).getCriteria().getPatientAddressState());
-    requestLog.setProviderAddressState(queries.get(0).getCriteria().getProviderAddressState());
-    requestLog.setCode(String.join(", ", codes));
-
-    requestLog.setCodeSystem(String.join(", ", codeSystems));
+    // log info
+    requestLog.gatherInfo(queries, codes, codeSystems);
 
     // get the url to launch the SMART app from.
     String launchSmartUrl = smartUrlBuilder(queries.get(0).getCriteria().getPatientId(),request.getFhirServer());
@@ -206,9 +175,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       }
     }
     // Searched
-    timeline[4] = true;
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+    requestLog.advanceTimeline(requestService);
+
     CardBuilder.errorCardIfNonePresent(response);
     logger.info("handleRequest: end");
     return response;
