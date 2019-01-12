@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './RequestLog.css';
 import '../components/requestLog/request.css';
 import RequestEntry from '../components/requestLog/RequestEntry';
+import config from '../properties.json';
 let tempDatabase={
 }
 
@@ -29,7 +30,7 @@ export default class RequestLog extends Component {
     }
 
     async getData(){
-        const requestData = await fetch('/api/requests', {
+        const requestData = await fetch(config.baseUrl+'/api/requests', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
