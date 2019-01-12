@@ -22,7 +22,12 @@ const Category = () => (
 )
 class App extends Component {
   render() {
+
       const homeUrl = config.baseUrl;
+      if(config.baseUrl === "/"){
+        config.baseUrl = "";
+    }
+    console.log(config.baseUrl);
       const publicUrl = config.baseUrl + '/public';
       const requestUrl = config.baseUrl + '/requests';
       const dataUrl = config.baseUrl + '/data';
