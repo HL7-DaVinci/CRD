@@ -1,43 +1,23 @@
-library RULE version '0'
+library Rule version '0.1.0'
+using FHIR version '3.0.0'
+include FHIRHelpers version '3.0.0' called FHIRHelpers
 
-// measure in reference to a single patient not the entire world
-context Patient
+parameter Patient Patient
+parameter device_request DeviceRequest
+parameter practitioner_location Location
 
-// Rule Definitions
-// id = 10
-define "Age Range Low": 10
-define "Age Range High": 70
-define "Gender Code": ''
-define "Patient Address State": ''
-define "Provider Address State": ''
-define "Equipment Code": '209431'
-define "Code System": 'http://www.nlm.nih.gov/research/umls/rxnorm'
-define "No Auth Needed": true
-define "Info Link": 'https://en.wikipedia.org/wiki/Paracetamol'
+define "Age":
+  AgeInYears()
 
-define function "In Age Range"(age Integer):
-    age >= "Age Range Low" and age <= "Age Range High"
+define RULE_APPLIES:
+  "Age" >= 10 and "Age" <= 70
 
-define function "Correct Gender"(gender String):
-    "Gender Code" = '' or gender = "Gender Code"
+define RESULT_Summary:
+  'No authorization required.'
 
-define function "Correct Patient State"(patientState String):
-    "Patient Address State" = '' or patientState = "Patient Address State"
-define function "Correct Provider State"(providerState String):
-    "Provider Address State" = '' or providerState = "Provider Address State"
-define function "Correct State"(patientState String, providerState String):
-    "Correct Patient State"(patientState) and "Correct Provider State"(providerState)
+define RESULT_Details:
+  'No authorization is required, follow the link for more information.'
 
-define function "Correct Equipment Code"(equipmentCode String):
-    equipmentCode = "Equipment Code"
-define function "Correct Code System"(codeSystem String):
-    codeSystem = "Code System"
-define function "Correct Device"(equipmentCode String, codeSystem String):
-    "Correct Equipment Code"(equipmentCode) and "Correct Code System"(codeSystem)
-
-
-define function Applies(age Integer, gender String, patientState String, providerState String, equipmentCode String, codeSystem String):
-    "In Age Range"(age) and "Correct Gender"(gender) and "Correct State"(patientState, providerState) and "Correct Device"(equipmentCode, codeSystem)
-
-define "Documentation Required": not "No Auth Needed"
+define RESULT_InfoLink:
+    'https://en.wikipedia.org/wiki/Paracetamol'
 

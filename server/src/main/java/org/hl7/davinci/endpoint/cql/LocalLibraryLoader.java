@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.cdshooks.services.crd;
+package org.hl7.davinci.endpoint.cql;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -17,14 +17,13 @@ import org.cqframework.cql.elm.execution.VersionedIdentifier;
 import org.hl7.cql_annotations.r1.Annotation;
 import org.hl7.elm.r1.ObjectFactory;
 import org.opencds.cqf.cql.execution.CqlLibraryReader;
-import org.opencds.cqf.cql.execution.LibraryLoader;
 
 /**
- * Created by Bryn on 12/29/2016.
+ * This file mostly copied from the CQL Engine test files. Created by Bryn on 12/29/2016.
  */
-public class TestLibraryLoaderClone implements LibraryLoader {
+public class LocalLibraryLoader implements org.opencds.cqf.cql.execution.LibraryLoader {
 
-  public TestLibraryLoaderClone(LibraryManager libraryManager) {
+  public LocalLibraryLoader(LibraryManager libraryManager) {
     if (libraryManager == null) {
       throw new IllegalArgumentException("libraryManager is null");
     }

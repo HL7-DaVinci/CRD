@@ -19,12 +19,14 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
+import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
+import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,73 +121,94 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request) {
 
-    boolean[] timeline = new boolean[5];
-
-    logger.info("handleRequest: start");
-    logger.info(this.title + ":" + request.getContext());
-    // authorized
-    timeline[0] = true;
+//    boolean[] timeline = new boolean[5];
+//
+//    logger.info("handleRequest: start");
+//    logger.info(this.title + ":" + request.getContext());
+//    // authorized
+//    timeline[0] = true;
 
     // create the RequestLog
-    String requestStr;
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      ObjectWriter w = mapper.writer();
-      requestStr = w.writeValueAsString(request);
-    } catch (Exception e) {
-      logger.error("failed to write request json: " + e.getMessage());
-      requestStr = "error";
-    }
+//    String requestStr;
+//    try {
+//      ObjectMapper mapper = new ObjectMapper();
+//      ObjectWriter w = mapper.writer();
+//      requestStr = w.writeValueAsString(request);
+//    } catch (Exception e) {
+//      logger.error("failed to write request json: " + e.getMessage());
+//      requestStr = "error";
+//    }
 
-    RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
-    requestLog = requestService.create(requestLog);
-    requestLog.setFhirVersion(this.fhirComponents.getFhirVersion().toString());
-    requestLog.setHookType(this.id);
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+//    RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
+//    requestLog = requestService.create(requestLog);
+//    requestLog.setFhirVersion(this.fhirComponents.getFhirVersion().toString());
+//    requestLog.setHookType(this.id);
+//    requestLog.setTimeline(timeline);
+//    requestService.edit(requestLog);
 
     // Parsed request
-    timeline[1] = true;
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+//    timeline[1] = true;
+//    requestLog.setTimeline(timeline);
+//    requestService.edit(requestLog);
 
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
 
-    timeline[2] = true;
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+//    timeline[2] = true;
+//    requestLog.setTimeline(timeline);
+//    requestService.edit(requestLog);
 
     CdsResponse response = new CdsResponse();
     String launchSmartUrl = smartUrlBuilder(request.getContext().getPatientId(), request.getFhirServer());
 
-    List<HashMap<String,Object>> cqlResults;
+    List<Context> cqlExecutionContexts;
     try {
-      cqlResults = this.cqlResults(request);
+      cqlExecutionContexts = this.createCqlExecutionContexts(request, ruleFinder);
     } catch (RequestIncompleteException e) {
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
-      logger.error(e.getMessage());
-      requestLog.setResults(e.getMessage());
-      requestService.edit(requestLog);
+//      logger.error(e.getMessage());
+//      requestLog.setResults(e.getMessage());
+//      requestService.edit(requestLog);
       return response;
     }
 
-    if (cqlResults.size() == 0) {
-      response.addCard(CardBuilder.summaryCard("No documentation rules found"));
-      requestLog.setResults("No documentation rules found");
-    } else {
-      for (HashMap<String, Object> cqlResult : cqlResults) {
-        response.addCard(CardBuilder.transform(cqlResult, launchSmartUrl));
+    boolean foundApplicableRule = false;
+    for (Context context: cqlExecutionContexts) {
+      CqlResultsForCard results = executeCqlAndGetRelevantResults(context);
+      if (results.ruleApplies()){
+        foundApplicableRule = true;
+        response.addCard(CardBuilder.transform(results, launchSmartUrl));
       }
     }
+    if (!foundApplicableRule) {
+      response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+      //      requestLog.setResults("No documentation rules found");
+    }
+
     // Searched
-    timeline[4] = true;
-    requestLog.setTimeline(timeline);
-    requestService.edit(requestLog);
+//    timeline[4] = true;
+//    requestLog.setTimeline(timeline);
+//    requestService.edit(requestLog);
     CardBuilder.errorCardIfNonePresent(response);
-    logger.info("handleRequest: end");
+//    logger.info("handleRequest: end");
     return response;
+  }
+
+  private CqlResultsForCard executeCqlAndGetRelevantResults(Context context) {
+    CqlResultsForCard results = new CqlResultsForCard();
+    results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES",context));
+    if (!results.ruleApplies()) {
+      return results;
+    }
+    results.setSummary(evaluateStatement("RESULT_Summary",context).toString())
+        .setDetails(evaluateStatement("RESULT_Details",context).toString())
+        .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString());
+    return results;
+  }
+
+  private Object evaluateStatement(String statement, Context context) {
+    return context.resolveExpressionRef(statement).evaluate(context);
   }
 
   private String smartUrlBuilder(String patientId, String fhirBase) {
@@ -199,67 +222,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId;
   }
 
-  protected List<CoverageRequirementRuleQuery> resourcesToQueries(List<?> codings, boolean patientIsNull,
-      boolean practitionerRoleIsNull,
-      PatientInfo patientInfo, PractitionerRoleInfo practitionerRoleInfo)
-      throws RequestIncompleteException {
-
-    List<CoverageRequirementRuleQuery> queries = new ArrayList<>();
-    boolean doR4 = (fhirComponents.getFhirVersion() == Version.R4);
-
-    if (codings == null || codings.size() == 0) {
-      throw new RequestIncompleteException("Unable to parse a device code out of the request.");
-    }
-    if (patientIsNull) {
-      throw new RequestIncompleteException("No patient could be (pre)fetched in this request.");
-    }
-    if (practitionerRoleIsNull) {
-      if (doR4) {
-        throw new RequestIncompleteException("Unable to find the practitioner role.");
-      }
-      // ignore for stu3 for now
-    }
-    for (Object coding : codings) {
-      String code;
-      String codeSystem;
-      if (doR4) {
-        org.hl7.fhir.r4.model.Coding c = ((org.hl7.fhir.r4.model.Coding) coding);
-        code = c.getCode();
-        codeSystem = c.getSystem();
-      } else {
-        org.hl7.fhir.dstu3.model.Coding c = ((org.hl7.fhir.dstu3.model.Coding) coding);
-        code = c.getCode();
-        codeSystem = c.getSystem();
-      }
-      if (code == null || codeSystem == null) {
-        logger.error("Found coding with a null code or system.");
-        continue;
-      }
-      CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder);
-      query.getCriteria().setAge(patientInfo.getPatientAge())
-          .setGenderCode(patientInfo.getPatientGenderCode())
-          .setPatientAddressState(patientInfo.getPatientAddressState())
-          .setCodeSystem(codeSystem)
-          .setEquipmentCode(code)
-          .setProviderAddressState(practitionerRoleInfo.getLocationAddressState())
-          .setPatientId(patientInfo.getPatientId());
-      queries.add(query);
-    }
-    return queries;
-  }
-//
-//  private List<CoverageRequirementRuleQuery> getQueries(requestTypeT request)
-//      throws RequestIncompleteException {
-//    List<CoverageRequirementRuleQuery> queries = makeQueries(request);
-//    if (queries.size() == 0) {
-//      throw new RequestIncompleteException(
-//          "Unable to (pre)fetch any supported resources from the bundle.");
-//    }
-//    return queries;
-//  }
-
   // Implement this in child class
-  public abstract List<HashMap<String,Object>> cqlResults(requestTypeT request)
+  public abstract List<Context> createCqlExecutionContexts(requestTypeT request, CoverageRequirementRuleFinder ruleFinder)
       throws RequestIncompleteException;
 
 

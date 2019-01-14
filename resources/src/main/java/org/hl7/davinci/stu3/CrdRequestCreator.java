@@ -8,8 +8,8 @@ import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeConte
 import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewContext;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.fhir.dstu3.model.DaVinciDeviceRequest;
-import org.hl7.fhir.dstu3.model.DaVinciMedicationRequest;
+import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
+import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;

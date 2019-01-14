@@ -1,13 +1,13 @@
-package org.hl7.davinci.endpoint.cdshooks.services.crd;
+package org.hl7.davinci.endpoint.cql;
 
 import java.io.InputStream;
 import org.cqframework.cql.cql2elm.LibrarySourceProvider;
 import org.hl7.elm.r1.VersionedIdentifier;
 
 /**
- * Created by Bryn on 12/29/2016.
+ * This file mostly copied from the CQL Engine test files. Created by Bryn on 12/29/2016.
  */
-public class TestLibrarySourceProviderClone implements LibrarySourceProvider {
+public class LocalLibrarySourceProvider implements LibrarySourceProvider {
 //  @Override
 //  public InputStream getLibrarySource(VersionedIdentifier libraryIdentifier) {
 //    String libraryFileName = String.format("stu3/%s%s.cql",

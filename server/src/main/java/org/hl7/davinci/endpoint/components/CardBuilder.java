@@ -1,32 +1,73 @@
 package org.hl7.davinci.endpoint.components;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 import org.cdshooks.Card;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Link;
 import org.cdshooks.Source;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 
 /**
  * Convenience methods for working with CDS Hooks cards.
  */
 public class CardBuilder {
 
+  public static class CqlResultsForCard {
+    private Boolean ruleApplies;
+    private String summary;
+    private String details;
+    private String infoLink;
+
+    public Boolean ruleApplies() {
+      return ruleApplies;
+    }
+
+    public CqlResultsForCard setRuleApplies(Boolean ruleApplies) {
+      this.ruleApplies = ruleApplies;
+      return this;
+    }
+
+    public String getSummary() {
+      return summary;
+    }
+
+    public CqlResultsForCard setSummary(String summary) {
+      this.summary = summary;
+      return this;
+    }
+
+    public String getDetails() {
+      return details;
+    }
+
+    public CqlResultsForCard setDetails(String details) {
+      this.details = details;
+      return this;
+    }
+
+    public String getInfoLink() {
+      return infoLink;
+    }
+
+    public CqlResultsForCard setInfoLink(String infoLink) {
+      this.infoLink = infoLink;
+      return this;
+    }
+
+    public CqlResultsForCard() {
+    }
+  }
+
   /**
    * Transforms a result from the database into a card.
    *
-   * @param crr coverage rule from the database
+   * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(HashMap<String, Object> cqlResult, String launchUrl) {
+  public static Card transform(CqlResultsForCard cqlResults, String launchUrl) {
     Card card = baseCard();
 
     Link link = new Link();
-    link.setUrl(cqlResult.get("RESULT_InfoLink").toString());
+    link.setUrl(cqlResults.getInfoLink());
     link.setType("absolute");
     link.setLabel("Documentation Requirements");
 
@@ -36,8 +77,8 @@ public class CardBuilder {
     launchLink.setLabel("SMART App");
 
     card.setLinks(Arrays.asList(link, launchLink));
-    card.setSummary(cqlResult.get("RESULT_Summary").toString());
-    card.setDetail(cqlResult.get("RESULT_Detail").toString());
+    card.setSummary(cqlResults.getSummary());
+    card.setDetail(cqlResults.getDetails());
     return card;
   }
 
