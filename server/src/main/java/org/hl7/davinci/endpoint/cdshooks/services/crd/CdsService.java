@@ -121,43 +121,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request) {
 
-//    boolean[] timeline = new boolean[5];
-//
-//    logger.info("handleRequest: start");
-//    logger.info(this.title + ":" + request.getContext());
-//    // authorized
-//    timeline[0] = true;
-
-    // create the RequestLog
-//    String requestStr;
-//    try {
-//      ObjectMapper mapper = new ObjectMapper();
-//      ObjectWriter w = mapper.writer();
-//      requestStr = w.writeValueAsString(request);
-//    } catch (Exception e) {
-//      logger.error("failed to write request json: " + e.getMessage());
-//      requestStr = "error";
-//    }
-
-//    RequestLog requestLog = new RequestLog(requestStr.getBytes(), new Date().getTime());
-//    requestLog = requestService.create(requestLog);
-//    requestLog.setFhirVersion(this.fhirComponents.getFhirVersion().toString());
-//    requestLog.setHookType(this.id);
-//    requestLog.setTimeline(timeline);
-//    requestService.edit(requestLog);
-
-    // Parsed request
-//    timeline[1] = true;
-//    requestLog.setTimeline(timeline);
-//    requestService.edit(requestLog);
-
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
-
-//    timeline[2] = true;
-//    requestLog.setTimeline(timeline);
-//    requestService.edit(requestLog);
 
     CdsResponse response = new CdsResponse();
     String launchSmartUrl = smartUrlBuilder(request.getContext().getPatientId(), request.getFhirServer());
@@ -167,9 +133,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       cqlExecutionContexts = this.createCqlExecutionContexts(request, ruleFinder);
     } catch (RequestIncompleteException e) {
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
-//      logger.error(e.getMessage());
-//      requestLog.setResults(e.getMessage());
-//      requestService.edit(requestLog);
       return response;
     }
 
@@ -183,15 +146,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     }
     if (!foundApplicableRule) {
       response.addCard(CardBuilder.summaryCard("No documentation rules found"));
-      //      requestLog.setResults("No documentation rules found");
     }
 
-    // Searched
-//    timeline[4] = true;
-//    requestLog.setTimeline(timeline);
-//    requestService.edit(requestLog);
+
     CardBuilder.errorCardIfNonePresent(response);
-//    logger.info("handleRequest: end");
     return response;
   }
 

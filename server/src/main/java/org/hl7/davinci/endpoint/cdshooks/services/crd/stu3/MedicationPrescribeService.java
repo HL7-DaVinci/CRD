@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.cdshooks.Hook;
-import org.hl7.davinci.PatientInfo;
-import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
