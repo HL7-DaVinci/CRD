@@ -26,7 +26,7 @@ class App extends Component {
       <div>
       <nav className="navbar navbar-fixed-top headerEntry">
       <div className="container padHelp">
-          <span className = "navbar-brand headerIcon"> <span className="glyphicon glyphicon-fire"></span></span>
+          <span className = "navbar-brand headerIcon"> <a href="/"><span className="glyphicon glyphicon-fire"></span></a></span>
           <a className={"navbar-brand headerLink " +
             (this.props.location.pathname=="/"?"active":"")} href="/">Home</a>
 
