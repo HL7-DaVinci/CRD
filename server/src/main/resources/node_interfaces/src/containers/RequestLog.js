@@ -5,6 +5,7 @@ import RequestEntry from '../components/requestLog/RequestEntry';
 let tempDatabase={
 }
 
+let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
 let entriesPerPage = 10;
 export default class RequestLog extends Component {
     constructor(props){
@@ -29,7 +30,7 @@ export default class RequestLog extends Component {
     }
 
     async getData(){
-        const requestData = await fetch('/api/requests', {
+        const requestData = await fetch(baseUrl+'api/requests', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
