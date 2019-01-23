@@ -5,6 +5,7 @@ import KJUR, {KEYUTIL} from 'jsrsasign';
 import KeyEntry from '../components/publicKey/KeyEntry';
 import EditEntry from '../components/publicKey/EditEntry';
 
+let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
 export default class KeyInterface extends Component{
     constructor(props){
         super(props);
@@ -28,7 +29,7 @@ export default class KeyInterface extends Component{
 
     async componentDidMount(){
         if(this.props.doFetch){
-            var jwtData = await fetch('/api/public', {
+            var jwtData = await fetch(baseUrl+'api/public', {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
@@ -56,7 +57,7 @@ export default class KeyInterface extends Component{
         const key = keyObject[keyId];
         const result = {"id":keyId,"key":key};
         if(this.props.doFetch){
-            await fetch('/api/public', {
+            await fetch(baseUrl+'api/public', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -74,7 +75,7 @@ export default class KeyInterface extends Component{
 
     async deleteData(id){
         if(this.props.doFetch){
-            await fetch('/api/public/'+id, {
+            await fetch(baseUrl +'api/public/'+id, {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json',
@@ -93,7 +94,7 @@ export default class KeyInterface extends Component{
         const key = keyObject[keyId];
         const result = {"id":keyId,"key":JSON.stringify(key)};
         if(this.props.doFetch){
-            await fetch('/api/public/'+oldId, {
+            await fetch(baseUrl +'api/public/'+oldId, {
                 method: 'PUT',
                 headers: {
                     'Accept': 'application/json',
