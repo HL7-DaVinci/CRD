@@ -28,7 +28,6 @@ import java.util.Set;
 // hook_type: string
 // fhir_version: string
 // rules_found: Set<CoverageRequirementRule>
-// results: string (“rule found is: x”, “no record found”, “error: xyz”)
 // timeline: boolean[]
 
 @Entity
