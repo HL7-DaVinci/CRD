@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import TableRow from './TableRow';
 import './DataTable.css';
+
+let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
 export default class DataTable extends Component {
     constructor(props){
         super(props);
@@ -15,8 +17,7 @@ export default class DataTable extends Component {
     componentDidMount(){
       
         document.body.style.backgroundColor = "white"// Set the style
-      
-        const data = fetch('/api/data', {
+              const data = fetch(baseUrl + 'api/data', {
 
             method: 'GET',
             headers: {
@@ -61,7 +62,8 @@ export default class DataTable extends Component {
         'noAuthNeeded': "",
         'infoLink':""
     }
-    const newId = fetch("/api/data/", {
+
+    const newId = fetch(baseUrl + "api/data/", {
         method: 'POST',
         body: JSON.stringify(newRule),
         headers: {'Content-Type':'application/json'}
