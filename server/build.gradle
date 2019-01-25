@@ -55,7 +55,8 @@ dependencies {
 //    compile('info.cqframework:model:1.2.20')
 //    compile('info.cqframework:cql-to-elm:1.2.20')
 //    compile('info.cqframework:quick:1.2.20')
-//    compile('org.opencds.cqf:cql-engine:1.2.20')
+    compile('org.opencds.cqf:cql-engine:1.2.20')
+    compile('org.opencds.cqf:cql-engine-fhir:1.2.20')
     //Use locally compiled cql libs (engine and fhir)
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile group: 'info.cqframework', name: 'cql-to-elm', version: '1.3.10'
