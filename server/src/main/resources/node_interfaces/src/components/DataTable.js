@@ -62,6 +62,7 @@ export default class DataTable extends Component {
         'noAuthNeeded': "",
         'infoLink':""
     }
+
     const newId = fetch(baseUrl + "api/data/", {
         method: 'POST',
         body: JSON.stringify(newRule),

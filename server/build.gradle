@@ -55,3 +55,8 @@ dependencies {
     testCompile "com.github.tomakehurst:wiremock-standalone:2.18.0"
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+
+task buildReact(type:Exec) {
+    workingDir 'src/main/resources/node_interfaces'
+    commandLine './buildout.sh'
+}
