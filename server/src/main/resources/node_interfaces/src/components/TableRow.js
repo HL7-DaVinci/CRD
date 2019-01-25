@@ -137,7 +137,9 @@ export default class TableRow extends Component {
     }
 
     handleEnter(e){
-        e.key==='Enter' ? this.handleRuleEdit(): null;
+        if(e.key==='Enter'){
+            this.handleRuleEdit()
+        }
     }
 
      render() {

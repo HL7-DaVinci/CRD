@@ -53,7 +53,7 @@ export default class HomePage extends Component {
         This service returns responses to CRD queries based on a small database of examples it maintains.
         Example responses can be managed through the <a href="/data">administrative interface</a>.
     </p>
-                <table class="table">
+                <table className="table">
                     <thead>
                     <tr>
                         <th>
@@ -69,7 +69,7 @@ export default class HomePage extends Component {
                     </thead>
                     <tbody>
                         {links.map((element)=>{
-                            return(<tr>
+                            return(<tr key = {element.name}>
                             <th scope="row">
                                 {element.name}
                             </th>
