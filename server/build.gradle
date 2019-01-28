@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.3.RELEASE'
+        springBootVersion = '2.1.1.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -37,9 +37,6 @@ dependencies {
     compile('com.h2database:h2')
 
     compile("io.jsonwebtoken:jjwt:0.7.0")
-    compile('ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'){
-            exclude group: 'org.thymeleaf'
-    }
 
     compile('info.cqframework:cql:1.2.20')
     compile('info.cqframework:model:1.2.20')
@@ -47,7 +44,6 @@ dependencies {
     compile('info.cqframework:quick:1.2.20')
     compile('org.opencds.cqf:cql-engine:1.2.20')
 
-    compile 'javax.servlet:javax.servlet-api:3.1.0'
 
     compile 'commons-beanutils:commons-beanutils:1.9.3'
 

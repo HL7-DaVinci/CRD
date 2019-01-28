@@ -27,9 +27,9 @@ apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.p
 
 dependencies {
 
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.4.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.6.0'
 
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-testpage-overlay:3.4.0:classes'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-testpage-overlay:3.6.0:classes'
 
     compile 'org.apache.commons:commons-dbcp2:2.5.0'
     compile 'org.ebaysf.web:cors-filter:1.0.1'
