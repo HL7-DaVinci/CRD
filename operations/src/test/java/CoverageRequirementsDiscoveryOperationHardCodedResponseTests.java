@@ -8,7 +8,7 @@ import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Device;
-import org.hl7.fhir.r4.model.EligibilityRequest;
+import org.hl7.fhir.r4.model.CoverageEligibilityRequest;
 import org.hl7.fhir.r4.model.Endpoint;
 import org.hl7.fhir.r4.model.HumanName;
 import org.hl7.fhir.r4.model.Location;
@@ -33,7 +33,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
 
     // valid parameters
     Parameters.ParametersParameterComponent request = buildRequest(
-        buildEligibilityRequest("1234"),
+        buildCoverageEligibilityRequest("1234"),
         buildPatient("patient-4", "Bob Smith"),
         buildCoverage("4321"),
         buildProvider("5678"),
@@ -65,7 +65,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
         request, endpoint, requestQualification);
     assertTrue(outParams.isEmpty());
 
-    // missing eligibilityRequest
+    // missing CoverageEligibilityRequest
     request = buildRequest(
         null,
         buildPatient("patient-4", "Bob Smith"),
@@ -82,7 +82,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
 
     // missing patient
     request = buildRequest(
-        buildEligibilityRequest("1234"),
+        buildCoverageEligibilityRequest("1234"),
         null,
         buildCoverage("4321"),
         buildProvider("5678"),
@@ -97,7 +97,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
 
     // missing coverage
     request = buildRequest(
-        buildEligibilityRequest("1234"),
+        buildCoverageEligibilityRequest("1234"),
         buildPatient("patient-4", "Bob Smith"),
         null,
         buildProvider("5678"),
@@ -112,7 +112,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
 
     // missing provider
     request = buildRequest(
-        buildEligibilityRequest("1234"),
+        buildCoverageEligibilityRequest("1234"),
         buildPatient("patient-4", "Bob Smith"),
         buildCoverage("4321"),
         null,
@@ -127,7 +127,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
 
     // missing insurer
     request = buildRequest(
-        buildEligibilityRequest("1234"),
+        buildCoverageEligibilityRequest("1234"),
         buildPatient("patient-4", "Bob Smith"),
         buildCoverage("4321"),
         buildProvider("5678"),
@@ -142,13 +142,13 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
   }
 
 
-  private EligibilityRequest buildEligibilityRequest(String id) {
-    // create an EligibilityRequest object with ID set
-    EligibilityRequest eligibilityRequest = new EligibilityRequest();
+  private CoverageEligibilityRequest buildCoverageEligibilityRequest(String id) {
+    // create an CoverageEligibilityRequest object with ID set
+    CoverageEligibilityRequest coverageEligibilityRequest = new CoverageEligibilityRequest();
     if (!id.equals("")) {
-      eligibilityRequest.setId(id); // "1234"
+      coverageEligibilityRequest.setId(id); // "1234"
     }
-    return eligibilityRequest;
+    return coverageEligibilityRequest;
   }
 
   private Patient buildPatient(String id, String nameStr) {
@@ -216,7 +216,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
     // create a Device for the patientContext
     Device device = new Device();
     if (!model.equals("")) {
-      device.setModel(model); // "XYZ-123"
+      device.setModelNumber(model); // "XYZ-123"
     }
     return device;
   }
@@ -242,7 +242,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
   }
 
   private Parameters.ParametersParameterComponent buildRequest(
-      EligibilityRequest eligibilityRequest,
+      CoverageEligibilityRequest CoverageEligibilityRequest,
       Patient patient,
       Coverage coverage,
       Practitioner provider,
@@ -255,7 +255,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
     Parameters.ParametersParameterComponent request = new Parameters.ParametersParameterComponent();
     request.setName("request");
 
-    request.addPart().setName("eligibilityrequest").setResource(eligibilityRequest);
+    request.addPart().setName("eligibilityrequest").setResource(CoverageEligibilityRequest);
     request.addPart().setName("patient").setResource(patient);
     request.addPart().setName("coverage").setResource(coverage);
     request.addPart().setName("provider").setResource(provider);
