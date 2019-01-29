@@ -57,12 +57,17 @@ dependencies {
 }
 
 task integrationTest(type: Test) {
-    project(':ehr-server').tasks.appRun.execute()
 
-    test{
+    doFirst{
+        project(':ehr-server').tasks.appBeforeIntegrationTest.execute()
         filter{
-            includeTestsMatching "org.mitre.PrefetchIntegrationTest"
+            includeTestsMatching "*PrefetchIntegrationTest*"
         }
     }
-    project(':ehr-server').tasks.appStop.execute()
+    doLast{
+        project(':ehr-server').tasks.appAfterIntegrationTest.execute()
+
+    }
+
+
 }
