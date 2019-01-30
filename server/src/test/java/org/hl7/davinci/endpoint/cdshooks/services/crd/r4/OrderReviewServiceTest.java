@@ -2,6 +2,7 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Calendar;
 import org.cdshooks.CdsResponse;
@@ -38,8 +39,9 @@ public class OrderReviewServiceTest {
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
-    assertEquals("Documentation is required for the desired device or service",
+    assertEquals("Documentation is required for the desired device or service.",
         response.getCards().get(0).getSummary());
+    assertTrue(response.getCards().get(0).getDetail().startsWith("Price details: Payor will cover up to 7600$."));
   }
 
   @Test

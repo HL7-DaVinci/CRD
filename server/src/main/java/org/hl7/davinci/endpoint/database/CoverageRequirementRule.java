@@ -55,7 +55,17 @@ public class CoverageRequirementRule {
   @Column(name = "info_link", nullable = true, length = 2000)
   private String infoLink;
 
+  @Column(name = "price_description", nullable = true, length = 2000)
+  private String priceDescription;
 
+
+  public String getPriceDescription() {
+    return priceDescription;
+  }
+
+  public void setPriceDescription(String priceDescription) {
+    this.priceDescription = priceDescription;
+  }
 
   public long getId() {
     return id;
@@ -140,8 +150,8 @@ public class CoverageRequirementRule {
   @Override
   public String toString() {
     return String.format("(row id: %d) Rule [equipment_code: %s, code_system %s, age_range_low %d, age_range_high: %d"
-        + ", gender_code: %s, patient_address_state: %s, practitioner_address_state] Outcome: [auth_required: %s, info_link %s]", id, equipmentCode, codeSystem, ageRangeLow,
-        ageRangeHigh, genderCode, patientAddressState, providerAddressState, authRequired, infoLink);
+        + ", gender_code: %s, patient_address_state: %s, practitioner_address_state] Outcome: [auth_required: %s, info_link %s, price_description: %s]", id, equipmentCode, codeSystem, ageRangeLow,
+        ageRangeHigh, genderCode, patientAddressState, providerAddressState, authRequired, infoLink, priceDescription);
   }
 
   public CoverageRequirementRule() {}
