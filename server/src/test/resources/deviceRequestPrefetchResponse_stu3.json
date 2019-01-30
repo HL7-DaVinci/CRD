@@ -1,0 +1,141 @@
+{
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "f31500e8-15cb-4e8e-8c6e-a001edc6604e",
+        "gender": "male",
+        "birthDate": "1970-07-04",
+        "address": [
+          {
+            "use": "home",
+            "type": "both",
+            "state": "MA"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "0fab22ec-49a2-4465-bd62-33b53283de21",
+        "identifier": [
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "1122334455"
+          }
+        ],
+        "name": [
+          {
+            "family": "Doe",
+            "given": [
+              "Jane"
+            ],
+            "prefix": [
+              "Dr."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "75f39025-65db-43c8-9127-693cdf75e712",
+        "name": "Centers for Medicare and Medicaid Services"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Location",
+        "id": "99595dfb-cdd8-4813-8477-4a9fb40d6c54",
+        "address": {
+          "line": [
+            "100 Good St"
+          ],
+          "city": "Bedford",
+          "state": "MA",
+          "postalCode": "01730"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "f0b0cf14-4066-403f-b217-e92e73c350eb",
+        "practitioner": {
+          "reference": "Practitioner/0fab22ec-49a2-4465-bd62-33b53283de21"
+        },
+        "location": [
+          {
+            "reference": "Location/99595dfb-cdd8-4813-8477-4a9fb40d6c54"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "0f58e588-eecd-4ab3-9316-f3d02a3ba39d",
+        "payor": [
+          {
+            "reference": "Organization/75f39025-65db-43c8-9127-693cdf75e712"
+          }
+        ],
+        "grouping": {
+          "plan": "Medicare Part D"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DeviceRequest",
+        "id": "123",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
+            "valueReference": {
+              "reference": "Coverage/0f58e588-eecd-4ab3-9316-f3d02a3ba39d"
+            }
+          }
+        ],
+        "status": "draft",
+        "codeCodeableConcept": {
+          "coding": [
+            {
+              "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+              "code": "E0424",
+              "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/f31500e8-15cb-4e8e-8c6e-a001edc6604e"
+        },
+        "performer": {
+          "reference": "PractitionerRole/f0b0cf14-4066-403f-b217-e92e73c350eb"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Device",
+        "type": {
+          "coding": [
+            {
+              "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+              "code": "E0424",
+              "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

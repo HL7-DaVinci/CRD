@@ -1,0 +1,52 @@
+{
+  "hook": "order-review",
+  "hookInstance": "63d7d1fa-9469-4c44-a5f7-76a129e30967",
+  "fhirServer": "http://localhost:9089/",
+  "fhirAuthorization": null,
+  "user": "Practitioner/1234",
+  "context": {
+    "patientId": "f31500e8-15cb-4e8e-8c6e-a001edc6604e",
+    "encounterId": null,
+    "services": null,
+    "orders": {
+      "resourceType": "Bundle",
+      "entry": [
+        {
+          "resource": {
+            "resourceType": "DeviceRequest",
+            "id": "123",
+            "meta": {
+              "profile": [
+                "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3"
+              ]
+            },
+            "extension": [
+              {
+                "url": "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
+                "valueReference": {
+                  "reference": "Coverage/0f58e588-eecd-4ab3-9316-f3d02a3ba39d"
+                }
+              }
+            ],
+            "status": "draft",
+            "codeCodeableConcept": {
+              "coding": [
+                {
+                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "code": "E0424",
+                  "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+                }
+              ]
+            },
+            "subject": {
+              "reference": "Patient/f31500e8-15cb-4e8e-8c6e-a001edc6604e"
+            },
+            "performer": {
+              "reference": "PractitionerRole/f0b0cf14-4066-403f-b217-e92e73c350eb"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
