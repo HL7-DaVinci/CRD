@@ -1,3 +1,5 @@
+apply plugin: 'maven'
+
 dependencies {
     compile group: 'com.helger', name: 'ph-schematron', version: '4.1.0'
     compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-validation-resources-r4', version: '3.4.0'

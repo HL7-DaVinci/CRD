@@ -46,6 +46,17 @@ public class CdsConnect {
   }
 
   /**
+   * Retrieve all of the CQL rules from CDS Connect.
+   *
+   * @return list of CQL files as strings
+   */
+  public List<String> getAllRules() {
+    String query = "";
+    logger.info("CdsConnect::getAllRules()");
+    return getRules(query);
+  }
+
+  /**
    * Retrieve the CQL rules from CDS Connect.
    *
    * @param payer the payer's rules to retrieve (ie. cms)
@@ -56,6 +67,10 @@ public class CdsConnect {
   public List<String> getRules(String payer, String code, String codeSystem) {
     String query = payer + "/" + codeSystem + "/" + code;
     logger.info("CdsConnect::getRules(): " + query);
+    return getRules(query);
+  }
+
+  private List<String> getRules(String query) {
     List<String> rules = new ArrayList<>();
 
     try {
@@ -149,7 +164,7 @@ public class CdsConnect {
 
   private String queryForRules(String cookie, String query) {
     logger.info("queryForRules( " + query + " )");
-    String fullUrl = baseUrl + "/views/rules/" + query + "?_format=json";
+    String fullUrl = baseUrl + "/erx_rules/" + query + "?_format=json";
 
     // build the headers
     HttpHeaders headers = new HttpHeaders();

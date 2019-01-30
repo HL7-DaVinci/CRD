@@ -41,7 +41,7 @@ public class CardBuilder {
       links.add(link);
       links.add(launchLink);
       card.setLinks(links);
-      String detail = "There are documentation requirements for the following criteria:"
+      String detail = "There are [documentation requirements](" + crr.getInfoLink() + ") for the following criteria:"
           + "\n Patient is of gender: '%s' and between the ages of: %d and %d and lives in state: '%s'"
           + "\n Device or service has code of '%s'"
           + "\n Service is requested in state: '%s'.";
