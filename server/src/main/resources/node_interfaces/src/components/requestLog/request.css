@@ -90,6 +90,7 @@
     font-weight: bold;
 }
 .orderButton{
+    width:30px;
     border:1px black solid;
     background-color:white;
     color:black;
@@ -98,6 +99,10 @@
 .orderButton:hover{
     background-color:black;
     color:white;
+}
+
+.firstButton {
+    margin-left: 0px;
 }
 
 .pageNumber{
