@@ -31,32 +31,32 @@ import java.nio.charset.Charset;
 public class PrefetchIntegrationTest {
 
   private String medicationRequestPrefetch = FileUtils
-      .readFileToString(new ClassPathResource("medicationRequestPrefetch.json").getFile(),
+      .readFileToString(new ClassPathResource("requests/medicationRequestPrefetch.json").getFile(),
           Charset.defaultCharset());
   private String medicationRequestNoPrefetch = FileUtils
-      .readFileToString(new ClassPathResource("medicationRequestNoPrefetch.json").getFile(),
+      .readFileToString(new ClassPathResource("requests/medicationRequestNoPrefetch.json").getFile(),
           Charset.defaultCharset());
 
   private String medicationRequestPrefetchNoDoc = FileUtils
-      .readFileToString(new ClassPathResource("medicationRequestPrefetchNoDoc.json").getFile(),
+      .readFileToString(new ClassPathResource("requests/medicationRequestPrefetchNoDoc.json").getFile(),
           Charset.defaultCharset());
   private String medicationRequestNoPrefetchNoDoc = FileUtils
-      .readFileToString(new ClassPathResource("medicationRequestNoPrefetchNoDoc.json").getFile(),
+      .readFileToString(new ClassPathResource("requests/medicationRequestNoPrefetchNoDoc.json").getFile(),
           Charset.defaultCharset());
 
   private String deviceRequestPrefetch = FileUtils
-      .readFileToString(new ClassPathResource("deviceRequestPrefetch.json").getFile(),
+      .readFileToString(new ClassPathResource("requests/deviceRequestPrefetch.json").getFile(),
           Charset.defaultCharset());
 
   private String deviceRequestNoPrefetch = FileUtils
-      .readFileToString(new ClassPathResource("deviceRequestNoPrefetch.json").getFile(),
+      .readFileToString(new ClassPathResource("requests/deviceRequestNoPrefetch.json").getFile(),
           Charset.defaultCharset());
 
   private String deviceRequestPrefetchNoDoc = FileUtils
-      .readFileToString(new ClassPathResource("deviceRequestPrefetchNoDoc.json").getFile(),
+      .readFileToString(new ClassPathResource("requests/deviceRequestPrefetchNoDoc.json").getFile(),
           Charset.defaultCharset());
   private String deviceRequestNoPrefetchNoDoc = FileUtils
-      .readFileToString(new ClassPathResource("deviceRequestNoPrefetchNoDoc.json").getFile(),
+      .readFileToString(new ClassPathResource("requests/deviceRequestNoPrefetchNoDoc.json").getFile(),
           Charset.defaultCharset());
 
   @LocalServerPort
@@ -64,17 +64,28 @@ public class PrefetchIntegrationTest {
   @Autowired
   private TestRestTemplate restTemplate;
 
+  private HttpHeaders headers = new HttpHeaders();
+
   public PrefetchIntegrationTest() throws IOException {
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
   }
 
 
+  /**
+   * Loads the request resources to the EHR FHIR server
+   * @param resourceFile - the request with prefetch
+   * @param bundleName - name of the bundle in the prefetch we look in
+   */
   public void setup(String resourceFile, String bundleName) {
+
     JsonObject prefetchResources =  new JsonParser().parse(resourceFile).getAsJsonObject();
     JsonArray entries = prefetchResources.get("prefetch")
         .getAsJsonObject().get(bundleName)
         .getAsJsonObject().get("entry").getAsJsonArray();
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
+    // put all resources into the fhir server
     for( JsonElement entry : entries) {
 
       JsonObject resource = entry.getAsJsonObject().get("resource").getAsJsonObject();
@@ -97,109 +108,82 @@ public class PrefetchIntegrationTest {
 
   @Test
   public void testMedicationPrescribeNoPrefetchDocReq() {
+    // setup with request that has a prefetch so we know all the
+    // necessary resources are in the EHR FHIR server
     setup(medicationRequestPrefetch, "medicationRequestBundle");
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(medicationRequestNoPrefetch, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/medication-prescribe-crd", entity,
             JsonNode.class);
-    String success = "Documentation is required for the desired device or service";
-    assert(success.equals(cards.get("cards").get(0).get("summary").asText()));
+    assert(!cards.get("cards").get(0).get("detail").isNull());
   }
 
   @Test
   public void testMedicationPrescribeWithPrefetchDocReq() {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(medicationRequestPrefetch, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/medication-prescribe-crd", entity,
             JsonNode.class);
-    String success = "Documentation is required for the desired device or service";
-    assert(success.equals(cards.get("cards").get(0).get("summary").asText()));
+    System.out.println(cards);
+    assert(!cards.get("cards").get(0).get("detail").isNull());
   }
 
   @Test
   public void testMedicationPrescribeNoPrefetchNoDocReq() {
     setup(medicationRequestPrefetchNoDoc, "medicationRequestBundle");
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(medicationRequestNoPrefetchNoDoc, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/medication-prescribe-crd", entity,
             JsonNode.class);
-    String success = "No documentation is required for a device or service with code: 209431";
-    System.out.println(cards);
-    assert(success.equals(cards.get("cards").get(0).get("summary").asText()));
+    assert(cards.get("cards").get(0).get("detail").isNull());
   }
 
   @Test
   public void testMedicationPrescribePrefetchNoDocReq() {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(medicationRequestPrefetchNoDoc, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/medication-prescribe-crd", entity,
             JsonNode.class);
-    String success = "No documentation is required for a device or service with code: 209431";
-    System.out.println(cards);
-    assert(success.equals(cards.get("cards").get(0).get("summary").asText()));
+    assert(cards.get("cards").get(0).get("detail").isNull());
   }
 
   @Test
   public void testDeviceRequestNoPrefetchDocReq() {
     setup(deviceRequestPrefetch, "deviceRequestBundle");
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestNoPrefetch, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
             JsonNode.class);
-    String success = "Documentation is required for the desired device or service";
-    assert(success.equals(cards.get("cards").get(0).get("summary").asText()));
+    assert(!cards.get("cards").get(0).get("detail").isNull());
   }
 
   @Test
   public void testDeviceRequestWithPrefetchDocReq() {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestPrefetch, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
             JsonNode.class);
-    String success = "Documentation is required for the desired device or service";
-    assert(success.equals(cards.get("cards").get(0).get("summary").asText()));
+    System.out.println(cards);
+    assert(!cards.get("cards").get(0).get("detail").isNull());
   }
 
   @Test
   public void testDeviceRequestPrefetchNoDocReq() {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestPrefetchNoDoc, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
             JsonNode.class);
-    String success = "No documentation is required for a device or service with code: A5500";
-    System.out.println(cards);
-    assert(success.equals(cards.get("cards").get(0).get("summary").asText()));
+    assert(cards.get("cards").get(0).get("detail").isNull());
   }
 
 
   @Test
   public void testDeviceRequestNoPrefetchNoDocReq() {
     setup(deviceRequestPrefetchNoDoc, "deviceRequestBundle");
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestNoPrefetchNoDoc, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
             JsonNode.class);
-    String success = "No documentation is required for a device or service with code: A5500";
-    assert(success.equals(cards.get("cards").get(0).get("summary").asText()));
+    assert(cards.get("cards").get(0).get("detail").isNull());
   }
 }
