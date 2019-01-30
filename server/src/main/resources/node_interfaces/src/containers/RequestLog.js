@@ -33,7 +33,7 @@ export default class RequestLog extends Component {
     }
 
     async getData(){
-        const requestData = await fetch('http://localhost:8090/api/requests', {
+        const requestData = await fetch(baseUrl+'api/requests', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
