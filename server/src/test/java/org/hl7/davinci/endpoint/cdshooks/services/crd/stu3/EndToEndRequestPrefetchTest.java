@@ -72,7 +72,7 @@ public class EndToEndRequestPrefetchTest {
             JsonNode.class);
 
     System.out.println(cards);
-    assertEquals("No documentation rules found",
+    assertEquals("Auth required",
         cards.get("cards").get(0).get("summary").textValue());
   }
 
@@ -90,7 +90,7 @@ public class EndToEndRequestPrefetchTest {
             JsonNode.class);
 
     System.out.println(cards);
-    assertEquals("Unable to (pre)fetch any supported resources from the bundle.",
+    assertEquals("Unable to (pre)fetch any supported bundles.",
         cards.get("cards").get(0).get("summary").textValue());
   }
 }
