@@ -6,14 +6,16 @@ let tempDatabase={
 }
 
 let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
-let entriesPerPage = 10;
+let entriesPerPage = 15;
+let pagesShown = 9;
 export default class RequestLog extends Component {
     constructor(props){
         super(props);
         this.state={
             data:[],
             dataToShow:null,
-            page:1
+            page:1,
+            view:1
 
         };
          
@@ -21,6 +23,7 @@ export default class RequestLog extends Component {
         this.getPage = this.getPage.bind(this);
         this.renderPageNumbers = this.renderPageNumbers.bind(this);
         this.getData = this.getData.bind(this);
+        this.increaseView = this.increaseView.bind(this);
     }
 
     
@@ -97,9 +100,15 @@ export default class RequestLog extends Component {
     }
 
 
+    increaseView(value){
+        this.setState({view: this.state.view+value});
+    }
 
 
      render() {
+         const showForward = (this.state.view+pagesShown-1)<(this.state.data.length/entriesPerPage);
+         const showBackward = this.state.view!=1;
+         console.log(this.state.view);
          // page should only render when switching pages. 
          // on page switch we scroll to top automatically.
         window.scrollTo(0, 0)
@@ -141,15 +150,40 @@ export default class RequestLog extends Component {
                  </div>
 
                  <div className="pageNumber">
+                        <span>
+                            <button className={"viewButton backwardView " + (!showBackward?"invisible":'')} 
+                                    onClick={()=>{this.increaseView(-this.state.view+1)}}>
+                                &lt;&lt;  
+                            </button>
+                            <button className={"viewButton backwardView " + (!showBackward?"invisible":'')}
+                                    onClick={()=>{this.increaseView(-1)}}>
+                                &lt; 
+                            </button>
+                        </span>
                      {this.renderPageNumbers().map(number=>{
+                         if(number >= this.state.view && number < this.state.view+pagesShown)
                          return <button 
                          key={number}
-                         className={"orderButton " + [this.state.page===number?"active":""]}
+                         className={"orderButton "+((number==this.state.view)?"firstButton ":'')+ [this.state.page===number?"active":""]}
                          onClick={()=> this.getPage(number)}
                          >
                          {number}
                          </button>
                      })}
+                        <span>
+                            <button className={"viewButton forwardView " + (!showForward?"invisible":'')} 
+                                    onClick={()=>{this.increaseView(1)}}>
+                                &gt;
+                            </button>
+                            <button className={"viewButton forwardView " + (!showForward?"invisible":'')} 
+                                    onClick={()=>{this.increaseView(Math.ceil(this.state.data.length/entriesPerPage) - (this.state.view+pagesShown-1))}}>
+                                &gt;&gt;
+                            </button>
+                        </span>
+
+
+
+
                  </div>
                 
              </div>
