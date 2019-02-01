@@ -16,12 +16,8 @@ public interface DataRepository extends CrudRepository<CoverageRequirementRule, 
 
   @Query(
       "SELECT r FROM CoverageRequirementRule r WHERE "
-          + "r.ageRangeLow <= :#{#criteria.age} "
-          + "and r.ageRangeHigh >= :#{#criteria.age} "
-          + "and (r.genderCode IS NULL OR r.genderCode = :#{#criteria.genderCode}) "
-          + "and (r.patientAddressState IS NULL OR r.patientAddressState = :#{#criteria.patientAddressState}) "
-          + "and (r.providerAddressState IS NULL OR r.providerAddressState = :#{#criteria.providerAddressState}) "
-          + "and r.equipmentCode = :#{#criteria.equipmentCode} "
+          + "r.payor = :#{#criteria.payor} "
+          + "and r.code = :#{#criteria.code} "
           + "and r.codeSystem = :#{#criteria.codeSystem} ")
   List<CoverageRequirementRule> findRules(
       @Param("criteria") CoverageRequirementRuleCriteria criteria

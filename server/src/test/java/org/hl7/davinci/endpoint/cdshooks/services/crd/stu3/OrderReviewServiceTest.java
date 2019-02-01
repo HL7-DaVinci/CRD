@@ -30,6 +30,6 @@ public class OrderReviewServiceTest {
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
-    assertEquals("No documentation rules found", response.getCards().get(0).getSummary());
+    assertEquals("Auth required", response.getCards().get(0).getSummary());
   }
 }

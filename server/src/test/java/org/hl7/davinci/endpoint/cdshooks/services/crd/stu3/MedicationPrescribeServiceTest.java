@@ -30,6 +30,6 @@ public class MedicationPrescribeServiceTest {
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
-    assertEquals("Documentation is required for the desired device or service", response.getCards().get(0).getSummary());
+    assertEquals("Authorization is required.", response.getCards().get(0).getSummary());
   }
 }

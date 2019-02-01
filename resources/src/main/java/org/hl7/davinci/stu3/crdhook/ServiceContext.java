@@ -2,13 +2,14 @@ package org.hl7.davinci.stu3.crdhook;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hl7.davinci.EncounterBasedServiceContext;
 import org.hl7.davinci.stu3.JacksonBundleDeserializer;
 import org.hl7.davinci.stu3.JacksonHapiSerializer;
 import org.hl7.fhir.dstu3.model.Bundle;
 
 import javax.validation.constraints.NotNull;
 
-public abstract class ServiceContext {
+public abstract class ServiceContext implements EncounterBasedServiceContext {
 
 
   /** The FHIR Patient.id of the current patient in context. REQUIRED */

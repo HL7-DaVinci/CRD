@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.database;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CoverageRequirementRuleQuery {
@@ -8,9 +9,9 @@ public class CoverageRequirementRuleQuery {
   private CoverageRequirementRuleCriteria criteria;
   private CoverageRequirementRuleFinder finder;
 
-  public CoverageRequirementRuleQuery(CoverageRequirementRuleFinder finder) {
+  public CoverageRequirementRuleQuery(CoverageRequirementRuleFinder finder, CoverageRequirementRuleCriteria criteria) {
     this.finder = finder;
-    this.criteria = new CoverageRequirementRuleCriteria();
+    this.criteria = criteria;
   }
 
   public void execute() {
@@ -33,6 +34,5 @@ public class CoverageRequirementRuleQuery {
   public void setCriteria(CoverageRequirementRuleCriteria criteria) {
     this.criteria = criteria;
   }
-
 
 }

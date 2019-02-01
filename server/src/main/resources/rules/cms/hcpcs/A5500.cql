@@ -10,13 +10,13 @@ define "Age":
   AgeInYears()
 
 define RULE_APPLIES:
-  "Age" >= 18 and "Age" <= 90
+  "Age" >= 30 and "Age" <= 80
 
 define RESULT_Summary:
-  'No authorization required.'
+  'No auth needed'
 
 define RESULT_Details:
-  'No authorization is required, follow the link for more information.'
+  'No authorization is required, as laid out at the attached link.'
 
 define RESULT_InfoLink:
-    'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/downloads/PMDFactSheet07_Quark19.pdf'
+    'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforDiabeticShoes-ICN909471.pdf'
