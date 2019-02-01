@@ -34,6 +34,6 @@ public class MedicationPrescribeServiceTest {
     assertEquals(1, response.getCards().size());
     assertEquals("Documentation is required for the desired device or service.", response.getCards().get(0).getSummary());
 
-    assertTrue(response.getCards().get(0).getDetail().startsWith("Price details: Payor will cover up to 680$."));
+    assertTrue(response.getCards().get(0).getDetail().startsWith("Price details: Payor will cover up to $680."));
   }
 }
