@@ -27,6 +27,14 @@ INTO
 ,	(10, 10, 70, NULL, NULL, NULL, '209431', 'http://www.nlm.nih.gov/research/umls/rxnorm', FALSE, 'https://en.wikipedia.org/wiki/Paracetamol', 'Payor will cover up to $1050.')
 ,	(11, 10, 70, NULL, NULL, NULL, '307675', 'http://www.nlm.nih.gov/research/umls/rxnorm', FALSE, 'https://www.rxlist.com/consumer_acetaminophen_tylenol/drugs-condition.htm', 'Payor will cover 80% up to $5000.')
 ,	(12, 0, 100, NULL, NULL, NULL, 'E0250', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforHospitalBedsandAccessories-ICN909476.pdf', 'Payor will cover up to $1300.')
-,	(13, 0, 100, NULL, 'MA', 'MA', 'E0424', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/a', 'Payor will cover up to $7600.')
-,	(14, 0, 100, NULL, NULL, NULL, 'E0433', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, '	https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf', 'Payor will cover up to $8000, patient pays $500.')
+,	(13, 0, 100, NULL, 'MA', 'MA', 'E0424', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/a',
+'#### Patient Monthly Cost Information (Florida)
+| Metro Copay | Rural Copay |
+| :---------: |:-----------:|
+| $14.64      | $26.94      |')
+,	(14, 0, 100, NULL, NULL, NULL, 'E0433', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, '	https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf',
+'#### Patient Monthly Cost Information (Florida)
+| Metro Copay | Rural Copay |
+| :---------: |:-----------:|
+| $7.32       | $13.47      |')
 ;

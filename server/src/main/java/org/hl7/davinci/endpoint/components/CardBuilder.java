@@ -27,7 +27,6 @@ public class CardBuilder {
           .format("No documentation is required for a device or service with code: %s.",
               crr.getEquipmentCode());
       card.setSummary(summary);
-      card.setDetail("Price details: " + crr.getPriceDescription());
     } else {
       card.setSummary("Documentation is required for the desired device or service.");
       Link link = new Link();
@@ -42,21 +41,8 @@ public class CardBuilder {
       links.add(link);
       links.add(launchLink);
       card.setLinks(links);
-      String detailFmt = "There are [documentation requirements](" + crr.getInfoLink() + ") for the following criteria:"
-          + "\n Patient is of gender: '%s' and between the ages of: %d and %d and lives in state: '%s'"
-          + "\n Device or service has code of '%s'"
-          + "\n Service is requested in state: '%s'.";
-      String genderRule = "Any";
-      if (crr.getGenderCode() != null) {
-        genderRule = crr.getGenderCode().toString();
-      }
-      String patientStateRule = Optional.ofNullable(crr.getPatientAddressState()).orElse("Any");
-      String providerStateRule = Optional.ofNullable(crr.getProviderAddressState()).orElse("Any");
-      card.setDetail("Price details: " + crr.getPriceDescription() + "\n " +
-          String.format(detailFmt, genderRule, crr.getAgeRangeLow(),
-          crr.getAgeRangeHigh(), patientStateRule, crr.getEquipmentCode(),
-          providerStateRule));
     }
+    card.setDetail(crr.getPriceDescription());
     return card;
   }
 
