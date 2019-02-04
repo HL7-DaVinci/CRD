@@ -21,6 +21,9 @@ const Category = () => (
 )
 
 let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
+if(!baseUrl) {
+    baseUrl='/';
+}
 class App extends Component {
   render() {
       const homeUrl = baseUrl;

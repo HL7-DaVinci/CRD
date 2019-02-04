@@ -1,3 +1,31 @@
 .fontSetter{
     font-family: 'Courier New', Courier, monospace;
 }
+
+.viewButton { 
+    height: 25px;
+    background-color: none;
+    border: none;
+    font-weight: bold;
+
+    color: #777;
+}
+
+.forwardView {
+    text-align:left;
+    padding-left:5px;
+}
+
+.backwardView {
+    padding-right: 5px;
+    text-align:left;
+
+}
+.viewButton:hover {
+    color: black;
+}
+
+.invisible {
+    opacity:0;
+    pointer-events:none;
+}
