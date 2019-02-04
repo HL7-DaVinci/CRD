@@ -46,4 +46,4 @@ To edit the web apps, the code in `src/main/resources/node_interfaces` should be
 
 Integration tests will set up an actual running instance of this server as well as `ehr-server` to monitor a the handling of requests from beginning to end.
 
-Integration tests can be run with `gradle integrationTests`
+Integration tests can be run with `gradle integrationTest`.
