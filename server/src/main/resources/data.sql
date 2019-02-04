@@ -28,13 +28,14 @@ INTO
 ,	(11, 10, 70, NULL, NULL, NULL, '307675', 'http://www.nlm.nih.gov/research/umls/rxnorm', FALSE, 'https://www.rxlist.com/consumer_acetaminophen_tylenol/drugs-condition.htm', 'Payor will cover 80% up to $5000.')
 ,	(12, 0, 100, NULL, NULL, NULL, 'E0250', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforHospitalBedsandAccessories-ICN909476.pdf', 'Payor will cover up to $1300.')
 ,	(13, 0, 100, NULL, 'MA', 'MA', 'E0424', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/a',
-'#### Patient Monthly Cost Information (Florida)
-| Metro Copay | Rural Copay |
-| :---------: |:-----------:|
-| $14.64      | $26.94      |')
-,	(14, 0, 100, NULL, NULL, NULL, 'E0433', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, '	https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf',
-'#### Patient Monthly Cost Information (Florida)
-| Metro Copay | Rural Copay |
-| :---------: |:-----------:|
-| $7.32       | $13.47      |')
+'#### Patient Monthly Cost Information (Florida) Metro / Rural Copay (20%)
+ | Code  | Name                                        | Cost            |
+ | ----- | ------------------------------------------- | --------------- |
+ | E0424 | Stationary compressed gaseous oxygen system | $14.64 / $26.94 |
+ | E0431 | Portable gaseous oxygen system              | $7.32 / $13.47  |
+ | E0433 | Portable liquid oxygen system               | $7.32 / $13.47  |
+ | E0439 | Stationary liquid oxygen system             | $14.64 / $26.94 |
+ | E0441 | Stationary gaseous oxygen system            | $9.78 / $12.84  |
+ | E1390 | Oxygen concentrator (85% or greater O2)     | $14.64 / $26.94 |')
+,	(14, 0, 100, NULL, NULL, NULL, 'E0433', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, '	https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf','')
 ;
