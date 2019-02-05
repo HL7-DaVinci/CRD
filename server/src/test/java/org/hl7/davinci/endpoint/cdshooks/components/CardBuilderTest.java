@@ -2,6 +2,7 @@ package org.hl7.davinci.endpoint.cdshooks.components;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
@@ -17,8 +18,10 @@ public class CardBuilderTest {
     crr.setEquipmentCode("E0424");
     crr.setGenderCode("F".charAt(0));
     crr.setAuthRequired(false);
+    crr.setPriceDescription("#### Patient Monthly Cost Information");
     Card card = CardBuilder.transform(crr,"dummyLaunchUrl.com");
-    assertEquals("No documentation is required for a device or service with code: E0424", card.getSummary());
+    assertEquals("No documentation is required for a device or service with code: E0424.", card.getSummary());
+    assertEquals("#### Patient Monthly Cost Information", card.getDetail());
     assertNull(card.getLinks());
   }
 
@@ -31,8 +34,10 @@ public class CardBuilderTest {
     crr.setGenderCode("F".charAt(0));
     crr.setAuthRequired(true);
     crr.setInfoLink("http://www.mitre.org");
+    crr.setPriceDescription("#### Patient Monthly Cost Information");
     Card card = CardBuilder.transform(crr,"dummyLaunchUrl.com");
-    assertEquals("Documentation is required for the desired device or service", card.getSummary());
+    assertEquals("Documentation is required for the desired device or service.", card.getSummary());
+    assertEquals("#### Patient Monthly Cost Information", card.getDetail());
     assertEquals(2, card.getLinks().size());
     assertEquals("http://www.mitre.org", card.getLinks().get(0).getUrl());
   }

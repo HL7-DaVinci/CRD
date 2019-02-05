@@ -1,6 +1,34 @@
 import React, {Component} from 'react';
 import DataTable from './DataTable';
 //import './HomePage.css';
+const links = [
+    {
+        name: "FHIR STU3 endpoint",
+        link: "/stu3/cds-services",
+        description: "The provider systems would interact with the CDS Hooks endpoints. These endpoints provide the JSON descriptions of the CDS Hooks services."
+    },
+    {
+        name: "FHIR R4 endpoint",
+        link: "/r4/cds-services",
+        description: "The provider systems would interact with the CDS Hooks endpoints. These endpoints provide the JSON descriptions of the CDS Hooks services."
+    },
+    {
+        name: "Rules endpoint",
+        link: "/api/data",
+        description: "Endpoint for retrieving and manipulating rules."
+    },
+    {
+        name: "Requests endpoint",
+        link: "/api/requests",
+        description: "Endpoint for retrieving the requests made to the server as JSON."
+    },
+    {
+        name: "Public Key endpoint",
+        link: "/api/public",
+        description: "Endpoint for retrieving keys from and adding keys to the server database"
+    },
+    
+]
 export default class HomePage extends Component {
     constructor(props){
         super(props);
@@ -25,7 +53,39 @@ export default class HomePage extends Component {
         This service returns responses to CRD queries based on a small database of examples it maintains.
         Example responses can be managed through the <a href="/data">administrative interface</a>.
     </p>
-                <DataTable home={true}></DataTable>
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th>
+
+                        </th>
+                        <th>
+                            URI
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {links.map((element)=>{
+                            return(<tr key = {element.name}>
+                            <th scope="row">
+                                {element.name}
+                            </th>
+                            <td>
+                                <a href={element.link}>
+                                    {element.link}
+                                </a>
+                            </td>
+                            <td>
+                                {element.description}
+                            </td>
+                        </tr>)
+                        })}
+                    </tbody>
+
+                </table>
              </div>
 
          )

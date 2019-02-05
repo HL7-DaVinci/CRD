@@ -8,6 +8,7 @@ import org.hl7.davinci.PatientInfo;
 import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
 import org.hl7.davinci.stu3.FhirComponents;
@@ -49,7 +50,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
    * @throws RequestIncompleteException if the request cannot be parsed.
    */
   public List<CoverageRequirementRuleQuery> makeQueries(
-      MedicationPrescribeRequest medicationPrescribeRequest)
+      MedicationPrescribeRequest medicationPrescribeRequest,  YamlConfig options)
       throws RequestIncompleteException {
     List<CoverageRequirementRuleQuery> queries = new ArrayList<>();
     Bundle medicationRequestBundle = medicationPrescribeRequest.getPrefetch()

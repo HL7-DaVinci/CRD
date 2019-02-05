@@ -15,7 +15,7 @@ buildscript {
 plugins {
     
 }
-
+apply plugin: 'maven'
 apply plugin: 'war'
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
@@ -56,6 +56,7 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
+
 task integrationTest(type: Test) {
 
     doFirst{
@@ -71,3 +72,9 @@ task integrationTest(type: Test) {
 
 
 }
+
+task buildReact(type:Exec) {
+    workingDir 'src/main/resources/node_interfaces'
+    commandLine './buildout.sh'
+}
+

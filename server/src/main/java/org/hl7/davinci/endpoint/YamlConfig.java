@@ -15,6 +15,7 @@ public class YamlConfig {
 
   private boolean checkJwt;
   private String launchUrl;
+  private boolean checkPractitionerLocation;
 
   public boolean getCheckJwt() {
     return checkJwt;
@@ -28,4 +29,11 @@ public class YamlConfig {
 
   public void setLaunchUrl(String launch) { launchUrl = launch; }
 
+  public void setCheckPractitionerLocation(boolean checkPractitionerLocation) {
+    this.checkPractitionerLocation = checkPractitionerLocation;
+  }
+
+  public boolean isCheckPractitionerLocation() {
+    return checkPractitionerLocation;
+  }
 }
