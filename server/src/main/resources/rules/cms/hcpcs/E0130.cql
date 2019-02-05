@@ -9,14 +9,17 @@ parameter practitioner_location Location
 define "Age":
   AgeInYears()
 
+define "Gender":
+  Patient.gender.value
+
 define RULE_APPLIES:
-  "Age" >= 18 and "Age" <= 90
+  "Age" >= 60 and "Age" <= 90 and "Gender" = 'male'
 
 define RESULT_Summary:
-  'No authorization required.'
+  'Auth required.'
 
 define RESULT_Details:
-  'No authorization is required, follow the link for more information.'
+  'Authorization is required, follow the attached link for information.'
 
 define RESULT_InfoLink:
-    'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/downloads/PMDFactSheet07_Quark19.pdf'
+    'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforWalkers-ICN909483.pdf'

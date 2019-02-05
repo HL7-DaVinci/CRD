@@ -42,6 +42,8 @@ This functionality can be turned off and on by changing the `checkJWt` property 
 
 To edit the web apps, the code in `src/main/resources/node_interfaces` should be updated.  These changes will not be reflected by the server.  To build the jsx files, run `npm run-script buildx`.  This command will run a bash script that will automatically build the files out and move them to the correct directory to be hosted by the spring server.
 
+You can also run the gradle task `buildReact` in the `server` directory to do the same thing.  Alternatively, running the bash script itself using `./buildout.sh` with `node_interfaces` as a working directory.
+
 ## Integration Testing
 
 Integration tests will set up an actual running instance of this server as well as `ehr-server` to monitor a the handling of requests from beginning to end.

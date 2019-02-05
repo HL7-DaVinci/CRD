@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
+import org.hl7.davinci.EncounterBasedServiceContext;
 
-public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT> {
+public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends EncounterBasedServiceContext> {
   @NotNull(message = "unsupported hook")
   private Hook hook = null;
 
