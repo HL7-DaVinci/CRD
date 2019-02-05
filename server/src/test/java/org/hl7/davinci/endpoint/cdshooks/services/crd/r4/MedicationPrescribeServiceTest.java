@@ -14,6 +14,7 @@ import java.util.Calendar;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -31,6 +32,6 @@ public class MedicationPrescribeServiceTest {
     CdsResponse response = service.handleRequest(request);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
-    assertEquals("Documentation is required for the desired device or service", response.getCards().get(0).getSummary());
+    assertEquals("Documentation is required for the desired device or service.", response.getCards().get(0).getSummary());
   }
 }

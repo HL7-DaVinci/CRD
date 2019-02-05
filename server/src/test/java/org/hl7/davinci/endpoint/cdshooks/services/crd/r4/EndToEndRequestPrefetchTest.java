@@ -67,7 +67,7 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "No documentation is required for a device or service with code: E0250");
+        "No documentation is required for a device or service with code: E0250.");
   }
 
   @Test
