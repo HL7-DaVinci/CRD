@@ -28,10 +28,26 @@ INTO
 ,	(11, 10, 70, NULL, NULL, NULL, '307675', 'http://www.nlm.nih.gov/research/umls/rxnorm', FALSE, 'https://www.rxlist.com/consumer_acetaminophen_tylenol/drugs-condition.htm', 'Payor will cover 80% up to $5000.')
 ,	(12, 0, 100, NULL, NULL, NULL, 'E0250', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforHospitalBedsandAccessories-ICN909476.pdf', 'Payor will cover up to $1300.')
 ,	(13, 0, 100, NULL, 'MA', 'MA', 'E0424', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/a',
-'<div style="color: rgb(0, 121, 190);"><h4>Patient Monthly Cost Information (Florida) Metro / Rural Copay (20%)</h4><table><thead><tr><th>Code</th><th>Name</th><th>Cost</th></tr></thead><tbody><tr><td>E0424</td><td>Stationary compressed gaseous oxygen system</td><td>$14.64 / $26.94</td></tr><tr><td>E0431</td><td>Portable gaseous oxygen system</td><td>$7.32 / $13.47</td></tr><tr><td>E0433</td><td>Portable liquid oxygen system</td><td>$7.32 / $13.47</td></tr><tr><td>E0439</td><td>Stationary liquid oxygen system</td><td>$14.64 / $26.94</td></tr><tr><td>E0441</td><td>Stationary gaseous oxygen system</td><td>$9.78 / $12.84</td></tr><tr><td>E1390</td><td>Oxygen concentrator (85% or greater O2)</td><td>$14.64 / $26.94</td></tr></tbody></table></div>')
+'#### Patient Monthly Cost Information (Florida) Metro / Rural Copay (20%)
+ | Code  | Name                                        | Cost            |
+ | ----- | ------------------------------------------- | --------------- |
+ | E0424 | Stationary compressed gaseous oxygen system | $14.64 / $26.94 |
+ | E0431 | Portable gaseous oxygen system              | $7.32 / $13.47  |
+ | E0433 | Portable liquid oxygen system               | $7.32 / $13.47  |
+ | E0439 | Stationary liquid oxygen system             | $14.64 / $26.94 |
+ | E0441 | Stationary gaseous oxygen system            | $9.78 / $12.84  |
+ | E1390 | Oxygen concentrator (85% or greater O2)     | $14.64 / $26.94 |')
 ,
 (14, 0, 100, NULL, NULL, NULL, 'E0433', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, 'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf',
-'<div style="color: rgb(0, 121, 190);"><h4>Patient Monthly Cost Information (Florida) Metro / Rural Copay (20%)</h4><table><thead><tr><th>Code</th><th>Name</th><th>Cost</th></tr></thead><tbody><tr><td>E0424</td><td>Stationary compressed gaseous oxygen system</td><td>$14.64 / $26.94</td></tr><tr><td>E0431</td><td>Portable gaseous oxygen system</td><td>$7.32 / $13.47</td></tr><tr><td>E0433</td><td>Portable liquid oxygen system</td><td>$7.32 / $13.47</td></tr><tr><td>E0439</td><td>Stationary liquid oxygen system</td><td>$14.64 / $26.94</td></tr><tr><td>E0441</td><td>Stationary gaseous oxygen system</td><td>$9.78 / $12.84</td></tr><tr><td>E1390</td><td>Oxygen concentrator (85% or greater O2)</td><td>$14.64 / $26.94</td></tr></tbody></table></div>')
+'#### Patient Monthly Cost Information (Florida) Metro / Rural Copay (20%)
+ | Code  | Name                                        | Cost            |
+ | ----- | ------------------------------------------- | --------------- |
+ | E0424 | Stationary compressed gaseous oxygen system | $14.64 / $26.94 |
+ | E0431 | Portable gaseous oxygen system              | $7.32 / $13.47  |
+ | E0433 | Portable liquid oxygen system               | $7.32 / $13.47  |
+ | E0439 | Stationary liquid oxygen system             | $14.64 / $26.94 |
+ | E0441 | Stationary gaseous oxygen system            | $9.78 / $12.84  |
+ | E1390 | Oxygen concentrator (85% or greater O2)     | $14.64 / $26.94 |')
 ,
 (15, 0, 100, NULL, 'MA', 'MA', 'E0433', 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', TRUE, '	https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/Home-Oxygen-Therapy-Text-Only.pdf','')
 ;
