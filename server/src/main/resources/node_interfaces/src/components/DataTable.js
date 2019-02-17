@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
 import TableRow from './TableRow';
 import './DataTable.css';
+import {getBaseUrl} from '../Utils';
 
-let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
+let baseUrl = getBaseUrl();
+
 export default class DataTable extends Component {
     constructor(props){
         super(props);

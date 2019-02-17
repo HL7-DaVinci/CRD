@@ -8,6 +8,8 @@ import KeyInterface from './containers/KeyInterface';
 import DataTable from './components/DataTable';
 import HomePage from './components/HomePage';
 import {withRouter} from 'react-router-dom';
+import {getBaseUrl} from './Utils';
+
 const publicKey = () => (
   <div>
     <KeyInterface doFetch={true}/>
@@ -20,10 +22,8 @@ const Category = () => (
   </div>
 )
 
-let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
-if(!baseUrl) {
-    baseUrl='/';
-}
+let baseUrl = getBaseUrl();
+
 class App extends Component {
   render() {
       const homeUrl = baseUrl;

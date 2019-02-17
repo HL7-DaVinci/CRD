@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    
+    id 'com.google.cloud.tools.jib' version '1.0.1'
 }
 apply plugin: 'maven'
 //apply plugin: 'war'
@@ -61,7 +61,6 @@ dependencies {
     compile 'org.zeroturnaround:zt-zip:1.13'
 }
 
-
 task integrationTest(type: Test) {
 
     doFirst{
@@ -83,3 +82,12 @@ task buildReact(type:Exec) {
     commandLine './buildout.sh'
 }
 
+//For the "jib" plugin which makes the docker image
+jib {
+    to {
+        image = 'hspc/davinci-crd'
+    }
+    container {
+        useCurrentTimestamp = true
+    }
+}

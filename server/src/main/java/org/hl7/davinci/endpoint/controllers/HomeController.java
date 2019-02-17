@@ -1,5 +1,7 @@
 package org.hl7.davinci.endpoint.controllers;
 
+import javax.servlet.http.HttpServletRequest;
+import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataService;
 import org.slf4j.Logger;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 
@@ -28,14 +31,18 @@ public class HomeController {
 
   @Autowired
   private DataService dataService;
+  private YamlConfig config;
 
   @RequestMapping("/")
-  public String index(Model model) {
+  public String index(Model model, final HttpServletRequest request) {
+    model.addAttribute("contextPath", request.getContextPath());
     return "index";
   }
 
   @GetMapping("/data")
-  public String data(Model model) {
+  public String data(Model model, final HttpServletRequest request) {
+    model.addAttribute("contextPath", request.getContextPath());
+    request.getContextPath();
     return "index";
   }
 
@@ -60,12 +67,14 @@ public class HomeController {
   }
 
   @GetMapping("/public")
-  public String public_key(Model model) {
+  public String public_key(Model model, final HttpServletRequest request) {
+    model.addAttribute("contextPath", request.getContextPath());
     return "index";
   }
 
   @GetMapping("/requests")
-  public String request_log(Model model) {
+  public String request_log(Model model, final HttpServletRequest request) {
+    model.addAttribute("contextPath", request.getContextPath());
     return "index";
   }
 
