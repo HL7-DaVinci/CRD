@@ -14,32 +14,39 @@ import org.cqframework.cql.elm.execution.Library;
 import org.cqframework.cql.elm.tracking.TrackBack;
 import org.fhir.ucum.UcumEssenceService;
 import org.fhir.ucum.UcumService;
+import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.opencds.cqf.cql.data.fhir.BaseFhirDataProvider;
 import org.opencds.cqf.cql.execution.Context;
 import org.opencds.cqf.cql.execution.CqlLibraryReader;
+import org.opencds.cqf.cql.execution.LibraryLoader;
 
 
 public class CqlExecutionContextBuilder {
 
-  public static Context getExecutionContextStu3(String cql, HashMap<String,Resource> cqlParams) {
-    return new CqlExecutionContextBuilder().buildExecutionContextStu3(cql, cqlParams);
-  }
+  public static Context getExecutionContextStu3(CqlPackage cqlPackage, HashMap<String,Resource> cqlParams) {
+    ModelManager modelManager = new ModelManager();
+    LibraryManager libraryManager = new LibraryManager(modelManager);
+    libraryManager.getLibrarySourceLoader().clearProviders();
 
-  public CqlExecutionContextBuilder() {}
-
-  private Context buildExecutionContextStu3(String cql, HashMap<String,Resource> cqlParams) {
     Library library = null;
+    LibraryLoader libraryLoader = null;
 
-    try {
-      library = translate(cql);
-    } catch (Exception e){
-      throw new RuntimeException(e);
+    if (cqlPackage.isPrecompiled()){
+      //todo
+    } else {
+      libraryManager.getLibrarySourceLoader().registerProvider(cqlPackage.getRawCqlLibrarySourceProvider());
+      libraryLoader = new LocalLibraryLoader(libraryManager);
+      try {
+        library = translate(cqlPackage.getRawMainCqlLibrary(), libraryManager, modelManager);
+      } catch (Exception e){
+        throw new RuntimeException(e);
+      }
     }
 
     Context context = new Context(library);
+    context.registerLibraryLoader(libraryLoader);
     context.setExpressionCaching(true);
-    context.registerLibraryLoader(getLibraryLoader());
 
     BaseFhirDataProvider provider = new DummyFhirDataProvider();
     context.registerDataProvider("http://hl7.org/fhir", provider);
@@ -52,11 +59,11 @@ public class CqlExecutionContextBuilder {
     return context;
   }
 
-  private Library translate(String cql) throws Exception {
+  private static Library translate(String cql, LibraryManager libraryManager, ModelManager modelManager) throws Exception {
     ArrayList<CqlTranslator.Options> options = new ArrayList<>();
     options.add(CqlTranslator.Options.EnableDateRangeOptimization);
     UcumService ucumService = new UcumEssenceService(UcumEssenceService.class.getResourceAsStream("/ucum-essence.xml"));
-    CqlTranslator translator = CqlTranslator.fromText(cql, getModelManager(), getLibraryManager(), ucumService, options.toArray(new CqlTranslator.Options[options.size()]));
+    CqlTranslator translator = CqlTranslator.fromText(cql, modelManager, libraryManager, ucumService, options.toArray(new CqlTranslator.Options[options.size()]));
     if (translator.getErrors().size() > 0) {
       ArrayList<String> errors = new ArrayList<>();
       for (CqlTranslatorException error : translator.getErrors()) {
@@ -78,32 +85,5 @@ public class CqlExecutionContextBuilder {
     }
 
     return library;
-  }
-
-  private ModelManager modelManager;
-  private ModelManager getModelManager() {
-    if (modelManager == null) {
-      modelManager = new ModelManager();
-    }
-
-    return modelManager;
-  }
-
-  private LibraryManager libraryManager;
-  private LibraryManager getLibraryManager() {
-    if (libraryManager == null) {
-      libraryManager = new LibraryManager(getModelManager());
-      libraryManager.getLibrarySourceLoader().clearProviders();
-      libraryManager.getLibrarySourceLoader().registerProvider(new LocalLibrarySourceProvider());
-    }
-    return libraryManager;
-  }
-
-  private org.opencds.cqf.cql.execution.LibraryLoader libraryLoader;
-  private org.opencds.cqf.cql.execution.LibraryLoader getLibraryLoader() {
-    if (libraryLoader == null) {
-      libraryLoader = new LocalLibraryLoader(libraryManager);
-    }
-    return libraryLoader;
   }
 }

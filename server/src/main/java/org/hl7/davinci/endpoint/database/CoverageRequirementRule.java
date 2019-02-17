@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.database;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
 
 // patientAgeRangeLow, patientAgeRangeHigh,
 // patientGender, patientPlanId, equipmentCode,
@@ -31,8 +34,8 @@ public class CoverageRequirementRule {
   @Column(name = "code_system", nullable = false)
   private String codeSystem;
 
-  @Column(name = "cql", nullable = false, length = 4000)
-  private String cql;
+  @Column(name = "cql_package_path", nullable = false, length = 4000)
+  private String cqlPackagePath;
 
   public long getId() {
     return id;
@@ -70,18 +73,27 @@ public class CoverageRequirementRule {
     return this;
   }
 
-  public String getCql() {
-    return cql;
+  public String getCqlPackagePath() {
+    return cqlPackagePath;
   }
 
-  public CoverageRequirementRule setCql(String cql) {
-    this.cql = cql;
+  public CoverageRequirementRule setCqlPackagePath(String cqlPackagePath) {
+    this.cqlPackagePath = cqlPackagePath;
     return this;
+  }
+
+  @Transient
+  private CqlPackage cqlPackage = null;
+  public CqlPackage getCqlPackage() {
+    if (cqlPackage == null){
+      cqlPackage = CqlPackage.fromZip(new File(getCqlPackagePath()));
+    }
+    return cqlPackage;
   }
 
   @Override
   public String toString() {
-    return String.format("(row id: %d) Payor: %s, Code: %s, CodeSystem: %s, Cql: %s", id, payor, code, codeSystem, cql);
+    return String.format("(row id: %d) Payor: %s, Code: %s, CodeSystem: %s, CqlPackagePath: %s", id, payor, code, codeSystem, cqlPackagePath);
   }
 
   public CoverageRequirementRule() {}

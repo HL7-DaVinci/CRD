@@ -11,6 +11,10 @@ import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleCriteria;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
+import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
@@ -73,7 +77,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
     return contexts;
   }
 
-  private Context createCqlExecutionContext(String cql, DaVinciDeviceRequest deviceRequest) {
+  private Context createCqlExecutionContext(CqlPackage cqlPackage, DaVinciDeviceRequest deviceRequest) {
     Patient patient = (Patient) deviceRequest.getSubject().getResource();
     PractitionerRole practitionerRole = (PractitionerRole) deviceRequest.getPerformer().getResource();
     Location practitionerLocation = (Location) practitionerRole.getLocation().get(0).getResource();
@@ -81,7 +85,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
     cqlParams.put("Patient", patient);
     cqlParams.put("device_request", deviceRequest);
     cqlParams.put("practitioner_location", practitionerLocation);
-    return CqlExecutionContextBuilder.getExecutionContextStu3(cql, cqlParams);
+    return CqlExecutionContextBuilder.getExecutionContextStu3(cqlPackage, cqlParams);
   }
 
   private List<Context> getDeviceRequestExecutionContexts(List<DaVinciDeviceRequest> deviceRequestList, CoverageRequirementRuleFinder ruleFinder) {
@@ -92,7 +96,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
         CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
         query.execute();
         for (CoverageRequirementRule rule: query.getResponse()) {
-          contexts.add(createCqlExecutionContext(rule.getCql(), deviceRequest));
+          contexts.add(createCqlExecutionContext(rule.getCqlPackage(), deviceRequest));
         }
       }
     }

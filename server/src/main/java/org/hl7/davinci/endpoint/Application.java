@@ -1,7 +1,9 @@
 package org.hl7.davinci.endpoint;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
@@ -14,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.zeroturnaround.zip.ZipUtil;
 
 @SpringBootApplication
 // Finds the FhirServlet and runs it
@@ -38,21 +41,21 @@ public class Application {
   public CommandLineRunner loadData(DataRepository repository) {
     return (args) -> {
       ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(this.getClass().getClassLoader());
-      Resource[] cqlFileResources = resolver.getResources("/rules/cms/**/*.cql");
+      Resource[] cqlFileResources = resolver.getResources("/rules/*/*/*");
       for (Resource cqlFileResource: cqlFileResources){
+        File zipF = File.createTempFile("crd_server_cql_package", ".zip");
+        ZipUtil.pack(cqlFileResource.getFile(), zipF);
         String fileName = cqlFileResource.getFile().getName();
-        String code = fileName.substring(0,fileName.indexOf('_') == -1 ? fileName.indexOf('.') : fileName.indexOf('_'));
+        String code = fileName.substring(0, fileName.indexOf('_') == -1 ? fileName.length() : fileName.indexOf('_'));
         String codeSystemShortName  = cqlFileResource.getFile().getParentFile().getName();
         String payorNameShortName = cqlFileResource.getFile().getParentFile().getParentFile().getName();
-        String cql = new String(Files.readAllBytes(Paths.get(cqlFileResource.getURI())), StandardCharsets.UTF_8);
-
         String codeSystem = ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(codeSystemShortName);
         String payorName = ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payorNameShortName);
         CoverageRequirementRule rule = new CoverageRequirementRule()
                                             .setPayor(payorName)
                                             .setCode(code)
                                             .setCodeSystem(codeSystem)
-                                            .setCql(cql);
+                                            .setCqlPackagePath(zipF.getPath());
         repository.save(rule);
       }
     };
