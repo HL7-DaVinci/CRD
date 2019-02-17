@@ -8,12 +8,15 @@ import java.util.stream.Collectors;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleCriteria;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
+import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
@@ -64,7 +67,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
     return contexts;
   }
 
-  private Context createCqlExecutionContext(String cql, DaVinciMedicationRequest medicationRequest) {
+  private Context createCqlExecutionContext(CqlPackage cqlPackage, DaVinciMedicationRequest medicationRequest) {
     Patient patient = (Patient) medicationRequest.getSubject().getResource();
     PractitionerRole practitionerRole = (PractitionerRole) medicationRequest.getRequester().getAgent().getResource();
     Location practitionerLocation = (Location) practitionerRole.getLocation().get(0).getResource();
@@ -72,7 +75,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
     cqlParams.put("Patient", patient);
     cqlParams.put("medication_request", medicationRequest);
     cqlParams.put("practitioner_location", practitionerLocation);
-    return CqlExecutionContextBuilder.getExecutionContextStu3(cql, cqlParams);
+    return CqlExecutionContextBuilder.getExecutionContextStu3(cqlPackage, cqlParams);
   }
 
   private List<Context> getMedicationRequestExecutionContexts(List<DaVinciMedicationRequest> medicationRequests, CoverageRequirementRuleFinder ruleFinder) {
@@ -83,7 +86,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
         CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
         query.execute();
         for (CoverageRequirementRule rule: query.getResponse()) {
-          contexts.add(createCqlExecutionContext(rule.getCql(), medicationRequest));
+          contexts.add(createCqlExecutionContext(rule.getCqlPackage(), medicationRequest));
         }
       }
     }

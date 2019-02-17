@@ -6,6 +6,10 @@ parameter Patient Patient
 parameter device_request DeviceRequest
 parameter practitioner_location Location
 
+
+define "Blah":
+  FHIRHelpers.PlusOne(1)
+
 define "Age":
   AgeInYears()
 
@@ -23,6 +27,7 @@ define RULE_APPLIES:
   "Gender" = 'male'
   and "PatientHomeState" = 'MA'
   and "ProviderState" = 'MA'
+  and "Blah" = 2
 
 define "Auth_Needed":
   "Age" > 57
