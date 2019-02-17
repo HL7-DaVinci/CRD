@@ -4,8 +4,10 @@ import './KeyInterface.css';
 import KJUR, {KEYUTIL} from 'jsrsasign';
 import KeyEntry from '../components/publicKey/KeyEntry';
 import EditEntry from '../components/publicKey/EditEntry';
+import {getBaseUrl} from '../Utils';
 
-let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
+let baseUrl = getBaseUrl();
+
 export default class KeyInterface extends Component{
     constructor(props){
         super(props);

@@ -1,6 +1,5 @@
 package org.hl7.davinci.endpoint.database;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -75,7 +74,7 @@ public class CoverageRequirementRule {
   }
 
   public String getLink() {
-    return "/download/" + id;
+    return "download/" + id;
 
   }
 

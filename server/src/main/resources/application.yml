@@ -30,4 +30,4 @@ cdsConnect:
   username: admin
   password: admin
 
-localDbRules: rules/
+localDbRules: src/main/jib/rules/

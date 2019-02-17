@@ -2,10 +2,12 @@ import React, {Component} from 'react';
 import './RequestLog.css';
 import '../components/requestLog/request.css';
 import RequestEntry from '../components/requestLog/RequestEntry';
+import {getBaseUrl} from '../Utils';
+
 let tempDatabase={
 }
 
-let baseUrl = document.querySelector("meta[name='ctx']").getAttribute("content");
+let baseUrl = getBaseUrl();
 let entriesPerPage = 15;
 let pagesShown = 9;
 export default class RequestLog extends Component {
