@@ -141,10 +141,10 @@ public class RequestLog {
   }
 
   public void gatherInfo(List<CoverageRequirementRuleQuery>  queries, List<String> codes, List<String> codeSystems) {
-    this.setPatientAge(queries.get(0).getCriteria().getAge());
-    this.setPatientGender(String.valueOf(queries.get(0).getCriteria().getGenderCode()));
-    this.setPatientAddressState(queries.get(0).getCriteria().getPatientAddressState());
-    this.setProviderAddressState(queries.get(0).getCriteria().getProviderAddressState());
+//    this.setPatientAge(queries.get(0).getCriteria().getAge());
+//    this.setPatientGender(String.valueOf(queries.get(0).getCriteria().getGenderCode()));
+//    this.setPatientAddressState(queries.get(0).getCriteria().getPatientAddressState());
+//    this.setProviderAddressState(queries.get(0).getCriteria().getProviderAddressState());
     this.setCode(String.join(", ", codes));
 
     this.setCodeSystem(String.join(", ", codeSystems));

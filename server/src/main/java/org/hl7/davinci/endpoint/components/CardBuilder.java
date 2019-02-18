@@ -1,48 +1,84 @@
 package org.hl7.davinci.endpoint.components;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.Arrays;
 import org.cdshooks.Card;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Link;
 import org.cdshooks.Source;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 
 /**
  * Convenience methods for working with CDS Hooks cards.
  */
 public class CardBuilder {
 
+  public static class CqlResultsForCard {
+    private Boolean ruleApplies;
+    private String summary;
+    private String details;
+    private String infoLink;
+
+    public Boolean ruleApplies() {
+      return ruleApplies;
+    }
+
+    public CqlResultsForCard setRuleApplies(Boolean ruleApplies) {
+      this.ruleApplies = ruleApplies;
+      return this;
+    }
+
+    public String getSummary() {
+      return summary;
+    }
+
+    public CqlResultsForCard setSummary(String summary) {
+      this.summary = summary;
+      return this;
+    }
+
+    public String getDetails() {
+      return details;
+    }
+
+    public CqlResultsForCard setDetails(String details) {
+      this.details = details;
+      return this;
+    }
+
+    public String getInfoLink() {
+      return infoLink;
+    }
+
+    public CqlResultsForCard setInfoLink(String infoLink) {
+      this.infoLink = infoLink;
+      return this;
+    }
+
+    public CqlResultsForCard() {
+    }
+  }
+
   /**
    * Transforms a result from the database into a card.
    *
-   * @param crr coverage rule from the database
+   * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(CoverageRequirementRule crr, String launchUrl) {
+  public static Card transform(CqlResultsForCard cqlResults, String launchUrl) {
     Card card = baseCard();
-    if (!crr.getAuthRequired()) {
-      String summary = String
-          .format("No documentation is required for a device or service with code: %s.",
-              crr.getEquipmentCode());
-      card.setSummary(summary);
-    } else {
-      card.setSummary("Documentation is required for the desired device or service.");
-      Link link = new Link();
-      link.setUrl(crr.getInfoLink());
-      link.setType("absolute");
-      link.setLabel("Documentation Requirements");
-      Link launchLink = new Link();
-      launchLink.setUrl(launchUrl);
-      launchLink.setType("smart");
-      launchLink.setLabel("SMART App");
-      List<Link> links = new ArrayList<>();
-      links.add(link);
-      links.add(launchLink);
-      card.setLinks(links);
-    }
-    card.setDetail(crr.getPriceDescription());
+
+    Link link = new Link();
+    link.setUrl(cqlResults.getInfoLink());
+    link.setType("absolute");
+    link.setLabel("Documentation Requirements");
+
+    Link launchLink = new Link();
+    launchLink.setUrl(launchUrl);
+    launchLink.setType("smart");
+    launchLink.setLabel("SMART App");
+
+    card.setLinks(Arrays.asList(link, launchLink));
+    card.setSummary(cqlResults.getSummary());
+    card.setDetail(cqlResults.getDetails());
     return card;
   }
 

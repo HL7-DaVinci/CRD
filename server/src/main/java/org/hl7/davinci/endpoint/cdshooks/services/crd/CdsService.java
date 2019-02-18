@@ -1,5 +1,12 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import javax.validation.Valid;
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
@@ -12,26 +19,22 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
+import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
+import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 @Component
 public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
-
   static final Logger logger = LoggerFactory.getLogger(CdsService.class);
 
   /**
@@ -117,71 +120,56 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request) {
-    logger.info("handleRequest: start");
-    logger.info(this.title + ":" + request.getContext());
-
-    // create the RequestLog
-    RequestLog requestLog = new RequestLog(request, new Date().getTime(), this.fhirComponents.getFhirVersion().toString(),
-        this.id, requestService,5);
-
-    // Parsed request
-    requestLog.advanceTimeline(requestService);
 
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
 
-    // hydrated
-    requestLog.advanceTimeline(requestService);
-
     CdsResponse response = new CdsResponse();
-    List<CoverageRequirementRuleQuery> queries;
+    String launchSmartUrl = smartUrlBuilder(request.getContext().getPatientId(), request.getFhirServer());
+
+    List<Context> cqlExecutionContexts;
     try {
-      queries = this.getQueries(request);
+      cqlExecutionContexts = this.createCqlExecutionContexts(request, ruleFinder);
     } catch (RequestIncompleteException e) {
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
-      logger.error(e.getMessage());
-      requestLog.setResults(e.getMessage());
-      requestService.edit(requestLog);
       return response;
     }
-    // got requests
-    requestLog.advanceTimeline(requestService);
 
-    List<String> codes = new ArrayList<>();
-    List<String> codeSystems = new ArrayList<>();
-    List<CoverageRequirementRule> rules = new ArrayList<>();
-    for (CoverageRequirementRuleQuery query : queries) {
-      query.execute();
-      rules.addAll(query.getResponse()); // will be zero or more
-      codes.add(query.getCriteria().getEquipmentCode());
-      codeSystems.add(query.getCriteria().getCodeSystem());
-    }
-    // log info
-    requestLog.gatherInfo(queries, codes, codeSystems);
-
-    // get the url to launch the SMART app from.
-    String launchSmartUrl = smartUrlBuilder(queries.get(0).getCriteria().getPatientId(),request.getFhirServer());
-
-    if (rules.size() == 0) {
-      response.addCard(CardBuilder.summaryCard("No documentation rules found"));
-      requestLog.setResults("No documentation rules found");
-    } else {
-      requestLog.addRulesFound(rules);
-      requestLog.setResults(String.valueOf(rules.size()) + " documentation rule(s) found");
-      for (CoverageRequirementRule rule : rules) {
-        response.addCard(CardBuilder.transform(rule, launchSmartUrl));
+    boolean foundApplicableRule = false;
+    for (Context context: cqlExecutionContexts) {
+      CqlResultsForCard results = executeCqlAndGetRelevantResults(context);
+      if (results.ruleApplies()){
+        foundApplicableRule = true;
+        response.addCard(CardBuilder.transform(results, launchSmartUrl));
       }
     }
-    // Searched
-    requestLog.advanceTimeline(requestService);
+    if (!foundApplicableRule) {
+      response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+    }
+
 
     CardBuilder.errorCardIfNonePresent(response);
-    logger.info("handleRequest: end");
     return response;
   }
 
-  protected String smartUrlBuilder(String patientId, String fhirBase) {
+  private CqlResultsForCard executeCqlAndGetRelevantResults(Context context) {
+    CqlResultsForCard results = new CqlResultsForCard();
+    results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES",context));
+    if (!results.ruleApplies()) {
+      return results;
+    }
+    results.setSummary(evaluateStatement("RESULT_Summary",context).toString())
+        .setDetails(evaluateStatement("RESULT_Details",context).toString())
+        .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString());
+    return results;
+  }
+
+  private Object evaluateStatement(String statement, Context context) {
+    return context.resolveExpressionRef(statement).evaluate(context);
+  }
+
+  private String smartUrlBuilder(String patientId, String fhirBase) {
     String launchUrl = myConfig.getLaunchUrl();
     if (fhirBase != null && fhirBase.endsWith("/")) {
       fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
@@ -192,70 +180,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId;
   }
 
-  protected List<CoverageRequirementRuleQuery> resourcesToQueries(List<?> codings, boolean patientIsNull,
-      boolean practitionerRoleIsNull,
-      PatientInfo patientInfo, PractitionerRoleInfo practitionerRoleInfo)
-      throws RequestIncompleteException {
-
-    List<CoverageRequirementRuleQuery> queries = new ArrayList<>();
-    boolean doR4 = (fhirComponents.getFhirVersion() == Version.R4);
-
-    if (codings == null || codings.size() == 0) {
-      throw new RequestIncompleteException("Unable to parse a device code out of the request.");
-    }
-    if (patientIsNull) {
-      throw new RequestIncompleteException("No patient could be (pre)fetched in this request.");
-    }
-    if (practitionerRoleIsNull) {
-      if (doR4) {
-        throw new RequestIncompleteException("Unable to find the practitioner role.");
-      }
-      // ignore for stu3 for now
-    }
-    for (Object coding : codings) {
-      String code;
-      String codeSystem;
-      if (doR4) {
-        org.hl7.fhir.r4.model.Coding c = ((org.hl7.fhir.r4.model.Coding) coding);
-        code = c.getCode();
-        codeSystem = c.getSystem();
-      } else {
-        org.hl7.fhir.dstu3.model.Coding c = ((org.hl7.fhir.dstu3.model.Coding) coding);
-        code = c.getCode();
-        codeSystem = c.getSystem();
-      }
-      if (code == null || codeSystem == null) {
-        logger.error("Found coding with a null code or system.");
-        continue;
-      }
-      CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder);
-      query.getCriteria().setAge(patientInfo.getPatientAge())
-          .setGenderCode(patientInfo.getPatientGenderCode())
-          .setPatientAddressState(patientInfo.getPatientAddressState())
-          .setCodeSystem(codeSystem)
-          .setEquipmentCode(code)
-          .setProviderAddressState(
-              practitionerRoleInfo != null
-                  ? practitionerRoleInfo.getLocationAddressState() : null)
-          .setPatientId(patientInfo.getPatientId());
-      queries.add(query);
-    }
-    return queries;
-  }
-
-  private List<CoverageRequirementRuleQuery> getQueries(requestTypeT request)
-      throws RequestIncompleteException {
-    List<CoverageRequirementRuleQuery> queries = makeQueries(request, myConfig);
-    if (queries.size() == 0) {
-      throw new RequestIncompleteException(
-          "Unable to (pre)fetch any supported resources from the bundle.");
-    }
-    return queries;
-  }
-
   // Implement this in child class
-  public abstract List<CoverageRequirementRuleQuery> makeQueries(requestTypeT request, YamlConfig options)
+  public abstract List<Context> createCqlExecutionContexts(requestTypeT request, CoverageRequirementRuleFinder ruleFinder)
       throws RequestIncompleteException;
+
 
 }
 

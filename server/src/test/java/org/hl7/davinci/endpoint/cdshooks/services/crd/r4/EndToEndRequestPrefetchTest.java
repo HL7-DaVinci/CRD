@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.hl7.davinci.endpoint.Application;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +51,7 @@ public class EndToEndRequestPrefetchTest {
   public EndToEndRequestPrefetchTest() throws IOException {
   }
 
-  @Test
+  @Ignore("No CQL R4 Support at this time.") @Test
   public void shouldSuccessfullyFillPreFetch() {
     stubFor(get(urlMatching(prefetchUrlMatcher))
         .willReturn(aResponse()
@@ -70,7 +71,7 @@ public class EndToEndRequestPrefetchTest {
         "No documentation is required for a device or service with code: E0250.");
   }
 
-  @Test
+  @Ignore("No CQL R4 Support at this time.") @Test
   public void shouldFailToFillPrefetch() {
     stubFor(get(urlMatching(prefetchUrlMatcher))
         .willReturn(aResponse()

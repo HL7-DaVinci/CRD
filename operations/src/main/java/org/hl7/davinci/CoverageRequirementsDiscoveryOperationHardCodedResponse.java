@@ -8,8 +8,8 @@ import java.util.List;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Device;
-import org.hl7.fhir.r4.model.EligibilityRequest;
-import org.hl7.fhir.r4.model.EligibilityResponse;
+import org.hl7.fhir.r4.model.CoverageEligibilityRequest;
+import org.hl7.fhir.r4.model.CoverageEligibilityResponse;
 import org.hl7.fhir.r4.model.Endpoint;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
@@ -50,7 +50,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponse
 
     Parameters retVal = new Parameters();
 
-    EligibilityRequest eligibilityRequest = null;
+    CoverageEligibilityRequest eligibilityRequest = null;
     Patient patient = null;
     Coverage coverage = null;
     Practitioner provider = null;
@@ -64,10 +64,11 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponse
 
     // pull each of the parameters from the list
     for (Parameters.ParametersParameterComponent part : paramList) {
+      System.out.println(part.getName());
       switch (part.getName()) {
         case "eligibilityrequest":
-          logger.debug("CRD: got eligibilityRequest");
-          eligibilityRequest = (EligibilityRequest) part.getResource();
+          logger.debug("CRD: got eligibilityrequest");
+          eligibilityRequest = (CoverageEligibilityRequest) part.getResource();
           break;
         case "patient":
           logger.debug("CRD: got patient");
@@ -153,7 +154,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponse
 
     // null check the required parameters
     // Note: if nothing is set in the reference (even if it was created) it will be null
-    if (nullCheck(eligibilityRequest, "eligibilityRequest")
+    if (nullCheck(eligibilityRequest, "eligibilityrequest")
         || nullCheck(patient, "patient")
         || nullCheck(coverage, "coverage")
         || nullCheck(provider, "provider")
@@ -171,7 +172,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponse
     }
 
     // start building the response
-    EligibilityResponse eligibilityResponse = new EligibilityResponse();
+    CoverageEligibilityResponse eligibilityResponse = new CoverageEligibilityResponse();
     eligibilityResponse.setDisposition("this is a test");
 
     Endpoint finalEndPoint = new Endpoint();
@@ -180,7 +181,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponse
     Parameters.ParametersParameterComponent response = retVal.addParameter();
     response.setName("response");
 
-    response.addPart().setName("eligibilityResponse").setResource(eligibilityResponse);
+    response.addPart().setName("eligibilityresponse").setResource(eligibilityResponse);
     response.addPart().setName("requestProvider").setResource(provider);
     response.addPart().setName("request").setResource(eligibilityRequest);
     response.addPart().setName("insurer").setResource(insurer);
@@ -190,7 +191,7 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponse
     Procedure procedure = new Procedure();
     procedure.setId("procedure-1");
     Device device = new Device();
-    device.setModel("LMNOP678");
+    device.setModelNumber("LMNOP678");
     response.addPart().setName("service").setResource(procedure);
     response.addPart().setName("service").setResource(device);
 

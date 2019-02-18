@@ -1,14 +1,40 @@
 package org.hl7.davinci.endpoint.database;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CoverageRequirementRuleCriteria {
 
-  private int age;
-  private char genderCode;
-  private String equipmentCode;
+  private String payor;
+  private String code;
   private String codeSystem;
-  private String patientAddressState;
-  private String providerAddressState;
-  private String patientId;
+
+  public String getCode() {
+    return code;
+  }
+
+  public CoverageRequirementRuleCriteria setCode(String code) {
+    this.code = code;
+    return this;
+  }
+
+  public String getCodeSystem() {
+    return codeSystem;
+  }
+
+  public CoverageRequirementRuleCriteria setCodeSystem(String codeSystem) {
+    this.codeSystem = codeSystem;
+    return this;
+  }
+
+  public String getPayor() {
+    return payor;
+  }
+
+  public CoverageRequirementRuleCriteria setPayor(String payor) {
+    this.payor = payor;
+    return this;
+  }
 
   public CoverageRequirementRuleCriteria(){}
 
@@ -18,69 +44,38 @@ public class CoverageRequirementRuleCriteria {
    */
   public String toString() {
     return String.format(
-        "age=%d, genderCode=%c, equipmentCode=%s, codeSystem=%s, patientAddressState=%s, providerAddressState=%s, patientId=%s",
-        age, genderCode, equipmentCode, codeSystem, patientAddressState, providerAddressState, patientId);
+        "payor=%s, code=%s, codeSystem=%s", payor, code, codeSystem);
 
   }
 
-  public CoverageRequirementRuleCriteria setAge(int age) {
-    this.age = age;
-    return this;
+  public static List<CoverageRequirementRuleCriteria> createQueriesFromStu3(List<org.hl7.fhir.dstu3.model.Coding> codings, List<org.hl7.fhir.dstu3.model.Organization> payors) {
+    List<CoverageRequirementRuleCriteria> criteriaList = new ArrayList<>();
+    for (org.hl7.fhir.dstu3.model.Coding coding : codings) {
+      String code = coding.getCode();
+      String codeSystem = coding.getSystem();
+      for (org.hl7.fhir.dstu3.model.Organization payor : payors) {
+        String payorName = payor.getName();
+        CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria();
+        criteria.setPayor(payorName).setCodeSystem(codeSystem).setCode(code);
+        criteriaList.add(criteria);
+      }
+    }
+    return criteriaList;
   }
 
-  public CoverageRequirementRuleCriteria setGenderCode(char genderCode) {
-    this.genderCode = genderCode;
-    return this;
+  public static List<CoverageRequirementRuleCriteria> createQueriesFromR4(List<org.hl7.fhir.r4.model.Coding> codings, List<org.hl7.fhir.r4.model.Organization> payors) {
+    List<CoverageRequirementRuleCriteria> criteriaList = new ArrayList<>();
+    for (org.hl7.fhir.r4.model.Coding coding : codings) {
+      String code = coding.getCode();
+      String codeSystem = coding.getSystem();
+      for (org.hl7.fhir.r4.model.Organization payor : payors) {
+        String payorName = payor.getName();
+        CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria();
+        criteria.setPayor(payorName).setCodeSystem(codeSystem).setCode(code);
+        criteriaList.add(criteria);
+      }
+    }
+    return criteriaList;
   }
 
-  public CoverageRequirementRuleCriteria setEquipmentCode(String equipmentCode) {
-    this.equipmentCode = equipmentCode;
-    return this;
-  }
-
-  public CoverageRequirementRuleCriteria setCodeSystem(String codeSystem) {
-    this.codeSystem = codeSystem;
-    return this;
-  }
-
-  public CoverageRequirementRuleCriteria setPatientAddressState(String patientAddressState) {
-    this.patientAddressState = patientAddressState;
-    return this;
-  }
-
-  public CoverageRequirementRuleCriteria setProviderAddressState(String providerAddressState) {
-    this.providerAddressState = providerAddressState;
-    return this;
-  }
-
-  public CoverageRequirementRuleCriteria setPatientId(String patientId) {
-    this.patientId = patientId;
-    return this;
-  }
-
-  public int getAge() {
-    return age;
-  }
-
-  public char getGenderCode() {
-    return genderCode;
-  }
-
-  public String getEquipmentCode() {
-    return equipmentCode;
-  }
-
-  public String getCodeSystem() {
-    return codeSystem;
-  }
-
-  public String getPatientAddressState() {
-    return patientAddressState;
-  }
-
-  public String getProviderAddressState() {
-    return providerAddressState;
-  }
-
-  public String getPatientId() { return patientId; }
 }

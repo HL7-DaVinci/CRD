@@ -12,7 +12,10 @@ import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.dstu3.model.Coverage;
+import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
 
 public class Utilities {
@@ -87,7 +90,7 @@ public class Utilities {
    * @return a PatientInfo object containing the age/gender/address of the patient
    * @throws RequestIncompleteException thrown if information is missing.
    */
-  public static PatientInfo getPatientInfo(Patient patient) throws RequestIncompleteException {
+  public static PatientInfo getPatientInfo(Patient patient) {
     Character patientGenderCode = null;
     Address patientAddressState = null;
     Integer patientAge = null;
@@ -117,6 +120,18 @@ public class Utilities {
     }
 
     return new PatientInfo(patientGenderCode, patientAddressState.getState(), patientAge, patientId);
+  }
+
+
+  public static List<Organization> getPayors(List<Coverage> coverages) {
+    List<Organization> payors = new ArrayList<>();
+    for (Coverage coverage: coverages){
+      for (Reference ref: coverage.getPayor()){
+        Organization organization = (Organization) ref.getResource();
+        payors.add(organization);
+      }
+    }
+    return payors;
   }
 
 }
