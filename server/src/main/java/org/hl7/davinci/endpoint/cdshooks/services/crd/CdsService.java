@@ -1,31 +1,23 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
 import org.cdshooks.Prefetch;
 import org.hl7.davinci.FhirComponentsT;
-import org.hl7.davinci.FhirComponentsT.Version;
-import org.hl7.davinci.PatientInfo;
-import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.cdsconnect.CdsConnectConnection;
+import org.hl7.davinci.endpoint.cdsconnect.CdsConnectRuleQueryFactory;
+import org.hl7.davinci.endpoint.components.AbstractCrdRuleQueryFactory;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
-import org.hl7.davinci.endpoint.database.RequestLog;
-import org.hl7.davinci.endpoint.database.RequestService;
+import org.hl7.davinci.endpoint.database.*;
 import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +70,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   private FhirComponentsT fhirComponents;
 
   /**
+   * The connection to the CDS Connect Service (if enabled).
+   */
+  private CdsConnectConnection cdsConnectConnection;
+
+  /**
+   * A factory to create either CoverageRequirementRuleQuery or CdsConnectRuleQuery objects.
+   */
+  private AbstractCrdRuleQueryFactory ruleQueryFactory;
+
+  /**
    * Create a new cdsservice.
    *
    * @param id Will be used in the url, should be unique.
@@ -110,6 +112,20 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     this.fhirComponents = fhirComponents;
   }
 
+  /**
+   * Called after the constructor and all @Autowired instances have been injected.
+   */
+  @PostConstruct
+  public void postConstruct() {
+    if (myConfig.getUseCdsConnect()) {
+      this.cdsConnectConnection = new CdsConnectConnection(myConfig.getCdsConnectUrl(),
+          myConfig.getCdsConnectUsername(), myConfig.getCdsConnectPassword());
+      ruleQueryFactory = new CdsConnectRuleQueryFactory(cdsConnectConnection);
+    } else {
+      ruleQueryFactory = new CoverageRequirementsRuleQueryFactory(ruleFinder);
+    }
+  }
+
   public List<PrefetchTemplateElement> getPrefetchElements() {
     return prefetchElements;
   }
@@ -130,7 +146,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     List<Context> cqlExecutionContexts;
     try {
-      cqlExecutionContexts = this.createCqlExecutionContexts(request, ruleFinder);
+      cqlExecutionContexts = this.createCqlExecutionContexts(request, ruleQueryFactory);
     } catch (RequestIncompleteException e) {
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
       return response;
@@ -181,7 +197,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   // Implement this in child class
-  public abstract List<Context> createCqlExecutionContexts(requestTypeT request, CoverageRequirementRuleFinder ruleFinder)
+  public abstract List<Context> createCqlExecutionContexts(requestTypeT request, AbstractCrdRuleQueryFactory ruleQueryFactory)
       throws RequestIncompleteException;
 
 

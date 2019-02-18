@@ -19,3 +19,8 @@ keycloak:
   resource: dme-app-access
   public-client: false
   principal-attribute: preferred_username
+
+useCdsConnect: false
+cdsConnectUrl: http://cdsc-dev.dd:8083
+cdsConnectUsername: admin
+cdsConnectPassword: admin

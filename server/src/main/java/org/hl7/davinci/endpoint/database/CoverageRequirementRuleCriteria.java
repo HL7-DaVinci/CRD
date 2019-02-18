@@ -48,6 +48,14 @@ public class CoverageRequirementRuleCriteria {
 
   }
 
+  /**
+   * Converts the criteria to a query path for CdsConnect usage.
+   * @return the formatted string "payor/codeSystem/code"
+   */
+  public String toQueryString() {
+    return String.format("%s/%s/%s", payor, codeSystem, code);
+  }
+
   public static List<CoverageRequirementRuleCriteria> createQueriesFromStu3(List<org.hl7.fhir.dstu3.model.Coding> codings, List<org.hl7.fhir.dstu3.model.Organization> payors) {
     List<CoverageRequirementRuleCriteria> criteriaList = new ArrayList<>();
     for (org.hl7.fhir.dstu3.model.Coding coding : codings) {

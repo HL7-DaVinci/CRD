@@ -10,8 +10,7 @@ import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
+import org.hl7.davinci.endpoint.components.AbstractCrdRuleQueryFactory;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
@@ -84,7 +83,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
 //    return queries;
 //  }
 
-  public List<Context> createCqlExecutionContexts(MedicationPrescribeRequest request, CoverageRequirementRuleFinder ruleFinder)
+  public List<Context> createCqlExecutionContexts(MedicationPrescribeRequest request, AbstractCrdRuleQueryFactory ruleQueryFactory)
       throws RequestIncompleteException {
     throw new RuntimeException("Not implemented yet");
   }

@@ -20,3 +20,7 @@ server:
 checkJwt: false
 launchUrl: http://localhost:3050/launch
 checkPractitionerLocation: false
+useCdsConnect: false
+cdsConnectUrl: http://cdsc-dev.dd:8083
+cdsConnectUsername: admin
+cdsConnectPassword: admin
