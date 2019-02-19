@@ -95,15 +95,18 @@ export default class DataTable extends Component {
                         <thead>
                         <tr>
                             {/* <td>ID</td> */}
-                            <td>Rule Applies at Age</td>
+                            {/* <td>Rule Applies at Age</td>
                             <td>Rule Ends at Age</td>
-                            <td>Gender</td>
+                            <td>Gender</td> */}
+                            <td>Payor</td>
                             <td>Relevant Code (CPT / HCPCS)</td>
                             <td>Code System URL</td>
-                            <td>Patient Address</td>
-                            <td>Practitioner Address</td>
-                            <td>Documentation Required</td>
-                            <td>Coverage Documentation Requirement Information Link</td>
+                            <td>CQL</td>
+                            <td></td>
+                            {/* <td>Patient Address</td>
+                            <td>Practitioner Address</td> */}
+
+                            {/* <td>Coverage Documentation Requirement Information Link</td> */}
                         </tr>
                         </thead>
                         <tbody>
