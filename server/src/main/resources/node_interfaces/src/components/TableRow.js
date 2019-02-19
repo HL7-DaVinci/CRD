@@ -147,19 +147,20 @@ export default class TableRow extends Component {
 
                 <tr>
                     {/* <td >{this.state.data.id}</td> */}
-                    <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"ageRangeLow")}} className="ageInput formInput" placeholder={this.state.data.ageRangeLow} type='number'></input>:this.state.data.ageRangeLow}</td>
+                    {/* <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"ageRangeLow")}} className="ageInput formInput" placeholder={this.state.data.ageRangeLow} type='number'></input>:this.state.data.ageRangeLow}</td>
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"ageRangeHigh")}} className="ageInput formInput" placeholder={this.state.data.ageRangeHigh} type='number'></input>:this.state.data.ageRangeHigh}</td>
-                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"genderCode")}} options={genderCodeOptions} currentState={this.state.data.genderCode} />:this.state.data.genderCode}</td>
-                    <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"equipmentCode")}} className="codeInput formInput" placeholder={this.state.data.equipmentCode}></input>:this.state.data.equipmentCode}</td>
+                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"genderCode")}} options={genderCodeOptions} currentState={this.state.data.genderCode} />:this.state.data.genderCode}</td> */}
+                    <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"infoLink")}} className="informationInput formInput"placeholder={this.state.data.infoLink}></input>:this.state.data.payor}</td>
+                    <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"equipmentCode")}} className="codeInput formInput" placeholder={this.state.data.equipmentCode}></input>:this.state.data.code}</td>
                     <td title={this.state.data.codeSystem}>{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"codeSystem")}} className="formInput" placeholder={this.state.data.codeSystem} ></input>:<span>{codeSystemConversion[this.state.data.codeSystem]}</span>}</td>
-                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"patientAddressState")}} options={stateOptions} currentState={this.state.data.patientAddressState} />:this.state.data.patientAddressState}</td>
+                    <td>CQL</td>
+                    {/* <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"patientAddressState")}} options={stateOptions} currentState={this.state.data.patientAddressState} />:this.state.data.patientAddressState}</td>
                     <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"providerAddressState")}} options={stateOptions} currentState={this.state.data.providerAddressState} />:this.state.data.providerAddressState}</td>
-                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"authRequired")}} options={trueFalse} />:this.state.data.authRequired?"Yes":"No"}</td>
-                    <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"infoLink")}} className="informationInput formInput"placeholder={this.state.data.infoLink}></input>:this.state.data.infoLink}</td>
+                    <td >{this.state.edit?<Select onChangeCB={(e)=>{this.handleUpdate(e,"authRequired")}} options={trueFalse} />:this.state.data.authRequired?"Yes":"No"}</td> */}
 
                     {!this.props.home?<td>
                         <span className="delete-button"><span className="delete-button glyphicon glyphicon-trash" onClick={this.handleRuleDeletePre}></span></span>
-                        <span className="edit-button"><span className="edit-button glyphicon glyphicon-edit" onClick={this.handleRuleEdit}></span></span>
+                        {/* <span className="edit-button"><span className="edit-button glyphicon glyphicon-edit" onClick={this.handleRuleEdit}></span></span> */}
                     </td>:null}
                     {this.state.deleteConfirm?
                     <div className="modalDelete">
