@@ -2,26 +2,16 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import org.cdshooks.Hook;
-import org.hl7.davinci.PatientInfo;
-import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.components.AbstractCrdRuleQueryFactory;
 import org.hl7.davinci.r4.FhirComponents;
-import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.DeviceRequest;
-import org.hl7.fhir.r4.model.DomainResource;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.PractitionerRole;
-import org.hl7.fhir.r4.model.ServiceRequest;
 import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +108,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
 //    return queries;
 //  }
 
-  public List<Context> createCqlExecutionContexts(OrderReviewRequest request, AbstractCrdRuleQueryFactory ruleQueryFactory)
+  public List<Context> createCqlExecutionContexts(OrderReviewRequest request, CoverageRequirementRuleFinder ruleFinder)
       throws RequestIncompleteException {
     throw new RuntimeException("Not implemented yet");
   }

@@ -12,6 +12,10 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
       hibernate.hbm2ddl.auto: create-drop
+  profiles:
+    active: localDb
+#    active: cdsConnect
+
 server:
   port: 8090
   servlet:
@@ -20,7 +24,6 @@ server:
 checkJwt: false
 launchUrl: http://localhost:3050/launch
 checkPractitionerLocation: false
-useCdsConnect: false
 cdsConnectUrl: http://cdsc-dev.dd:8083
 cdsConnectUsername: admin
 cdsConnectPassword: admin

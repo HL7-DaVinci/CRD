@@ -17,7 +17,6 @@ public class YamlConfig {
   private String launchUrl;
   private boolean checkPractitionerLocation;
 
-  private boolean useCdsConnect;
   private String cdsConnectUrl;
   private String cdsConnectUsername;
   private String cdsConnectPassword;
@@ -40,19 +39,15 @@ public class YamlConfig {
     return checkPractitionerLocation;
   }
 
-  public boolean getUseCdsConnect() { return useCdsConnect; }
-
   public String getCdsConnectUrl() { return cdsConnectUrl; }
 
   public String getCdsConnectUsername() { return cdsConnectUsername; }
 
   public String getCdsConnectPassword() { return cdsConnectPassword; }
 
-  public void setUseCdsConnect(boolean use) { useCdsConnect = use; }
+  public void setCdsConnectUrl(String cdsConnectUrl) { this.cdsConnectUrl = cdsConnectUrl; }
 
-  public void setCdsConnectUrl(String cdsConnect) { cdsConnectUrl = cdsConnect; }
+  public void setCdsConnectUsername(String cdsConnectUsername) { this.cdsConnectUsername = cdsConnectUsername; }
 
-  public void setCdsConnectUsername(String cdsConnectUsername) { cdsConnectUsername = cdsConnectUsername; }
-
-  public void setCdsConnectPassword(String cdsConnectPassword) { cdsConnectPassword = cdsConnectPassword; }
+  public void setCdsConnectPassword(String cdsConnectPassword) { this.cdsConnectPassword = cdsConnectPassword; }
 }
