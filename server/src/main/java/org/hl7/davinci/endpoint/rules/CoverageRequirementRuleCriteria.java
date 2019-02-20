@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.database;
+package org.hl7.davinci.endpoint.rules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,14 +46,6 @@ public class CoverageRequirementRuleCriteria {
     return String.format(
         "payor=%s, code=%s, codeSystem=%s", payor, code, codeSystem);
 
-  }
-
-  /**
-   * Converts the criteria to a query path for CdsConnect usage.
-   * @return the formatted string "payor/codeSystem/code"
-   */
-  public String toQueryString() {
-    return String.format("%s/%s/%s", payor, codeSystem, code);
   }
 
   public static List<CoverageRequirementRuleCriteria> createQueriesFromStu3(List<org.hl7.fhir.dstu3.model.Coding> codings, List<org.hl7.fhir.dstu3.model.Organization> payors) {

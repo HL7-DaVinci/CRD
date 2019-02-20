@@ -1,11 +1,11 @@
-package org.hl7.davinci.endpoint.database;
+package org.hl7.davinci.endpoint.rules;
 
-import org.hl7.davinci.endpoint.components.AbstractCrdRuleQuery;
-
-import java.util.ArrayList;
 import java.util.List;
+import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 
-public class CoverageRequirementRuleQuery extends AbstractCrdRuleQuery {
+public class CoverageRequirementRuleQuery {
 
   private List<CoverageRequirementRule> response;
   private CoverageRequirementRuleCriteria criteria;
@@ -37,12 +37,4 @@ public class CoverageRequirementRuleQuery extends AbstractCrdRuleQuery {
     this.criteria = criteria;
   }
 
-  public List<String> getCql() {
-    List<String> cqlList = new ArrayList<>();
-    this.execute();
-    for (CoverageRequirementRule rule: this.getResponse()) {
-      cqlList.add(rule.getCql());
-    }
-    return cqlList;
-  }
 }

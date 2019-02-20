@@ -1,8 +1,12 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
+import org.hl7.davinci.endpoint.YamlConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -16,15 +20,15 @@ import java.util.*;
 
 import java.util.Collections;
 
-import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.Date;
 
+@Component
+@Profile("cdsConnect")
 public class CdsConnectConnection {
 
   String cookie;
   Date cookieExpiration;
-  LocalDateTime cExpiration;
 
   static final Logger logger =
       LoggerFactory.getLogger(CdsConnectConnection.class);
@@ -36,12 +40,14 @@ public class CdsConnectConnection {
   private RestTemplate restTemplate;
 
 
-  public CdsConnectConnection(String baseUrl, String username, String password) {
-    logger.info("CdsConnectConnection(): " + baseUrl);
-    this.baseUrl = baseUrl;
-    this.username = username;
-    this.password = password;
+  @Autowired
+  public CdsConnectConnection(YamlConfig myConfig) {
+    this.baseUrl = myConfig.getCdsConnectUrl();
+    this.username = myConfig.getCdsConnectUsername();
+    this.password = myConfig.getCdsConnectPassword();
     this.restTemplate = new RestTemplate();
+
+   logger.info("CdsConnectConnection(): " + baseUrl);
 
     try {
       login();
