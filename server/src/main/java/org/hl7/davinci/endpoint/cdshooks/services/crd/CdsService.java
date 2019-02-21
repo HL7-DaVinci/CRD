@@ -1,10 +1,5 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import javax.validation.Valid;
 import org.cdshooks.CdsRequest;
@@ -12,19 +7,13 @@ import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
 import org.cdshooks.Prefetch;
 import org.hl7.davinci.FhirComponentsT;
-import org.hl7.davinci.FhirComponentsT.Version;
-import org.hl7.davinci.PatientInfo;
-import org.hl7.davinci.PractitionerRoleInfo;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
-import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
@@ -74,6 +63,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   @Autowired
   private CoverageRequirementRuleFinder ruleFinder;
+
   private List<PrefetchTemplateElement> prefetchElements = null;
   private FhirComponentsT fhirComponents;
 

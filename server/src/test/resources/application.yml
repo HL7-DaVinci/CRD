@@ -12,6 +12,9 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
       hibernate.hbm2ddl.auto: create-drop
+  profiles:
+    active: localDb
+#    active: cdsConnect
 
 keycloak:
   auth-server-url: http://localhost:8180/auth
@@ -19,3 +22,7 @@ keycloak:
   resource: dme-app-access
   public-client: false
   principal-attribute: preferred_username
+
+cdsConnectUrl: http://cdsc-dev.dd:8083
+cdsConnectUsername: admin
+cdsConnectPassword: admin

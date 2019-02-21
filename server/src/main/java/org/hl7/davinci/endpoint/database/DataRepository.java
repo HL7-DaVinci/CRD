@@ -1,6 +1,7 @@
 package org.hl7.davinci.endpoint.database;
 
 import java.util.List;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

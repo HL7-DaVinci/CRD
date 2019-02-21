@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.database;
+package org.hl7.davinci.endpoint.rules;
 
 import java.util.ArrayList;
 import java.util.List;
