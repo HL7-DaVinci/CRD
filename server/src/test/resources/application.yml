@@ -26,3 +26,5 @@ keycloak:
 cdsConnectUrl: http://cdsc-dev.dd:8083
 cdsConnectUsername: admin
 cdsConnectPassword: admin
+
+localDbRules: server/src/main/resources/rules/

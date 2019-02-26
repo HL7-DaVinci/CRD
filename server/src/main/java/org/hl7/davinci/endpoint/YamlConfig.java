@@ -21,6 +21,8 @@ public class YamlConfig {
   private String cdsConnectUsername;
   private String cdsConnectPassword;
 
+  private String localDbRules;
+
   public boolean getCheckJwt() {
     return checkJwt;
   }
@@ -50,4 +52,8 @@ public class YamlConfig {
   public void setCdsConnectUsername(String cdsConnectUsername) { this.cdsConnectUsername = cdsConnectUsername; }
 
   public void setCdsConnectPassword(String cdsConnectPassword) { this.cdsConnectPassword = cdsConnectPassword; }
+
+  public String getLocalDbRules() { return localDbRules; }
+
+  public void setLocalDbRules(String localDbRules) { this.localDbRules = localDbRules; }
 }

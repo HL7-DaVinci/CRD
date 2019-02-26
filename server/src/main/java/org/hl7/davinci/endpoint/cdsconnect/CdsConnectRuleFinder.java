@@ -1,6 +1,7 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
 import com.google.gson.JsonSyntaxException;
+import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
@@ -42,7 +43,7 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
           String cqlFile = files.get(0).getCql();
 
           CoverageRequirementRule rule = new CoverageRequirementRule();
-          rule.setCql(cqlFile);
+          rule.setCqlPackage(CqlPackage.fromZip(cqlFile));
           rule.setCodeSystem(criteria.getCodeSystem());
           rule.setCode(criteria.getCode());
           rule.setPayor(criteria.getPayor());
