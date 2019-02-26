@@ -8,11 +8,15 @@ import java.nio.file.Paths;
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -38,10 +42,12 @@ public class Application {
    * Load all rules from the folder cql_rules, there should be a rule and rule info file.
    */
   @Bean
-  public CommandLineRunner loadData(DataRepository repository) {
+  @Autowired
+  public CommandLineRunner loadData(DataRepository repository, YamlConfig config) {
     return (args) -> {
-      ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(this.getClass().getClassLoader());
-      Resource[] cqlFileResources = resolver.getResources("/rules/*/*/*");
+      String pattern = "file:" + Paths.get(config.getLocalDbRules() ,"/*/**/*.cql").toAbsolutePath();
+      ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(new FileSystemResourceLoader());
+      Resource[] cqlFileResources = resolver.getResources(pattern);
       for (Resource cqlFileResource: cqlFileResources){
         File zipF = File.createTempFile("crd_server_cql_package", ".zip");
         ZipUtil.pack(cqlFileResource.getFile(), zipF);
@@ -57,6 +63,7 @@ public class Application {
                                             .setCodeSystem(codeSystem)
                                             .setCqlPackagePath(zipF.getPath());
         repository.save(rule);
+        System.out.println(String.format("Added rule %s, %s, %s",rule.getPayor(),rule.getCodeSystem(),rule.getCode()));
       }
     };
   }

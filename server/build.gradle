@@ -16,7 +16,7 @@ plugins {
     
 }
 apply plugin: 'maven'
-apply plugin: 'war'
+//apply plugin: 'war'
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'

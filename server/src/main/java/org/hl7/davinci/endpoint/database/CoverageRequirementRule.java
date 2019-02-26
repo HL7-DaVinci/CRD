@@ -84,6 +84,11 @@ public class CoverageRequirementRule {
 
   @Transient
   private CqlPackage cqlPackage = null;
+
+  public void setCqlPackage(CqlPackage cqlPackage) {
+    this.cqlPackage = cqlPackage;
+  }
+
   public CqlPackage getCqlPackage() {
     if (cqlPackage == null){
       cqlPackage = CqlPackage.fromZip(new File(getCqlPackagePath()));
