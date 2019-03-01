@@ -36,6 +36,7 @@ subprojects {
     }
 
     test {
+        exclude '**/*IntegrationTest*'
         useJUnitPlatform()
     }
 
