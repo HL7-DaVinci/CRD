@@ -1,7 +1,7 @@
 {
   "hook": "order-review",
   "hookInstance": "ff939efe-1c97-4c2a-b4e5-d34e6edc2f7b",
-  "fhirServer": "http://localhost:9089/",
+  "fhirServer": "http://localhost:8080/ehr-server/r4/",
   "fhirAuthorization": null,
   "user": "Practitioner/1234",
   "context": {
@@ -14,13 +14,13 @@
         {
           "resource": {
             "resourceType": "DeviceRequest",
-            "id": "123",
+            "id": "dr1234",
             "status": "draft",
             "codeCodeableConcept": {
               "coding": [
                 {
                   "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
-                  "code": "E0250"
+                  "code": "A5500"
                 }
               ],
               "text": "Stationary Compressed Gaseous Oxygen System, Rental"

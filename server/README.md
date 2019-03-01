@@ -44,4 +44,8 @@ To edit the web apps, the code in `src/main/resources/node_interfaces` should be
 
 You can also run the gradle task `buildReact` in the `server` directory to do the same thing.  Alternatively, running the bash script itself using `./buildout.sh` with `node_interfaces` as a working directory.
 
+## Integration Testing
 
+Integration tests will set up an actual running instance of this server as well as `ehr-server` to monitor a the handling of requests from beginning to end.
+
+Integration tests can be run with `gradle integrationTest`.
