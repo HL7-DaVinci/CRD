@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cql.bundle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
@@ -58,6 +59,7 @@ public class CqlBundle {
     return precompiled;
   }
 
+  @JsonIgnore
   public RawCqlLibrarySourceProvider getRawCqlLibrarySourceProvider() {
     return new RawCqlLibrarySourceProvider(rawCqlLibraries);
   }
@@ -129,6 +131,7 @@ public class CqlBundle {
     return rulePackage;
   }
 
+  @JsonIgnore
   private static VersionedIdentifier getIdFromCqlFile(byte[] cql){
     VersionedIdentifier libraryIdentifier = new VersionedIdentifier();
     Pattern pattern = Pattern.compile("library (.*?) version '(.*?)'");
