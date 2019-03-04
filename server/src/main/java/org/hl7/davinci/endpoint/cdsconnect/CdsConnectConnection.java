@@ -1,27 +1,30 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-
-import java.util.Collections;
-
-import java.text.DateFormat;
-import java.util.Date;
 
 @Component
 @Profile("cdsConnect")
@@ -193,9 +196,9 @@ public class CdsConnectConnection {
     return artifactResponseString;
   }
 
-  public String retrieveCqlFile(String cqlFileLocation) {
-    logger.info("retrieveCqlFile( " + cqlFileLocation + " )");
-    String fileUrl = baseUrl + cqlFileLocation;
+  public byte[] retrieveCqlBundle(String cqlBundleLocation) {
+    logger.info("retrieveCqlBundle( " + cqlBundleLocation + " )");
+    String fileUrl = baseUrl + cqlBundleLocation;
 
     // login if necessary
     login();
@@ -208,8 +211,8 @@ public class CdsConnectConnection {
     HttpEntity<String> fileEntity = new HttpEntity<>("", fileHeaders);
 
     // execute
-    ResponseEntity<String> fileResponse = restTemplate.exchange(fileUrl, HttpMethod.GET,
-        fileEntity, String.class);
+    ResponseEntity<byte[]> fileResponse = restTemplate.exchange(fileUrl, HttpMethod.GET,
+        fileEntity, byte[].class);
 
     return fileResponse.getBody();
   }

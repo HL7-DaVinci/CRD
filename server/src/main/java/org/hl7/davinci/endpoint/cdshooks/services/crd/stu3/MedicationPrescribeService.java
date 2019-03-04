@@ -10,13 +10,11 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
+import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleCriteria;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
-import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
@@ -67,7 +65,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
     return contexts;
   }
 
-  private Context createCqlExecutionContext(CqlPackage cqlPackage, DaVinciMedicationRequest medicationRequest) {
+  private Context createCqlExecutionContext(CqlBundle cqlPackage, DaVinciMedicationRequest medicationRequest) {
     Patient patient = (Patient) medicationRequest.getSubject().getResource();
     PractitionerRole practitionerRole = (PractitionerRole) medicationRequest.getRequester().getAgent().getResource();
     Location practitionerLocation = (Location) practitionerRole.getLocation().get(0).getResource();
@@ -86,7 +84,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
         CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
         query.execute();
         for (CoverageRequirementRule rule: query.getResponse()) {
-          contexts.add(createCqlExecutionContext(rule.getCqlPackage(), medicationRequest));
+          contexts.add(createCqlExecutionContext(rule.getCqlBundle(), medicationRequest));
         }
       }
     }

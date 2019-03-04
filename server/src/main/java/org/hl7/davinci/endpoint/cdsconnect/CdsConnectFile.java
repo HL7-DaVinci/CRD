@@ -1,6 +1,6 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
 
 
 
@@ -14,8 +14,8 @@ public class CdsConnectFile {
     this.jsonFileElement = jsonFileElement;
   }
 
-  public String getCql() {
-    String cqlFileLocation = jsonFileElement.getAsString();
-    return connection.retrieveCqlFile(cqlFileLocation);
+  public byte[] getCqlBundle() {
+    String cqlBundleLocation = jsonFileElement.getAsString();
+    return connection.retrieveCqlBundle(cqlBundleLocation);
   }
 }
