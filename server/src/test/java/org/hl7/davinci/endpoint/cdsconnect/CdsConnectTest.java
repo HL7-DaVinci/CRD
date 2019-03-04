@@ -28,22 +28,22 @@ public class CdsConnectTest {
 
     criteria.setPayor("cms").setCodeSystem("cpt").setCode("82947");
     AbstractCrdRuleQuery ruleQuery = ruleQueryFactory.create(criteria);
-    List<String> cql = ruleQuery.getCql();
+    List<String> cql = ruleQuery.getCqlBundle();
     assertEquals(1, cql.size());
 
     criteria.setPayor("cms").setCodeSystem("cpt").setCode("94660");
     ruleQuery = ruleQueryFactory.create(criteria);
-    cql = ruleQuery.getCql();
+    cql = ruleQuery.getCqlBundle();
     assertEquals(1, cql.size());
 
     criteria.setPayor("cms").setCodeSystem("cpt").setCode("");
     ruleQuery = ruleQueryFactory.create(criteria);
-    cql = ruleQuery.getCql();
+    cql = ruleQuery.getCqlBundle();
     assertEquals(2, cql.size());
 
     criteria.setPayor("crd").setCodeSystem("cpt").setCode("56778");
     ruleQuery = ruleQueryFactory.create(criteria);
-    cql = ruleQuery.getCql();
+    cql = ruleQuery.getCqlBundle();
     assertEquals(0, cql.size());
 
     cdsConnectConnection.logout();

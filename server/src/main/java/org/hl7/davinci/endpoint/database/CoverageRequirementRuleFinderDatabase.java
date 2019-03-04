@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.database;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
@@ -28,7 +29,10 @@ public class CoverageRequirementRuleFinderDatabase implements CoverageRequiremen
    * @param criteria The search criteria object
    */
   public List<CoverageRequirementRule> findRules(CoverageRequirementRuleCriteria criteria) {
-    List<CoverageRequirementRule> ruleList = repository.findRules(criteria);
+    List<CoverageRequirementRule> ruleList = new ArrayList<>();
+    for (CoverageRequirementRule rule :repository.findRules(criteria)){
+      ruleList.add(rule);
+    }
     if (ruleList.size() == 0) {
       logger.debug("RuleFinder returned no results for query: " + criteria.toString());
     }

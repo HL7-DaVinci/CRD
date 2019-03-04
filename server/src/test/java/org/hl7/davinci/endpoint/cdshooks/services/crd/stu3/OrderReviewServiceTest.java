@@ -5,17 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.cdshooks.CdsResponse;
 import java.util.Calendar;
+import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.stu3.CrdRequestCreator;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.fhir.dstu3.model.Enumerations;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = {Application.class})
 public class OrderReviewServiceTest {
 
   @Autowired

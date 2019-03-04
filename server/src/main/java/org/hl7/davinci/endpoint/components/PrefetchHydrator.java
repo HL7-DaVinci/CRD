@@ -1,6 +1,5 @@
 package org.hl7.davinci.endpoint.components;
 
-import org.cdshooks.CdsRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,6 +7,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FatalRequestIncompleteException;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;

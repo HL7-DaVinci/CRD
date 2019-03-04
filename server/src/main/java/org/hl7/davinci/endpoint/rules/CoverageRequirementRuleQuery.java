@@ -2,8 +2,6 @@ package org.hl7.davinci.endpoint.rules;
 
 import java.util.List;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 
 public class CoverageRequirementRuleQuery {
 

@@ -14,7 +14,7 @@ import org.cqframework.cql.elm.execution.Library;
 import org.cqframework.cql.elm.tracking.TrackBack;
 import org.fhir.ucum.UcumEssenceService;
 import org.fhir.ucum.UcumService;
-import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
+import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.opencds.cqf.cql.data.fhir.BaseFhirDataProvider;
 import org.opencds.cqf.cql.execution.Context;
@@ -24,7 +24,7 @@ import org.opencds.cqf.cql.execution.LibraryLoader;
 
 public class CqlExecutionContextBuilder {
 
-  public static Context getExecutionContextStu3(CqlPackage cqlPackage, HashMap<String,Resource> cqlParams) {
+  public static Context getExecutionContextStu3(CqlBundle cqlPackage, HashMap<String,Resource> cqlParams) {
     ModelManager modelManager = new ModelManager();
     LibraryManager libraryManager = new LibraryManager(modelManager);
     libraryManager.getLibrarySourceLoader().clearProviders();

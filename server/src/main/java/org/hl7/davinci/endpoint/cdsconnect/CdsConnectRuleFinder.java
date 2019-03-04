@@ -1,9 +1,11 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
 import com.google.gson.JsonSyntaxException;
-import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
+import java.util.ArrayList;
+import java.util.List;
+import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @Profile("cdsConnect")
@@ -40,10 +39,10 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
           List<CdsConnectFile> files = artifact.getFiles();
 
           //TODO: why are more than one files possible??
-          String cqlFile = files.get(0).getCql();
+          byte[] cqlBundle = files.get(0).getCqlBundle();
 
           CoverageRequirementRule rule = new CoverageRequirementRule();
-          rule.setCqlPackage(CqlPackage.fromZip(cqlFile));
+          rule.setCqlBundle(CqlBundle.fromZip(cqlBundle));
           rule.setCodeSystem(criteria.getCodeSystem());
           rule.setCode(criteria.getCode());
           rule.setPayor(criteria.getPayor());

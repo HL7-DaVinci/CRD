@@ -1,20 +1,20 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.stu3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
+import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
+import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleCriteria;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRuleQuery;
-import org.hl7.davinci.endpoint.database.cqlPackage.CqlPackage;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
@@ -32,10 +32,6 @@ import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
-
-import java.util.Arrays;
-import java.util.List;
 
 
 @Component("stu3_OrderReviewService")
@@ -77,7 +73,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
     return contexts;
   }
 
-  private Context createCqlExecutionContext(CqlPackage cqlPackage, DaVinciDeviceRequest deviceRequest) {
+  private Context createCqlExecutionContext(CqlBundle cqlPackage, DaVinciDeviceRequest deviceRequest) {
     Patient patient = (Patient) deviceRequest.getSubject().getResource();
     PractitionerRole practitionerRole = (PractitionerRole) deviceRequest.getPerformer().getResource();
     Location practitionerLocation = (Location) practitionerRole.getLocation().get(0).getResource();
@@ -96,7 +92,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
         CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
         query.execute();
         for (CoverageRequirementRule rule: query.getResponse()) {
-          contexts.add(createCqlExecutionContext(rule.getCqlPackage(), deviceRequest));
+          contexts.add(createCqlExecutionContext(rule.getCqlBundle(), deviceRequest));
         }
       }
     }

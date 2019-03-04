@@ -1,9 +1,12 @@
-package org.hl7.davinci.endpoint.database.cqlPackage;
+package org.hl7.davinci.endpoint.cql.bundle;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -14,11 +17,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.elm.r1.VersionedIdentifier;
 import org.zeroturnaround.zip.ZipUtil;
 
-public class CqlPackage {
+public class CqlBundle {
   private JsonNode jsonInfoFile;
   private boolean precompiled;
 
@@ -58,8 +62,18 @@ public class CqlPackage {
     return new RawCqlLibrarySourceProvider(rawCqlLibraries);
   }
 
-  public static CqlPackage fromZip(File file) {
-    CqlPackage rulePackage = new CqlPackage();
+  public static CqlBundle fromZip(byte[] file) {
+    try {
+      File temp = File.createTempFile("temp", ".zip");
+      FileUtils.writeByteArrayToFile(temp, file);
+      return fromZip(temp);
+    } catch (IOException e){
+      throw new RuntimeException("Error with rule package.");
+    }
+  }
+
+  public static CqlBundle fromZip(File file) {
+    CqlBundle rulePackage = new CqlBundle();
     HashMap<String, byte[]> cqlFiles = new HashMap<>();
     HashMap<String, byte[]> xmlElmFiles = new HashMap<>();
 

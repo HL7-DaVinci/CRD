@@ -5,9 +5,6 @@ import com.google.gson.JsonParser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
-import org.hl7.davinci.endpoint.database.PublicKeyRepository;
-import org.springframework.web.client.RestTemplate;
-
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -17,6 +14,8 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.logging.Logger;
+import org.hl7.davinci.endpoint.database.PublicKeyRepository;
+import org.springframework.web.client.RestTemplate;
 
 public class SigningKeyResolverCrd extends SigningKeyResolverAdapter {
   private static Logger logger = Logger.getLogger(Application.class.getName());
