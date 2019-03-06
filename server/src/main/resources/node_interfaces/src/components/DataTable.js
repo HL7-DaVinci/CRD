@@ -99,7 +99,7 @@ export default class DataTable extends Component {
                             <td>Rule Ends at Age</td>
                             <td>Gender</td> */}
                             <td>Payor</td>
-                            <td>Relevant Code (CPT / HCPCS)</td>
+                            <td>Relevant Code</td>
                             <td>Code System URL</td>
                             <td>CQL</td>
                             <td></td>
