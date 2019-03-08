@@ -86,27 +86,15 @@ export default class DataTable extends Component {
      render() {
          return (
              <div className="dataTable">
-             {!this.props.home?<div className="button-wrapper">
-                    <button className="add-button" onClick={()=>{this.buttonStuff()}}><span className="glyphicon glyphicon-plus-sign"></span></button>
-                </div>:null}
                
                 <div>
                     <table className="table-responsive table-striped table">
                         <thead>
                         <tr>
-                            {/* <td>ID</td> */}
-                            {/* <td>Rule Applies at Age</td>
-                            <td>Rule Ends at Age</td>
-                            <td>Gender</td> */}
                             <td>Payor</td>
                             <td>Relevant Code</td>
                             <td>Code System URL</td>
                             <td>CQL</td>
-                            <td></td>
-                            {/* <td>Patient Address</td>
-                            <td>Practitioner Address</td> */}
-
-                            {/* <td>Coverage Documentation Requirement Information Link</td> */}
                         </tr>
                         </thead>
                         <tbody>
