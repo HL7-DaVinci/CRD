@@ -1,19 +1,28 @@
 package org.hl7.davinci.endpoint.controllers;
 
-import java.util.Optional;
-import java.util.logging.Logger;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Provides the REST interface that can be interacted with at [base]/api/data.
@@ -68,6 +77,23 @@ public class DataController {
     }
 
     return rule.get();
+  }
+
+  @GetMapping(path = "/download/{id}")
+  public ResponseEntity<Resource> download(@PathVariable long id) throws IOException {
+
+
+    Optional<CoverageRequirementRule> rule = repository.findById(id);
+    CoverageRequirementRule crr = rule.get();
+    String path = crr.getCqlPackagePath();
+    String outputName = crr.getCode() + "_" + crr.getId() + ".zip";
+    File file = new File(path);
+    InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + outputName + "\"")
+        .contentType(MediaType.parseMediaType("application/octet-stream"))
+        .body(resource);
   }
 
 

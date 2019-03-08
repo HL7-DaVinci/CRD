@@ -45,7 +45,7 @@ public class Application {
       String pattern = "file:" + Paths.get(config.getLocalDbRules() ,"/*/*/*/").toAbsolutePath();
       ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(new FileSystemResourceLoader());
       Resource[] cqlFileResources = resolver.getResources(pattern);
-      for (Resource cqlFileResource: cqlFileResources){
+      for (Resource cqlFileResource: cqlFileResources) {
         File zipF = File.createTempFile("crd_server_cql_package", ".zip");
         try {
           ZipUtil.pack(cqlFileResource.getFile(), zipF);
@@ -62,7 +62,7 @@ public class Application {
         rule.setPayor(payorName);
         rule.setCode(code);
         rule.setCodeSystem(codeSystem);
-        rule.setCqlPackagePath(zipF.getPath());
+        rule.setCqlPackagePath(zipF.getAbsolutePath());
         repository.save(rule);
         System.out.println(String.format("Added rule %s, %s, %s",payorNameShortName,codeSystemShortName,code));
       }

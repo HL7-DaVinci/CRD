@@ -74,6 +74,11 @@ public class CoverageRequirementRule {
     return this;
   }
 
+  public String getLink() {
+    return "/download/" + id;
+
+  }
+
   public String getCqlPackagePath() {
     return cqlPackagePath;
   }
