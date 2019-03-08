@@ -25,8 +25,9 @@ checkJwt: false
 launchUrl: http://localhost:3050/launch
 checkPractitionerLocation: false
 
-cdsConnectUrl: http://cdsc-dev.dd:8083
-cdsConnectUsername: admin
-cdsConnectPassword: admin
+cdsConnect:
+  url: http://10.8.26.70:8083
+  username: admin
+  password: admin
 
-localDbRules: server/rules/
+localDbRules: rules/

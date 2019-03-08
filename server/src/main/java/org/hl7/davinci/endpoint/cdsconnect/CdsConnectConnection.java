@@ -42,12 +42,11 @@ public class CdsConnectConnection {
 
   private RestTemplate restTemplate;
 
-
   @Autowired
   public CdsConnectConnection(YamlConfig myConfig) {
-    this.baseUrl = myConfig.getCdsConnectUrl();
-    this.username = myConfig.getCdsConnectUsername();
-    this.password = myConfig.getCdsConnectPassword();
+    this.baseUrl = myConfig.getCdsConnect().getUrl();
+    this.username = myConfig.getCdsConnect().getUsername();
+    this.password = myConfig.getCdsConnect().getPassword();
     this.restTemplate = new RestTemplate();
 
    logger.info("CdsConnectConnection(): " + baseUrl);
@@ -71,11 +70,11 @@ public class CdsConnectConnection {
 
   public void login() {
     if (connected() && cookieValid()) {
-      logger.info("already logged in");
+      // already logged in
       return;
     }
 
-    logger.info("login()");
+    logger.info("logging in");
 
     final String loginUrl = baseUrl + "/user/login?_format=json&=";
 
@@ -102,7 +101,6 @@ public class CdsConnectConnection {
 
       // get the authentication cookie
       cookie = loginResponseHeaders.getFirst(loginResponseHeaders.SET_COOKIE);
-      logger.info("cookie [" + String.valueOf(tries) + "]: " + cookie);
       if (cookie == null) {
         logout();
         tries++;
@@ -112,13 +110,12 @@ public class CdsConnectConnection {
     // get the expiration date from the cookie
     String match = "expires=";
     String expirationDate = cookie.substring(cookie.indexOf(match)+match.length(), cookie.indexOf("Max-Age"));
-    logger.info("expires: " + expirationDate);
 
     try {
       DateFormat df = new SimpleDateFormat("EEE, dd-MMM-yyyy kk:mm:ss z", Locale.ENGLISH);
       cookieExpiration = df.parse(expirationDate);
 
-      logger.info("expires: " + cookieExpiration.toString());
+      logger.info("cookie expires: " + cookieExpiration.toString());
     } catch (ParseException e) {
       logger.warn("failed to parse expiration date: " + expirationDate);
     }
@@ -126,7 +123,7 @@ public class CdsConnectConnection {
 
   public void logout() {
     try {
-      logger.info("logout()");
+      logger.info("logging out");
       String logoutUrl = baseUrl + "/user/logout";
 
       // build the headers
