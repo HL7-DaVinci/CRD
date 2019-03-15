@@ -69,8 +69,9 @@ public class CdsConnectRuleList {
           rule.setId(nodeId).setPayor(payor).setCodeSystem(codeSystem).setCode(code);
 
           rule.setCqlPackagePath("unknown");
-          rule.setCqlBundle(new CqlBundle());
-
+          CqlBundle emptyCqlBundle = new CqlBundle();
+          emptyCqlBundle.setRawMainCqlLibrary("unknown");
+          rule.setCqlBundle(emptyCqlBundle);
           rules.add(rule);
 
         } catch (NullPointerException e) {

@@ -32,13 +32,6 @@ public class CqlBundle {
   private VersionedIdentifier mainCqlLibraryId;
   private String rawMainCqlLibrary;
 
-  /**
-   * Constructor necessary to have an empty CqlBundle.
-   */
-  public CqlBundle() {
-    rawMainCqlLibrary = "unknown";
-  }
-
   private void validate() {
     if (precompiled) {
       //todo
@@ -61,6 +54,10 @@ public class CqlBundle {
       }
     }
     return rawMainCqlLibrary;
+  }
+
+  public void setRawMainCqlLibrary(String rawMainCqlLibrary) {
+    this.rawMainCqlLibrary = rawMainCqlLibrary;
   }
 
   public boolean isPrecompiled() {
