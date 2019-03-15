@@ -18,4 +18,8 @@ public class CdsConnectFile {
     String cqlBundleLocation = jsonFileElement.getAsString();
     return connection.retrieveCqlBundle(cqlBundleLocation);
   }
+
+  public String getFilename() {
+    return jsonFileElement.getAsString();
+  }
 }

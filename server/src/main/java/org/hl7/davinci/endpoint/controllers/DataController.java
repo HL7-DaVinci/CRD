@@ -1,10 +1,14 @@
 package org.hl7.davinci.endpoint.controllers;
 
 import org.hl7.davinci.endpoint.Application;
+import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestRepository;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -18,8 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -38,6 +40,18 @@ public class DataController {
   @Autowired
   private RequestRepository requestRepository;
 
+
+
+  @Autowired
+  private YamlConfig myConfig;
+
+  @Autowired
+  private CoverageRequirementRuleFinder ruleFinder;
+
+  @Autowired
+  private CoverageRequirementRuleDownloader downloader;
+
+
   /**
    * Basic constructor to initialize both data repositories.
    * @param repository the database for the data (rules)
@@ -53,13 +67,15 @@ public class DataController {
   @GetMapping(value = "/api/requests")
   @CrossOrigin
   public Iterable<RequestLog> showAllLogs() {
+    logger.info("showAllLogs: GET /api/requests");
     return requestRepository.findAll();
   }
 
   @GetMapping(value = "/api/data")
   @CrossOrigin
   public Iterable<CoverageRequirementRule> showAll() {
-    return repository.findAll();
+    logger.info("showAll: GET /api/data");
+    return ruleFinder.findAll();
   }
 
   /**
@@ -70,6 +86,7 @@ public class DataController {
   @CrossOrigin
   @GetMapping("/api/data/{id}")
   public CoverageRequirementRule getRule(@PathVariable long id) {
+    logger.info("getRule: GET /api/data/" + id);
     Optional<CoverageRequirementRule> rule = repository.findById(id);
 
     if (!rule.isPresent()) {
@@ -81,19 +98,14 @@ public class DataController {
 
   @GetMapping(path = "/download/{id}")
   public ResponseEntity<Resource> download(@PathVariable long id) throws IOException {
+    logger.info("download: GET /download/" + id);
 
-
-    Optional<CoverageRequirementRule> rule = repository.findById(id);
-    CoverageRequirementRule crr = rule.get();
-    String path = crr.getCqlPackagePath();
-    String outputName = crr.getCode() + "_" + crr.getId() + ".zip";
-    File file = new File(path);
-    InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+    CqlBundleFile bundleFile = downloader.downloadCqlBundleFile(id);
 
     return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + outputName + "\"")
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + bundleFile.getFilename() + "\"")
         .contentType(MediaType.parseMediaType("application/octet-stream"))
-        .body(resource);
+        .body(bundleFile.getResource());
   }
 
 

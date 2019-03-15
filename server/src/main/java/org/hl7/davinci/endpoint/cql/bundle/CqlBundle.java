@@ -32,6 +32,13 @@ public class CqlBundle {
   private VersionedIdentifier mainCqlLibraryId;
   private String rawMainCqlLibrary;
 
+  /**
+   * Constructor necessary to have an empty CqlBundle.
+   */
+  public CqlBundle() {
+    rawMainCqlLibrary = "unknown";
+  }
+
   private void validate() {
     if (precompiled) {
       //todo

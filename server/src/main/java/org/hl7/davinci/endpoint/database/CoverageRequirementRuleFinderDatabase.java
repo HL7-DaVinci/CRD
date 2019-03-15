@@ -38,4 +38,20 @@ public class CoverageRequirementRuleFinderDatabase implements CoverageRequiremen
     }
     return ruleList;
   }
+
+  /**
+   * Find and return all coverage rules in the database.
+   */
+  public List<CoverageRequirementRule> findAll() {
+    List<CoverageRequirementRule> ruleList = new ArrayList<>();
+    for (CoverageRequirementRule rule :repository.findAll()){
+      ruleList.add(rule);
+    }
+
+    if (ruleList.size() == 0) {
+      logger.debug("RuleFinder returned no results for find all");
+    }
+
+    return ruleList;
+  }
 }
