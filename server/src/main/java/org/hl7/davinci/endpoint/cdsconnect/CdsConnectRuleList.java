@@ -57,27 +57,40 @@ public class CdsConnectRuleList {
         // get the data from the json
         JsonObject jsonRuleObject = jsonRuleElement.getAsJsonObject();
         Integer nodeId = jsonRuleObject.get("nid").getAsInt();
-        try {
+
+        // create a new rule and add the relevant data
+        CoverageRequirementRule rule = new CoverageRequirementRule();
+        rule.setId(nodeId);
+
+        if (jsonRuleObject.has("field_payer")) {
           String payorShortName = jsonRuleObject.get("field_payer").getAsString();
-          String payor = ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payorShortName);
-          String codeSystemShortName = jsonRuleObject.get("field_code_system").getAsString();
-          String codeSystem = ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(codeSystemShortName);
-          String code = jsonRuleObject.get("field_erx_code").getAsString();
-
-          // create a new rule and add the relevant data
-          CoverageRequirementRule rule = new CoverageRequirementRule();
-          rule.setId(nodeId).setPayor(payor).setCodeSystem(codeSystem).setCode(code);
-
-          rule.setCqlPackagePath("unknown");
-          CqlBundle emptyCqlBundle = new CqlBundle();
-          emptyCqlBundle.setRawMainCqlLibrary("unknown");
-          rule.setCqlBundle(emptyCqlBundle);
-          rules.add(rule);
-
-        } catch (NullPointerException e) {
-          // null pointer...
-          logger.info("error: null pointer exception: " + e.getMessage());
+          rule.setPayor(ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payorShortName));
+        } else {
+          logger.info("could not find field_payor, skipping rule with node id " + nodeId);
+          continue;
         }
+
+        if (jsonRuleObject.has("field_code_system")) {
+          String codeSystemShortName = jsonRuleObject.get("field_code_system").getAsString();
+          rule.setCodeSystem(ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(codeSystemShortName));
+        } else {
+          logger.info("could not find field_code_system, skipping rule with node id " + nodeId);
+          continue;
+        }
+
+        if (jsonRuleObject.has("field_erx_code")) {
+          rule.setCode(jsonRuleObject.get("field_erx_code").getAsString());
+        } else {
+          logger.info("could not find field_erx_code, skipping rule with node id " + nodeId);
+          continue;
+        }
+
+        rule.setCqlPackagePath("unknown");
+        CqlBundle emptyCqlBundle = new CqlBundle();
+        emptyCqlBundle.setRawMainCqlLibrary("unknown");
+        rule.setCqlBundle(emptyCqlBundle);
+        rules.add(rule);
+
       }
     }
 

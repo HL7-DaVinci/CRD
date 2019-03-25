@@ -78,8 +78,6 @@ public class CqlBundle {
       if (n == 0x504B0304) {
         return true;
       }
-    } catch (FileNotFoundException e) {
-      // file not found
     } catch (IOException e) {
       // failed to open / close file
     }
