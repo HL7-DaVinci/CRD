@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint;
 
+import org.hl7.davinci.endpoint.config.CdsConnect;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,7 @@ public class YamlConfig {
   private String launchUrl;
   private boolean checkPractitionerLocation;
 
-  private String cdsConnectUrl;
-  private String cdsConnectUsername;
-  private String cdsConnectPassword;
+  private CdsConnect cdsConnect;
 
   private String localDbRules;
 
@@ -41,19 +40,11 @@ public class YamlConfig {
     return checkPractitionerLocation;
   }
 
-  public String getCdsConnectUrl() { return cdsConnectUrl; }
-
-  public String getCdsConnectUsername() { return cdsConnectUsername; }
-
-  public String getCdsConnectPassword() { return cdsConnectPassword; }
-
-  public void setCdsConnectUrl(String cdsConnectUrl) { this.cdsConnectUrl = cdsConnectUrl; }
-
-  public void setCdsConnectUsername(String cdsConnectUsername) { this.cdsConnectUsername = cdsConnectUsername; }
-
-  public void setCdsConnectPassword(String cdsConnectPassword) { this.cdsConnectPassword = cdsConnectPassword; }
+  public void setCdsConnect(CdsConnect cdsConnect) { this.cdsConnect = cdsConnect; }
 
   public String getLocalDbRules() { return localDbRules; }
+
+  public CdsConnect getCdsConnect() { return cdsConnect; }
 
   public void setLocalDbRules(String localDbRules) { this.localDbRules = localDbRules; }
 }

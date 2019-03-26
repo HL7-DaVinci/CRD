@@ -5,8 +5,10 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
+import org.hl7.ShortNameMaps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,34 +26,67 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
   @Autowired
   private CdsConnectConnection connection;
 
+
+  /**
+   * Find and return the relevant coverage rule in CdsConnect.
+   *
+   * @param criteria The search criteria object
+   */
   public List<CoverageRequirementRule> findRules(CoverageRequirementRuleCriteria criteria) {
     List<CoverageRequirementRule> ruleList = new ArrayList<>();
-
 
     try {
       CdsConnectRuleList cdsConnectRules = connection.queryForRulesList(makeQueryString(criteria));
 
-      try {
-        List<CdsConnectArtifact> artifacts = cdsConnectRules.getArtifacts();
+      List<CdsConnectArtifact> artifacts = cdsConnectRules.getArtifacts();
 
-        for (CdsConnectArtifact artifact : artifacts) {
+      for (CdsConnectArtifact artifact : artifacts) {
 
-          List<CdsConnectFile> files = artifact.getFiles();
+        List<CdsConnectFile> files = artifact.getFiles();
 
-          //TODO: why are more than one files possible??
-          byte[] cqlBundle = files.get(0).getCqlBundle();
+        // grab the first file and ignore the others
+        byte[] cqlBundle = files.get(0).getCqlBundle();
 
+        try {
           CoverageRequirementRule rule = new CoverageRequirementRule();
-          rule.setCqlBundle(CqlBundle.fromZip(cqlBundle));
-          rule.setCodeSystem(criteria.getCodeSystem());
-          rule.setCode(criteria.getCode());
-          rule.setPayor(criteria.getPayor());
-          ruleList.add(rule);
-        }
+          CqlBundle bundle = CqlBundle.fromZip(cqlBundle);
 
-      } catch (JsonSyntaxException e) {
-        e.printStackTrace();
+          rule.setCqlBundle(bundle);
+          rule.setCodeSystem(artifact.getCodeSystem());
+          rule.setCode(artifact.getCode());
+          rule.setPayor(artifact.getPayor());
+          rule.setId(artifact.getId());
+          ruleList.add(rule);
+        } catch (RuntimeException e) {
+          logger.info("Error: could not process cql package: " + e.getMessage());
+        }
       }
+
+    } catch (JsonSyntaxException e) {
+      e.printStackTrace();
+
+    } catch (HttpClientErrorException e) {
+      logger.warn("Not Logged In", e);
+    }
+
+    return ruleList;
+  }
+
+  /**
+   * Find and return all coverage rules in CdsConnect.
+   * Note: the list of rules returned may not include valid CQL data. This was done as an optimization.
+   */
+  public List<CoverageRequirementRule> findAll() {
+
+    List<CoverageRequirementRule> ruleList = new ArrayList<>();
+
+    try {
+      CdsConnectRuleList cdsConnectRules = connection.queryForRulesList("");
+
+      ruleList = cdsConnectRules.getPartialRules();
+
+    } catch (JsonSyntaxException e) {
+      e.printStackTrace();
 
     } catch (HttpClientErrorException e) {
       logger.warn("Not Logged In", e);
@@ -61,6 +96,8 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
   }
 
   private String makeQueryString(CoverageRequirementRuleCriteria criteria) {
-    return String.format("%s/%s/%s", criteria.getPayor(), criteria.getCodeSystem(), criteria.getCode());
+    String payor = ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.inverse().get(criteria.getPayor());
+    String codeSystem = ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.inverse().get(criteria.getCodeSystem());
+    return String.format("%s/%s/%s", payor, codeSystem, criteria.getCode());
   }
 }

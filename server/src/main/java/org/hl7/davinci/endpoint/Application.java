@@ -7,12 +7,15 @@ import java.util.zip.ZipException;
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -28,6 +31,9 @@ import org.zeroturnaround.zip.ZipUtil;
  */
 public class Application {
 
+  static final Logger logger =
+      LoggerFactory.getLogger(Application.class);
+
 
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
@@ -40,9 +46,11 @@ public class Application {
    */
   @Bean
   @Autowired
+  @Profile("localDb")
   public CommandLineRunner loadData(DataRepository repository, YamlConfig config) {
     return (args) -> {
       String pattern = "file:" + Paths.get(config.getLocalDbRules() ,"/*/*/*/").toAbsolutePath();
+      logger.info("loading all rules into database matching pattern: " + pattern);
       ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(new FileSystemResourceLoader());
       Resource[] cqlFileResources = resolver.getResources(pattern);
       for (Resource cqlFileResource: cqlFileResources) {
@@ -64,7 +72,7 @@ public class Application {
         rule.setCodeSystem(codeSystem);
         rule.setCqlPackagePath(zipF.getAbsolutePath());
         repository.save(rule);
-        System.out.println(String.format("Added rule %s, %s, %s",payorNameShortName,codeSystemShortName,code));
+        logger.info(String.format("Added rule %s, %s, %s",payorNameShortName,codeSystemShortName,code));
       }
     };
   }

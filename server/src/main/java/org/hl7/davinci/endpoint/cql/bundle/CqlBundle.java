@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.elm.r1.VersionedIdentifier;
 import org.zeroturnaround.zip.ZipUtil;
+import java.io.RandomAccessFile;
 
 public class CqlBundle {
   private JsonNode jsonInfoFile;
@@ -55,6 +56,10 @@ public class CqlBundle {
     return rawMainCqlLibrary;
   }
 
+  public void setRawMainCqlLibrary(String rawMainCqlLibrary) {
+    this.rawMainCqlLibrary = rawMainCqlLibrary;
+  }
+
   public boolean isPrecompiled() {
     return precompiled;
   }
@@ -62,6 +67,22 @@ public class CqlBundle {
   @JsonIgnore
   public RawCqlLibrarySourceProvider getRawCqlLibrarySourceProvider() {
     return new RawCqlLibrarySourceProvider(rawCqlLibraries);
+  }
+
+  public static boolean checkIfZip(File file) {
+    try {
+      RandomAccessFile f = new RandomAccessFile(file, "r");
+      long n = f.readInt();
+      f.close();
+      // check the header to see if it is a zip file
+      if (n == 0x504B0304) {
+        return true;
+      }
+    } catch (IOException e) {
+      // failed to open / close file
+    }
+
+    return false;
   }
 
   public static CqlBundle fromZip(byte[] file) {
@@ -78,6 +99,10 @@ public class CqlBundle {
     CqlBundle rulePackage = new CqlBundle();
     HashMap<String, byte[]> cqlFiles = new HashMap<>();
     HashMap<String, byte[]> xmlElmFiles = new HashMap<>();
+
+    if (!checkIfZip(file)) {
+      throw new RuntimeException("Rule package not a zip file.");
+    }
 
     ZipUtil.iterate(file, (InputStream is, ZipEntry zipEntry) -> {
       String fileName = Paths.get(zipEntry.getName()).getFileName().toString();
