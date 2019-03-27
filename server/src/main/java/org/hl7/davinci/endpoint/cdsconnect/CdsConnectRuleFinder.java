@@ -83,7 +83,7 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
     try {
       CdsConnectRuleList cdsConnectRules = connection.queryForRulesList("");
 
-      ruleList = cdsConnectRules.getPartialRules();
+      ruleList = cdsConnectRules.getRulesForDisplay();
 
     } catch (JsonSyntaxException e) {
       e.printStackTrace();

@@ -49,7 +49,7 @@ public class CdsConnectRuleList {
    * This method creates rules from the rules list without populating the CqlBundle and CqlPackagePath with valid
    * information. It is useful for querying a list of rules without needing the CQL data.
    */
-  public List<CoverageRequirementRule> getPartialRules() {
+  public List<CoverageRequirementRule> getRulesForDisplay() {
     List<CoverageRequirementRule> rules = new ArrayList<>();
 
     if (jsonArray.isJsonArray()) {
@@ -85,12 +85,20 @@ public class CdsConnectRuleList {
           continue;
         }
 
+        if (jsonRuleObject.has("title")) {
+          String title = jsonRuleObject.get("title").getAsString();
+          String editLink = connection.getRuleLink(title);
+          rule.setEditLink(editLink);
+        } else {
+          logger.info("could not find titel, skpping rule with node id " + nodeId);
+          continue;
+        }
+
         rule.setCqlPackagePath("unknown");
         CqlBundle emptyCqlBundle = new CqlBundle();
         emptyCqlBundle.setRawMainCqlLibrary("unknown");
         rule.setCqlBundle(emptyCqlBundle);
         rules.add(rule);
-
       }
     }
 
