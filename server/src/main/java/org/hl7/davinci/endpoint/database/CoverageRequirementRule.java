@@ -37,6 +37,8 @@ public class CoverageRequirementRule {
   @Column(name = "cql_package_path", nullable = false, length = 4000)
   private String cqlPackagePath;
 
+  private String editLink = "";
+
   public long getId() {
     return id;
   }
@@ -84,6 +86,19 @@ public class CoverageRequirementRule {
 
   public CoverageRequirementRule setCqlPackagePath(String cqlPackagePath) {
     this.cqlPackagePath = cqlPackagePath;
+    return this;
+  }
+
+  public String getEditLink() {
+    if (editLink.isEmpty()) {
+      return getLink();
+    } else {
+      return editLink;
+    }
+  }
+
+  public CoverageRequirementRule setEditLink(String editLink) {
+    this.editLink = editLink;
     return this;
   }
 

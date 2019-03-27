@@ -97,6 +97,7 @@ export default class DataTable extends Component {
                             <td>Relevant Code</td>
                             <td>Code System URL</td>
                             <td>CQL</td>
+                            <td>Edit</td>
                         </tr>
                         </thead>
                         <tbody>

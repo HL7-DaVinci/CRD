@@ -150,6 +150,7 @@ export default class TableRow extends Component {
                     <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"equipmentCode")}} className="codeInput formInput" placeholder={this.state.data.equipmentCode}></input>:this.state.data.code}</td>
                     <td title={this.state.data.codeSystem}>{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"codeSystem")}} className="formInput" placeholder={this.state.data.codeSystem} ></input>:<span>{codeSystemConversion[this.state.data.codeSystem]}</span>}</td>
                     <td><a href={this.state.data.link}>download</a></td>
+                    <td><a href={this.state.data.editLink}>edit</a></td>
                 </tr>
 
          )
