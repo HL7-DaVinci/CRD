@@ -58,6 +58,8 @@ public class CdsConnectConnection {
     }
   }
 
+  public String getBaseUrl() { return baseUrl; }
+
   public boolean connected() {
     return (cookie != null);
   }
@@ -212,47 +214,5 @@ public class CdsConnectConnection {
         fileEntity, byte[].class);
 
     return fileResponse.getBody();
-  }
-
-  public String getRuleLink(String title) {
-    String titleFixed = title.replace(' ','-')
-        .replace("/", "")
-        .replace("\\", "")
-        .replace(",", "")
-        .replace(".", "")
-        .replace("<", "")
-        .replace(">", "")
-        .replace("?", "")
-        .replace(";", "")
-        .replace(":", "")
-        .replace("'", "")
-        .replace("\"", "")
-        .replace("[", "")
-        .replace("]", "")
-        .replace("{", "")
-        .replace("}", "")
-        .replace("|", "")
-        .replace("!", "")
-        .replace("@", "")
-        .replace("#", "")
-        .replace("$", "")
-        .replace("%", "")
-        .replace("^", "")
-        .replace("&", "")
-        .replace("*", "")
-        .replace("(", "")
-        .replace(")", "")
-        .replace("+", "")
-        .replace("=", "")
-        .replace("_", "")
-        .replace("--", "-")
-        .toLowerCase();
-
-    // strip the last '-' off the string if it is the final character
-    while (titleFixed.endsWith("-")) {
-      titleFixed = titleFixed.substring(0, titleFixed.length()-1);
-    }
-
-    return baseUrl + "/cdsconnect/artifact/" + titleFixed;
   }
 }

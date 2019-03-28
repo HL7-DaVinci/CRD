@@ -86,11 +86,9 @@ public class CdsConnectRuleList {
         }
 
         if (jsonRuleObject.has("title")) {
-          String title = jsonRuleObject.get("title").getAsString();
-          String editLink = connection.getRuleLink(title);
-          rule.setEditLink(editLink);
+          rule.setEditLink(connection.getBaseUrl() + "/node/" + nodeId);
         } else {
-          logger.info("could not find titel, skpping rule with node id " + nodeId);
+          logger.info("could not find title, skipping rule with node id " + nodeId);
           continue;
         }
 
