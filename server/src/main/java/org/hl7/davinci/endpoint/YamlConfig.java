@@ -27,6 +27,16 @@ public class YamlConfig {
 
   private String localDbRules;
 
+  private String localDbFhirArtifacts;
+
+  public String getLocalDbFhirArtifacts() {
+    return localDbFhirArtifacts;
+  }
+
+  public void setLocalDbFhirArtifacts(String localDbFhirArtifacts) {
+    this.localDbFhirArtifacts = localDbFhirArtifacts;
+  }
+
   public boolean getCheckJwt() {
     return checkJwt;
   }
