@@ -23,33 +23,60 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
   @Autowired
   private CdsConnectConnection connection;
 
-  public CqlBundleFile downloadCqlBundleFile(Long id) {
-    CqlBundleFile bundleFile = new CqlBundleFile();
+  public CqlBundleFile downloadCqlBundleFile(Long id, String name) {
+    logger.info("downloadCqlBundleFilez(" + id + ", " + name + ")");
+    CqlBundleFile bundleFile = null;
 
     CdsConnectArtifact artifact = new CdsConnectArtifact(connection, connection.retrieveArtifact(id.intValue()));
 
     List<CdsConnectFile> files = artifact.getFiles();
 
-    // grab the first file and ignore the others
-    byte[] cqlBundle = files.get(0).getCqlBundle();
+    if (files.size() == 0) {
+      logger.warn("downloadCqlBundleFile(" + id + ", " + name + "): No files found");
+      return bundleFile;
+    }
 
-    String extension = FilenameUtils.getExtension(files.get(0).getFilename());
+    byte[] cqlBundle = null;
+    String filename = "";
 
-    try {
+    if (name.isEmpty()) {
+      // grab the first one
+      logger.info("downloading the first file");
+      cqlBundle = files.get(0).getCqlBundle();
+      String extension = FilenameUtils.getExtension(files.get(0).getFilename());
 
-      ByteBuffer cqlBundleWrapped = ByteBuffer.wrap(cqlBundle, 0, 4);
-      int firstInt = cqlBundleWrapped.getInt();
-      if (firstInt == 0x504B0304) {
-        // if file is zip, force extension
-        extension = "zip";
+      try {
+
+        ByteBuffer cqlBundleWrapped = ByteBuffer.wrap(cqlBundle, 0, 4);
+        int firstInt = cqlBundleWrapped.getInt();
+        if (firstInt == 0x504B0304) {
+          // if file is zip, force extension
+          extension = "zip";
+        }
+        filename = artifact.getCode() + "_" + artifact.getId() + "." + extension;
+
+      } catch (RuntimeException e) {
+        logger.info("Error: could not process cql package: " + e.getMessage());
+      }
+    } else {
+      // loop through the files trying to match the name
+      for (CdsConnectFile file : files) {
+        if (!name.isEmpty() && name.equals(FilenameUtils.getName(file.getFilename()))) {
+          cqlBundle = file.getCqlBundle();
+          filename = name;
+          break;
+        }
       }
 
-      String filename = artifact.getCode() + "_" + artifact.getId() + "." + extension;
-      bundleFile.setFilename(filename).setResource(new ByteArrayResource(cqlBundle));
-
-    } catch (RuntimeException e) {
-      logger.info("Error: could not process cql package: " + e.getMessage());
+      if (cqlBundle == null) {
+        // file not found
+        logger.warn("downloadCqlBundleFile(" + id + ", " + name + "): file not found");
+        return bundleFile;
+      }
     }
+
+    bundleFile = new CqlBundleFile();
+    bundleFile.setFilename(filename).setResource(new ByteArrayResource(cqlBundle));
 
     return bundleFile;
   }
