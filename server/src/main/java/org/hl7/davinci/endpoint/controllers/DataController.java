@@ -2,6 +2,7 @@ package org.hl7.davinci.endpoint.controllers;
 
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.components.FhirUriFetcher;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
@@ -10,7 +11,6 @@ import org.hl7.davinci.endpoint.database.RequestRepository;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,6 +50,9 @@ public class DataController {
 
   @Autowired
   private CoverageRequirementRuleDownloader downloader;
+
+  @Autowired
+  private FhirUriFetcher fhirUriFetcher;
 
 
   /**
@@ -122,6 +125,21 @@ public class DataController {
     return downloadFile(id, name);
   }
 
+  @GetMapping(path = "/fetchFhirUri/{fhirUri}")
+  public ResponseEntity<Resource> fetchFhirUri(@PathVariable String fhirUri) throws IOException {
+    logger.info("download: GET /fetchFhirUri/" + fhirUri);
+
+    Resource resource = fhirUriFetcher.fetch(fhirUri);
+
+    if (resource == null){
+      return ResponseEntity.notFound().build();
+    }
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fhirUri + "\"")
+        .contentType(MediaType.parseMediaType("application/octet-stream"))
+        .body(resource);
+  }
 
   @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such rule")  // 404
   public class RuleNotFoundException extends RuntimeException {

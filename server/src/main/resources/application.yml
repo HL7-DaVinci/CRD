@@ -31,3 +31,4 @@ cdsConnect:
   password: admin
 
 localDbRules: src/main/jib/rules/
+localDbFhirArtifacts: src/main/jib/smartAppFhirArtifacts/
