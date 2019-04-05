@@ -64,7 +64,7 @@
 
 	<servlet-mapping>
 		<servlet-name>fhirServlet</servlet-name>
-		<url-pattern>/r4/*</url-pattern>
+		<url-pattern>/stu3/*</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

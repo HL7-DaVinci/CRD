@@ -47,8 +47,8 @@ public class FhirTesterConfig {
     retVal
         .addServer()
         .withId("home")
-        .withFhirVersion(FhirVersionEnum.R4)
-        .withBaseUrl("${serverBase}/r4")
+        .withFhirVersion(FhirVersionEnum.DSTU3)
+        .withBaseUrl("${serverBase}/stu3")
         .withName("Local Tester");
     return retVal;
   }

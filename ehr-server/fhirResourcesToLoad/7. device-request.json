@@ -1,0 +1,33 @@
+{
+  "resourceType": "DeviceRequest",
+  "id": "devreq1234",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3"
+    ]
+  },
+  "status": "draft",
+  "codeCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://www.ama-assn.org/go/cpt",
+        "code": "94660"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/pat1234"
+  },
+  "authoredOn": "2018-08-08",
+  "extension": [
+    {
+      "url": "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
+      "valueReference": {
+        "reference": "Coverage/cov1234"
+      }
+    }
+  ],
+  "performer": {
+    "reference": "Practitioner/pra1234"
+  }
+}
