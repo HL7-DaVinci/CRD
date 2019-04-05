@@ -91,3 +91,36 @@ jib {
         useCurrentTimestamp = true
     }
 }
+
+task embedDtr() {
+    doLast {
+        embedDtrScript()
+    }
+}
+
+void embedDtrScript() {
+    exec {
+        workingDir './'
+        commandLine 'git','clone','https://github.com/HL7-DaVinci/dtr.git','tempFolder'
+    }
+    exec {
+        workingDir 'tempFolder'
+        commandLine 'yarn', 'install'
+    }
+    exec {
+        workingDir 'tempFolder'
+        commandLine 'yarn', 'build'
+    }
+    exec {
+        workingDir './'
+        commandLine 'rm', '-rf', 'src/main/resources/static/smart'
+    }
+    exec {
+        workingDir './'
+        commandLine 'cp', '-a', 'tempFolder/public', 'src/main/resources/static/smart'
+    }
+    exec {
+        workingDir './'
+        commandLine 'rm', '-rf', 'tempFolder'
+    }
+}

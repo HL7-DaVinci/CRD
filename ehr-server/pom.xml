@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-structures-r4</artifactId>
+            <artifactId>hapi-fhir-structures-dstu3</artifactId>
             <version>3.4.0</version>
             <scope>compile</scope>
             <exclusions>

@@ -2,18 +2,18 @@ package org.hl7.davinci.ehrserver;
 
 import ca.uhn.fhir.jpa.dao.DaoConfig;
 import ca.uhn.fhir.jpa.dao.IFhirSystemDao;
-import ca.uhn.fhir.jpa.provider.r4.JpaConformanceProviderR4;
+import ca.uhn.fhir.jpa.provider.dstu3.JpaConformanceProviderDstu3;
 import ca.uhn.fhir.rest.server.RestfulServer;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CapabilityStatement;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Meta;
-import org.hl7.fhir.r4.model.UriType;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CapabilityStatement;
+import org.hl7.fhir.dstu3.model.Extension;
+import org.hl7.fhir.dstu3.model.Meta;
+import org.hl7.fhir.dstu3.model.UriType;
 
 import javax.servlet.http.HttpServletRequest;
 
 
-public class ServerConformance extends JpaConformanceProviderR4 {
+public class ServerConformance extends JpaConformanceProviderDstu3 {
 
   public ServerConformance(RestfulServer theRestfulServer, IFhirSystemDao<Bundle, Meta> theSystemDao, DaoConfig theDaoConfig) {
     super(theRestfulServer, theSystemDao, theDaoConfig);

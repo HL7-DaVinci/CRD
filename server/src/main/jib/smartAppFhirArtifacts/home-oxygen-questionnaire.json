@@ -318,6 +318,12 @@
           "text": "Is the patient mobile within the home? ",
           "type": "boolean",
           "required": false,
+          "enableWhen": [
+            {
+              "question": "5.1b",
+              "answerBoolean": true
+            }
+          ],
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
@@ -329,19 +335,46 @@
           "linkId": "3.8",
           "text": "Does the patient have dependent edema due to congestive heart failure?",
           "type": "boolean",
-          "required": false
+          "required": false,
+          "enableWhen": [
+            {
+              "question": "3.2",
+              "answerQuantity": {
+                "value": 89,
+                "unit": "%"
+              }
+            }
+          ]
         },
         {
           "linkId": "3.9",
           "text": "Does the patient have cor pulmonale or pulmonary hypertension documented by P pulmonale on an EKG or by an echocardiogram, gated blood pool scan or direct pulmonary artery pressure measurement?",
           "type": "boolean",
-          "required": false
+          "required": false,
+          "enableWhen": [
+            {
+              "question": "3.2",
+              "answerQuantity": {
+                "value": 89,
+                "unit": "%"
+              }
+            }
+          ]
         },
         {
           "linkId": "3.10",
           "text": "Does the patient have a hematocrit greater than 56%?",
           "type": "boolean",
           "required": false,
+          "enableWhen": [
+            {
+              "question": "3.2",
+              "answerQuantity": {
+                "value": 89,
+                "unit": "%"
+              }
+            }
+          ],
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
@@ -412,6 +445,19 @@
           ]
         },
         {
+          "linkId": "4.4b",
+          "text": "Since > 4 LPM prescribed, enter arterial oxygen saturation or PO2 while patient was on 4 LPM in stable state.",
+          "type": "quantity",
+          "required": true,
+          "enableWhen": [
+            {
+              "operator": ">",
+              "question": "4.4.1",
+              "answerInteger": 4
+            }
+          ]
+        },
+        {
           "linkId": "4.5",
           "text": "Average Flow Rate",
           "type": "group",
@@ -470,6 +516,18 @@
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
               "valueString": "DeviceRequestDescription"
+            }
+          ]
+        },
+        {
+          "linkId": "5.1b",
+          "text": "Current Order Is For A Portable Device",
+          "type": "boolean",
+          "readOnly": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "DeviceRequestedIsPortable"
             }
           ]
         },
