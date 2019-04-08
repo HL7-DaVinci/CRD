@@ -19,11 +19,19 @@ spring:
 server:
   port: 8090
   servlet:
-    contextPath: /
+    # contextPath should start with "/" but not end with one. This is good: "/cds-hooks"
+    contextPath: /cds-hooks
 
 checkJwt: false
-launchUrl: http://localhost:3050/launch
 checkPractitionerLocation: false
+
+# The smart app launchUrl. It can be relative, which will be turned into an absolute link against the url the server is running at.
+# If you want it to be absolute, it MUST start with "http://" or "https://"
+# To use the embedded DTR smart app, use "/smart/launch.html"
+launchUrl: /smart/launch.html
+
+appendParamsToSmartLaunchUrl: true
+
 
 cdsConnect:
   url: http://10.8.26.70:8083
