@@ -1,0 +1,11 @@
+
+{
+  "resourceType": "Coverage",
+  "id": "cov013",
+  "subscriberId": "10A3D58WH22",
+  "status": "active",
+  "grouping": {
+    "subGroup": "Medicare",
+    "subPlan": "Part A"
+  }
+}

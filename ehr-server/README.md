@@ -21,13 +21,16 @@ The request generator will run when the server runs.
 This will start the server running on http://localhost:8080/ehr-server.
 
 ## Adding resources to the database
-`gradle loadData`
+The FHIR server will persist FHIR resources between restarts. You can delete the folder `target` to clear all resources.
+
+To load the data from the json files in fhirResourcesToLoad, run the following script:  
+`gradle loadData` (this must be run while the FHIR server is running)
 
 ## Server endpoints
 |Relative URL|Endpoint Description|
 |----|----|
 |`/`|Web page with basic RI information|
 |`/ehr-server/`|Base server endpoint|
-|`/ehr-server/r4`|EHR FHIR Server endpoint|
+|`/ehr-server/stu3`|EHR FHIR Server endpoint|
 |`/ehr-server/reqgen`|Request Generator|
 

@@ -25,6 +25,10 @@ apply plugin: 'maven'
 apply plugin: 'war'
 apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
 
+gretty {
+    servletContainer = 'tomcat8'
+}
+
 dependencies {
 
     compile 'ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.6.0'
@@ -64,16 +68,19 @@ dependencies {
 
 task loadData{
     doLast {
-        def dataDir = new File(projectDir, "src/main/resources/data/")
+        def dataDir = new File(projectDir, "fhirResourcesToLoad/")
         def http = groovyx.net.http.HttpBuilder.configure{
             request.uri = 'http://localhost:8080'
             request.contentType = 'application/json'
         }
         dataDir.listFiles().sort{ it.name }.each { file->
+            if (file.name.startsWith(".")){
+                return
+            }
             println 'Trying to load '+file.name
             def resource = new groovy.json.JsonSlurper().parseText(file.text)
             http.put {
-                request.uri.path = '/ehr-server/r4/'+resource.resourceType+'/'+resource.id
+                request.uri.path = '/ehr-server/stu3/'+resource.resourceType+'/'+resource.id
                 request.body = file.text
                 response.success {
                     println '... success. '
@@ -82,6 +89,7 @@ task loadData{
         }
     }
 }
+
 task loadRequestBuilder() {
     doLast {
         setup()

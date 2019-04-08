@@ -20,6 +20,7 @@ This will start the server running on http://localhost:8090.
 |`/cds-services/`|CDS Hook Discovery endpoint|
 |`/cds-services/order-review-crd`|CDS Hook endpoint for order-review|
 |`/cds-services/medication-prescribe-crd`|CDS Hook endpoint for medication-prescribe|
+|`/fetchFhirUri/`|Used by the smart application to fetch fhir resources by URI|
 
 ## Configuration
 As a Spring Boot application, configuration information is maintained in [application.yml](src/main/resources/application.yml).
@@ -38,14 +39,24 @@ After the public key is acquired, it is used to verify the signature of the toke
 
 This functionality can be turned off and on by changing the `checkJWt` property in [application.yml](src/main/resources/application.yml).  Setting it to false will cause the server to automatically approve all incoming requests.  
 
-## Building Web Apps
+## Building Web Apps (the UI)
 
 To edit the web apps, the code in `src/main/resources/node_interfaces` should be updated.  These changes will not be reflected by the server.  To build the jsx files, run `npm run-script buildx`.  This command will run a bash script that will automatically build the files out and move them to the correct directory to be hosted by the spring server.
 
 You can also run the gradle task `buildReact` in the `server` directory to do the same thing.  Alternatively, running the bash script itself using `./buildout.sh` with `node_interfaces` as a working directory.
+
+
+## The integrated smart app
+
+The CRD server can embed the DTR smart application from https://github.com/HL7-DaVinci/dtr.
+Run the gradle task `embedDtr` to automatically clone the repo (master) and build into the appropriate location. This task must be manually run to pull down new versions of DTR.
+
+Once done, the application can be accessed at (e.g.) `localhost:8090/smart/index.html`. This files are in `src/main/resources/static/smart` and should be commited.
+
 
 ## Integration Testing
 
 Integration tests will set up an actual running instance of this server as well as `ehr-server` to monitor a the handling of requests from beginning to end.
 
 Integration tests can be run with `gradle integrationTest`.
+

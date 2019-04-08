@@ -4,7 +4,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.FhirVersionEnum;
 import ca.uhn.fhir.jpa.dao.DaoConfig;
 import ca.uhn.fhir.jpa.dao.IFhirSystemDao;
-import ca.uhn.fhir.jpa.provider.r4.JpaSystemProviderR4;
+import ca.uhn.fhir.jpa.provider.dstu3.JpaSystemProviderDstu3;
 import ca.uhn.fhir.jpa.search.DatabaseBackedPagingProvider;
 import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
 import ca.uhn.fhir.rest.api.EncodingEnum;
@@ -12,8 +12,8 @@ import ca.uhn.fhir.rest.server.ETagSupportEnum;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.IServerInterceptor;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Meta;
+import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.Meta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
@@ -37,21 +37,21 @@ public class EhrServer extends RestfulServer {
 
     logger.info("EhrServer::initialize() start");
     /*
-     * We want to support FHIR R4 format. This means that the server
-     * will use the R4 bundle format and other R4 encoding changes.
+     * We want to support FHIR dstu3 format. This means that the server
+     * will use the dstu3 bundle format and other dstu3 encoding changes.
      */
-    FhirVersionEnum fhirVersion = FhirVersionEnum.R4;
+    FhirVersionEnum fhirVersion = FhirVersionEnum.DSTU3;
     setFhirContext(new FhirContext(fhirVersion));
 
     // Get the spring context from the web container (it's declared in web.xml)
     myAppCtx = ContextLoaderListener.getCurrentWebApplicationContext();
 
     /*
-     * The BaseJavaConfigR4.java class is a spring configuration
+     * The BaseJavaConfigDstu3.java class is a spring configuration
      * file which is automatically generated as a part of hapi-fhir-jpaserver-base and
      * contains bean definitions for a resource provider for each resource type
      */
-    String resourceProviderBeanName = "myResourceProvidersR4";
+    String resourceProviderBeanName = "myResourceProvidersDstu3";
 
     List<IResourceProvider> beans = myAppCtx.getBean(resourceProviderBeanName, List.class);
     setResourceProviders(beans);
@@ -60,7 +60,7 @@ public class EhrServer extends RestfulServer {
      * The system provider implements non-resource-type methods, such as
      * transaction, and global history.
      */
-    Object systemProvider = myAppCtx.getBean("mySystemProviderR4", JpaSystemProviderR4.class);
+    Object systemProvider = myAppCtx.getBean("mySystemProviderDstu3", JpaSystemProviderDstu3.class);
     setPlainProviders(systemProvider);
 
     /*
@@ -68,7 +68,7 @@ public class EhrServer extends RestfulServer {
      * this server. The JPA version adds resource counts to the exported statement, so it
      * is a nice addition.
      */
-    IFhirSystemDao<Bundle, Meta> systemDao = myAppCtx.getBean("mySystemDaoR4", IFhirSystemDao.class);
+    IFhirSystemDao<Bundle, Meta> systemDao = myAppCtx.getBean("mySystemDaoDstu3", IFhirSystemDao.class);
     ServerConformance confProvider = new ServerConformance(this, systemDao,
         myAppCtx.getBean(DaoConfig.class));
     confProvider.setImplementationDescription("EHR Server");

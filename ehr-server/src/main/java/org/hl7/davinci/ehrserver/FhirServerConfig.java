@@ -19,9 +19,9 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import ca.uhn.fhir.jpa.config.BaseJavaConfigR4;
+import ca.uhn.fhir.jpa.config.BaseJavaConfigDstu3;
 import ca.uhn.fhir.jpa.dao.DaoConfig;
-import ca.uhn.fhir.jpa.util.SubscriptionsRequireManualActivationInterceptorR4;
+import ca.uhn.fhir.jpa.util.SubscriptionsRequireManualActivationInterceptorDstu3;
 import ca.uhn.fhir.rest.server.interceptor.IServerInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
@@ -32,7 +32,7 @@ import org.springframework.web.cors.CorsConfiguration;
  */
 @Configuration
 @EnableTransactionManagement()
-public class FhirServerConfig extends BaseJavaConfigR4 {
+public class FhirServerConfig extends BaseJavaConfigDstu3 {
   static final Logger logger = LoggerFactory.getLogger(FhirServerConfig.class);
 
   /**
@@ -124,7 +124,7 @@ public class FhirServerConfig extends BaseJavaConfigR4 {
   @Bean(autowire = Autowire.BY_TYPE)
   public IServerInterceptor subscriptionSecurityInterceptor() {
     logger.info("FhirServerConfig::subscriptionSecurityInterceptor()");
-    return new SubscriptionsRequireManualActivationInterceptorR4();
+    return new SubscriptionsRequireManualActivationInterceptorDstu3();
   }
 
 
