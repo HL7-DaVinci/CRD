@@ -32,3 +32,5 @@ cdsConnect:
 
 localDbRules: src/main/jib/rules/
 localDbFhirArtifacts: src/main/jib/smartAppFhirArtifacts/
+
+hostOrg: MITRE

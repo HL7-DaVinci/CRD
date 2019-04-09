@@ -6,4 +6,10 @@ function getBaseUrl() {
   return baseUrl
 }
 
+function getHostOrg() {
+  let hostOrg = document.querySelector("meta[name='hostorg']").getAttribute("content");
+  return hostOrg
+}
+
 module.exports.getBaseUrl = getBaseUrl;
+module.exports.getHostOrg = getHostOrg;
