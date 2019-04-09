@@ -31,6 +31,7 @@ public class HomeController {
 
   @Autowired
   private DataService dataService;
+  @Autowired
   private YamlConfig config;
 
   @RequestMapping("/")
