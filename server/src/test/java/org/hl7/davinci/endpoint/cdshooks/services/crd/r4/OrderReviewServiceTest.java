@@ -36,7 +36,7 @@ public class OrderReviewServiceTest {
     OrderReviewRequest request = CrdRequestCreator
         .createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA",
             "MA");
-    CdsResponse response = service.handleRequest(request);
+    CdsResponse response = service.handleRequest(request, null);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
     assertEquals("Documentation is required for the desired device or service",
@@ -54,7 +54,7 @@ public class OrderReviewServiceTest {
     request.setFhirServer(null); //empty the fhir server
 
     thrown.expect(FatalRequestIncompleteException.class);
-    service.handleRequest(request);
+    service.handleRequest(request, null);
   }
 
   @Ignore("No CQL R4 Support at this time.") @Test
@@ -68,6 +68,6 @@ public class OrderReviewServiceTest {
     request.getContext().getOrders().getEntryFirstRep().getResource().setId((IIdType) null);
 
     thrown.expect(FatalRequestIncompleteException.class);
-    service.handleRequest(request);
+    service.handleRequest(request, null);
   }
 }
