@@ -33,15 +33,15 @@
           {
             "concept": [
               {
-                "code": "M",
+                "code": "male",
                 "display": "Male"
               },
               {
-                "code": "F",
+                "code": "female",
                 "display": "Female"
               },
               {
-                "code": "Other",
+                "code": "other",
                 "display": "Other"
               }
             ]
