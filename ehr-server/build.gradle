@@ -52,6 +52,8 @@ dependencies {
     compile "javax.servlet:javax.servlet-api:4.0.1"
     compile "org.thymeleaf:thymeleaf:3.0.9.RELEASE"
     compile "org.springframework:spring-web:5.0.9.RELEASE"
+    compile "org.springframework:spring-jdbc:5.0.9.RELEASE"
+
 
 
     testCompile "org.eclipse.jetty:jetty-servlets:9.4.12.v20180830"
@@ -100,7 +102,7 @@ task loadRequestBuilder() {
 void setup() {
     exec {
         workingDir 'src/main/webapp/'
-        commandLine 'git','clone','https://github.com/HL7-DaVinci/crd-request-generator.git','tempFolder'
+        commandLine 'git','clone','--single-branch', '--branch','settings-change-hotfix','https://github.com/HL7-DaVinci/crd-request-generator.git','tempFolder'
     }
     exec {
         workingDir 'src/main/webapp/tempFolder'

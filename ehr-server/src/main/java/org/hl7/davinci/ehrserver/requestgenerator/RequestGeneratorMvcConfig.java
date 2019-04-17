@@ -1,5 +1,6 @@
 package org.hl7.davinci.ehrserver.requestgenerator;
 
+import org.hl7.davinci.ehrserver.requestgenerator.database.KeyDAOImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -57,6 +58,12 @@ public class RequestGeneratorMvcConfig implements WebMvcConfigurer {
     SpringTemplateEngine templateEngine = new SpringTemplateEngine();
     templateEngine.setTemplateResolver(templateResolver());
     return templateEngine;
+  }
+
+  @Bean
+  public KeyDAOImpl DAOImpl() {
+    KeyDAOImpl kdi = new KeyDAOImpl();
+    return kdi;
   }
 
 }
