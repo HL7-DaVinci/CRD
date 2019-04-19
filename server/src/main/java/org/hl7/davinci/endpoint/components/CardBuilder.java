@@ -1,6 +1,8 @@
 package org.hl7.davinci.endpoint.components;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.cdshooks.Card;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Link;
@@ -16,6 +18,8 @@ public class CardBuilder {
     private String summary;
     private String details;
     private String infoLink;
+    private String questionnaireUri;
+    private String requestId;
 
     public Boolean ruleApplies() {
       return ruleApplies;
@@ -53,6 +57,24 @@ public class CardBuilder {
       return this;
     }
 
+    public String getQuestionnaireUri() {
+      return questionnaireUri;
+    }
+
+    public CqlResultsForCard setQuestionnaireUri(String questionnaireUri) {
+      this.questionnaireUri = questionnaireUri;
+      return this;
+    }
+
+    public String getRequestId() {
+      return requestId;
+    }
+
+    public CqlResultsForCard setRequestId(String requestId) {
+      this.requestId = requestId;
+      return this;
+    }
+
     public CqlResultsForCard() {
     }
   }
@@ -63,7 +85,7 @@ public class CardBuilder {
    * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(CqlResultsForCard cqlResults, String launchUrl) {
+  public static Card transform(CqlResultsForCard cqlResults) {
     Card card = baseCard();
 
     Link link = new Link();
@@ -71,14 +93,25 @@ public class CardBuilder {
     link.setType("absolute");
     link.setLabel("Documentation Requirements");
 
-    Link launchLink = new Link();
-    launchLink.setUrl(launchUrl);
-    launchLink.setType("smart");
-    launchLink.setLabel("SMART App");
 
-    card.setLinks(Arrays.asList(link, launchLink));
+    card.setLinks(Arrays.asList(link));
     card.setSummary(cqlResults.getSummary());
     card.setDetail(cqlResults.getDetails());
+    return card;
+  }
+
+  /**
+   * Transforms a result from the database into a card.
+   *
+   * @param cqlResults
+   * @param smartAppLaunchLink smart app launch Link
+   * @return card with appropriate information
+   */
+  public static Card transform(CqlResultsForCard cqlResults, Link smartAppLaunchLink) {
+    Card card = transform(cqlResults);
+    List<Link> links = new ArrayList<Link>(card.getLinks());
+    links.add(smartAppLaunchLink);
+    card.setLinks(links);
     return card;
   }
 

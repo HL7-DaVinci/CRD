@@ -1,7 +1,9 @@
 package org.hl7.davinci.endpoint.controllers.stu3;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.cdshooks.CdsResponse;
+import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.stu3.MedicationPrescribeService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.stu3.OrderReviewService;
@@ -52,12 +54,12 @@ public class CdsHooksController {
   @CrossOrigin
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderReviewService.ID,
       consumes = "application/json;charset=UTF-8")
-  public CdsResponse handleOrderReview(@Valid @RequestBody OrderReviewRequest request) {
+  public CdsResponse handleOrderReview(@Valid @RequestBody OrderReviewRequest request, final HttpServletRequest httpServletRequest) {
     logger.info("stu3/handleOrderReview");
     if (request.getPrefetch() == null) {
       request.setPrefetch(new CrdPrefetch());
     }
-    return orderReviewService.handleRequest(request);
+    return orderReviewService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
 
 
@@ -69,11 +71,11 @@ public class CdsHooksController {
   @CrossOrigin
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + MedicationPrescribeService.ID,
       consumes = "application/json;charset=UTF-8")
-  public CdsResponse handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request) {
+  public CdsResponse handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request, final HttpServletRequest httpServletRequest) {
     logger.info("stu3/handleOrderReview");
     if (request.getPrefetch() == null) {
       request.setPrefetch(new CrdPrefetch());
     }
-    return medicationPrescribeService.handleRequest(request);
+    return medicationPrescribeService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
 }

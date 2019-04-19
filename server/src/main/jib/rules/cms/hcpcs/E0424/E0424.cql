@@ -41,3 +41,9 @@ define RESULT_Details:
 
 define RESULT_InfoLink:
     'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/a'
+
+define RESULT_QuestionnaireUri:
+    'urn:hl7:davinci:crd:library-oxygen-therapy-prepopulate'
+
+define RESULT_requestId:
+  device_request.id.value

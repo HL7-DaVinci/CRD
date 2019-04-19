@@ -28,3 +28,7 @@ cdsConnectUsername: admin
 cdsConnectPassword: admin
 
 localDbRules: src/main/jib/rules/
+localDbFhirArtifacts: src/main/jib/smartAppFhirArtifacts/
+
+launchUrl: /smart/launch.html
+appendParamsToSmartLaunchUrl: true
