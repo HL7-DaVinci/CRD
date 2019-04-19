@@ -23,6 +23,7 @@ server:
     contextPath: /cds-hooks
 
 checkJwt: false
+
 checkPractitionerLocation: false
 
 # The smart app launchUrl. It can be relative, which will be turned into an absolute link against the url the server is running at.
