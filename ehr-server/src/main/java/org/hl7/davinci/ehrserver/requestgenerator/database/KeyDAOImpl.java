@@ -53,7 +53,7 @@ public class KeyDAOImpl implements KeyDAO {
   public void create(String id, String e, String n, String kty) {
     String sql = "insert into publickeys (name, email) values (?, ?)";
     jdbcTemplate.update(sql, id, e, n, kty);
-    System.out.println("Created User id = " + id + " kty = " + kty);
+    logger.info("Created User id = " + id + " kty = " + kty);
   }
 
   @Override
@@ -79,13 +79,13 @@ public class KeyDAOImpl implements KeyDAO {
   public void updateKey(String id, String e, String n, String kty) {
     String sql = "update publickeys set e = ?, n = ?, kty = ?, where id = ?";
     jdbcTemplate.update(sql, id, e, n, kty);
-    System.out.println("Updated Record with ID = " + id);
+    logger.info("Updated Record with ID = " + id);
   }
 
   @Override
   public void delete(String id) {
     String sql = "delete from publickeys where id = ?";
     jdbcTemplate.update(sql, id);
-    System.out.println("Deleted Record with ID = " + id);
+    logger.info("Deleted Record with ID = " + id);
   }
 }

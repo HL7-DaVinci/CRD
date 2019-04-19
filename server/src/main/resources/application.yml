@@ -22,7 +22,7 @@ server:
     contextPath: /
 
 checkJwt: false
-launchUrl: http://localhost:3050/launch
+launchUrl: http://localhost:3005/launch
 checkPractitionerLocation: false
 
 cdsConnect:

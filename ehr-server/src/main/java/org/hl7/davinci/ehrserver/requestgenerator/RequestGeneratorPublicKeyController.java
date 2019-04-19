@@ -23,6 +23,7 @@ public class RequestGeneratorPublicKeyController {
 
   @GetMapping("/public/{id}")
   public Key getKey(@PathVariable String id) throws SQLException {
+    logger.info("EHRKeyController: Getting key with id: " + id);
     return keyJDBC.getKey(id);
   }
 
