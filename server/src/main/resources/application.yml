@@ -32,4 +32,4 @@ cdsConnect:
 
 localDbRules: src/main/jib/rules/
 
-hostOrg: MITRE
+hostOrg: default
