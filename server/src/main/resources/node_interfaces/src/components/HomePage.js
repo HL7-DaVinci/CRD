@@ -64,14 +64,7 @@ export default class HomePage extends Component {
                 {this.displayHostTest()}
 
                  <p>
-                     Welcome to the reference implementation of the Coverage Requirements Discovery (CRD) service. This service operates following the implementation guide published
-                     at H7 and developed by the <a href="http://www.hl7.org/about/davinci/index.cfm?ref=common">Da Vinci Project</a>.
-                     It is implemented with <a href="https://cds-hooks.org/" target="#">CDS Hooks</a>.
-                 </p>
-
-                <p>
-                    This service returns responses to CRD queries based on a small database of examples it maintains.
-                    Example responses can be managed through the <a href="/data">administrative interface</a>.
+                     CRD is implemented with <a href="https://cds-hooks.org/" target="#">CDS Hooks</a>. It returns responses to CRD queries based on a small database of example rules.  Example rules can be managed through the <a href="/data">administrative interface</a>.
                 </p>
                 <table className="table">
                     <thead>
