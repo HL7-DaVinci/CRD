@@ -24,7 +24,7 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
   private CdsConnectConnection connection;
 
   public CqlBundleFile downloadCqlBundleFile(Long id, String name) {
-    logger.info("downloadCqlBundleFilez(" + id + ", " + name + ")");
+    logger.info("downloadCqlBundleFile(" + id + ", " + name + ")");
     CqlBundleFile bundleFile = null;
 
     CdsConnectArtifact artifact = new CdsConnectArtifact(connection, connection.retrieveArtifact(id.intValue()));
@@ -61,7 +61,7 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
     } else {
       // loop through the files trying to match the name
       for (CdsConnectFile file : files) {
-        if (!name.isEmpty() && name.equals(FilenameUtils.getName(file.getFilename()))) {
+        if (name.equals(FilenameUtils.getName(file.getFilename()))) {
           cqlBundle = file.getCqlBundle();
           filename = name;
           break;
