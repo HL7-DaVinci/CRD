@@ -99,16 +99,30 @@ public class DataController {
     return rule.get();
   }
 
-  @GetMapping(path = "/download/{id}")
-  public ResponseEntity<Resource> download(@PathVariable long id) throws IOException {
-    logger.info("download: GET /download/" + id);
+  public ResponseEntity<Resource> downloadFile(long id, String name) {
+    CqlBundleFile bundleFile = downloader.downloadCqlBundleFile(id, name);
 
-    CqlBundleFile bundleFile = downloader.downloadCqlBundleFile(id);
+    if (bundleFile == null) {
+      logger.warning("file not found, return error (404)");
+      return ResponseEntity.notFound().build();
+    }
 
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + bundleFile.getFilename() + "\"")
         .contentType(MediaType.parseMediaType("application/octet-stream"))
         .body(bundleFile.getResource());
+  }
+
+  @GetMapping(path = "/download/{id}")
+  public ResponseEntity<Resource> download(@PathVariable long id) throws IOException {
+    logger.info("download: GET /download/" + id);
+    return downloadFile(id, "");
+  }
+
+  @GetMapping(path = "/getfile/{id}/{name}")
+  public ResponseEntity<Resource> getFile(@PathVariable long id, @PathVariable String name) throws IOException {
+    logger.info("getfile: GET /getfile/" + id + "/" + name);
+    return downloadFile(id, name);
   }
 
   @GetMapping(path = "/fetchFhirUri/{fhirUri}")
