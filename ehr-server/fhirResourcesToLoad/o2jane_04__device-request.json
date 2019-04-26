@@ -1,0 +1,33 @@
+{
+  "resourceType": "DeviceRequest",
+  "id": "devreq016",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/davinci-crd/STU3/StructureDefinition/profile-devicerequest-stu3"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html",
+      "valueReference": {
+        "reference": "Coverage/cov016"
+      }
+    }
+  ],
+  "status": "draft",
+  "codeCodeableConcept": {
+    "coding": [
+      {
+        "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+        "code": "E0424",
+        "display": "Stationary Compressed Gaseous Oxygen System, Rental"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/pat016"
+  },
+  "performer": {
+    "reference": "Practitioner/pra1234"
+  }
+}
