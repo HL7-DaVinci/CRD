@@ -40,10 +40,10 @@ define RESULT_Details:
     'Authorization is required, follow the attached link for information.'
 
 define RESULT_InfoLink:
-    'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/a'
+    'https://www.cms.gov/outreach-and-education/medicare-learning-network-mln/mlnproducts/downloads/home-oxygen-therapy-text-only.pdf'
 
 define RESULT_QuestionnaireUri:
-    'urn:hl7:davinci:crd:library-oxygen-therapy-prepopulate'
+    'urn:hl7:davinci:crd:home-oxygen-questionnaire_2'
 
 define RESULT_requestId:
   device_request.id.value

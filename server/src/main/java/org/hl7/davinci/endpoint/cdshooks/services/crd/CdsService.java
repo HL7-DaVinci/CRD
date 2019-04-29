@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import javax.validation.Valid;
+
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
@@ -219,13 +220,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
       launchUrl = launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId + "&template=" + questionnaireUri + "&request=" + reqResourceId;
+    }else {
+      // TODO: The iss should be set by the EHR?
+      launchUrl = launchUrl + "?iss=" + fhirBase;
     }
 
     Link link = new Link();
     link.setType("smart");
     link.setLabel("SMART App");
     link.setUrl(launchUrl);
-    link.setAppContext(new JSONObject(appContextMap).toString());
+
+    link.setAppContext(new JSONObject(appContextMap));
 
     return link;
   }

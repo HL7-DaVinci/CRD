@@ -32,10 +32,11 @@ public class KeyDAOImpl implements KeyDAO {
     // create table
     Statement stmt = conn.createStatement();
     try {
-      stmt.executeUpdate("Create table publickeys (id varchar(255) primary key, e varchar(10) NOT NULL, n varchar(400) NOT NULL, kty varchar(10) NOT NULL)");
+      jdbcTemplate.execute("Create table publickeys (id varchar(255) primary key, e varchar(10) NOT NULL, n varchar(400) NOT NULL, kty varchar(10) NOT NULL)");
       logger.info("KeyDAOImpl: Public Key table created in database");
 
-    } catch (SQLException e) {
+    } catch (Exception e) {
+      System.out.println(e);
       logger.info("KeyDAOImpl: Public Key table already exists, closing connection to database");
     }
     conn.close();
