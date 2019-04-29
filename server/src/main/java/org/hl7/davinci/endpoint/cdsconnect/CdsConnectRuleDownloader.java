@@ -11,6 +11,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -22,6 +23,61 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
 
   @Autowired
   private CdsConnectConnection connection;
+
+  public CqlBundleFile getFile(String payer, String codeSystem, String code, String name) {
+    String query = payer + "/" + codeSystem + "/" + code;
+    logger.info("getFile(" + query + ", " + name + ")");
+
+    CqlBundleFile bundleFile = null;
+
+    CdsConnectRuleList ruleList = connection.queryForRulesList(query);
+
+    List<CdsConnectArtifact> artifacts = ruleList.getArtifacts();
+
+    List<CdsConnectFile> allFiles = new ArrayList<>();
+
+    // add all of the files from the artifacts found to a single list
+    for (CdsConnectArtifact artifact : artifacts) {
+      allFiles.addAll(artifact.getFiles());
+    }
+
+    CdsConnectFile match = null;
+
+    // loop through the files from the matching rules until we find the one we are looking for
+    for (CdsConnectFile file : allFiles) {
+      String filename = file.getFilename();
+
+      // if we find an exact match then we are done
+      if (FilenameUtils.getName(name).equals(FilenameUtils.getName(filename))) {
+        logger.info("getFile: exact match found");
+        match = file;
+        break;
+      }
+
+      // If no exact match is found, we want to find a close match.
+      // The Drupal file upload adds a "_#" to the end of duplicate named files uploaded.
+      // This strips that off to find a file that is named properly enough to match.
+      String n = FilenameUtils.getName(filename);
+      Integer lastIndex = n.lastIndexOf("_");
+      if (lastIndex > 0) {
+        String part = n.substring(0, lastIndex);
+        if (FilenameUtils.getName(name).equals(part + "." + FilenameUtils.getExtension(filename))) {
+          logger.info("getFile: close match found: " + filename);
+          match = file;
+        }
+      }
+    }
+
+    if (match != null) {
+      byte[] cqlBundle = match.getCqlBundle();
+      bundleFile = new CqlBundleFile();
+      bundleFile.setFilename(name).setResource(new ByteArrayResource(cqlBundle));
+    } else {
+      logger.info("No matching files found");
+    }
+
+    return bundleFile;
+  }
 
   public CqlBundleFile downloadCqlBundleFile(Long id, String name) {
     logger.info("downloadCqlBundleFile(" + id + ", " + name + ")");
