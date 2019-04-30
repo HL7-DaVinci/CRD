@@ -1,0 +1,17 @@
+{
+  "resourceType": "Patient",
+  "id": "pat014",
+  "gender": "male",
+  "birthDate": "1946-07-04",
+  "name": [
+    {
+      "use": "official",
+      "family": "Roosevelt",
+      "given": [
+        "Theodor",
+        "Alan",
+        "Roosevelt"
+      ]
+    }
+  ]
+}

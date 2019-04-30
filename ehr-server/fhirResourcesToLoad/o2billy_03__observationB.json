@@ -1,0 +1,24 @@
+{
+  "resourceType": "Observation",
+  "id": "obs015B",
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "31100-1",
+        "display": "Hematocrit [Volume Fraction] of Blood by Impedance"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/pat015"
+  },
+  "issued": "2019-03-20T15:30:10+01:00",
+  "valueQuantity": {
+    "value": 69,
+    "unit": "%",
+    "system": "http://unitsofmeasure.org",
+    "code": "%"
+  }
+}

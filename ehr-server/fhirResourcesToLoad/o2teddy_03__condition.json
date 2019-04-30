@@ -1,0 +1,29 @@
+{
+  "resourceType": "Condition",
+  "id": "cond014a",
+  "clinicalStatus": "active",
+  "verificationStatus": "confirmed",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://hl7.org/fhir/condition-category",
+          "code": "encounter-diagnosis",
+          "display": "Encounter Diagnosis"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+        "code": "J44.0",
+        "display": "Chronic obstructive pulmonary disease with acute lower respiratory infection"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/pat014"
+  }
+}
