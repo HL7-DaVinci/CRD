@@ -36,8 +36,18 @@ public class AuthProxy {
   @Autowired
   private PayloadDAOImpl payloadDAO;
 
+  /**
+   * Proxies the auth request, which returns the auth code.  The proxy changes the redirect url to
+   * a different endpoint which will save the returned code and associate it with the launch id
+   * before redirecting back to the smart app.
+   * @param reqParamValue - The parameters of the request
+   * @param httpServletResponse - The response object to be sent back
+   * @param request - The request that has been recieved
+   * @throws IOException - the uri components builder might throw an IO
+   */
   @GetMapping("/auth")
   public void getAuth(@RequestParam Map<String, String> reqParamValue, HttpServletResponse httpServletResponse, HttpServletRequest request) throws IOException {
+    //
     String params = _parseRedirect(reqParamValue, request);
     UriComponentsBuilder forwardUrl = UriComponentsBuilder.fromHttpUrl(Config.get("oauth_authorize"));
     String redirectUrl = forwardUrl.toUriString() + params;
@@ -47,6 +57,13 @@ public class AuthProxy {
     httpServletResponse.setStatus(302);
   }
 
+  /**
+   * Proxies the token request, which returns the bearer token.  The proxy uses the auth code
+   * passed in by the request to associate the request with a launch id, and uses that launch id
+   * to append extra parameters to the token response.
+   * @param body - Custom object to serialize the incoming request body
+   * @return - returns the custom built reponse
+   */
   @PostMapping(value = "/token",  consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   public ResponseEntity<TokenResponse> getToken(TokenRequest body) {
 
@@ -84,6 +101,12 @@ public class AuthProxy {
 
   }
 
+  /**
+   * A custom endpoint that the request generator uses to generate a launch id and its associated
+   * context.  The context is created using variables passed in the request body.
+   * @param payload - the object used to serialize the JSON in the request body.
+   * @return - an object containing the launch id and nothing else.
+   */
   @PostMapping(value = "/_services/smart/Launch", consumes = {"application/json"})
   @ResponseBody
   public AuthResponse getLaunch(@RequestBody Payload payload) {
@@ -94,6 +117,15 @@ public class AuthProxy {
 
   }
 
+  /**
+   * The endpoint that the first /auth/ endpoint redirects to, in order to associate the code returned
+   * from the OAUTH server with the launch id.  This is a necessary step because the launch id does
+   * not get passed in with the token request.
+   * @param launch - the launch id is included in the path
+   * @param reqParamValue - the parameters of the url should include only the code, state, and the original redirect url
+   * @param httpServletResponse - the response object
+   * @param request - the request recieved
+   */
   @GetMapping("/_auth/{launch}")
   public void authSync(@PathVariable String launch, @RequestParam Map<String, String> reqParamValue, HttpServletResponse httpServletResponse, HttpServletRequest request) {
     logger.info("redirected to secondary auth endpoint to sync code/launch_id with each other");
@@ -104,6 +136,12 @@ public class AuthProxy {
 
   }
 
+  /**
+   * Generates the redirect url based on the incoming request
+   * @param reqParamValue - the params of the incoming request
+   * @param request - the incoming request
+   * @return - a formatted string of params to append to the base url
+   */
   private String _parseRedirect(Map<String, String> reqParamValue, HttpServletRequest request) {
     String currentRedirectURI = reqParamValue.get("redirect_uri");
     String finalRedirectURI = "http://" +request.getLocalName() + ":" + request.getLocalPort() + request.getContextPath() + "/_auth/" + reqParamValue.get("launch") + "?redirect_uri=" + currentRedirectURI;
@@ -112,7 +150,7 @@ public class AuthProxy {
     return paramFormatter(reqParamValue);
   }
 
-  static String urlEncodeUTF8(Map<?,?> map) {
+  private static String urlEncodeUTF8(Map<?,?> map) {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<?,?> entry : map.entrySet()) {
       if (sb.length() > 0) {
@@ -126,7 +164,7 @@ public class AuthProxy {
     return sb.toString();
   }
 
-  static String urlEncodeUTF8(String s) {
+  private static String urlEncodeUTF8(String s) {
     try {
       return URLEncoder.encode(s, "UTF-8");
     } catch (UnsupportedEncodingException e) {
