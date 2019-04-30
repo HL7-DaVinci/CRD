@@ -1,5 +1,7 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,7 +12,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
 import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.config.CdsConnect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +24,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Base64;
+
 
 @Component
 @Profile("cdsConnect")
@@ -40,14 +48,41 @@ public class CdsConnectConnection {
   private String username;
   private String password;
 
+  private Boolean useBasicAuth;
+  private String basicAuthValue;
+
   private RestTemplate restTemplate;
 
   @Autowired
   public CdsConnectConnection(YamlConfig myConfig) {
-    this.baseUrl = myConfig.getCdsConnect().getUrl();
-    this.username = myConfig.getCdsConnect().getUsername();
-    this.password = myConfig.getCdsConnect().getPassword();
-    this.restTemplate = new RestTemplate();
+    CdsConnect cdsConnectConfig = myConfig.getCdsConnect();
+    this.baseUrl = cdsConnectConfig.getUrl();
+    this.username = cdsConnectConfig.getUsername();
+    this.password = cdsConnectConfig.getPassword();
+
+    // use basic authorization if enabled
+    if (cdsConnectConfig.getBasicAuth() != null) {
+      useBasicAuth = true;
+      basicAuthValue = Base64.getEncoder().encodeToString(cdsConnectConfig.getBasicAuth().getBytes());
+    } else {
+      useBasicAuth = false;
+    }
+
+    // configure the proxy if set
+    if ((cdsConnectConfig.getProxyHost() != null) && (cdsConnectConfig.getProxyPort() != null)) {
+      logger.info("using proxy: " + cdsConnectConfig.getProxyHost() + ":" + cdsConnectConfig.getProxyPort());
+
+      SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+
+      Proxy proxy = new Proxy(java.net.Proxy.Type.HTTP,
+          new InetSocketAddress(cdsConnectConfig.getProxyHost(), cdsConnectConfig.getProxyPort()));
+      requestFactory.setProxy(proxy);
+
+      this.restTemplate = new RestTemplate(requestFactory);
+
+    } else {
+      this.restTemplate = new RestTemplate();
+    }
 
    logger.info("CdsConnectConnection(): " + baseUrl);
 
@@ -78,12 +113,16 @@ public class CdsConnectConnection {
 
     logger.info("logging in");
 
+
     final String loginUrl = baseUrl + "/user/login?_format=json&=";
 
     // build the headers
     MultiValueMap<String, String> loginHeaders = new LinkedMultiValueMap<String, String>();
     Map loginMap = new HashMap();
     loginMap.put("Content-Type", "application/json");
+    if (useBasicAuth) {
+      loginMap.put("Authorization", "basic " + basicAuthValue);
+    }
     loginHeaders.setAll(loginMap);
 
     Map requestBody = new HashMap();
@@ -132,6 +171,9 @@ public class CdsConnectConnection {
       HttpHeaders logoutHeaders = new HttpHeaders();
       logoutHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
       logoutHeaders.add("cookie", cookie);
+      if (useBasicAuth) {
+        logoutHeaders.add("Authorization", "basic " + basicAuthValue);
+      }
       HttpEntity<String> logoutEntity = new HttpEntity<>("", logoutHeaders);
 
       // execute
@@ -160,6 +202,9 @@ public class CdsConnectConnection {
     HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     headers.add("cookie", cookie);
+    if (useBasicAuth) {
+      headers.add("Authorization", "basic " + basicAuthValue);
+    }
 
     HttpEntity<String> entity = new HttpEntity<>("", headers);
 
@@ -183,6 +228,9 @@ public class CdsConnectConnection {
     HttpHeaders artifactHeaders = new HttpHeaders();
     artifactHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     artifactHeaders.add("cookie", cookie);
+    if (useBasicAuth) {
+      artifactHeaders.add("Authorization", "basic " + basicAuthValue);
+    }
 
     HttpEntity<String> artifactEntity = new HttpEntity<>("", artifactHeaders);
 
@@ -206,6 +254,9 @@ public class CdsConnectConnection {
     HttpHeaders fileHeaders = new HttpHeaders();
     fileHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     fileHeaders.add("cookie", cookie);
+    if (useBasicAuth) {
+      fileHeaders.add("Authorization", "basic " + basicAuthValue);
+    }
 
     HttpEntity<String> fileEntity = new HttpEntity<>("", fileHeaders);
 

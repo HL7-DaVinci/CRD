@@ -31,11 +31,13 @@ public class HomeController {
 
   @Autowired
   private DataService dataService;
+  @Autowired
   private YamlConfig config;
 
   @RequestMapping("/")
   public String index(Model model, final HttpServletRequest request) {
     model.addAttribute("contextPath", request.getContextPath());
+    model.addAttribute("hostOrg", config.getHostOrg());
     return "index";
   }
 

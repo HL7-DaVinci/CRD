@@ -99,11 +99,42 @@ public class DataController {
     return rule.get();
   }
 
+  public ResponseEntity<Resource> downloadFile(long id, String name) {
+    CqlBundleFile bundleFile = downloader.downloadCqlBundleFile(id, name);
+
+    if (bundleFile == null) {
+      logger.warning("file not found, return error (404)");
+      return ResponseEntity.notFound().build();
+    }
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + bundleFile.getFilename() + "\"")
+        .contentType(MediaType.parseMediaType("application/octet-stream"))
+        .body(bundleFile.getResource());
+  }
+
   @GetMapping(path = "/download/{id}")
   public ResponseEntity<Resource> download(@PathVariable long id) throws IOException {
     logger.info("download: GET /download/" + id);
+    return downloadFile(id, "");
+  }
 
-    CqlBundleFile bundleFile = downloader.downloadCqlBundleFile(id);
+  @GetMapping(path = "/getfileid/{id}/{name}")
+  public ResponseEntity<Resource> getFileRuleId(@PathVariable long id, @PathVariable String name) throws IOException {
+    logger.info("getfile: GET /getfileid/" + id + "/" + name);
+    return downloadFile(id, name);
+  }
+
+  @GetMapping(path = "/getfile/{payer}/{codeSystem}/{code}/{name}")
+  public ResponseEntity<Resource> getFile(@PathVariable String payer, @PathVariable String codeSystem, @PathVariable String code, @PathVariable String name) {
+    logger.info("getfile: GET /getfile/" + payer + "/" + codeSystem + "/" + code + "/" + name);
+
+    CqlBundleFile bundleFile = downloader.getFile(payer, codeSystem, code, name);
+
+    if (bundleFile == null) {
+      logger.warning("file not found, return error (404)");
+      return ResponseEntity.notFound().build();
+    }
 
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + bundleFile.getFilename() + "\"")
