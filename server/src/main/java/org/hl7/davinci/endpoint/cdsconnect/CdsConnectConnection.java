@@ -63,6 +63,7 @@ public class CdsConnectConnection {
     // use basic authorization if enabled
     if (cdsConnectConfig.getBasicAuth() != null) {
       useBasicAuth = true;
+      logger.info("using basicAuth: " + cdsConnectConfig.getBasicAuth());
       basicAuthValue = Base64.getEncoder().encodeToString(cdsConnectConfig.getBasicAuth().getBytes());
     } else {
       useBasicAuth = false;
