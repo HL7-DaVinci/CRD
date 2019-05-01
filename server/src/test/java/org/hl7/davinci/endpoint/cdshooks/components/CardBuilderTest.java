@@ -16,10 +16,9 @@ public class CardBuilderTest {
     cardResults.setDetails("Some details.");
     cardResults.setInfoLink("http://some.link");
     cardResults.setSummary("The summary!");
-    Card card = CardBuilder.transform(cardResults,"launch_url");
+    Card card = CardBuilder.transform(cardResults);
     assertEquals("The summary!", card.getSummary());
     assertEquals("Some details.", card.getDetail());
     assertEquals("http://some.link", card.getLinks().get(0).getUrl());
-    assertEquals("launch_url", card.getLinks().get(1).getUrl());
   }
 }

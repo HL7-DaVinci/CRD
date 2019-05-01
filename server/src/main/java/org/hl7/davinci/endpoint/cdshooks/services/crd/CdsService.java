@@ -1,10 +1,16 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import javax.validation.Valid;
+
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
+import org.cdshooks.Link;
 import org.cdshooks.Prefetch;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
@@ -15,6 +21,7 @@ import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
+import org.json.simple.JSONObject;
 import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,14 +116,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @param request the generically typed incoming request
    * @return The response from the server
    */
-  public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request) {
+  public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
 
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
 
     CdsResponse response = new CdsResponse();
-    String launchSmartUrl = smartUrlBuilder(request.getContext().getPatientId(), request.getFhirServer());
 
     List<Context> cqlExecutionContexts;
     try {
@@ -131,7 +137,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       CqlResultsForCard results = executeCqlAndGetRelevantResults(context);
       if (results.ruleApplies()){
         foundApplicableRule = true;
-        response.addCard(CardBuilder.transform(results, launchSmartUrl));
+        if (results.getQuestionnaireUri() != null && !results.getQuestionnaireUri().isEmpty()){
+          Link smartAppLink = smartLinkBuilder(
+              request.getContext().getPatientId(),
+              request.getFhirServer(),
+              applicationBaseUrl,
+              results.getQuestionnaireUri(),
+              results.getRequestId());
+          response.addCard(CardBuilder.transform(results, smartAppLink));
+        } else{
+          response.addCard(CardBuilder.transform(results));
+        }
       }
     }
     if (!foundApplicableRule) {
@@ -152,22 +168,71 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     results.setSummary(evaluateStatement("RESULT_Summary",context).toString())
         .setDetails(evaluateStatement("RESULT_Details",context).toString())
         .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString());
+
+    if (evaluateStatement("RESULT_QuestionnaireUri",context) != null) {
+      results
+          .setQuestionnaireUri(evaluateStatement("RESULT_QuestionnaireUri",context).toString())
+          .setRequestId(evaluateStatement("RESULT_requestId",context).toString());
+    }
+
     return results;
   }
 
   private Object evaluateStatement(String statement, Context context) {
-    return context.resolveExpressionRef(statement).evaluate(context);
+    try {
+      return context.resolveExpressionRef(statement).evaluate(context);
+      // can be thrown if statement is not defined in the cql
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
-  private String smartUrlBuilder(String patientId, String fhirBase) {
-    String launchUrl = myConfig.getLaunchUrl();
+  private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri, String reqResourceId) {
+    URI configLaunchUri = myConfig.getLaunchUrl();
+    String launchUrl;
+    if (myConfig.getLaunchUrl().isAbsolute()) {
+      launchUrl = myConfig.getLaunchUrl().toString();
+    } else {
+      try {
+        launchUrl = new URL(applicationBaseUrl.getProtocol(), applicationBaseUrl.getHost(),
+            applicationBaseUrl.getPort(), applicationBaseUrl.getFile() + configLaunchUri.toString(),
+            null).toString();
+      } catch (MalformedURLException e) {
+        throw new RuntimeException("Error creating smart launch URL");
+      }
+    }
+
     if (fhirBase != null && fhirBase.endsWith("/")) {
       fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
     }
     if (patientId != null && patientId.startsWith("Patient/")) {
       patientId = patientId.substring(8,patientId.length());
     }
-    return launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId;
+
+
+
+    // PARAMS:
+    // template is the uri of the questionnaire
+    // request is the ID of the device request or medrec (not the full URI like the IG says, since it should be taken from fhirBase
+    HashMap<String,String> appContextMap = new HashMap<>();
+    appContextMap.put("template", questionnaireUri);
+    appContextMap.put("request", reqResourceId);
+
+    if (myConfig.isAppendParamsToSmartLaunchUrl()) {
+      launchUrl = launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId + "&template=" + questionnaireUri + "&request=" + reqResourceId;
+    }else {
+      // TODO: The iss should be set by the EHR?
+      launchUrl = launchUrl + "?iss=" + fhirBase;
+    }
+
+    Link link = new Link();
+    link.setType("smart");
+    link.setLabel("SMART App");
+    link.setUrl(launchUrl);
+
+    link.setAppContext(new JSONObject(appContextMap));
+
+    return link;
   }
 
   // Implement this in child class

@@ -1,14 +1,15 @@
 package org.hl7.davinci.ehrserver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
 import ca.uhn.fhir.context.FhirVersionEnum;
 import ca.uhn.fhir.to.FhirTesterMvcConfig;
 import ca.uhn.fhir.to.TesterConfig;
+import org.hl7.davinci.ehrserver.authproxy.PayloadDAOImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 //@formatter:off
 
@@ -22,6 +23,7 @@ import ca.uhn.fhir.to.TesterConfig;
  */
 @Configuration
 @Import(FhirTesterMvcConfig.class)
+@ComponentScan(basePackages = "org.hl7.davinci.ehrserver.authproxy")
 public class FhirTesterConfig {
   static final Logger logger = LoggerFactory.getLogger(FhirTesterConfig.class);
 
@@ -52,6 +54,8 @@ public class FhirTesterConfig {
         .withName("Local Tester");
     return retVal;
   }
+
+
 
 }
 //@formatter:on

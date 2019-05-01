@@ -1,5 +1,7 @@
 package org.cdshooks;
 
+import org.json.simple.JSONObject;
+
 public class Link {
   private String label = null;
 
@@ -7,7 +9,7 @@ public class Link {
 
   private String type = null;
 
-  private String appContext = null;
+  private JSONObject appContext = null;
 
   public String getLabel() {
     return label;
@@ -33,11 +35,12 @@ public class Link {
     this.type = type;
   }
 
-  public String getAppContext() {
+  // might need to be escaped json instead of an actual json object
+  public JSONObject getAppContext() {
     return appContext;
   }
 
-  public void setAppContext(String appContext) {
+  public void setAppContext(JSONObject appContext) {
     this.appContext = appContext;
   }
 }
