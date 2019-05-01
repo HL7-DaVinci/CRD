@@ -1,0 +1,21 @@
+{
+  "resourceType": "Practitioner",
+  "id": "pra1255",
+  "identifier": [
+    {
+      "system": "http://hl7.org/fhir/sid/us-npi",
+      "value": "348074389"
+    }
+  ],
+  "name": [
+    {
+      "family": "Smythe",
+      "given": [
+        "Juliette"
+      ],
+      "prefix": [
+        "Dr."
+      ]
+    }
+  ]
+}

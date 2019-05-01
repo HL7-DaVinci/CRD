@@ -24,6 +24,7 @@ public class YamlConfig {
   private URI launchUrl;
   private boolean checkPractitionerLocation;
   private boolean appendParamsToSmartLaunchUrl;
+  private String hostOrg;
 
   private CdsConnect cdsConnect;
 
@@ -77,4 +78,8 @@ public class YamlConfig {
   public String getContextPath(){
     return env.getProperty("server.servlet.contextPath");
   }
+
+  public String getHostOrg() {return hostOrg;}
+
+  public void setHostOrg(String org) {this.hostOrg = org;}
 }

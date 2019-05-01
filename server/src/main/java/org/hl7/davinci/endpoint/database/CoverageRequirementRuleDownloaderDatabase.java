@@ -24,8 +24,19 @@ public class CoverageRequirementRuleDownloaderDatabase implements CoverageRequir
   @Autowired
   DataRepository repository;
 
-  public CqlBundleFile downloadCqlBundleFile(Long id) {
+  public CqlBundleFile getFile(String payer, String codeSystem, String code, String name) {
     CqlBundleFile bundleFile = null;
+    logger.warn("payer/codesystem/code/filename download not supported");
+    return bundleFile;
+  }
+
+  public CqlBundleFile downloadCqlBundleFile(Long id, String name) {
+    CqlBundleFile bundleFile = null;
+
+    if (!name.isEmpty()) {
+      logger.warn("named file download not supported");
+      return bundleFile;
+    }
 
     try {
       Optional<CoverageRequirementRule> rule = repository.findById(id);

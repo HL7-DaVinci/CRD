@@ -1,0 +1,24 @@
+{
+  "resourceType": "Observation",
+  "id": "obs016",
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "59408-5",
+        "display": "Oxygen saturation in Arterial blood by Pulse oximetry"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/pat016"
+  },
+  "issued": "2019-02-22T15:30:10+01:00",
+  "valueQuantity": {
+    "value": 81,
+    "unit": "%",
+    "system": "http://unitsofmeasure.org",
+    "code": "%"
+  }
+}
