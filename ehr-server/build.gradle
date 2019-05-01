@@ -23,7 +23,7 @@ repositories {
 }
 apply plugin: 'maven'
 apply plugin: 'war'
-apply from: 'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'
+apply from: 'https://raw.github.com/gretty-gradle-plugin/gretty/master/pluginScripts/gretty.plugin'
 
 gretty {
     servletContainer = 'tomcat8'
