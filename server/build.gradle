@@ -12,9 +12,6 @@ buildscript {
     }
 }
 
-plugins {
-    id 'com.google.cloud.tools.jib' version '1.0.1'
-}
 apply plugin: 'maven'
 //apply plugin: 'war'
 apply plugin: 'java'
@@ -80,16 +77,6 @@ task integrationTest(type: Test) {
 task buildReact(type:Exec) {
     workingDir 'src/main/resources/node_interfaces'
     commandLine './buildout.sh'
-}
-
-//For the "jib" plugin which makes the docker image
-jib {
-    to {
-        image = 'hspc/davinci-crd'
-    }
-    container {
-        useCurrentTimestamp = true
-    }
 }
 
 task embedDtr() {
