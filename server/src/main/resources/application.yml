@@ -29,7 +29,7 @@ checkPractitionerLocation: false
 # The smart app launchUrl. It can be relative, which will be turned into an absolute link against the url the server is running at.
 # If you want it to be absolute, it MUST start with "http://" or "https://"
 # To use the embedded DTR smart app, use "/smart/launch.html"
-launchUrl: http://localhost:3005/launch
+launchUrl: https://davinci-dtr.logicahealth.org/launch
 
 appendParamsToSmartLaunchUrl: false
 
