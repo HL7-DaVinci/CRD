@@ -13,7 +13,7 @@ spring:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
       hibernate.hbm2ddl.auto: create-drop
   profiles:
-    active: cdsConnect
+    active: localDb
 #    active: cdsConnect
 
 server:
