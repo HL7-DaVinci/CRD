@@ -13,7 +13,7 @@ spring:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
       hibernate.hbm2ddl.auto: create-drop
   profiles:
-    active: localDb
+    active: cdsConnect
 #    active: cdsConnect
 
 server:
@@ -37,7 +37,7 @@ appendParamsToSmartLaunchUrl: false
 cdsConnect:
   url: http://10.8.26.70:8083
   username: admin
-  password: bgggg
+  password: admin
   #basic-auth: user:pass
   #proxy-host: proxy.com
   #proxy-port: 80
