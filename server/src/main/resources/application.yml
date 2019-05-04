@@ -42,7 +42,7 @@ cdsConnect:
   #proxy-host: proxy.com
   #proxy-port: 80
 
-localDbRules: src/main/jib/rules/
-localDbFhirArtifacts: src/main/jib/smartAppFhirArtifacts/
+localDbRules: server/src/main/jib/rules/
+localDbFhirArtifacts: server/src/main/jib/smartAppFhirArtifacts/
 
 hostOrg: default
