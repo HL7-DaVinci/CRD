@@ -104,7 +104,7 @@
 		<init-param>
 			<description>A flag that suggests if CORS is supported with cookies</description>
 			<param-name>cors.support.credentials</param-name>
-			<param-value>true</param-value>
+			<param-value>false</param-value>
 		</init-param>
 		<init-param>
 			<description>A flag to control logging</description>
