@@ -21,8 +21,6 @@ define "ProviderState":
 
 define RULE_APPLIES:
   "Gender" = 'male'
-  and "PatientHomeState" = 'TX'
-  and "ProviderState" = 'TX'
 
 define "Auth_Needed":
   "Age" > 65
