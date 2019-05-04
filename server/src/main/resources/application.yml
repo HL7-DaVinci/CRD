@@ -37,7 +37,7 @@ appendParamsToSmartLaunchUrl: false
 cdsConnect:
   url: http://10.8.26.70:8083
   username: admin
-  password: admin
+  password: bgggg
   #basic-auth: user:pass
   #proxy-host: proxy.com
   #proxy-port: 80
