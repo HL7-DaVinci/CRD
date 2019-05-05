@@ -224,7 +224,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       launchUrl = launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId + "&template=" + questionnaireUri + "&request=" + reqResourceId;
     }else {
       // TODO: The iss should be set by the EHR?
-      launchUrl = launchUrl + "?iss=" + fhirBase;
+      launchUrl = launchUrl;
     }
 
     Link link = new Link();
