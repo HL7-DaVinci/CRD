@@ -20,7 +20,7 @@ define "ProviderState":
 
 
 define RULE_APPLIES:
-  "Gender" = 'male'
+  "Age" > 65
 
 define "Auth_Needed":
   "Age" > 65
