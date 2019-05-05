@@ -9,7 +9,7 @@ public class Link {
 
   private String type = null;
 
-  private JSONObject appContext = null;
+  private String appContext = null;
 
   public String getLabel() {
     return label;
@@ -36,11 +36,11 @@ public class Link {
   }
 
   // might need to be escaped json instead of an actual json object
-  public JSONObject getAppContext() {
+  public String getAppContext() {
     return appContext;
   }
 
-  public void setAppContext(JSONObject appContext) {
+  public void setAppContext(String appContext) {
     this.appContext = appContext;
   }
 }
