@@ -217,6 +217,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     HashMap<String,String> appContextMap = new HashMap<>();
     appContextMap.put("template", questionnaireUri);
     appContextMap.put("request", reqResourceId);
+    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
+
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
       launchUrl = launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId + "&template=" + questionnaireUri + "&request=" + reqResourceId;
@@ -230,7 +232,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     link.setLabel("SMART App");
     link.setUrl(launchUrl);
 
-    link.setAppContext(new JSONObject(appContextMap));
+    link.setAppContext(appContext);
 
     return link;
   }
