@@ -61,6 +61,8 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
           .anyRequest().authenticated().and()
           .addFilter(new JwtAuthorizationFilter(authenticationManager(), requestService, publicKeyRepository))
           .antMatcher("/**/cds-services/**");
+    }else {
+      http.headers().frameOptions().disable();
     }
   }
 
