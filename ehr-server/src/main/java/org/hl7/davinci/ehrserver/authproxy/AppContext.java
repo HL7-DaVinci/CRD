@@ -24,6 +24,6 @@ public class AppContext {
 
   @Override
   public String toString() {
-    return template + ", "  + request;
+    return "template=" + template + "&"  + "request=" + request;
   }
 }

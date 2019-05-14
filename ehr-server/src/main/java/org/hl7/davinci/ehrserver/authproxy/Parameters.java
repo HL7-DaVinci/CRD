@@ -2,10 +2,10 @@ package org.hl7.davinci.ehrserver.authproxy;
 
 public class Parameters {
   private String patientId;
-  private AppContext appContext;
+  private String appContext;
 
 
-  public AppContext getAppContext() {
+  public String getAppContext() {
     return appContext;
   }
 
@@ -13,7 +13,7 @@ public class Parameters {
     return patientId;
   }
 
-  public void setAppContext(AppContext appContext) {
+  public void setAppContext(String appContext) {
     this.appContext = appContext;
   }
 

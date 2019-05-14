@@ -19,7 +19,7 @@ public class PayloadMapper implements RowMapper<Payload> {
     AppContext appContext = new AppContext();
     appContext.setTemplate(rs.getString("template"));
     appContext.setRequest(rs.getString("request"));
-    parameters.setAppContext(appContext);
+    parameters.setAppContext(appContext.toString());
     payload.setParameters(parameters);
     return payload;
   }

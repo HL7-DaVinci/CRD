@@ -34,11 +34,11 @@ public class Payload {
   }
 
   public String getTemplate() {
-    return parameters.getAppContext().getTemplate();
+    return parameters.getAppContext().split("&")[0].split("=")[1];
   }
 
   public String getRequest() {
-    return parameters.getAppContext().getRequest();
+    return parameters.getAppContext().split("&")[1].split("=")[1];
   }
 
   public String getLaunchId() {
