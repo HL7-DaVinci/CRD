@@ -57,6 +57,10 @@ public class Payload {
     this.parameters = parameters;
   }
 
+  public String getAppContext() {
+    return parameters.getAppContext();
+  }
+
   @Override
   public String toString() {
     return launchId + ": " +launchUrl +", " +redirectUri + ", "+  parameters.toString();
