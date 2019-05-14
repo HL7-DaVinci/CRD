@@ -7,27 +7,17 @@ public class TokenResponse {
   private String scope;
   private String refresh_token;
   private String patient;
-  private String template;
-  private String request;
+  private String appContext;
 
 
 
-  public String getTemplate() {
-    return template;
+
+  public String getAppContext() {
+    return appContext;
   }
 
-  public TokenResponse setTemplate(String template) {
-    this.template = template;
-    return this;
-
-  }
-
-  public String getRequest() {
-    return request;
-  }
-
-  public TokenResponse setRequest(String request) {
-    this.request = request;
+  public TokenResponse setAppContext(String appContext) {
+    this.appContext = appContext;
     return this;
 
   }
