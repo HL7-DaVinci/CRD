@@ -1,0 +1,29 @@
+{
+  "resourceType": "Condition",
+  "id": "cond015c",
+  "clinicalStatus": "active",
+  "verificationStatus": "confirmed",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://hl7.org/fhir/condition-category",
+          "code": "encounter-diagnosis",
+          "display": "Encounter Diagnosis"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+        "code": " G30.0",
+        "display": "Alzheimer's disease with early onset"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/pat015"
+  }
+}

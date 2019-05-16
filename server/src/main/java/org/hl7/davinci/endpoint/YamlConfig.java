@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint;
 
+import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.hl7.davinci.endpoint.config.CdsConnect;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,8 +21,9 @@ public class YamlConfig {
   Environment env;
 
   private boolean checkJwt;
-  private String launchUrl;
+  private URI launchUrl;
   private boolean checkPractitionerLocation;
+  private boolean appendParamsToSmartLaunchUrl;
   private String hostOrg;
 
   private CdsConnect cdsConnect;
@@ -42,11 +44,11 @@ public class YamlConfig {
     return checkJwt;
   }
 
-  public String getLaunchUrl() { return launchUrl; }
+  public URI getLaunchUrl() { return launchUrl; }
 
   public void setCheckJwt(boolean check) { checkJwt = check; }
 
-  public void setLaunchUrl(String launch) { launchUrl = launch; }
+  public void setLaunchUrl(URI launch) { launchUrl = launch; }
 
   public void setCheckPractitionerLocation(boolean checkPractitionerLocation) {
     this.checkPractitionerLocation = checkPractitionerLocation;
@@ -63,6 +65,15 @@ public class YamlConfig {
   public CdsConnect getCdsConnect() { return cdsConnect; }
 
   public void setLocalDbRules(String localDbRules) { this.localDbRules = localDbRules; }
+
+  public boolean isAppendParamsToSmartLaunchUrl() {
+    return appendParamsToSmartLaunchUrl;
+  }
+
+  public YamlConfig setAppendParamsToSmartLaunchUrl(boolean appendParamsToSmartLaunchUrl) {
+    this.appendParamsToSmartLaunchUrl = appendParamsToSmartLaunchUrl;
+    return this;
+  }
 
   public String getContextPath(){
     return env.getProperty("server.servlet.contextPath");

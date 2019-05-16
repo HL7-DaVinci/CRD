@@ -27,7 +27,7 @@ public class MedicationPrescribeServiceTest {
     cal.set(1970, Calendar.JULY, 4);
     MedicationPrescribeRequest request = CrdRequestCreator
         .createMedicationPrescribeRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
-    CdsResponse response = service.handleRequest(request);
+    CdsResponse response = service.handleRequest(request, null);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
     assertEquals("Authorization is required.", response.getCards().get(0).getSummary());

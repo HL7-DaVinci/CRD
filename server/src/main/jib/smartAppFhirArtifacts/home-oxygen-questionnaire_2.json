@@ -1,0 +1,715 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "urn:hl7:davinci:crd:home-oxygen-questionnaire_2",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/cqif-questionnaire"
+    ]
+  },
+  "title": "Home Oxygen Therapy",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2019-03-11",
+  "publisher": "Da Vinci DTR",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-oxygen-therapy-prepopulate"
+      }
+    }
+  ],
+  "contained": [
+    {
+      "resourceType": "ValueSet",
+      "id": "gender",
+      "name": "Gender",
+      "status": "draft",
+      "description": "Gender",
+      "compose": {
+        "include": [
+          {
+            "concept": [
+              {
+                "code": "male",
+                "display": "Male"
+              },
+              {
+                "code": "female",
+                "display": "Female"
+              },
+              {
+                "code": "other",
+                "display": "Other"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "text": "Patient Information",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "1.1",
+          "text": "Last Name but Different This Time",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientLastName"
+            }
+          ]
+        },
+        {
+          "linkId": "1.2",
+          "text": "First Name",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientFirstName"
+            }
+          ]
+        },
+        {
+          "linkId": "1.3",
+          "text": "Middle Initial",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientMiddleInitial"
+            }
+          ]
+        },
+        {
+          "linkId": "1.4",
+          "text": "Date Of Birth",
+          "type": "date",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientDateOfBirth"
+            }
+          ]
+        },
+        {
+          "linkId": "1.5",
+          "text": "Gender",
+          "type": "choice",
+          "required": true,
+          "options": {
+            "reference": "#gender"
+          },
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientGender"
+            }
+          ]
+        },
+        {
+          "linkId": "1.6",
+          "text": "Medicare ID",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientMedicareId"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "text": "Provider who is performing face-to-face evaluation",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "2.1",
+          "text": "Last Name",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "OrderingProviderLastName"
+            }
+          ]
+        },
+        {
+          "linkId": "2.2",
+          "text": "First Name",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "OrderingProviderFirstName"
+            }
+          ]
+        },
+        {
+          "linkId": "2.3",
+          "text": "Middle Initial",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "OrderingProviderMiddleInitial"
+            }
+          ]
+        },
+        {
+          "linkId": "2.4",
+          "text": "NPI",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "OrderingProviderNPI"
+            }
+          ]
+        },
+        {
+          "linkId": "2.5",
+          "text": "Date of Face-To-Face Evaluation",
+          "type": "date",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "Today"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "text": "Coverage Requirements",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "3.1",
+          "text": "Relevant Patient Diagnoses (conditions that might be expected to improve with oxygen therapy)",
+          "type": "open-choice",
+          "required": true,
+          "repeats": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "COPD"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Bronchiectasis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Hypoxemia"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Diffuse interstitial lung disease"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Cystic fibrosis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Pulmonary neoplasm"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Erythrocytosis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Pulmonary hypertension"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Recurring CHF d/t Cor Pulmonale"
+              }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "RelevantDiagnoses"
+            }
+          ]
+        },
+        {
+          "linkId": "3.2",
+          "text": "Arterial oxygen saturation (Patient on room air while at rest and awake when tested)",
+          "type": "quantity",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "ArterialOxygenSaturation"
+            }
+          ]
+        },
+        {
+          "linkId": "3.3",
+          "text": "Arterial Partial Pressure of Oxygen (PO2) (Patient on room air while at rest and awake when tested)",
+          "type": "quantity",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "ArterialPartialPressureOfOxygen"
+            }
+          ]
+        },
+        {
+          "linkId": "3.4",
+          "text": "Arterial oxygen saturation (Patient tested during exercise)",
+          "type": "quantity",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "ArterialOxygenSaturationExercise"
+            }
+          ]
+        },
+        {
+          "linkId": "3.5",
+          "text": "Arterial Partial Pressure of Oxygen (PO2) (Patient tested during exercise)",
+          "type": "quantity",
+          "required": false
+        },
+        {
+          "linkId": "3.6",
+          "text": "Is there a documented improvement of hypoxemia during exercise with oxygen?",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "linkId": "3.7",
+          "text": "Is the patient mobile within the home? ",
+          "type": "boolean",
+          "required": false,
+          "enableWhen": [
+            {
+              "question": "5.1b",
+              "answerBoolean": true
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientMobile"
+            }
+          ]
+        },
+        {
+          "linkId": "3.8",
+          "text": "Does the patient have dependent edema due to congestive heart failure?",
+          "type": "boolean",
+          "required": false,
+          "enableWhen": [
+            {
+              "question": "3.2",
+              "answerQuantity": {
+                "value": 89,
+                "unit": "%"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.9",
+          "text": "Does the patient have cor pulmonale or pulmonary hypertension documented by P pulmonale on an EKG or by an echocardiogram, gated blood pool scan or direct pulmonary artery pressure measurement?",
+          "type": "boolean",
+          "required": false,
+          "enableWhen": [
+            {
+              "question": "3.2",
+              "answerQuantity": {
+                "value": 89,
+                "unit": "%"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.10",
+          "text": "Does the patient have a hematocrit greater than 56%?",
+          "type": "boolean",
+          "required": false,
+          "enableWhen": [
+            {
+              "question": "3.2",
+              "answerQuantity": {
+                "value": 89,
+                "unit": "%"
+              }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientHasHematocritThatIsGreaterThanThreshold"
+            }
+          ]
+        },
+        {
+          "linkId": "3.11",
+          "text": "Recent hematocrit result",
+          "type": "quantity",
+          "required": false,
+          "enableWhen": [
+            {
+              "question": "3.10",
+              "answerBoolean": true
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "HematocritThatIsGreaterThanThreshold"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "text": "Prescribed Use",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "4.1",
+          "text": "Start date",
+          "type": "date",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "Today"
+            }
+          ]
+        },
+        {
+          "linkId": "4.2",
+          "text": "Length of need: (months) (99 = lifetime)",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "linkId": "4.4",
+          "text": "Peak Flow Rate",
+          "type": "group",
+          "item": [
+            {
+              "linkId": "4.4.1",
+              "text": "LPM",
+              "type": "integer",
+              "required": true
+            },
+            {
+              "linkId": "4.4.2",
+              "text": "oxygen %",
+              "type": "integer",
+              "required": true
+            }
+          ]
+        },
+        {
+          "linkId": "4.4b",
+          "text": "Since > 4 LPM prescribed, enter arterial oxygen saturation or PO2 while patient was on 4 LPM in stable state.",
+          "type": "quantity",
+          "required": true,
+          "enableWhen": [
+            {
+              "operator": ">",
+              "question": "4.4.1",
+              "answerInteger": 4
+            }
+          ]
+        },
+        {
+          "linkId": "4.5",
+          "text": "Average Flow Rate",
+          "type": "group",
+          "item": [
+            {
+              "linkId": "4.5.1",
+              "text": "LPM",
+              "type": "integer",
+              "required": true
+            },
+            {
+              "linkId": "4.5.2",
+              "text": "oxygen %",
+              "type": "integer",
+              "required": true
+            }
+          ]
+        },
+        {
+          "linkId": "4.6",
+          "text": "Frequency of use (choose all that apply)",
+          "type": "open-choice",
+          "required": true,
+          "repeats": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "At rest and awake"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "During exertion"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "During sleep"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "text": "Oxygen Supply Order Details",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "5.1",
+          "text": "Current Order Description",
+          "type": "string",
+          "readOnly": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "DeviceRequestDescription"
+            }
+          ]
+        },
+        {
+          "linkId": "5.1b",
+          "text": "Current Order Is For A Portable Device",
+          "type": "boolean",
+          "readOnly": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "DeviceRequestedIsPortable"
+            }
+          ]
+        },
+        {
+          "linkId": "5.2",
+          "text": "Type",
+          "type": "choice",
+          "required": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Liquid"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Compressed Gas"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Concentrator"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "5.3",
+          "text": "Means of oxygen delivery and accessories",
+          "type": "open-choice",
+          "required": true,
+          "repeats": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Nasal cannula"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Non-rebreather"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Ventilator"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Mask"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "PAP bleed in"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Oxygen conserving device"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "High flow oxygen therapy"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "5.4",
+          "text": "Type of order",
+          "type": "choice",
+          "required": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Initial or original order for certification"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Change in status"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Revision or change in equipment"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Replacement"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "5.5",
+          "text": "Reason for Change in Status",
+          "type": "open-choice",
+          "required": true,
+          "enableWhen": [
+            {
+              "question": "5.4",
+              "answerCoding": {
+                "code": "Change in status"
+              }
+            }
+          ],
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Patient relocated"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Different supplier"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "5.6",
+          "text": "Reason for Revision or change in equipment",
+          "type": "open-choice",
+          "required": true,
+          "enableWhen": [
+            {
+              "question": "5.4",
+              "answerCoding": {
+                "code": "Revision or change in equipment"
+              }
+            }
+          ],
+          "option": [
+            {
+              "valueCoding": {
+                "code": "New Physician order"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Beneficiary requested upgrade with signed ABN"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "5.7",
+          "text": "Reason for Replacement",
+          "type": "open-choice",
+          "required": true,
+          "enableWhen": [
+            {
+              "question": "5.4",
+              "answerCoding": {
+                "code": "Replacement"
+              }
+            }
+          ],
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Lost or stolen"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "End of lifetime"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Repair exceeds 60% of cost"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

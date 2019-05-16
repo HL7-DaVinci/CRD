@@ -25,10 +25,10 @@ public class ServerConformance extends JpaConformanceProviderDstu3 {
     securityExtension.setUrl("http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris");
     securityExtension.addExtension()
         .setUrl("authorize")
-        .setValue(new UriType(Config.get("oauth_authorize")));
+        .setValue(new UriType(Config.get("proxy_authorize")));
     securityExtension.addExtension()
         .setUrl("token")
-        .setValue(new UriType(Config.get("oauth_token")));
+        .setValue(new UriType(Config.get("proxy_token")));
     CapabilityStatement.CapabilityStatementRestSecurityComponent securityComponent = new CapabilityStatement.CapabilityStatementRestSecurityComponent();
     securityComponent.setCors(true);
     securityComponent

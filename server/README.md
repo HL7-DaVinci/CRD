@@ -51,7 +51,7 @@ You can also run the gradle task `buildReact` in the `server` directory to do th
 The CRD server can embed the DTR smart application from https://github.com/HL7-DaVinci/dtr.
 Run the gradle task `embedDtr` to automatically clone the repo (master) and build into the appropriate location. This task must be manually run to pull down new versions of DTR.
 
-Once done, the application can be accessed at (e.g.) `localhost:8090/smart/index.html`. This files are in `src/main/resources/static/smart` and should be commited.
+Once done, the application can be accessed at (e.g.) `localhost:8090/smart/index.html`. This files are in `src/main/resources/static/smart` and should be commited. Note that files should be accessed by their full name, (e.g. `smart/index.html` vs `smart/`).
 
 
 ## Integration Testing

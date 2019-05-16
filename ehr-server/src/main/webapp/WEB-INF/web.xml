@@ -77,7 +77,6 @@
 		<url-pattern>/reqgen/*</url-pattern>
 	</servlet-mapping>
 
-
 	<!-- This filters provide support for Cross Origin Resource Sharing (CORS) -->
 	<filter>
 		<filter-name>CORS Filter</filter-name>
