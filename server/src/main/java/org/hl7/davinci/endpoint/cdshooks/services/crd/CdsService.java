@@ -21,6 +21,7 @@ import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.json.simple.JSONObject;
 import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
@@ -161,6 +162,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   private CqlResultsForCard executeCqlAndGetRelevantResults(Context context) {
     CqlResultsForCard results = new CqlResultsForCard();
+
     results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES",context));
     if (!results.ruleApplies()) {
       return results;
@@ -172,7 +174,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     if (evaluateStatement("RESULT_QuestionnaireUri",context) != null) {
       results
           .setQuestionnaireUri(evaluateStatement("RESULT_QuestionnaireUri",context).toString())
-          .setRequestId(evaluateStatement("RESULT_requestId",context).toString());
+          .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser().encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId",context))));
     }
 
     return results;
@@ -188,6 +190,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri, String reqResourceId) {
+
     URI configLaunchUri = myConfig.getLaunchUrl();
     String launchUrl;
     if (myConfig.getLaunchUrl().isAbsolute()) {
