@@ -44,4 +44,4 @@ define RESULT_QuestionnaireUri:
     'urn:hl7:davinci:crd:home-oxygen-questionnaire_2'
 
 define RESULT_requestId:
-  device_request.id.value
+  device_request
