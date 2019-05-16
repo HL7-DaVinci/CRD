@@ -102,3 +102,4 @@ The core CRD team develops with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 Questions about the project can be asked in the [DaVinci stream on the FHIR Zulip Chat](https://chat.fhir.org/#narrow/stream/128-DaVinci).
 
 This project welcomes Pull Requests. Any issues identified with the RI should be submitted via the [GitHub issue tracker](https://github.com/HL7-DaVinci/CRD/issues).
+
