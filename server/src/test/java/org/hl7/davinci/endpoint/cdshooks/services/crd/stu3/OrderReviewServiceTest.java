@@ -39,7 +39,7 @@ public class OrderReviewServiceTest {
         .createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
     CdsResponse response = service.handleRequest(request, applicationBase);
     assertNotNull(response);
-    assertEquals(1, response.getCards().size());
+    assertEquals(2, response.getCards().size());
     assertEquals("Auth required", response.getCards().get(0).getSummary());
   }
 }
