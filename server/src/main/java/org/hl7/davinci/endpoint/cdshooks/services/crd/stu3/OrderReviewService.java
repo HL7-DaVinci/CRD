@@ -109,14 +109,14 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
   private List<CoverageRequirementRuleCriteria> createCriteriaList(DaVinciDeviceRequest deviceRequest) {
     try {
       List<Coding> codings = deviceRequest.getCodeCodeableConcept().getCoding();
-//      List<Coverage> coverages = deviceRequest.getInsurance().stream()
-//          .map(reference -> (Coverage) reference.getResource()).collect(Collectors.toList());
-//      List<Organization> payors = Utilities.getPayors(coverages);
+      List<Coverage> coverages = deviceRequest.getInsurance().stream()
+          .map(reference -> (Coverage) reference.getResource()).collect(Collectors.toList());
+      List<Organization> payors = Utilities.getPayors(coverages);
       // workaround for rush
-      Organization org = new Organization().setName("Centers for Medicare and Medicaid Services");
-      org.setId("75f39025-65db-43c8-9127-693cdf75e712");
-      List<Organization> payors = new ArrayList<>();
-      payors.add(org);
+//      Organization org = new Organization().setName("Centers for Medicare and Medicaid Services");
+//      org.setId("75f39025-65db-43c8-9127-693cdf75e712");
+//      List<Organization> payors = new ArrayList<>();
+//      payors.add(org);
       List<CoverageRequirementRuleCriteria> criteriaList = CoverageRequirementRuleCriteria
           .createQueriesFromStu3(codings, payors);
       return criteriaList;
