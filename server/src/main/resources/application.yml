@@ -32,6 +32,10 @@ checkPractitionerLocation: false
 #launchUrl: /smart/launch.html
 launchUrl: http://localhost:3005/launch
 
+# When the filepath is included in the appContext, the DTR smart app will use the "getfile" endpoint to retrieve the
+# files that it needs. This must be turned on for retrieval of resources from CDS Connect for DTR.
+includeFilepathInAppContext: true
+
 appendParamsToSmartLaunchUrl: false
 
 

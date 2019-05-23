@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.database;
 
+import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Optional;
@@ -24,9 +26,26 @@ public class CoverageRequirementRuleDownloaderDatabase implements CoverageRequir
   @Autowired
   DataRepository repository;
 
+  YamlConfig config;
+
+  @Autowired
+  public CoverageRequirementRuleDownloaderDatabase(YamlConfig yamlConfig) {
+    config = yamlConfig;
+  }
+
   public CqlBundleFile getFile(String payer, String codeSystem, String code, String name) {
     CqlBundleFile bundleFile = null;
-    logger.warn("payer/codesystem/code/filename download not supported");
+    // ignore the payer/codesystem/code
+    File file = Paths.get(config.getLocalDbFhirArtifacts(), name).toFile();
+
+    try {
+      bundleFile = new CqlBundleFile();
+      bundleFile.setResource(new InputStreamResource(new FileInputStream(file))).setFilename(name);
+    } catch (FileNotFoundException e) {
+      logger.info("file not found: " + name);
+      bundleFile = null;
+    }
+
     return bundleFile;
   }
 

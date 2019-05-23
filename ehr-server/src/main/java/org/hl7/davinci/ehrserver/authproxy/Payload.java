@@ -41,6 +41,8 @@ public class Payload {
     return parameters.getAppContext().split("&")[1].split("=")[1];
   }
 
+  public String getFilepath() { return parameters.getAppContext().split("&")[2].split("=")[1]; }
+
   public String getLaunchId() {
     return launchId;
   }
