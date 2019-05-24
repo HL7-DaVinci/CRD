@@ -15,6 +15,7 @@ import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
@@ -52,17 +53,17 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
   }
 
   @Override
-  public List<Context> createCqlExecutionContexts(MedicationPrescribeRequest request, CoverageRequirementRuleFinder ruleFinder) {
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(MedicationPrescribeRequest request, CoverageRequirementRuleFinder ruleFinder) {
 
     List<DaVinciMedicationRequest> medicationRequestList = extractMedicationRequests(request);
     if (medicationRequestList.isEmpty()) {
       throw RequestIncompleteException.NoSupportedBundlesFound();
     }
 
-    List<Context> contexts = new ArrayList<>();
-    contexts.addAll(getMedicationRequestExecutionContexts(medicationRequestList, ruleFinder));
+    List<CoverageRequirementRuleResult> results = new ArrayList<>();
+    results.addAll(getMedicationRequestExecutionContexts(medicationRequestList, ruleFinder));
 
-    return contexts;
+    return results;
   }
 
   private Context createCqlExecutionContext(CqlBundle cqlPackage, DaVinciMedicationRequest medicationRequest) {
@@ -76,19 +77,22 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
     return CqlExecutionContextBuilder.getExecutionContextStu3(cqlPackage, cqlParams);
   }
 
-  private List<Context> getMedicationRequestExecutionContexts(List<DaVinciMedicationRequest> medicationRequests, CoverageRequirementRuleFinder ruleFinder) {
-    List<Context> contexts = new ArrayList<>();
+  private List<CoverageRequirementRuleResult> getMedicationRequestExecutionContexts(List<DaVinciMedicationRequest> medicationRequests, CoverageRequirementRuleFinder ruleFinder) {
+    List<CoverageRequirementRuleResult> results = new ArrayList<>();
     for (DaVinciMedicationRequest medicationRequest : medicationRequests) {
       List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest);
       for (CoverageRequirementRuleCriteria criteria : criteriaList) {
         CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
         query.execute();
         for (CoverageRequirementRule rule: query.getResponse()) {
-          contexts.add(createCqlExecutionContext(rule.getCqlBundle(), medicationRequest));
+          CoverageRequirementRuleResult result = new CoverageRequirementRuleResult()
+              .setCriteria(criteria)
+              .setContext(createCqlExecutionContext(rule.getCqlBundle(), medicationRequest));
+          results.add(result);
         }
       }
     }
-    return contexts;
+    return results;
   }
 
   private List<DaVinciMedicationRequest> extractMedicationRequests(MedicationPrescribeRequest request) {

@@ -4,7 +4,7 @@ public class AppContext {
 
   private String template;
   private String request;
-
+  private String filepath;
 
   public String getRequest() {
     return request;
@@ -14,6 +14,8 @@ public class AppContext {
     return template;
   }
 
+  public String getFilepath() { return filepath; }
+
   public void setRequest(String request) {
     this.request = request;
   }
@@ -22,8 +24,12 @@ public class AppContext {
     this.template = template;
   }
 
+  public void setFilepath(String filepath) {
+    this.filepath = filepath;
+  }
+
   @Override
   public String toString() {
-    return "template=" + template + "&"  + "request=" + request;
+    return "template=" + template + "&request=" + request + "&filepath=" + filepath;
   }
 }

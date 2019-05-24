@@ -20,7 +20,9 @@ import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.RequestService;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.json.simple.JSONObject;
 import org.opencds.cqf.cql.execution.Context;
@@ -125,17 +127,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     CdsResponse response = new CdsResponse();
 
-    List<Context> cqlExecutionContexts;
+    List<CoverageRequirementRuleResult> lookupResults;
     try {
-      cqlExecutionContexts = this.createCqlExecutionContexts(request, ruleFinder);
+      lookupResults = this.createCqlExecutionContexts(request, ruleFinder);
     } catch (RequestIncompleteException e) {
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
       return response;
     }
 
     boolean foundApplicableRule = false;
-    for (Context context: cqlExecutionContexts) {
-      CqlResultsForCard results = executeCqlAndGetRelevantResults(context);
+    for (CoverageRequirementRuleResult lookupResult: lookupResults) {
+      CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext());
       if (results.ruleApplies()){
         foundApplicableRule = true;
         if (results.getQuestionnaireUri() != null && !results.getQuestionnaireUri().isEmpty()){
@@ -144,7 +146,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               request.getFhirServer(),
               applicationBaseUrl,
               results.getQuestionnaireUri(),
-              results.getRequestId());
+              results.getRequestId(),
+              lookupResult.getCriteria());
           response.addCard(CardBuilder.transform(results, smartAppLink));
         } else{
           response.addCard(CardBuilder.transform(results));
@@ -189,8 +192,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     }
   }
 
-  private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri, String reqResourceId) {
-
+  private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri,
+                                String reqResourceId, CoverageRequirementRuleCriteria criteria) {
     URI configLaunchUri = myConfig.getLaunchUrl();
     String launchUrl;
     if (myConfig.getLaunchUrl().isAbsolute()) {
@@ -212,16 +215,20 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       patientId = patientId.substring(8,patientId.length());
     }
 
-
-
     // PARAMS:
     // template is the uri of the questionnaire
     // request is the ID of the device request or medrec (not the full URI like the IG says, since it should be taken from fhirBase
     HashMap<String,String> appContextMap = new HashMap<>();
     appContextMap.put("template", questionnaireUri);
     appContextMap.put("request", reqResourceId);
-    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
-
+    String filepath = "../../getfile/" + criteria.getQueryString();
+    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId + "&filepath=";
+    if (myConfig.getIncludeFilepathInAppContext()) {
+      appContext = appContext + filepath;
+    } else {
+      appContext = appContext + "_";
+    }
+    logger.info("smarLinkBuilder: appContext: " + appContext);
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
       launchUrl = launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId + "&template=" + questionnaireUri + "&request=" + reqResourceId;
@@ -241,9 +248,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   // Implement this in child class
-  public abstract List<Context> createCqlExecutionContexts(requestTypeT request, CoverageRequirementRuleFinder ruleFinder)
+  public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request, CoverageRequirementRuleFinder ruleFinder)
       throws RequestIncompleteException;
-
 
 }
 

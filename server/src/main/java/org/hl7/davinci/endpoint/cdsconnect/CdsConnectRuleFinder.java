@@ -36,7 +36,7 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
     List<CoverageRequirementRule> ruleList = new ArrayList<>();
 
     try {
-      CdsConnectRuleList cdsConnectRules = connection.queryForRulesList(makeQueryString(criteria));
+      CdsConnectRuleList cdsConnectRules = connection.queryForRulesList(criteria.getQueryString());
 
       List<CdsConnectArtifact> artifacts = cdsConnectRules.getArtifacts();
 
@@ -93,11 +93,5 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
     }
 
     return ruleList;
-  }
-
-  private String makeQueryString(CoverageRequirementRuleCriteria criteria) {
-    String payor = ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.inverse().get(criteria.getPayor());
-    String codeSystem = ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.inverse().get(criteria.getCodeSystem());
-    return String.format("%s/%s/%s", payor, codeSystem, criteria.getCode());
   }
 }
