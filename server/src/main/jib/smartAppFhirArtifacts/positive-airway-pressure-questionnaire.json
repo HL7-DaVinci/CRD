@@ -1,0 +1,125 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "urn:hl7:davinci:positive-airway-pressure-questionnaire",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/cqif-questionnaire"
+    ]
+  },
+  "title": "Positive Airway Pressure (PAP)",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2019-06-04",
+  "publisher": "Da Vinci DTR",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-positive-airway-pressure-prepopulate"
+      }
+    }
+  ],
+  "contained": [
+    {
+      "resourceType": "ValueSet",
+      "id": "gender",
+      "name": "Gender",
+      "status": "draft",
+      "description": "Gender",
+      "compose": {
+        "include": [
+          {
+            "concept": [
+              {
+                "code": "male",
+                "display": "Male"
+              },
+              {
+                "code": "female",
+                "display": "Female"
+              },
+              {
+                "code": "other",
+                "display": "Other"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "text": "Patient Information",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "1.1",
+          "text": "Last Name",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientLastName"
+            }
+          ]
+        },
+        {
+          "linkId": "1.2",
+          "text": "First Name",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientFirstName"
+            }
+          ]
+        },
+        {
+          "linkId": "1.3",
+          "text": "Middle Initial",
+          "type": "string",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientMiddleInitial"
+            }
+          ]
+        },
+        {
+          "linkId": "1.4",
+          "text": "Date Of Birth",
+          "type": "date",
+          "required": true,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientDateOfBirth"
+            }
+          ]
+        },
+        {
+          "linkId": "1.5",
+          "text": "Gender",
+          "type": "choice",
+          "required": true,
+          "options": {
+            "reference": "#gender"
+          },
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PatientGender"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
