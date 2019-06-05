@@ -2,16 +2,22 @@
   "resourceType": "Patient",
   "id": "pat013",
   "gender": "male",
-  "birthDate": "1996-12-23",
+  "birthDate": "1956-12-01",
   "name": [
     {
       "use": "official",
-      "family": "Smith",
+      "family": "Quinton",
       "given": [
-        "Paul",
+        "Vlad",
         "Alan",
         "Nestor"
       ]
+    }
+  ],
+  "identifier": [
+    {
+      "system": "http://hl7.org/fhir/sid/us-medicare",
+      "value": "98765400001AZ"
     }
   ]
 }

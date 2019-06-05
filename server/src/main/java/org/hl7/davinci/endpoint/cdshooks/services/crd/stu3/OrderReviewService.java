@@ -76,12 +76,12 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
 
   private Context createCqlExecutionContext(CqlBundle cqlPackage, DaVinciDeviceRequest deviceRequest) {
     Patient patient = (Patient) deviceRequest.getSubject().getResource();
-    PractitionerRole practitionerRole = (PractitionerRole) deviceRequest.getPerformer().getResource();
-    Location practitionerLocation = (Location) practitionerRole.getLocation().get(0).getResource();
+    //PractitionerRole practitionerRole = (PractitionerRole) deviceRequest.getPerformer().getResource();
+    //Location practitionerLocation = (Location) practitionerRole.getLocation().get(0).getResource();
     HashMap<String,Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     cqlParams.put("device_request", deviceRequest);
-    cqlParams.put("practitioner_location", practitionerLocation);
+    //cqlParams.put("practitioner_location", practitionerLocation);
     return CqlExecutionContextBuilder.getExecutionContextStu3(cqlPackage, cqlParams);
   }
 
