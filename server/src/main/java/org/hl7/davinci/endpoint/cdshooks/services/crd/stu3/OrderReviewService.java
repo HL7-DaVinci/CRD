@@ -15,6 +15,7 @@ import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.Utilities;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
@@ -58,7 +59,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
   }
 
   @Override
-  public List<Context> createCqlExecutionContexts(OrderReviewRequest orderReviewRequest, CoverageRequirementRuleFinder ruleFinder) {
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderReviewRequest orderReviewRequest, CoverageRequirementRuleFinder ruleFinder) {
 
     // Note only device requests are currently supported, but you could follow this model to add
     // the others (e.g. supply request), just make sure we have at least one bundle
@@ -67,10 +68,10 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
       throw RequestIncompleteException.NoSupportedBundlesFound();
     }
 
-    List<Context> contexts = new ArrayList<>();
-    contexts.addAll(getDeviceRequestExecutionContexts(deviceRequestList, ruleFinder));
+    List<CoverageRequirementRuleResult> results = new ArrayList<>();
+    results.addAll(getDeviceRequestExecutionContexts(deviceRequestList, ruleFinder));
 
-    return contexts;
+    return results;
   }
 
   private Context createCqlExecutionContext(CqlBundle cqlPackage, DaVinciDeviceRequest deviceRequest) {
@@ -84,19 +85,22 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
     return CqlExecutionContextBuilder.getExecutionContextStu3(cqlPackage, cqlParams);
   }
 
-  private List<Context> getDeviceRequestExecutionContexts(List<DaVinciDeviceRequest> deviceRequestList, CoverageRequirementRuleFinder ruleFinder) {
-    List<Context> contexts = new ArrayList<>();
+  private List<CoverageRequirementRuleResult> getDeviceRequestExecutionContexts(List<DaVinciDeviceRequest> deviceRequestList, CoverageRequirementRuleFinder ruleFinder) {
+    List<CoverageRequirementRuleResult> results = new ArrayList<>();
     for (DaVinciDeviceRequest deviceRequest : deviceRequestList) {
       List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest);
       for (CoverageRequirementRuleCriteria criteria : criteriaList) {
         CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
         query.execute();
         for (CoverageRequirementRule rule: query.getResponse()) {
-          contexts.add(createCqlExecutionContext(rule.getCqlBundle(), deviceRequest));
+          CoverageRequirementRuleResult result = new CoverageRequirementRuleResult()
+              .setCriteria(criteria)
+              .setContext(createCqlExecutionContext(rule.getCqlBundle(), deviceRequest));
+          results.add(result);
         }
       }
     }
-    return contexts;
+    return results;
   }
 
   private List<DaVinciDeviceRequest> extractDeviceRequests(OrderReviewRequest orderReviewRequest) {

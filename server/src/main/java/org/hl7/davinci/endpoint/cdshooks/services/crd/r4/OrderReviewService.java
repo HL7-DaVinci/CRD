@@ -8,6 +8,7 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
@@ -108,7 +109,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
 //    return queries;
 //  }
 
-  public List<Context> createCqlExecutionContexts(OrderReviewRequest request, CoverageRequirementRuleFinder ruleFinder)
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderReviewRequest request, CoverageRequirementRuleFinder ruleFinder)
       throws RequestIncompleteException {
     throw new RuntimeException("Not implemented yet");
   }

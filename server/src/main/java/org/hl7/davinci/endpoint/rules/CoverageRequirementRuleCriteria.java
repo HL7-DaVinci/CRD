@@ -1,5 +1,7 @@
 package org.hl7.davinci.endpoint.rules;
 
+import org.hl7.ShortNameMaps;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,4 +80,9 @@ public class CoverageRequirementRuleCriteria {
     return criteriaList;
   }
 
+  public String getQueryString() {
+    String payor = ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.inverse().get(this.getPayor());
+    String codeSystem = ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.inverse().get(this.getCodeSystem());
+    return String.format("%s/%s/%s", payor, codeSystem, this.getCode());
+  }
 }
