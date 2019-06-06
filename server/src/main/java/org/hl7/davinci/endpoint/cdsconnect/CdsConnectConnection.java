@@ -28,6 +28,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -114,7 +115,6 @@ public class CdsConnectConnection {
 
     logger.info("logging in");
 
-
     final String loginUrl = baseUrl + "/user/login?_format=json&=";
 
     // build the headers
@@ -166,35 +166,20 @@ public class CdsConnectConnection {
   public void logout() {
     try {
       logger.info("logging out");
+      cookie = null;
       String logoutUrl = baseUrl + "/user/logout";
 
-      // build the headers
-      HttpHeaders logoutHeaders = new HttpHeaders();
-      logoutHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-      logoutHeaders.add("cookie", cookie);
-      if (useBasicAuth) {
-        logoutHeaders.add("Authorization", "basic " + basicAuthValue);
-      }
-      HttpEntity<String> logoutEntity = new HttpEntity<>("", logoutHeaders);
-
-      // execute
-      ResponseEntity<String> logoutResponse = restTemplate.exchange(logoutUrl, HttpMethod.GET,
-          logoutEntity, String.class);
+      restExchange(logoutUrl, true, String.class);
 
     } catch (RestClientException e) {
-      logger.warn("Not logged in to server: " + baseUrl, e);
+      logger.warn("Not logged in to server: " + baseUrl);
     }
   }
 
-  public CdsConnectRuleList queryForRulesList(String query) {
-    logger.info("queryForRulesList( " + query + " )");
-
-    return new CdsConnectRuleList(this, queryForRules(query));
-  }
-
-  private String queryForRules(String query) {
-    logger.info("queryForRules( " + query + " )");
-    String fullUrl = baseUrl + "/erx_rules/" + query + "?_format=json";
+  public <E> E restExchange(String url, boolean isRetry, Class<E> bodyClass) {
+    if (isRetry) {
+      logger.info("restExchange retry: " + url);
+    }
 
     // login if necessary
     login();
@@ -209,62 +194,42 @@ public class CdsConnectConnection {
 
     HttpEntity<String> entity = new HttpEntity<>("", headers);
 
-    // execute
-    ResponseEntity<String> response = restTemplate.exchange(fullUrl, HttpMethod.GET,
-        entity, String.class);
-    String jsonResponseString = response.getBody();
-    //logger.info("query results: " + jsonResponseString);
+    try {
+      ResponseEntity<E> response = restTemplate.exchange(url, HttpMethod.GET, entity, bodyClass);
+      return response.getBody();
 
-    return jsonResponseString;
+    } catch (HttpClientErrorException e) {
+      if (isRetry) {
+        // only retry with an attempt to log in once
+        throw e;
+      } else {
+        // try again and make sure we are logged out
+        logout();
+        return restExchange(url, true, bodyClass);
+      }
+    }
+  }
+
+  public CdsConnectRuleList queryForRulesList(String query) {
+    logger.info("queryForRulesList( " + query + " )");
+    return new CdsConnectRuleList(this, queryForRules(query));
+  }
+
+  private String queryForRules(String query) {
+    logger.info("queryForRules( " + query + " )");
+    String fullUrl = baseUrl + "/erx_rules/" + query + "?_format=json";
+    return restExchange(fullUrl, false, String.class);
   }
 
   public String retrieveArtifact(Integer nodeId) {
     logger.info("retrieveArtifact( " + nodeId.toString() + " )");
     String artifactUrl = baseUrl + "/cds_api/" + nodeId.toString();
-
-    // login if necessary
-    login();
-
-    // build the headers
-    HttpHeaders artifactHeaders = new HttpHeaders();
-    artifactHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-    artifactHeaders.add("cookie", cookie);
-    if (useBasicAuth) {
-      artifactHeaders.add("Authorization", "basic " + basicAuthValue);
-    }
-
-    HttpEntity<String> artifactEntity = new HttpEntity<>("", artifactHeaders);
-
-    // execute
-    ResponseEntity<String> artifactResponse = restTemplate.exchange(artifactUrl, HttpMethod.GET,
-        artifactEntity, String.class);
-    String artifactResponseString = artifactResponse.getBody();
-    //logger.info("artifact: " + artifactResponseString);
-
-    return artifactResponseString;
+    return restExchange(artifactUrl, false, String.class);
   }
 
   public byte[] retrieveCqlBundle(String cqlBundleLocation) {
     logger.info("retrieveCqlBundle( " + cqlBundleLocation + " )");
     String fileUrl = baseUrl + cqlBundleLocation;
-
-    // login if necessary
-    login();
-
-    // build the headers
-    HttpHeaders fileHeaders = new HttpHeaders();
-    fileHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-    fileHeaders.add("cookie", cookie);
-    if (useBasicAuth) {
-      fileHeaders.add("Authorization", "basic " + basicAuthValue);
-    }
-
-    HttpEntity<String> fileEntity = new HttpEntity<>("", fileHeaders);
-
-    // execute
-    ResponseEntity<byte[]> fileResponse = restTemplate.exchange(fileUrl, HttpMethod.GET,
-        fileEntity, byte[].class);
-
-    return fileResponse.getBody();
+    return restExchange(fileUrl, false, byte[].class);
   }
 }
