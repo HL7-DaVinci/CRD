@@ -24,10 +24,8 @@ import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Coverage;
-import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.opencds.cqf.cql.execution.Context;
 import org.slf4j.Logger;
@@ -76,12 +74,9 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
 
   private Context createCqlExecutionContext(CqlBundle cqlPackage, DaVinciDeviceRequest deviceRequest) {
     Patient patient = (Patient) deviceRequest.getSubject().getResource();
-    PractitionerRole practitionerRole = (PractitionerRole) deviceRequest.getPerformer().getResource();
-    Location practitionerLocation = (Location) practitionerRole.getLocation().get(0).getResource();
     HashMap<String,Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     cqlParams.put("device_request", deviceRequest);
-    cqlParams.put("practitioner_location", practitionerLocation);
     return CqlExecutionContextBuilder.getExecutionContextStu3(cqlPackage, cqlParams);
   }
 
