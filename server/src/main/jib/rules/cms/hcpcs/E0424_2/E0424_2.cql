@@ -20,7 +20,6 @@ define "PatientHomeState":
 define RULE_APPLIES:
   "Gender" = 'male'
   and "PatientHomeState" = 'MA'
-  and "ProviderState" = 'MA'
   and "Blah" = 2
 
 define "Auth_Needed":

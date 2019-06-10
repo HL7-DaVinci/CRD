@@ -28,7 +28,7 @@ import org.hl7.fhir.dstu3.model.MedicationRequest.MedicationRequestRequesterComp
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.PractitionerRole;
+//import org.hl7.fhir.dstu3.model.PractitionerRole;
 import org.hl7.fhir.dstu3.model.Reference;
 
 
@@ -61,8 +61,7 @@ public class CrdRequestCreator {
     deviceRequest.setStatus(DaVinciDeviceRequest.DeviceRequestStatus.DRAFT);
     deviceRequest.setId("DeviceRequest/123");
 
-    PrefetchCallback callback = (p, c) -> {
-      deviceRequest.setPerformer(new Reference(p));
+    PrefetchCallback callback = (c) -> {
       deviceRequest.addInsurance(new Reference(c));
     };
     deviceRequest.setSubject(new Reference(patient));
@@ -117,11 +116,7 @@ public class CrdRequestCreator {
     medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.DRAFT);
     medicationRequest.setId("MedicationRequest/123");
 
-    PrefetchCallback callback = (p, c) -> {
-      MedicationRequestRequesterComponent medicationRequestRequesterComponent =
-          new MedicationRequestRequesterComponent();
-      medicationRequestRequesterComponent.setAgent(new Reference(p));
-      medicationRequest.setRequester(medicationRequestRequesterComponent);
+    PrefetchCallback callback = (c) -> {
       medicationRequest.addInsurance(new Reference(c));
     };
     medicationRequest.setSubject(new Reference(patient));
@@ -167,26 +162,6 @@ public class CrdRequestCreator {
     bec.setResource(insurer);
     prefetchBundle.addEntry(bec);
 
-    // create a Location Object
-    Location facility = new Location();
-    facility.setId(idString());
-    facility.setAddress(new Address().addLine("100 Good St")
-        .setCity("Bedford")
-        .setState(providerAddressState)
-        .setPostalCode("01730"));
-    bec = new Bundle.BundleEntryComponent();
-    bec.setResource(facility);
-    prefetchBundle.addEntry(bec);
-
-    PractitionerRole pr = new PractitionerRole();
-    pr.setId(idString());
-    pr.setPractitioner(new Reference(provider));
-    pr.addLocation(new Reference(facility));
-
-    bec = new Bundle.BundleEntryComponent();
-    bec.setResource(pr);
-    prefetchBundle.addEntry(bec);
-
     // create a Coverage object with ID set
     Coverage coverage = new Coverage();
     coverage.setId(idString());
@@ -197,7 +172,7 @@ public class CrdRequestCreator {
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(coverage);
     prefetchBundle.addEntry(bec);
-    cb.callback(pr, coverage);
+    cb.callback(coverage);
 
     return prefetchBundle;
   }
@@ -235,6 +210,6 @@ public class CrdRequestCreator {
 
   interface PrefetchCallback {
 
-    void callback(PractitionerRole provider, Coverage coverage);
+    void callback(Coverage coverage);
   }
 }
