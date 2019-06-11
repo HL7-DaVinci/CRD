@@ -16,37 +16,11 @@ codesystem "SNOMED-CT": 'http://snomed.info/sct'
 //Obstructive Sleep Apnea
 code "G47.33": 'G47.33' from "ICD-10-CM"
 
-//Excessive Daytime Sleepiness
-code "G47.1": 'G47.1' from "ICD-10-CM"
-code "G47.10": 'G47.10' from "ICD-10-CM"
-code "G47.11": 'G47.11' from "ICD-10-CM"
-code "G47.12": 'G47.12' from "ICD-10-CM"
-code "G47.13": 'G47.13' from "ICD-10-CM"
-code "G47.14": 'G47.14' from "ICD-10-CM"
-code "G47.19": 'G47.19' from "ICD-10-CM"
-
-//Mood Disorder
-code "F06.3": 'F06.3' from "ICD-10-CM"
-code "F06.30": 'F06.30' from "ICD-10-CM"
-code "F06.31": 'F06.31' from "ICD-10-CM"
-code "F06.32": 'F06.32' from "ICD-10-CM"
-code "F06.33": 'F06.33' from "ICD-10-CM"
-code "F06.34": 'F06.34' from "ICD-10-CM"
-code "F34.9": 'F34.9' from "ICD-10-CM"
-
-
-//Impaired Cognition
-code "G31.84": 'G31.84' from "ICD-10-CM"  // Mild cognitive impairment
-
-
-
 
 parameter device_request DeviceRequest
 
-// Relevant Diagnosis Code Lists
-define "OSA_Codes": { "G47.33" }
 
-define "Excessive_Daytime_Sleepiness": { "G47.1", "G47.10", "G47.11", "G47.12", "G47.13", "G47.14", "G47.19" }
+define "OSA_Codes": { "G47.33" }
 
 context Patient
 
@@ -65,10 +39,16 @@ define PatientFirstName: "PatientName".given[0].value
 define PatientGender: Patient.gender.value
 define PatientDateOfBirth: Patient.birthDate.value
 
+define PatientCoverageResource: singleton from (
+  [Coverage] coverage
+    // pull coverage resource id from the device request insurance extension
+    where ('Coverage/' + coverage.id) = ((device_request.extension ext where ext.url = 'http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html')[0].value.reference.value))
+define PatientMedicareId: "PatientCoverageResource".subscriberId.value
+
 // coverage requirement info
-define OsaDiagnosis: {
+define OsaDiagnosis:
   if exists(Confirmed(ActiveOrRecurring([Condition: "OSA_Codes"]))) then 'OSA' else 'null'
-} except { 'null' } // except 'null' is a workaround since I don't see how to remove actual nulls
+
 
 define OtherDiagnoses:
   distinct(flatten(
@@ -80,31 +60,34 @@ define OtherDiagnoses:
         }
       where C.clinicalStatus.value = 'active'
       and exists(ICD10Codings)
-      return ICD10Codings
+      return ICD10Codings.code.value + ' - ' + ICD10Codings.display.value
   ))
-  
 
-// device request info
+
 define DeviceRequestHcpcsCoding: singleton from (
   ((cast device_request.code as CodeableConcept).coding) coding
     where coding.system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
 
 define DeviceRequestDescription: 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + "DeviceRequestHcpcsCoding".display.value
-define PapDeviceRequested: "DeviceRequestHcpcsCoding".code.value in { 'E0601', 'E0470' }
+define PapDeviceRequested:
+  if "DeviceRequestHcpcsCoding".code.value = 'E0470' then 'E0470'
+  else if  "DeviceRequestHcpcsCoding".code.value = 'E0601' then 'E0601'
+  else 'null'
 
 
 // ordering provider info
 define OrderingProvider: singleton from (
   [Practitioner] practitioner
-    where ('Practitioner/' + practitioner.id) = device_request.performer.reference.value)
-define OrderingProviderName: singleton from ("OrderingProvider".name name where name.use.value = 'official')
+    where ('Practitioner/' + practitioner.id) =  device_request.performer.reference.value)
+define OrderingProviderName: singleton from ("OrderingProvider".name)// name where name.use.value = 'official')
 define OrderingProviderLastName: "OrderingProviderName".family.value
 define OrderingProviderMiddleInitial: GetMiddleInitials("OrderingProviderName")
 define OrderingProviderFirstName: "OrderingProviderName".given[0].value
 define OrderingProviderNPI: (singleton from (
   "OrderingProvider".identifier identifier
     where identifier.system.value = 'http://hl7.org/fhir/sid/us-npi')).value.value
-
+define OrderingProviderFullName:
+  OrderingProviderFirstName + ' ' + OrderingProviderMiddleInitial + ' ' + OrderingProviderLastName
 
 
 
@@ -145,4 +128,3 @@ define function NullSafeToQuantity(Qty FHIR.Quantity):
 
 define function LowestObservation(ObsList List<Observation>):
   Min(ObsList O return NullSafeToQuantity(cast O.value as Quantity))
-
