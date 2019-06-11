@@ -98,6 +98,7 @@ public class GeneratePapQuestionnaire {
         patInfoMedicareId.setExtension(populateExtention("PatientMedicareId"));
         patInfoMedicareId.setRequired(true);
 
+
         // Question 2 - Provider Information
         Questionnaire.QuestionnaireItemComponent provInfo = q.addItem().setLinkId("2");
         provInfo.setType(Questionnaire.QuestionnaireItemType.GROUP);
@@ -112,13 +113,13 @@ public class GeneratePapQuestionnaire {
         Questionnaire.QuestionnaireItemComponent provInfoFirstName = provInfo.addItem().setLinkId("2.2");
         provInfoFirstName.setText("First Name");
         provInfoFirstName.setType(Questionnaire.QuestionnaireItemType.STRING);
-        provInfoFirstName.setExtension(populateExtention("OrderingProvideFirstName"));
+        provInfoFirstName.setExtension(populateExtention("OrderingProviderFirstName"));
         provInfoFirstName.setRequired(false);
 
         Questionnaire.QuestionnaireItemComponent provInfoMiddleInitial = provInfo.addItem().setLinkId("2.3");
         provInfoMiddleInitial.setText("Middle Initial");
         provInfoMiddleInitial.setType(Questionnaire.QuestionnaireItemType.STRING);
-        provInfoMiddleInitial.setExtension(populateExtention("OrderingProvideMiddleInitial"));
+        provInfoMiddleInitial.setExtension(populateExtention("OrderingProviderMiddleInitial"));
         provInfoMiddleInitial.setRequired(false);
 
 
@@ -135,17 +136,25 @@ public class GeneratePapQuestionnaire {
         patDiag.setType(Questionnaire.QuestionnaireItemType.GROUP);
         patDiag.setText("Patient diagnosis:");
         Questionnaire.QuestionnaireItemComponent patDiagOsa = patDiag.addItem().setLinkId("4.1");
-        patDiagOsa.setText("OSA:");
-        patDiagOsa.setType(Questionnaire.QuestionnaireItemType.BOOLEAN);
+        patDiagOsa.setType(Questionnaire.QuestionnaireItemType.CHOICE);
+        Coding codeOsa = new Coding();
+        codeOsa.setCode("OSA");
+        codeOsa.setDisplay("Obstructive Sleep Apnea");
+        patDiagOsa.addOption(new Questionnaire.QuestionnaireItemOptionComponent().setValue(codeOsa));
         patDiagOsa.setExtension(populateExtention("OsaDiagnosis"));
+
         Questionnaire.QuestionnaireItemComponent patDiagOther = patDiag.addItem().setLinkId("4.2");
-        patDiagOther.setText("Other (describe):");
-        patDiagOther.setType(Questionnaire.QuestionnaireItemType.BOOLEAN);
+        patDiagOther.setText("Other:");
+        patDiagOther.setType(Questionnaire.QuestionnaireItemType.CHOICE);
+        Coding codeOther = new Coding();
+        codeOther.setCode("Other");
+        codeOther.setDisplay("Yes");
+        patDiagOther.addOption(new Questionnaire.QuestionnaireItemOptionComponent().setValue(codeOther));
+
         Questionnaire.QuestionnaireItemComponent patDiagOtherDescr = patDiag.addItem().setLinkId("4.3");
+        patDiagOtherDescr.setText("Other (describe):");
         patDiagOtherDescr.setType(Questionnaire.QuestionnaireItemType.TEXT);
         patDiagOtherDescr.setExtension(populateExtention("OtherDiagnoses"));
-
-
 
         // Question 5 - Order Start Date
         Questionnaire.QuestionnaireItemComponent orderStart = q.addItem().setLinkId("5");
@@ -199,16 +208,19 @@ public class GeneratePapQuestionnaire {
         Questionnaire.QuestionnaireItemComponent deviceDescr = deviceOrder.addItem().setLinkId("7.1");
         deviceDescr.setType(Questionnaire.QuestionnaireItemType.TEXT);
         deviceDescr.setText("Device Order (description of device):");
-        Questionnaire.QuestionnaireItemComponent device = deviceOrder.addItem().setLinkId("7.2");
-        device.setType(Questionnaire.QuestionnaireItemType.CHOICE);
+
+        Questionnaire.QuestionnaireItemComponent deviceSelected = deviceOrder.addItem().setLinkId("7.2");
+        deviceSelected.setType(Questionnaire.QuestionnaireItemType.CHOICE);
+        deviceSelected.setRepeats(true);
         Coding papDevice = new Coding();
         papDevice.setDisplay("E0601 Continuous Positive Airway Pressure device");
         papDevice.setCode("E0601");
-        device.addOption(new Questionnaire.QuestionnaireItemOptionComponent().setValue(papDevice));
+        deviceSelected.addOption(new Questionnaire.QuestionnaireItemOptionComponent().setValue(papDevice));
         papDevice = new Coding();
         papDevice.setDisplay("E0470 Respiratory assist device, bi-level w/o backup");
         papDevice.setCode("E0470");
-        device.addOption(new Questionnaire.QuestionnaireItemOptionComponent().setValue(papDevice));
+        deviceSelected.addOption(new Questionnaire.QuestionnaireItemOptionComponent().setValue(papDevice));
+        deviceSelected.setExtension(populateExtention("PapDeviceRequested"));
 
 
         // Question 8 - Supply Order
@@ -224,8 +236,7 @@ public class GeneratePapQuestionnaire {
         Questionnaire.QuestionnaireItemComponent signingProvider = signOff.addItem().setLinkId("9.2");
         signingProvider.setText("Name (Printed):");
         signingProvider.setType(Questionnaire.QuestionnaireItemType.STRING);
-        //signingProvider.setExtension(populateExtention("OrderingProviderName"));
-        signingProvider.setExtension(populateExtention("SignOffName"));
+        signingProvider.setExtension(populateExtention("OrderingProviderFullName"));
         signingProvider.setRequired(true);
         Questionnaire.QuestionnaireItemComponent signingDate = signOff.addItem().setLinkId("9.3");
         signingDate.setType(Questionnaire.QuestionnaireItemType.DATE);

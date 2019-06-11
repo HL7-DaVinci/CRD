@@ -9,9 +9,10 @@
   ],
   "name": [
     {
+      "use": "official",
       "family": "Doe",
       "given": [
-        "Jane"
+        "Jane", "Betty"
       ],
       "prefix": [
         "Dr."

@@ -134,7 +134,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProvideFirstName"
+              "valueString": "OrderingProviderFirstName"
             }
           ],
           "linkId": "2.2",
@@ -146,7 +146,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProvideMiddleInitial"
+              "valueString": "OrderingProviderMiddleInitial"
             }
           ],
           "linkId": "2.3",
@@ -180,13 +180,28 @@
             }
           ],
           "linkId": "4.1",
-          "text": "OSA:",
-          "type": "boolean"
+          "type": "choice",
+          "option": [
+            {
+              "valueCoding": {
+                "code": "OSA",
+                "display": "Obstructive Sleep Apnea"
+              }
+            }
+          ]
         },
         {
           "linkId": "4.2",
-          "text": "Other (describe):",
-          "type": "boolean"
+          "text": "Other:",
+          "type": "choice",
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Other",
+                "display": "Yes"
+              }
+            }
+          ]
         },
         {
           "extension": [
@@ -196,6 +211,7 @@
             }
           ],
           "linkId": "4.3",
+          "text": "Other (describe):",
           "type": "text"
         }
       ]
@@ -283,8 +299,15 @@
           "type": "text"
         },
         {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "PapDeviceRequested"
+            }
+          ],
           "linkId": "7.2",
           "type": "choice",
+          "repeats": true,
           "option": [
             {
               "valueCoding": {
@@ -315,7 +338,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "SignOffName"
+              "valueString": "OrderingProviderFullName"
             }
           ],
           "linkId": "9.2",
