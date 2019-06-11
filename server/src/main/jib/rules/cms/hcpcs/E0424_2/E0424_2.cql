@@ -4,8 +4,6 @@ include FHIRHelpers version '3.0.0' called FHIRHelpers
 
 parameter Patient Patient
 parameter device_request DeviceRequest
-parameter practitioner_location Location
-
 
 define "Blah":
   FHIRHelpers.PlusOne(1)
@@ -19,14 +17,9 @@ define "Gender":
 define "PatientHomeState":
   Patient.address.where(use.value = 'home')[0].state.value
 
-define "ProviderState":
-  practitioner_location.address[0].state.value
-
-
 define RULE_APPLIES:
   "Gender" = 'male'
   and "PatientHomeState" = 'MA'
-  and "ProviderState" = 'MA'
   and "Blah" = 2
 
 define "Auth_Needed":

@@ -4,7 +4,6 @@ include FHIRHelpers version '3.0.0' called FHIRHelpers
 
 parameter Patient Patient
 parameter device_request DeviceRequest
-parameter practitioner_location Location
 
 define "Age":
   AgeInYears()

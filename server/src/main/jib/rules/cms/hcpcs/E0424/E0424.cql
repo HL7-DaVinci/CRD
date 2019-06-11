@@ -4,7 +4,6 @@ include FHIRHelpers version '3.0.0' called FHIRHelpers
 
 parameter Patient Patient
 parameter device_request DeviceRequest
-parameter practitioner_location Location
 
 define "Age":
   AgeInYears()
@@ -14,10 +13,6 @@ define "Gender":
 
 define "PatientHomeState":
   Patient.address.where(use.value = 'home')[0].state.value
-
-define "ProviderState":
-  practitioner_location.address[0].state.value
-
 
 define RULE_APPLIES:
   "Age" > 0
