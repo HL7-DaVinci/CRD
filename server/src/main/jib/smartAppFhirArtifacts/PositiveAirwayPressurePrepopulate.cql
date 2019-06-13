@@ -1,132 +1,26 @@
-library PAP version '0.0.2'
+library PositiveAirwayPressureDevice  version '0.0.1'
 using FHIR version '3.0.0'
 include FHIRHelpers version '3.0.0' called FHIRHelpers
 
 
 // This cql and questionnaire combo can be considered a partial implementation of these forms:
-
+// https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/Downloads/CMS484.pdf
+// https://www.cms.gov/Research-Statistics-Data-and-Systems/Computer-Data-and-Systems/Electronic-Clinical-Templates/Downloads/Home-Oxygen-Therapy-Order-Template-Draft-20170905-R40.pdf
+// with guidance from https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/Home-Oxygen-Therapy-ICN908804.pdf
 
 
 codesystem "ICD-10-CM": 'http://hl7.org/fhir/sid/icd-10-cm'
 codesystem "LOINC": 'http://loinc.org'
 codesystem "SNOMED-CT": 'http://snomed.info/sct'
 
-//COPD_Codes
-code "J44": 'J44' from "ICD-10-CM"
-code "J44.0": 'J44.0' from "ICD-10-CM"
-code "J44.1": 'J44.1' from "ICD-10-CM"
-code "J44.9": 'J44.9' from "ICD-10-CM"
-
-//Bronchiectasis_Codes
-code "J47": 'J47' from "ICD-10-CM"
-code "J47.0": 'J47.0' from "ICD-10-CM"
-code "J47.1": 'J47.1' from "ICD-10-CM"
-code "J47.9": 'J47.9' from "ICD-10-CM"
-
-//Diffuse_interstitial_lung_disease_Codes
-code "J84": 'J84' from "ICD-10-CM"
-code "J84.0": 'J84.0' from "ICD-10-CM"
-code "J84.01": 'J84.01' from "ICD-10-CM"
-code "J84.02": 'J84.02' from "ICD-10-CM"
-code "J84.03": 'J84.03' from "ICD-10-CM"
-code "J84.09": 'J84.09' from "ICD-10-CM"
-code "J84.1": 'J84.1' from "ICD-10-CM"
-code "J84.10": 'J84.10' from "ICD-10-CM"
-code "J84.11": 'J84.11' from "ICD-10-CM"
-code "J84.111": 'J84.111' from "ICD-10-CM"
-code "J84.112": 'J84.112' from "ICD-10-CM"
-code "J84.113": 'J84.113' from "ICD-10-CM"
-code "J84.114": 'J84.114' from "ICD-10-CM"
-code "J84.115": 'J84.115' from "ICD-10-CM"
-code "J84.116": 'J84.116' from "ICD-10-CM"
-code "J84.117": 'J84.117' from "ICD-10-CM"
-code "J84.17": 'J84.17' from "ICD-10-CM"
-code "J84.2": 'J84.2' from "ICD-10-CM"
-code "J84.8": 'J84.8' from "ICD-10-CM"
-code "J84.81": 'J84.81' from "ICD-10-CM"
-code "J84.82": 'J84.82' from "ICD-10-CM"
-code "J84.83": 'J84.83' from "ICD-10-CM"
-code "J84.84": 'J84.84' from "ICD-10-CM"
-code "J84.841": 'J84.841' from "ICD-10-CM"
-code "J84.842": 'J84.842' from "ICD-10-CM"
-code "J84.843": 'J84.843' from "ICD-10-CM"
-code "J84.848": 'J84.848' from "ICD-10-CM"
-code "J84.89": 'J84.89' from "ICD-10-CM"
-code "J84.9": 'J84.9' from "ICD-10-CM"
-
-//Cystic_fibrosis_Codes
-code "E84": 'E84' from "ICD-10-CM"
-code "E84.0": 'E84.0' from "ICD-10-CM"
-code "E84.1": 'E84.1' from "ICD-10-CM"
-code "E84.11": 'E84.11' from "ICD-10-CM"
-code "E84.19": 'E84.19' from "ICD-10-CM"
-code "E84.8": 'E84.8' from "ICD-10-CM"
-code "E84.9": 'E84.9' from "ICD-10-CM"
-
-//Pulmonary_hypertension_Codes
-code "I27.0": 'I27.0' from "ICD-10-CM"
-code "I27.2": 'I27.2' from "ICD-10-CM"
-
-//Hypoxemia_Codes
-code "R09.02": 'R09.02' from "ICD-10-CM"
-
-
-//  Loinc codes for observations
-//Arterial_oxygen_saturation_Codes
-code "59408-5": '59408-5' from "LOINC"
-//Arterial_partial_pressure_of_oxygen_Codes
-code "2703-7": '2703-7' from "LOINC"
-//Arterial_oxygen_saturation_during_exercise_Codes
-code "89276-0": '89276-0' from "LOINC"
-//Note: cant find loinc code for partial pressure during exercise
-
-//Hematocrit_lab_test_Codes
-code "20570-8": '20570-8' from "LOINC"
-code "31100-1": '31100-1' from "LOINC"
-code "32354-3": '32354-3' from "LOINC"
-code "41654-5": '41654-5' from "LOINC"
-code "41655-2": '41655-2' from "LOINC"
-code "4544-3": '4544-3' from "LOINC"
-code "4545-0": '4545-0' from "LOINC"
-code "71829-6": '71829-6' from "LOINC"
-code "71830-4": '71830-4' from "LOINC"
-code "71832-0": '71832-0' from "LOINC"
-code "71833-8": '71833-8' from "LOINC"
-
-
-
-//Immobilization_Codes
-code "102491009": '102491009' from "SNOMED-CT"
-code "129857008": '129857008' from "SNOMED-CT"
-code "129859006": '129859006' from "SNOMED-CT"
-code "160685001": '160685001' from "SNOMED-CT"
-code "371632003": '371632003' from "SNOMED-CT"
-code "8510008": '8510008' from "SNOMED-CT"
+//Obstructive Sleep Apnea
+code "G47.33": 'G47.33' from "ICD-10-CM"
 
 
 parameter device_request DeviceRequest
 
-// Relevant Diagnosis Code Lists
-define "COPD_Codes": { "J44", "J44.0", "J44.1", "J44.9" }
-define "Bronchiectasis_Codes": { "J47", "J47.0", "J47.1", "J47.9" }
-define "Diffuse_interstitial_lung_disease_Codes": { "J84", "J84.0", "J84.01", "J84.02", "J84.03",
-  "J84.09", "J84.1", "J84.10", "J84.11", "J84.111", "J84.112", "J84.113", "J84.114", "J84.115",
-  "J84.116", "J84.117", "J84.17", "J84.2", "J84.8", "J84.81", "J84.82", "J84.83", "J84.84",
-  "J84.841", "J84.842", "J84.843", "J84.848", "J84.89", "J84.9" }
-define "Cystic_fibrosis_Codes": { "E84", "E84.0", "E84.1", "E84.11", "E84.19", "E84.8", "E84.9" }
-define "Pulmonary_hypertension_Codes": { "I27.0", "I27.2" }
-define "Hypoxemia_Codes": { "R09.02" }
 
-// Observation code lists
-define "Arterial_oxygen_saturation_Codes": { "59408-5" }
-define "Arterial_partial_pressure_of_oxygen_Codes": { "2703-7" }
-define "Arterial_oxygen_saturation_during_exercise_Codes": { "89276-0" }
-
-define "Hematocrit_lab_test_Codes": { "20570-8", "31100-1", "32354-3", "41654-5", "41655-2", "4544-3", "4545-0", "71829-6", "71830-4", "71832-0", "71833-8" }
-
-// Other codes
-define "Immobilization_Codes": { "102491009", "129857008", "129859006", "160685001", "371632003", "8510008" }
-
+define "OSA_Codes": { "G47.33" }
 
 context Patient
 
@@ -145,8 +39,55 @@ define PatientFirstName: "PatientName".given[0].value
 define PatientGender: Patient.gender.value
 define PatientDateOfBirth: Patient.birthDate.value
 
+define PatientCoverageResource: singleton from (
+  [Coverage] coverage
+    // pull coverage resource id from the device request insurance extension
+    where ('Coverage/' + coverage.id) = ((device_request.extension ext where ext.url = 'http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html')[0].value.reference.value))
+define PatientMedicareId: "PatientCoverageResource".subscriberId.value
+
+// coverage requirement info
+define OsaDiagnosis:
+  if exists(Confirmed(ActiveOrRecurring([Condition: "OSA_Codes"]))) then 'OSA' else 'null'
 
 
+define OtherDiagnoses:
+  distinct(flatten(
+    [Condition] C
+      let ICD10Codings:
+        (C.code.coding) CODING where CODING.system.value in {
+          'http://hl7.org/fhir/sid/icd-10',
+          'http://hl7.org/fhir/sid/icd-10-cm'
+        }
+      where C.clinicalStatus.value = 'active'
+      and exists(ICD10Codings)
+      return ICD10Codings.code.value + ' - ' + ICD10Codings.display.value
+  ))
+
+
+define DeviceRequestHcpcsCoding: singleton from (
+  ((cast device_request.code as CodeableConcept).coding) coding
+    where coding.system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
+
+define DeviceRequestDescription: 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + "DeviceRequestHcpcsCoding".display.value
+define PapDeviceRequested:
+  if "DeviceRequestHcpcsCoding".code.value = 'E0470' then 'E0470'
+  else if  "DeviceRequestHcpcsCoding".code.value = 'E0601' then 'E0601'
+  else 'null'
+
+
+// ordering provider info
+define OrderingProvider: singleton from (
+  [Practitioner] practitioner
+    where ('Practitioner/' + practitioner.id) =  device_request.performer.reference.value)
+define OrderingProviderName: singleton from ("OrderingProvider".name)// name where name.use.value = 'official')
+define OrderingProviderLastName: "OrderingProviderName".family.value
+define OrderingProviderMiddleInitial: GetMiddleInitials("OrderingProviderName")
+define OrderingProviderFirstName: "OrderingProviderName".given[0].value
+define OrderingProviderNPI: (singleton from (
+  "OrderingProvider".identifier identifier
+    where identifier.system.value = 'http://hl7.org/fhir/sid/us-npi')).value.value
+define OrderingProviderFullName:
+  OrderingProviderFirstName + ' ' + OrderingProviderMiddleInitial + ' ' + OrderingProviderLastName
 
 
 
@@ -187,4 +128,3 @@ define function NullSafeToQuantity(Qty FHIR.Quantity):
 
 define function LowestObservation(ObsList List<Observation>):
   Min(ObsList O return NullSafeToQuantity(cast O.value as Quantity))
-
