@@ -1,8 +1,6 @@
 package org.hl7.davinci.endpoint;
 
 import ca.uhn.fhir.context.FhirContext;
-import org.hl7.fhir.QuestionnaireItemType;
-import org.hl7.fhir.ValueSetCompose;
 import org.hl7.fhir.dstu3.model.*;
 
 import java.io.PrintWriter;
