@@ -69,7 +69,7 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 4. Navigate to the KeyCloak instance in a browser, it should be at [http://localhost:8180/](http://localhost:8180)
 5. When prompted, create a new administrative username and password.
 6. Create a realm, choose any name.  The realm will be protecting the `ehr-server`.
-	* The realm can be imported by selecting the `import` option on the realm creation screen.  Importing `ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
+	* The realm can be imported by selecting the `import` option on the realm creation screen.  Importing `ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files. Note: Do not use the Import on the bottom of the menu. Use the Import inside ClientFHIRServer at the top of the menu.
 7. Make two clients by navigating to the `Clients` tab
 	* The name given to the clients will be their `client ID`
 	* Make one client public and the other bearer-only with the `Access-type` dropdown.
