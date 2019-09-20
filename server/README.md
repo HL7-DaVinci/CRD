@@ -56,7 +56,7 @@ Once done, the application can be accessed at (e.g.) `localhost:8090/smart/index
 
 ## Integration Testing
 
-Integration tests will set up an actual running instance of this server as well as `ehr-server` to monitor a the handling of requests from beginning to end.
+Integration tests will set up an actual running instance of this server as well as `ehr-server` to monitor the handling of requests from beginning to end.
 
 Integration tests can be run with `gradle integrationTest`.
 
