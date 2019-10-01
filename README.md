@@ -21,7 +21,7 @@ Subprojects:
 
 Standalone or supporting apps for this project are contained in other repositories.  These include:
 * [request-generator](https://github.com/HL7-DaVinci/crd-request-generator) - [react](https://reactjs.org/) based web UI that can generate basic CRD requests and display the returned CDS Hooks cards
-* [smart-app](https://github.com/HL7-DaVinci/dtr) - A SMART of FHIR application for Documentation Templates and Rules.
+* [smart-app](https://github.com/HL7-DaVinci/dtr) - A SMART of FHIR application for Documentation Templates and Rules (DTR).
 
 ## System Architecture
 The subprojects in this repository are capable of simulating the entire set of interactions required for CRD. Their interactions can be seen in the following diagram:
