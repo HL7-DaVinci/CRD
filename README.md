@@ -13,10 +13,8 @@ Folders within this project make up subprojects. This section provides a brief d
 
 Subprojects:
 * creator - small java application that writes out a CDS Hook request for `order-review` to a JSON file
-* definition - (now obsolete) FHIR OperationDefinition for CRD - this is since been replaced by a CDS Hooks approach
 * examples - JSON examples of service requests and responses
 * ehr-server - FHIR server that acts as a representation of the FHIR server that an EHR would host
-* operations - (now obsolete) Implementation of the CRD FHIR Operation using [HAPI FHIR](http://hapifhir.io/) - this is since been replaced by a CDS Hooks approach
 * resources - java objects to represent the data structures involved in CRD requests and responses
 * server - java application that implements the CDS service in CRD
 * testingClient - small java application that makes a CRD request and logs the response
