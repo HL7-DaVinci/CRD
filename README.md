@@ -14,7 +14,7 @@ Folders within this project make up subprojects. This section provides a brief d
 Subprojects:
 
 * ehr-server - FHIR server that acts as a representation of the FHIR server that an EHR would host
-* server - java application that implements the CDS service in CRD
+* [server](https://github.com/HL7-DaVinci/crd-request-generator) - java application that implements the CDS service in CRD
 
 * creator - small java application that writes out a CDS Hook request for `order-review` to a JSON file
 * examples - JSON examples of service requests and responses
@@ -22,7 +22,7 @@ Subprojects:
 * testingClient - small java application that makes a CRD request and logs the response
 
 Standalone or supporting apps for this project are contained in other repositories.  These include:
-* [request-generator](https://github.com/HL7-DaVinci/crd-request-generator) - [react](https://reactjs.org/) based web UI that can generate basic CRD requests and display the returned CDS Hooks cards
+* [request-generator](https://github.com/HL7-DaVinci/crd-request-generator) - [React](https://reactjs.org/) based web UI that can generate basic CRD requests and display the returned CDS Hooks cards
 * [smart-app](https://github.com/HL7-DaVinci/dtr) - A SMART of FHIR application for Documentation Templates and Rules (DTR).
 
 ## System Architecture
