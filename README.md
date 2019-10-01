@@ -13,7 +13,7 @@ Folders within this project make up subprojects. This section provides a brief d
 
 Subprojects:
 
-* [ehr-server](https://github.com/HL7-DaVinci/CRD/tree/master/ehr-server) - FHIR server that acts as a representation of the FHIR server that an EHR would host
+* [EHR Server](https://github.com/HL7-DaVinci/CRD/tree/master/ehr-server) - FHIR server that acts as a representation of the FHIR server that an EHR would host
 * [CRD RI Server](https://github.com/HL7-DaVinci/CRD/tree/master/server) - java application that implements the CDS service in CRD
 
 * creator - small java application that writes out a CDS Hook request for `order-review` to a JSON file
