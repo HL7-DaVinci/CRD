@@ -12,11 +12,13 @@ This is a Java based project that requires at least Java 8 (untested with later 
 Folders within this project make up subprojects. This section provides a brief description of each. More detailed information can be found in the subproject folders.
 
 Subprojects:
+
+* ehr-server - FHIR server that acts as a representation of the FHIR server that an EHR would host
+* server - java application that implements the CDS service in CRD
+
 * creator - small java application that writes out a CDS Hook request for `order-review` to a JSON file
 * examples - JSON examples of service requests and responses
-* ehr-server - FHIR server that acts as a representation of the FHIR server that an EHR would host
 * resources - java objects to represent the data structures involved in CRD requests and responses
-* server - java application that implements the CDS service in CRD
 * testingClient - small java application that makes a CRD request and logs the response
 
 Standalone or supporting apps for this project are contained in other repositories.  These include:
