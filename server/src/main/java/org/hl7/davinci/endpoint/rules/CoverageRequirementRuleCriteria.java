@@ -24,6 +24,10 @@ public class CoverageRequirementRuleCriteria {
     return codeSystem;
   }
 
+  public String getCodeSystemShortName() {
+    return ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.inverse().get(codeSystem);
+  }
+
   public CoverageRequirementRuleCriteria setCodeSystem(String codeSystem) {
     this.codeSystem = codeSystem;
     return this;
@@ -32,6 +36,8 @@ public class CoverageRequirementRuleCriteria {
   public String getPayor() {
     return payor;
   }
+
+  public String getPayorShortName() { return ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.inverse().get(payor); }
 
   public CoverageRequirementRuleCriteria setPayor(String payor) {
     this.payor = payor;

@@ -1,9 +1,13 @@
 package org.hl7.davinci.endpoint.rules;
 
 import java.util.List;
+import java.util.logging.Logger;
+
+import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 
 public class CoverageRequirementRuleQuery {
+  private static Logger logger = Logger.getLogger(Application.class.getName());
 
   private List<CoverageRequirementRule> response;
   private CoverageRequirementRuleCriteria criteria;
@@ -15,6 +19,7 @@ public class CoverageRequirementRuleQuery {
   }
 
   public void execute() {
+    logger.info("CoverageRequrementRuleQuery.execute(" + criteria.toString());
     response = finder.findRules(criteria);
   }
 
