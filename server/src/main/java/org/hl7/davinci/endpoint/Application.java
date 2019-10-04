@@ -2,8 +2,7 @@ package org.hl7.davinci.endpoint;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.zip.ZipException;
+
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.database.DataRepository;
@@ -16,10 +15,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.FileSystemResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.zeroturnaround.zip.ZipUtil;
 
 @SpringBootApplication
@@ -49,33 +44,57 @@ public class Application {
   @Profile("localDb")
   public CommandLineRunner loadData(DataRepository repository, YamlConfig config) {
     return (args) -> {
-      String pattern = "file:" + Paths.get(config.getLocalDbRules() ,"/*/*/*/").toAbsolutePath();
-      logger.info("loading all rules into database matching pattern: " + pattern);
-      ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(new FileSystemResourceLoader());
-      Resource[] cqlFileResources = resolver.getResources(pattern);
-      for (Resource cqlFileResource: cqlFileResources) {
-        File zipF = File.createTempFile("crd_server_cql_package", ".zip");
-        try {
-          ZipUtil.pack(cqlFileResource.getFile(), zipF);
-        } catch (Exception e) {
-          continue;
+
+      File[] payers = new File(config.getLocalDbRules()).listFiles();
+      for (File payer: payers) {
+        if (payer.isDirectory()) {
+
+          File[] codeSystems = payer.listFiles();
+          for (File codeSystem: codeSystems) {
+            if (codeSystem.isDirectory()) {
+
+              File[] codes = codeSystem.listFiles();
+              for (File code: codes) {
+                if (code.isDirectory()) {
+                  loadResource(repository, code);
+                }
+              }
+            }
+          }
         }
-        String fileName = cqlFileResource.getFile().getName();
-        String code = fileName.substring(0, fileName.indexOf('_') == -1 ? fileName.length() : fileName.indexOf('_'));
-        String codeSystemShortName  = cqlFileResource.getFile().getParentFile().getName();
-        String payorNameShortName = cqlFileResource.getFile().getParentFile().getParentFile().getName();
-        String codeSystem = ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(codeSystemShortName);
-        String payorName = ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payorNameShortName);
-        CoverageRequirementRule rule = new CoverageRequirementRule();
-        rule.setPayor(payorName);
-        rule.setCode(code);
-        rule.setCodeSystem(codeSystem);
-        rule.setCqlPackagePath(zipF.getAbsolutePath());
-        repository.save(rule);
-        logger.info(String.format("Added rule %s, %s, %s",payorNameShortName,codeSystemShortName,code));
       }
     };
   }
 
+  /**
+   * Add file into the localDb
+   * @param repository that contains the rules
+   * @param file to process as a rule
+   */
+  private void loadResource(DataRepository repository, File file) {
+    try {
+      File zipF = File.createTempFile("crd_server_cql_package", ".zip");
+      try {
+        ZipUtil.pack(file, zipF);
+      } catch (Exception e) {
+        return;
+      }
+      String fileName = file.getName();
+      String code = fileName.substring(0, fileName.indexOf('_') == -1 ? fileName.length() : fileName.indexOf('_'));
+      String codeSystemShortName = file.getParentFile().getName();
+      String payorNameShortName = file.getParentFile().getParentFile().getName();
+      String codeSystem = ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(codeSystemShortName);
+      String payorName = ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payorNameShortName);
+      CoverageRequirementRule rule = new CoverageRequirementRule();
+      rule.setPayor(payorName);
+      rule.setCode(code);
+      rule.setCodeSystem(codeSystem);
+      rule.setCqlPackagePath(zipF.getAbsolutePath());
+      repository.save(rule);
+      logger.info(String.format("Added rule %s, %s, %s", payorNameShortName, codeSystemShortName, code));
+    } catch (IOException e) {
+      logger.info("failed to add file: " + file.toString() + "\n" + e.toString());
+    }
+  }
 
 }
