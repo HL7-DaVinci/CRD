@@ -52,6 +52,7 @@ gitHubConfig:
   username: user
   token: token
   repository: repo
+  branch: master
   artifact-path: smartAppFhirArtifacts
   rule-path: rules
 

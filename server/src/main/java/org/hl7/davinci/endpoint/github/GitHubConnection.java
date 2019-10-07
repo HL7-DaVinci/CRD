@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHContent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
-import org.kohsuke.github.GHContent;
 
 @Component
 @Profile("gitHub")
@@ -33,6 +33,7 @@ public class GitHubConnection {
   private String user;
   private String token;
   private String repository;
+  private String branch;
   private String artifactPath;
   private String rulePath;
 
@@ -46,6 +47,7 @@ public class GitHubConnection {
     this.user = githubConfig.getUsername();
     this.token = githubConfig.getToken();
     this.repository = githubConfig.getRepository();
+    this.branch = githubConfig.getBranch();
     this.artifactPath = githubConfig.getArtifactPath();
     this.rulePath = githubConfig.getRulePath();
 
@@ -53,7 +55,7 @@ public class GitHubConnection {
   }
 
   private boolean connect() {
-    logger.info("GitHubConnection::connect()");
+    logger.info("GitHubConnection::connect(): repo: " + repository + ", branch: " + branch);
     // if already connected, don't bother trying to connect again
     if (!connected) {
       try {
@@ -61,7 +63,7 @@ public class GitHubConnection {
         repo = github.getRepository(repository);
         connected = true;
       } catch (IOException e) {
-        logger.warning("GitHubConnection::connect(): ERROR: failed to connect to GitHub!");
+        logger.warning("GitHubConnection::connect(): ERROR: failed to connect to GitHub! " + e.getMessage());
         connected = false;
       }
     }
@@ -78,7 +80,7 @@ public class GitHubConnection {
     }
 
     try {
-      GHContent file = repo.getFileContent(artifactPath + "/" + filename);
+      GHContent file = repo.getFileContent(artifactPath + "/" + filename, branch);
       fileStream = file.read();
 
     } catch (IOException e) {
@@ -103,7 +105,7 @@ public class GitHubConnection {
     }
 
     try {
-      List<GHContent> payers = repo.getDirectoryContent(rulePath);
+      List<GHContent> payers = repo.getDirectoryContent(rulePath, branch);
 
       payers.forEach((GHContent payer) -> {
         processPayer(payer, criteria, getFile, rules);
@@ -120,7 +122,7 @@ public class GitHubConnection {
       logger.info("GitHubConnection::processPayer(): " + payer.getName());
 
       try {
-        List<GHContent> codeSystems = repo.getDirectoryContent(payer.getPath());
+        List<GHContent> codeSystems = repo.getDirectoryContent(payer.getPath(), branch);
 
         codeSystems.forEach((GHContent codeSystem) -> {
           processCodeSystem(codeSystem, payer.getName(), criteria, getFile, rules);
@@ -139,7 +141,7 @@ public class GitHubConnection {
       logger.info("GitHubConnection::processCodeSystem(): " + codeSystem.getName());
 
       try {
-        List<GHContent> codes = repo.getDirectoryContent(codeSystem.getPath());
+        List<GHContent> codes = repo.getDirectoryContent(codeSystem.getPath(), branch);
 
         codes.forEach((GHContent code) -> {
           processCode(code, payerName, codeSystem.getName(), criteria, getFile, rules);
@@ -171,7 +173,7 @@ public class GitHubConnection {
         rule.setCqlBundle(emptyCqlBundle);
       }
       try {
-        List<GHContent> files = repo.getDirectoryContent(code.getPath());
+        List<GHContent> files = repo.getDirectoryContent(code.getPath(), branch);
 
         files.forEach((GHContent file) -> {
           logger.info("GitHubConnection::processCode():     file: " + file.getName());

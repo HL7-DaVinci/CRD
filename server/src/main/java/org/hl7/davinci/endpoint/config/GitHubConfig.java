@@ -4,6 +4,7 @@ public class GitHubConfig {
   private String username;
   private String token;
   private String repository;
+  private String branch;
   private String artifactPath;
   private String rulePath;
 
@@ -18,6 +19,10 @@ public class GitHubConfig {
   public String getRepository() { return repository; }
 
   public void setRepository(String repository) { this.repository = repository; }
+
+  public String getBranch() { return branch; }
+
+  public void setBranch(String branch) { this.branch = branch; }
 
   public String getArtifactPath() { return artifactPath; }
 
