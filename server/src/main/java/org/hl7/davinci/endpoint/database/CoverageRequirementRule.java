@@ -39,6 +39,8 @@ public class CoverageRequirementRule {
 
   private String editLink = "";
 
+  private String link = "";
+
   public long getId() {
     return id;
   }
@@ -76,8 +78,16 @@ public class CoverageRequirementRule {
   }
 
   public String getLink() {
-    return "download/" + id;
+    if (link.isEmpty()) {
+      return "download/" + id;
+    } else {
+      return link;
+    }
+  }
 
+  public CoverageRequirementRule setLink(String link) {
+    this.link = link;
+    return this;
   }
 
   public String getCqlPackagePath() {

@@ -15,6 +15,7 @@ spring:
   profiles:
     active: localDb
 #    active: cdsConnect
+#    active: gitHub
 
 server:
   port: 8090
@@ -46,6 +47,14 @@ cdsConnect:
   #basic-auth: user:pass
   #proxy-host: proxy.com
   #proxy-port: 80
+
+gitHubConfig:
+  username: user
+  token: token
+  repository: repo
+  branch: master
+  artifact-path: smartAppFhirArtifacts
+  rule-path: rules
 
 localDbRules: src/main/jib/rules/
 localDbFhirArtifacts: src/main/jib/smartAppFhirArtifacts/

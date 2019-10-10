@@ -29,6 +29,7 @@ public class CoverageRequirementRuleFinderDatabase implements CoverageRequiremen
    * @param criteria The search criteria object
    */
   public List<CoverageRequirementRule> findRules(CoverageRequirementRuleCriteria criteria) {
+    logger.info("CoverageRequirementRuleFinderDatabase::findRules(" + criteria.getQueryString() + ")");
     List<CoverageRequirementRule> ruleList = new ArrayList<>();
     for (CoverageRequirementRule rule :repository.findRules(criteria)){
       ruleList.add(rule);
@@ -43,6 +44,7 @@ public class CoverageRequirementRuleFinderDatabase implements CoverageRequiremen
    * Find and return all coverage rules in the database.
    */
   public List<CoverageRequirementRule> findAll() {
+    logger.info("CoverageRequirementRuleFinderDatabase::findAll()");
     List<CoverageRequirementRule> ruleList = new ArrayList<>();
     for (CoverageRequirementRule rule :repository.findAll()){
       ruleList.add(rule);

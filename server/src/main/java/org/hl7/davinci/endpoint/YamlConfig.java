@@ -1,8 +1,10 @@
 package org.hl7.davinci.endpoint;
 
 import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.hl7.davinci.endpoint.config.CdsConnect;
+import org.hl7.davinci.endpoint.config.GitHubConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +30,8 @@ public class YamlConfig {
   private String hostOrg;
 
   private CdsConnect cdsConnect;
+
+  private GitHubConfig gitHubConfig;
 
   private String localDbRules;
 
@@ -66,11 +70,7 @@ public class YamlConfig {
     return checkPractitionerLocation;
   }
 
-  public void setCdsConnect(CdsConnect cdsConnect) { this.cdsConnect = cdsConnect; }
-
   public String getLocalDbRules() { return localDbRules; }
-
-  public CdsConnect getCdsConnect() { return cdsConnect; }
 
   public void setLocalDbRules(String localDbRules) { this.localDbRules = localDbRules; }
 
@@ -90,4 +90,12 @@ public class YamlConfig {
   public String getHostOrg() {return hostOrg;}
 
   public void setHostOrg(String org) {this.hostOrg = org;}
+
+  public CdsConnect getCdsConnect() { return cdsConnect; }
+
+  public void setCdsConnect(CdsConnect cdsConnect) { this.cdsConnect = cdsConnect; }
+
+  public GitHubConfig getGitHubConfig() { return gitHubConfig; }
+
+  public void setGitHubConfig(GitHubConfig gitHubConfig) { this.gitHubConfig = gitHubConfig; }
 }
