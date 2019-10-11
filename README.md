@@ -68,7 +68,7 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 3. Run `./standalone.sh -Djboss.socket.binding.port-offset=100` from command line to start the server.  It should run on port 8180
 4. Navigate to the KeyCloak instance in a browser, it should be at [http://localhost:8180/](http://localhost:8180)
 5. When prompted, create a new administrative username and password.
-6. Click Add Realm (hover over the word 'Master' in the sidebar) to find the button.  The realm will be protecting the `ehr-server`.
+6. Click Add Realm (hover over the word 'Master' in the sidebar to find the button).  The realm will be protecting the `ehr-server`.
 	* Import the realm by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
 
 			Add a new realm:
