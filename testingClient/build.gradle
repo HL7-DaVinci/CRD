@@ -7,6 +7,8 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
     compile "org.slf4j:slf4j-api:1.7.25"
     compile "org.slf4j:slf4j-nop:1.7.25"
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:4.0.3'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:4.0.3'
 }
 
 

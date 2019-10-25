@@ -2,4 +2,6 @@ apply plugin: 'maven'
 
 dependencies {
     compile project(':resources')
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:4.0.3'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:4.0.3'
 }

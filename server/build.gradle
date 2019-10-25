@@ -44,17 +44,20 @@ dependencies {
     testCompile "com.github.tomakehurst:wiremock-standalone:2.18.0"
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:4.0.3'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:4.0.3'
 
     //cql stuff
-//    compile('info.cqframework:cql:1.2.20')
-//    compile('info.cqframework:model:1.2.20')
-//    compile('info.cqframework:cql-to-elm:1.2.20')
-//    compile('info.cqframework:quick:1.2.20')
-    compile('org.opencds.cqf:cql-engine:1.2.20')
-    compile('org.opencds.cqf:cql-engine-fhir:1.2.20')
+    compile (group: 'org.opencds.cqf', name: 'cql-engine', version: '1.3.10-SNAPSHOT') {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+    compile (group: 'org.opencds.cqf', name: 'cql-engine-fhir', version: '1.3.10-SNAPSHOT') {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+
     //Use locally compiled cql libs (engine and fhir)
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile group: 'info.cqframework', name: 'cql-to-elm', version: '1.3.10'
+    compile group: 'info.cqframework', name: 'cql-to-elm', version: '1.4.6'
 
     compile 'org.zeroturnaround:zt-zip:1.13'
 

@@ -9,8 +9,8 @@ import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
+import org.hl7.davinci.endpoint.cql.stu3.CqlExecutionContextBuilder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
@@ -77,7 +77,7 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
     HashMap<String,Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     cqlParams.put("device_request", deviceRequest);
-    return CqlExecutionContextBuilder.getExecutionContextStu3(cqlPackage, cqlParams);
+    return CqlExecutionContextBuilder.getExecutionContext(cqlPackage, cqlParams);
   }
 
   private List<CoverageRequirementRuleResult> getDeviceRequestExecutionContexts(List<DaVinciDeviceRequest> deviceRequestList, CoverageRequirementRuleFinder ruleFinder) {

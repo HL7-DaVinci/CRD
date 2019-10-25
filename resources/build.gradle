@@ -4,8 +4,10 @@ dependencies {
     compile group: 'com.helger', name: 'ph-schematron', version: '4.1.0'
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
 
-    compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-validation-resources-r4', version: '3.6.0'
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-validation:3.6.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:4.0.3'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:4.0.3'
+    compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-validation-resources-r4', version: '4.0.3'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-validation:4.0.3'
 
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.8'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.8'

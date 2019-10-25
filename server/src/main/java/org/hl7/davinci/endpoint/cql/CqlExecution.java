@@ -3,8 +3,6 @@ package org.hl7.davinci.endpoint.cql;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import javax.xml.bind.JAXBException;
 import org.cqframework.cql.cql2elm.CqlTranslator;
 import org.cqframework.cql.cql2elm.CqlTranslatorException;
@@ -15,50 +13,10 @@ import org.cqframework.cql.elm.execution.Library;
 import org.cqframework.cql.elm.tracking.TrackBack;
 import org.fhir.ucum.UcumEssenceService;
 import org.fhir.ucum.UcumService;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
-import org.hl7.fhir.dstu3.model.Resource;
-import org.opencds.cqf.cql.data.fhir.BaseFhirDataProvider;
-import org.opencds.cqf.cql.execution.Context;
 import org.opencds.cqf.cql.execution.CqlLibraryReader;
-import org.opencds.cqf.cql.execution.LibraryLoader;
 
 
-public class CqlExecutionContextBuilder {
-
-  public static Context getExecutionContextStu3(CqlBundle cqlPackage, HashMap<String,Resource> cqlParams) {
-    ModelManager modelManager = new ModelManager();
-    LibraryManager libraryManager = new LibraryManager(modelManager);
-    libraryManager.getLibrarySourceLoader().clearProviders();
-
-    Library library = null;
-    LibraryLoader libraryLoader = null;
-
-    if (cqlPackage.isPrecompiled()){
-      //todo
-    } else {
-      libraryManager.getLibrarySourceLoader().registerProvider(cqlPackage.getRawCqlLibrarySourceProvider());
-      libraryLoader = new LocalLibraryLoader(libraryManager);
-      try {
-        library = translate(cqlPackage.getRawMainCqlLibrary(), libraryManager, modelManager);
-      } catch (Exception e){
-        throw new RuntimeException(e);
-      }
-    }
-
-    Context context = new Context(library);
-    context.registerLibraryLoader(libraryLoader);
-    context.setExpressionCaching(true);
-
-    BaseFhirDataProvider provider = new DummyFhirDataProvider();
-    context.registerDataProvider("http://hl7.org/fhir", provider);
-    BaseFhirDataProvider provider1 = new DummyFhirDataProvider("org.hl7.davinci.stu3.fhirresources");
-    context.registerDataProvider("http://hl7.org/fhir", provider1);
-
-    for (Map.Entry<String, Resource> entry : cqlParams.entrySet()) {
-      context.setParameter(null, entry.getKey(), entry.getValue());
-    }
-    return context;
-  }
+public class CqlExecution {
 
   public static String translateToElm(String cql) throws Exception {
     ModelManager modelManager = new ModelManager();
@@ -86,7 +44,7 @@ public class CqlExecutionContextBuilder {
     return translator.toJson();
   }
 
-  private static Library translate(String cql, LibraryManager libraryManager, ModelManager modelManager) throws Exception {
+  public static Library translate(String cql, LibraryManager libraryManager, ModelManager modelManager) throws Exception {
     ArrayList<CqlTranslator.Options> options = new ArrayList<>();
     options.add(CqlTranslator.Options.EnableDateRangeOptimization);
     UcumService ucumService = new UcumEssenceService(UcumEssenceService.class.getResourceAsStream("/ucum-essence.xml"));

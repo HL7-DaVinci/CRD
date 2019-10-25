@@ -3,7 +3,7 @@ using FHIR version '3.0.0'
 include FHIRHelpers version '3.0.0' called FHIRHelpers
 
 parameter Patient Patient
-parameter device_request DeviceRequest
+parameter medication_request MedicationRequest
 
 define "Age":
   AgeInYears()
@@ -19,3 +19,9 @@ define RESULT_Details:
 
 define RESULT_InfoLink:
     'https://www.medicare.gov/forms-help-and-resources/forms/medicare-forms.html'
+
+define RESULT_QuestionnaireUri:
+    'urn:hl7:davinci:crd:botox-questionnaire'
+
+define RESULT_requestId:
+    medication_request

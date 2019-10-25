@@ -1,24 +1,24 @@
-package org.hl7.davinci.endpoint.cql;
+package org.hl7.davinci.endpoint.cql.r4;
 
 
 import ca.uhn.fhir.context.FhirContext;
-import org.hl7.fhir.dstu3.model.Enumeration;
-import org.opencds.cqf.cql.data.fhir.BaseDataProviderStu3;
+import org.hl7.fhir.r4.model.Enumeration;
+import org.opencds.cqf.cql.data.fhir.BaseDataProviderR4;
 import org.opencds.cqf.cql.runtime.Code;
 import org.opencds.cqf.cql.runtime.Interval;
 
 /**
  * Created by Christopher Schuler on 6/19/2017.
  */
-public class DummyFhirDataProvider extends BaseDataProviderStu3 {
+public class DummyFhirDataProvider extends BaseDataProviderR4 {
 
   public DummyFhirDataProvider() {
-    this("org.hl7.fhir.dstu3.model");
+    this("org.hl7.fhir.r4.model");
   }
 
   public DummyFhirDataProvider(String packageName) {
     setPackageName(packageName);
-    FhirContext fhirContext = new org.hl7.davinci.stu3.FhirComponents().getFhirContext();
+    FhirContext fhirContext = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
     setFhirContext(fhirContext);
   }
 

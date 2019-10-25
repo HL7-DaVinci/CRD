@@ -2,6 +2,8 @@ package org.hl7.davinci.r4;
 
 import java.util.Date;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
 import org.cdshooks.Hook;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeContext;
@@ -185,8 +187,12 @@ public class CrdRequestCreator {
     Coverage coverage = new Coverage();
     coverage.setId(idString());
     Coding planCode = new Coding().setCode("plan").setSystem("http://hl7.org/fhir/coverage-class");
+    CodeableConcept codeableConcept = new CodeableConcept();
+    List<Coding> codingList = new ArrayList<Coding>();
+    codingList.add(planCode);
+    codeableConcept.setCoding(codingList);
     Coverage.ClassComponent coverageClass = new Coverage.ClassComponent();
-    coverageClass.setType(planCode).setValue("Medicare Part D");
+    coverageClass.setType(codeableConcept).setValue("Medicare Part D");
     coverage.addClass_(coverageClass);
     coverage.addPayor(new Reference(insurer));
     bec = new Bundle.BundleEntryComponent();

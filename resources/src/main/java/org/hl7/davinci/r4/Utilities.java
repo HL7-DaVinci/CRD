@@ -13,10 +13,13 @@ import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Address.AddressUse;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.DomainResource;
 import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.PractitionerRole;
+import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 
 public class Utilities {
@@ -171,6 +174,17 @@ public class Utilities {
     }
 
     return new PractitionerRoleInfo(locationAddressState);
+  }
+
+  public static List<Organization> getPayors(List<Coverage> coverages) {
+    List<Organization> payors = new ArrayList<>();
+    for (Coverage coverage: coverages){
+      for (Reference ref: coverage.getPayor()){
+        Organization organization = (Organization) ref.getResource();
+        payors.add(organization);
+      }
+    }
+    return payors;
   }
 
 }

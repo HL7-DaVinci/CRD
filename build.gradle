@@ -10,6 +10,7 @@ allprojects {
     repositories {
         mavenCentral()
         jcenter{ url "http://jcenter.bintray.com/" }
+        maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
         maven { url "https://jitpack.io" }
         jcenter()
     }
@@ -26,9 +27,6 @@ subprojects {
     apply plugin: 'java'
 
     dependencies {
-        compile 'ca.uhn.hapi.fhir:hapi-fhir-base:3.6.0'
-        compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:3.6.0'
-
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
         testCompileOnly 'junit:junit:4.12'

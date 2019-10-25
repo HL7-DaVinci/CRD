@@ -35,6 +35,9 @@ public class EndToEndRequestPrefetchTest {
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(9089);
+  private String deviceRequestFullPrefetch = FileUtils
+      .readFileToString(new ClassPathResource("deviceRequestFullPrefetch_r4.json").getFile(),
+          Charset.defaultCharset());
   private String deviceRequestEmptyPrefetchJson = FileUtils
       .readFileToString(new ClassPathResource("deviceRequestEmptyPrefetch_r4.json").getFile(),
           Charset.defaultCharset());
@@ -51,7 +54,19 @@ public class EndToEndRequestPrefetchTest {
   public EndToEndRequestPrefetchTest() throws IOException {
   }
 
-  @Ignore("No CQL R4 Support at this time.") @Test
+  @Test
+  public void shouldRunSuccessfully() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    HttpEntity<String> entity = new HttpEntity<String>(deviceRequestFullPrefetch, headers);
+    JsonNode cards = restTemplate
+        .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
+            JsonNode.class);
+
+    assertEquals(1, cards.get("cards").size());
+  }
+
+  @Test
   public void shouldSuccessfullyFillPreFetch() {
     stubFor(get(urlMatching(prefetchUrlMatcher))
         .willReturn(aResponse()
@@ -68,10 +83,10 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "No documentation is required for a device or service with code: E0250");
+        "Authorization required.");
   }
 
-  @Ignore("No CQL R4 Support at this time.") @Test
+  @Test
   public void shouldFailToFillPrefetch() {
     stubFor(get(urlMatching(prefetchUrlMatcher))
         .willReturn(aResponse()
@@ -86,6 +101,6 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "Unable to (pre)fetch any supported resources from the bundle.");
+        "Unable to (pre)fetch any supported bundles.");
   }
 }
