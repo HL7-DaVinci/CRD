@@ -156,7 +156,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         }
       }
     }
-    foundApplicableRule = false;
     if (!foundApplicableRule) {
       String msg = "No documentation rules found";
       logger.warn(msg+"; summary card sent to client");
