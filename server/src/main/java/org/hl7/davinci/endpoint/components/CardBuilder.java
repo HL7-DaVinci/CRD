@@ -7,11 +7,14 @@ import org.cdshooks.Card;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Link;
 import org.cdshooks.Source;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Convenience methods for working with CDS Hooks cards.
  */
 public class CardBuilder {
+  static final Logger logger = LoggerFactory.getLogger(CardBuilder.class);
 
   public static class CqlResultsForCard {
     private Boolean ruleApplies;
@@ -140,8 +143,10 @@ public class CardBuilder {
       Source source = new Source();
       source.setLabel("Da Vinci CRD Reference Implementation");
       card.setSource(source);
-      card.setSummary("Unable to process hook request from provided information.");
+      String msg = "Unable to process hook request from provided information.";
+      card.setSummary(msg);
       response.addCard(card);
+      logger.warn(msg + "; summary card sent to client");
     }
   }
 
