@@ -6,6 +6,12 @@
       "valueReference": {
         "reference": "urn:hl7:davinci:crd:library-positive-airway-pressure-prepopulate"
       }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate"
+      }
     }
   ],
   "identifier": [
@@ -29,7 +35,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientLastName"
+              "valueString": "\"BasicPatientInfo\".LastName"
             }
           ],
           "linkId": "1.1",
@@ -41,7 +47,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientFirstName"
+              "valueString": "\"BasicPatientInfo\".FirstName"
             }
           ],
           "linkId": "1.2",
@@ -53,7 +59,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientMiddleInitial"
+              "valueString": "\"BasicPatientInfo\".MiddleInitial"
             }
           ],
           "linkId": "1.3",
@@ -65,7 +71,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientDateOfBirth"
+              "valueString": "\"BasicPatientInfo\".DateOfBirth"
             }
           ],
           "linkId": "1.4",
@@ -77,7 +83,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientGender"
+              "valueString": "\"BasicPatientInfo\".Gender"
             }
           ],
           "linkId": "1.5",
@@ -103,7 +109,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientMedicareId"
+              "valueString": "\"BasicPatientInfo\".MedicareId"
             }
           ],
           "linkId": "1.6",
@@ -122,7 +128,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderLastName"
+              "valueString": "\"PositiveAirwayPressureDevice\".OrderingProviderLastName"
             }
           ],
           "linkId": "2.1",
@@ -134,7 +140,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderFirstName"
+              "valueString": "\"PositiveAirwayPressureDevice\".OrderingProviderFirstName"
             }
           ],
           "linkId": "2.2",
@@ -146,7 +152,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderMiddleInitial"
+              "valueString": "\"PositiveAirwayPressureDevice\".OrderingProviderMiddleInitial"
             }
           ],
           "linkId": "2.3",
@@ -176,7 +182,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OsaDiagnosis"
+              "valueString": "\"PositiveAirwayPressureDevice\".OsaDiagnosis"
             }
           ],
           "linkId": "4.1",
@@ -207,7 +213,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OtherDiagnoses"
+              "valueString": "\"PositiveAirwayPressureDevice\".OtherDiagnoses"
             }
           ],
           "linkId": "4.3",
@@ -302,7 +308,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PapDeviceRequested"
+              "valueString": "\"PositiveAirwayPressureDevice\".PapDeviceRequested"
             }
           ],
           "linkId": "7.2",
@@ -338,7 +344,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderFullName"
+              "valueString": "\"PositiveAirwayPressureDevice\".OrderingProviderFullName"
             }
           ],
           "linkId": "9.2",
@@ -350,7 +356,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "Today"
+              "valueString": "\"PositiveAirwayPressureDevice\".Today"
             }
           ],
           "linkId": "9.3",
@@ -362,7 +368,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderNPI"
+              "valueString": "\"PositiveAirwayPressureDevice\".OrderingProviderNPI"
             }
           ],
           "linkId": "9.4",

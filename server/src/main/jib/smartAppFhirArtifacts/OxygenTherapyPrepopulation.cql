@@ -139,20 +139,6 @@ define function GetMiddleInitials(name FHIR.HumanName):
 
 define Today: Today()
 
-// basic patient stuff
-define PatientName: singleton from (Patient.name name where name.use.value = 'official')
-define PatientLastName: "PatientName".family.value
-define PatientMiddleInitial: GetMiddleInitials("PatientName")
-define PatientFirstName: "PatientName".given[0].value
-define PatientGender: Patient.gender.value
-define PatientDateOfBirth: Patient.birthDate.value
-
-define PatientCoverageResource: singleton from (
-  [Coverage] coverage
-    // pull coverage resource id from the device request insurance extension
-    where ('Coverage/' + coverage.id) = ((device_request.extension ext where ext.url = 'http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html')[0].value.reference.value))
-define PatientMedicareId: "PatientCoverageResource".subscriberId.value
-
 // coverage requirement info
 define RelevantDiagnoses: {
   if exists(Confirmed(ActiveOrRecurring([Condition: "COPD_Codes"]))) then 'COPD' else 'null',
