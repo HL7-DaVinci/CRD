@@ -11,6 +11,14 @@
       }
     ]
   },
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": {
+        "reference": "urn:hl7:davinci:crd:library-fhir-helpers"
+      }
+    }
+  ],
   "content": [
     {
       "contentType": "application/elm+json",
