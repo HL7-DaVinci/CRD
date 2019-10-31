@@ -16,6 +16,8 @@ import java.util.Map;
 
 public class CqlExecutionContextBuilder {
 
+  public static String CQL_VERSION = "3.0.0";
+
   public static Context getExecutionContext(CqlBundle cqlPackage, HashMap<String, Resource> cqlParams) {
     ModelManager modelManager = new ModelManager();
     LibraryManager libraryManager = new LibraryManager(modelManager);
@@ -27,10 +29,10 @@ public class CqlExecutionContextBuilder {
     if (cqlPackage.isPrecompiled()){
       //todo
     } else {
-      libraryManager.getLibrarySourceLoader().registerProvider(cqlPackage.getRawCqlLibrarySourceProvider());
+      libraryManager.getLibrarySourceLoader().registerProvider(cqlPackage.getRawCqlLibrarySourceProvider(CQL_VERSION));
       libraryLoader = new LocalLibraryLoader(libraryManager);
       try {
-        library = CqlExecution.translate(cqlPackage.getRawMainCqlLibrary(), libraryManager, modelManager);
+        library = CqlExecution.translate(cqlPackage.getRawMainCqlLibrary(CQL_VERSION), libraryManager, modelManager);
       } catch (Exception e){
         throw new RuntimeException(e);
       }

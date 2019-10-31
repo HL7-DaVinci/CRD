@@ -84,10 +84,14 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
         CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
         query.execute();
         for (CoverageRequirementRule rule: query.getResponse()) {
-          CoverageRequirementRuleResult result = new CoverageRequirementRuleResult()
-              .setCriteria(criteria)
-              .setContext(createCqlExecutionContext(rule.getCqlBundle(), deviceRequest));
-          results.add(result);
+          CoverageRequirementRuleResult result = new CoverageRequirementRuleResult();
+          result.setCriteria(criteria);
+          try {
+            result.setContext(createCqlExecutionContext(rule.getCqlBundle(), deviceRequest));
+            results.add(result);
+          } catch (Exception e) {
+            logger.info("r4/OrderReviewService::getDeviceRequestExecutionContexts: failed processing cql bundle: " + e.getMessage());
+          }
         }
       }
     }

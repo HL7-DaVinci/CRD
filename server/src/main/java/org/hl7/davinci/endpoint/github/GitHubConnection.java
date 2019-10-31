@@ -169,7 +169,6 @@ public class GitHubConnection {
       if (!getFile) {
         rule.setCqlPackagePath("unknown");
         CqlBundle emptyCqlBundle = new CqlBundle();
-        emptyCqlBundle.setRawMainCqlLibrary("unknown");
         rule.setCqlBundle(emptyCqlBundle);
       }
       try {
