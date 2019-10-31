@@ -46,7 +46,7 @@ public class OrderReviewServiceTest {
             "MA");
     CdsResponse response = service.handleRequest(request, applicationBase);
     assertNotNull(response);
-    assertEquals(2, response.getCards().size());
+    assertEquals(1, response.getCards().size());
     assertEquals("Auth required",
         response.getCards().get(0).getSummary());
   }
