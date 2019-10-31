@@ -68,25 +68,25 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 3. Run `./standalone.sh -Djboss.socket.binding.port-offset=100` from command line to start the server.  It should run on port 8180
 4. Navigate to the KeyCloak instance in a browser, it should be at [http://localhost:8180/](http://localhost:8180)
 5. When prompted, create a new administrative username and password.
-6. Create a realm, choose any name.  The realm will be protecting the `ehr-server`. 
-	* The realm can be imported by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files. 
+6. Click Add Realm (hover over the word 'Master' in the sidebar) to find the button.  The realm will be protecting the `ehr-server`.
+	* Import the realm by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
 
 			Add a new realm:
-			1) click ClientFhirServer (top left nav bar)
+			1) click Master (top left nav bar)
 			2) click add realm
 			3) Import | Select file to import (e.g. file from above) 
 
-7. Make two clients by navigating to the `Clients` tab
+7. If building the realm manually, make two clients by navigating to the `Clients` tab
 	* The name given to the clients will be their `client ID`
-	* Make one client public and the other bearer-only with the `Access-type` dropdown.
+	* Make one client 'public' named `app-login` and one client 'bearer-only' named `app-token` with the `Access-type` dropdown.
 	* In the public client, find the `Web Origins` input and add the address of the EHR fhir server.  Alternatively just put `*` in `Web Origins` if running everything locally, this is less secure and should not be done in a production setting.
 	* In the public client, add a redirect URL.  It can generally work fine as the base url of the server such as [http://localhost:8080](http://localhost:8080)
-8. Navigate to the `Roles` tab and make a new role called `user`
-	* Navigate to the `Users` tab and make a new user.  
-	* Give the new user a password in the `credentials` tab
+8. If building the realm manually, Navigate to the `Roles` tab and make a new role called `user`. This role will already exist if the realm was imported.
+9. Navigate to the `Users` tab and make a new user.
+	* Give the new user a password in the `credentials` tab. Make sure to turn 'Temporary' slider off before clicking 'Reset Password'.
 	* Go to `Role Mappings` and add the `user` role
-9. Modify config files to point at your new clients and realms
-	* Change `ehr-server/src/main/resources/fhirServer.properties` to use the client ID, realm name, and client secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
+10. Modify config files to point at your new clients and realms
+	* Change `ehr-server/src/main/resources/fhirServer.properties` to use the client ID (`app-token` if using imported realm), realm name, and client secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
 		* The bearer only client's secret can be found in the `Credentials` tab
 	* Change `request-generator/src/properties.json` to include the name of the realm and the client ID of the public client
 	

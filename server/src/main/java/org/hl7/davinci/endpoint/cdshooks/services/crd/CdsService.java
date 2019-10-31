@@ -131,6 +131,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     try {
       lookupResults = this.createCqlExecutionContexts(request, ruleFinder);
     } catch (RequestIncompleteException e) {
+      logger.warn(e.getMessage()+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
       return response;
     }
@@ -150,12 +151,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               lookupResult.getCriteria());
           response.addCard(CardBuilder.transform(results, smartAppLink));
         } else{
+          logger.warn("Unspecified Questionnaire URI; summary card sent to client");
           response.addCard(CardBuilder.transform(results));
         }
       }
     }
     if (!foundApplicableRule) {
-      response.addCard(CardBuilder.summaryCard("No documentation rules found"));
+      String msg = "No documentation rules found";
+      logger.warn(msg+"; summary card sent to client");
+      response.addCard(CardBuilder.summaryCard(msg));
     }
 
 
@@ -188,6 +192,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return context.resolveExpressionRef(statement).evaluate(context);
       // can be thrown if statement is not defined in the cql
     } catch (IllegalArgumentException e) {
+      logger.error(e.toString());
       return null;
     }
   }
@@ -204,7 +209,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
             applicationBaseUrl.getPort(), applicationBaseUrl.getFile() + configLaunchUri.toString(),
             null).toString();
       } catch (MalformedURLException e) {
-        throw new RuntimeException("Error creating smart launch URL");
+        String msg = "Error creating smart launch URL";
+        logger.error(msg);
+        throw new RuntimeException(msg);
       }
     }
 
