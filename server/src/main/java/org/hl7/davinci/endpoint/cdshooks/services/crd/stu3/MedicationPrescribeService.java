@@ -9,8 +9,8 @@ import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
+import org.hl7.davinci.endpoint.cql.stu3.CqlExecutionContextBuilder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
@@ -69,7 +69,7 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
     HashMap<String,Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     cqlParams.put("medication_request", medicationRequest);
-    return CqlExecutionContextBuilder.getExecutionContextStu3(cqlPackage, cqlParams);
+    return CqlExecutionContextBuilder.getExecutionContext(cqlPackage, cqlParams);
   }
 
   private List<CoverageRequirementRuleResult> getMedicationRequestExecutionContexts(List<DaVinciMedicationRequest> medicationRequests, CoverageRequirementRuleFinder ruleFinder) {
@@ -80,10 +80,14 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
         CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
         query.execute();
         for (CoverageRequirementRule rule: query.getResponse()) {
-          CoverageRequirementRuleResult result = new CoverageRequirementRuleResult()
-              .setCriteria(criteria)
-              .setContext(createCqlExecutionContext(rule.getCqlBundle(), medicationRequest));
-          results.add(result);
+          CoverageRequirementRuleResult result = new CoverageRequirementRuleResult();
+          result.setCriteria(criteria);
+          try {
+            result.setContext(createCqlExecutionContext(rule.getCqlBundle(), medicationRequest));
+            results.add(result);
+          } catch (Exception e) {
+            logger.info("stu3/MedicationPrescribeService::getDeviceRequestExecutionContexts: failed processing cql bundle: " + e.getMessage());
+          }
         }
       }
     }

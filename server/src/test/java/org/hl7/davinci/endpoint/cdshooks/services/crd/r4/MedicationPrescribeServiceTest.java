@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Calendar;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,15 +25,21 @@ public class MedicationPrescribeServiceTest {
   @Autowired
   private MedicationPrescribeService service;
 
-  @Ignore("No CQL R4 Support at this time.") @Test
+  @Test
   public void testHandleRequest() {
+    URL applicationBase;
+    try {
+      applicationBase = new URL("http","localhost","/");
+    } catch (MalformedURLException e){
+      throw new RuntimeException(e);
+    }
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
     MedicationPrescribeRequest request = CrdRequestCreator
         .createMedicationPrescribeRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
-    CdsResponse response = service.handleRequest(request, null);
+    CdsResponse response = service.handleRequest(request, applicationBase);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
-    assertEquals("Documentation is required for the desired device or service", response.getCards().get(0).getSummary());
+    assertEquals("Authorization is required.", response.getCards().get(0).getSummary());
   }
 }

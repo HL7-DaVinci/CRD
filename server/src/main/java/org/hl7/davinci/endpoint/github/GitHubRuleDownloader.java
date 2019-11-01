@@ -3,7 +3,7 @@ package org.hl7.davinci.endpoint.github;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.davinci.endpoint.Application;
-import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
+import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class GitHubRuleDownloader implements CoverageRequirementRuleDownloader {
       logger.info("Converting CQL to ELM");
       try {
         String fileContent = IOUtils.toString(fileStream, StandardCharsets.UTF_8.name());
-        String elm = CqlExecutionContextBuilder.translateToElm(fileContent);
+        String elm = CqlExecution.translateToElm(fileContent);
         byte[] elmData = elm.getBytes();
 
         bundleFile = new CqlBundleFile();

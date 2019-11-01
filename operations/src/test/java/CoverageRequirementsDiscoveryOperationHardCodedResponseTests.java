@@ -4,21 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 
 import org.hl7.davinci.CoverageRequirementsDiscoveryOperationHardCodedResponse;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Condition;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Device;
-import org.hl7.fhir.r4.model.CoverageEligibilityRequest;
-import org.hl7.fhir.r4.model.Endpoint;
-import org.hl7.fhir.r4.model.HumanName;
-import org.hl7.fhir.r4.model.Location;
-import org.hl7.fhir.r4.model.Medication;
-import org.hl7.fhir.r4.model.Organization;
-import org.hl7.fhir.r4.model.Parameters;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.Procedure;
-import org.hl7.fhir.r4.model.SimpleQuantity;
+import org.hl7.fhir.r4.model.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -236,7 +222,11 @@ public class CoverageRequirementsDiscoveryOperationHardCodedResponseTests {
     if (quantity != 0) {
       SimpleQuantity simpleQuantity = new SimpleQuantity();
       simpleQuantity.setValue(quantity); // 40
-      medication.setAmount(simpleQuantity);
+      SimpleQuantity quantity1 = new SimpleQuantity();
+      quantity1.setValue(1);
+      Ratio ratio = new Ratio();
+      ratio.setNumerator(simpleQuantity).setDenominator(quantity1);
+      medication.setAmount(ratio);
     }
     return medication;
   }

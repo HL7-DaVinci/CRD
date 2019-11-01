@@ -4,6 +4,8 @@ mainClassName = "org.hl7.davinci.creator.RequestWriter"
 
 dependencies {
     compile project(':resources')
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:4.0.3'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:4.0.3'
 }
 
 // For gradle run. Run the app from the terminal like this: gradle run -PappArgs="['.', 'r4']"

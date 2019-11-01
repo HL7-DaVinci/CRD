@@ -94,7 +94,6 @@ public class CdsConnectRuleList {
 
         rule.setCqlPackagePath("unknown");
         CqlBundle emptyCqlBundle = new CqlBundle();
-        emptyCqlBundle.setRawMainCqlLibrary("unknown");
         rule.setCqlBundle(emptyCqlBundle);
         rules.add(rule);
       }

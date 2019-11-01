@@ -21,43 +21,51 @@ import java.util.zip.ZipEntry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.elm.r1.VersionedIdentifier;
+import org.hl7.elm.r1.UsingDef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeroturnaround.zip.ZipUtil;
 import java.io.RandomAccessFile;
 
 public class CqlBundle {
+
+  static final Logger logger =
+      LoggerFactory.getLogger(CqlBundle.class);
+
   private JsonNode jsonInfoFile;
   private boolean precompiled;
 
-  private HashMap<VersionedIdentifier, InputStream> rawCqlLibraries = new HashMap<>();
-  private VersionedIdentifier mainCqlLibraryId;
-  private String rawMainCqlLibrary;
+  private HashMap<String, HashMap<VersionedIdentifier, InputStream>> rawCqlLibraries = new HashMap<>();
+  private HashMap<String, VersionedIdentifier> mainCqlLibraryId = new HashMap<>();
 
   private void validate() {
     if (precompiled) {
       //todo
     } else {
-      if (rawCqlLibraries.size() < 1) {
+      if ((rawCqlLibraries.size() < 1) || (mainCqlLibraryId.size() < 1)) {
         throw new RuntimeException("Cql Package missing cql libraries.");
       }
-      if (rawCqlLibraries.get(mainCqlLibraryId) == null) {
-        throw new RuntimeException("Main Cql Library missing from package.");
+      if (rawCqlLibraries.size() != mainCqlLibraryId.size()) {
+        throw new RuntimeException("Mismatch between cql library map sizes.");
+      }
+      for (String key : mainCqlLibraryId.keySet()) {
+        if (rawCqlLibraries.get(key).get(mainCqlLibraryId.get(key)) == null) {
+          throw new RuntimeException("Main Cql Library missing from package.");
+        }
       }
     }
   }
 
-  public String getRawMainCqlLibrary() {
-    if (rawMainCqlLibrary == null) {
-      try {
-        rawMainCqlLibrary = IOUtils.toString(rawCqlLibraries.get(mainCqlLibraryId), Charset.defaultCharset());
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+  public String getRawMainCqlLibrary(String fhirVersion) {
+    logger.info("CqlBundle::getRawMainCqlLibrary(): " + fhirVersion);
+    try {
+      if (!mainCqlLibraryId.containsKey(fhirVersion) || !rawCqlLibraries.containsKey(fhirVersion)) {
+        return null;
       }
+      return IOUtils.toString(rawCqlLibraries.get(fhirVersion).get(mainCqlLibraryId.get(fhirVersion)), Charset.defaultCharset());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-    return rawMainCqlLibrary;
-  }
-
-  public void setRawMainCqlLibrary(String rawMainCqlLibrary) {
-    this.rawMainCqlLibrary = rawMainCqlLibrary;
   }
 
   public boolean isPrecompiled() {
@@ -65,8 +73,9 @@ public class CqlBundle {
   }
 
   @JsonIgnore
-  public RawCqlLibrarySourceProvider getRawCqlLibrarySourceProvider() {
-    return new RawCqlLibrarySourceProvider(rawCqlLibraries);
+  public RawCqlLibrarySourceProvider getRawCqlLibrarySourceProvider(String fhirVersion) {
+    logger.debug("CqlBundle::getRawCqlLibrarySourceProvider(): " + fhirVersion);
+    return new RawCqlLibrarySourceProvider(rawCqlLibraries.get(fhirVersion));
   }
 
   public static boolean checkIfZip(File file) {
@@ -90,7 +99,7 @@ public class CqlBundle {
       File temp = File.createTempFile("temp", ".zip");
       FileUtils.writeByteArrayToFile(temp, file);
       return fromZip(temp);
-    } catch (IOException e){
+    } catch (IOException e) {
       throw new RuntimeException("Error with rule package.");
     }
   }
@@ -122,10 +131,11 @@ public class CqlBundle {
     }
 
     List<CqlLibrary> cqlLibraries = new ArrayList<>();
-    for (String fileName: cqlFiles.keySet()){
+    for (String fileName : cqlFiles.keySet()) {
+      logger.debug("CqlBundle::formZip(File): file in zip: " + fileName);
       CqlLibrary cqlLibrary = new CqlLibrary();
       cqlLibrary.cql = cqlFiles.get(fileName);
-      String elmName = fileName.substring(0,fileName.length()-4) + ".xml";
+      String elmName = fileName.substring(0, fileName.length() - 4) + ".xml";
       if (xmlElmFiles.containsKey(elmName)) {
         cqlLibrary.xmlElm = xmlElmFiles.get(elmName);
       }
@@ -136,7 +146,7 @@ public class CqlBundle {
     rulePackage.precompiled = !rulePackage.jsonInfoFile.get("compileCql").asBoolean();
     String mainCqlLibraryName = rulePackage.jsonInfoFile.get("mainCqlLibraryName").asText();
 
-    for (CqlLibrary cqlLibrary: cqlLibraries){
+    for (CqlLibrary cqlLibrary : cqlLibraries) {
       if (rulePackage.isPrecompiled()) {
         if (cqlLibrary.xmlElm == null) {
           throw new RuntimeException("Package indicated CQL was precompiled, but elm xml missing.");
@@ -145,9 +155,17 @@ public class CqlBundle {
       } else {
         InputStream cqlStream = new ByteArrayInputStream(cqlLibrary.cql);
         VersionedIdentifier id = getIdFromCqlFile(cqlLibrary.cql);
-        rulePackage.rawCqlLibraries.put(getIdFromCqlFile(cqlLibrary.cql),cqlStream);
+        String fhirVersion = getFhirVersionFromCqlFile(cqlLibrary.cql);
+        logger.info("CqlBundle::fromZip(File): id: " + id.getId() + ", fhir version: " + fhirVersion);
+        if (rulePackage.rawCqlLibraries.containsKey(fhirVersion)) {
+          rulePackage.rawCqlLibraries.get(fhirVersion).put(id, cqlStream);
+        } else {
+          HashMap<VersionedIdentifier, InputStream> map = new HashMap<>();
+          map.put(id, cqlStream);
+          rulePackage.rawCqlLibraries.put(fhirVersion, map);
+        }
         if (id.getId().equals(mainCqlLibraryName)) {
-          rulePackage.mainCqlLibraryId = id;
+          rulePackage.mainCqlLibraryId.put(fhirVersion, id);
         }
       }
     }
@@ -155,6 +173,29 @@ public class CqlBundle {
     rulePackage.validate();
     return rulePackage;
   }
+
+  @JsonIgnore
+  private static String getFhirVersionFromCqlFile(byte[] cql) {
+    String fhirVersion = "";
+    UsingDef usingDef = new UsingDef();
+    Pattern pattern = Pattern.compile("using (.*?) version '(.*?)'");
+    try {
+      Matcher matcher = pattern.matcher(new String(cql));
+      while (fhirVersion.isEmpty()) {
+        matcher.find();
+        if (matcher.groupCount() != 2) {
+          throw new RuntimeException("Encountered bad CQL file, could not detect library identifier.");
+        }
+        if (matcher.group(1).equalsIgnoreCase("FHIR")) {
+          fhirVersion = matcher.group(2);
+        }
+      }
+    } catch (Exception e) {
+      logger.warn("exception in CqlBundle::getFhirVersinoFromCqlFile(): " + e.getMessage());
+    }
+    return fhirVersion;
+  }
+
 
   @JsonIgnore
   private static VersionedIdentifier getIdFromCqlFile(byte[] cql){

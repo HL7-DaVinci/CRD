@@ -2,7 +2,7 @@ package org.hl7.davinci.endpoint.database;
 
 import org.apache.commons.io.FilenameUtils;
 import org.hl7.davinci.endpoint.YamlConfig;
-import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
+import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class CoverageRequirementRuleDownloaderDatabase implements CoverageRequir
       logger.info("Converting CQL to ELM");
       try {
         String cql = new String(Files.readAllBytes(path));
-        String elm = CqlExecutionContextBuilder.translateToElm(cql);
+        String elm = CqlExecution.translateToElm(cql);
         byte[] elmData = elm.getBytes();
 
         bundleFile = new CqlBundleFile();

@@ -31,8 +31,9 @@ gretty {
 
 dependencies {
 
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:3.6.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:3.6.0'
     compile 'ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.6.0'
-
     compile 'ca.uhn.hapi.fhir:hapi-fhir-testpage-overlay:3.6.0:classes'
 
     compile 'org.apache.commons:commons-dbcp2:2.5.0'

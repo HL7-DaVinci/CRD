@@ -3,6 +3,8 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Calendar;
 import org.cdshooks.CdsResponse;
 import org.hl7.davinci.FatalRequestIncompleteException;
@@ -29,22 +31,34 @@ public class OrderReviewServiceTest {
   @Autowired
   private OrderReviewService service;
 
-  @Ignore("No CQL R4 Support at this time.") @Test
+  @Test
   public void testHandleRequest() {
+    URL applicationBase;
+    try {
+      applicationBase = new URL("http","localhost","/");
+    } catch (MalformedURLException e){
+      throw new RuntimeException(e);
+    }
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
     OrderReviewRequest request = CrdRequestCreator
         .createOrderReviewRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA",
             "MA");
-    CdsResponse response = service.handleRequest(request, null);
+    CdsResponse response = service.handleRequest(request, applicationBase);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
-    assertEquals("Documentation is required for the desired device or service",
+    assertEquals("Auth required",
         response.getCards().get(0).getSummary());
   }
 
-  @Ignore("No CQL R4 Support at this time.") @Test
+  @Test
   public void testPrefetchNeededNoFhirServerThrowsError() {
+    URL applicationBase;
+    try {
+      applicationBase = new URL("http","localhost","/");
+    } catch (MalformedURLException e){
+      throw new RuntimeException(e);
+    }
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
     OrderReviewRequest request = CrdRequestCreator
@@ -54,11 +68,17 @@ public class OrderReviewServiceTest {
     request.setFhirServer(null); //empty the fhir server
 
     thrown.expect(FatalRequestIncompleteException.class);
-    service.handleRequest(request, null);
+    service.handleRequest(request, applicationBase);
   }
 
-  @Ignore("No CQL R4 Support at this time.") @Test
+  @Test
   public void testPrefetchNeededNoResourceIdThrowsError() {
+    URL applicationBase;
+    try {
+      applicationBase = new URL("http","localhost","/");
+    } catch (MalformedURLException e){
+      throw new RuntimeException(e);
+    }
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
     OrderReviewRequest request = CrdRequestCreator
@@ -68,6 +88,6 @@ public class OrderReviewServiceTest {
     request.getContext().getOrders().getEntryFirstRep().getResource().setId((IIdType) null);
 
     thrown.expect(FatalRequestIncompleteException.class);
-    service.handleRequest(request, null);
+    service.handleRequest(request, applicationBase);
   }
 }

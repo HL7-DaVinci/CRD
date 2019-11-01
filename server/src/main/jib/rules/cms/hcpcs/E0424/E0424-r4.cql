@@ -1,0 +1,42 @@
+library Rule version '0.1.0'
+using FHIR version '4.0.0'
+include FHIRHelpers version '4.0.0' called FHIRHelpers
+
+parameter Patient Patient
+parameter device_request DeviceRequest
+
+define "Age":
+  AgeInYears()
+
+define "Gender":
+  Patient.gender.value
+
+define "PatientHomeState":
+  Patient.address.where(use.value = 'home')[0].state.value
+
+define RULE_APPLIES:
+  "Age" > 0
+
+define "Auth_Needed":
+  "Age" > 65
+
+define RESULT_Summary:
+  if "Auth_Needed" then
+    'No auth needed'
+  else
+    'Auth required'
+
+define RESULT_Details:
+  if "Auth_Needed" then
+    'No authorization is required, as laid out at the attached link.'
+  else
+    'Authorization is required, follow the attached link for information.'
+
+define RESULT_InfoLink:
+    'https://www.cms.gov/outreach-and-education/medicare-learning-network-mln/mlnproducts/downloads/home-oxygen-therapy-text-only.pdf'
+
+define RESULT_QuestionnaireUri:
+    'urn:hl7:davinci:crd:home-oxygen-questionnaire_2'
+
+define RESULT_requestId:
+  device_request

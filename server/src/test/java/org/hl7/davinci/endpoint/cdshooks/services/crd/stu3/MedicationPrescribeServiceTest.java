@@ -3,6 +3,8 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.stu3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Calendar;
 import org.cdshooks.CdsResponse;
 import org.hl7.davinci.stu3.CrdRequestCreator;
@@ -23,11 +25,17 @@ public class MedicationPrescribeServiceTest {
 
   @Test
   public void testHandleRequest() {
+    URL applicationBase;
+    try {
+      applicationBase = new URL("http","localhost","/");
+    } catch (MalformedURLException e){
+      throw new RuntimeException(e);
+    }
     Calendar cal = Calendar.getInstance();
     cal.set(1970, Calendar.JULY, 4);
     MedicationPrescribeRequest request = CrdRequestCreator
         .createMedicationPrescribeRequest(Enumerations.AdministrativeGender.MALE, cal.getTime(), "MA", "MA");
-    CdsResponse response = service.handleRequest(request, null);
+    CdsResponse response = service.handleRequest(request, applicationBase);
     assertNotNull(response);
     assertEquals(1, response.getCards().size());
     assertEquals("Authorization is required.", response.getCards().get(0).getSummary());

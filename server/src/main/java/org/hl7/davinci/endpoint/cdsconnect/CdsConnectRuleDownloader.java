@@ -1,7 +1,7 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
 import org.apache.commons.io.FilenameUtils;
-import org.hl7.davinci.endpoint.cql.CqlExecutionContextBuilder;
+import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.slf4j.Logger;
@@ -73,7 +73,7 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
       if (FilenameUtils.getExtension(name).toUpperCase().equals("CQL")) {
         logger.info("Converting CQL to ELM");
         try {
-          String elm = CqlExecutionContextBuilder.translateToElm(new String(match.getCqlBundle()));
+          String elm = CqlExecution.translateToElm(new String(match.getCqlBundle()));
           byte[] elmData = elm.getBytes();
 
           bundleFile = new CqlBundleFile();
