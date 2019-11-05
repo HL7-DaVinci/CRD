@@ -1,0 +1,37 @@
+{
+  "resourceType": "ValueSet",
+  "id": "urn:hl7:davinci:crd:valueset-copd",
+  "title": "COPD",
+  "status": "draft",
+  "version": "0.0.1",
+  "expansion": {
+    "identifier": "urn:hl7:davinci:crd:valueset-copd",
+    "timestamp": "2019-11-04T17:45:07Z",
+    "contains": [
+      {
+        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+        "version": "2020",
+        "code": "J44",
+        "display": "Other chronic obstructive pulmonary disease"
+      },
+      {
+        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+        "version": "2020",
+        "code": "J44.0",
+        "display": "Chronic obstructive pulmonary disease with (acute) lower respiratory infection"
+      },
+      {
+        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+        "version": "2020",
+        "code": "J44.1",
+        "display": "Chronic obstructive pulmonary disease with (acute) exacerbation"
+      },
+      {
+        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+        "version": "2020",
+        "code": "J44.9",
+        "display": "Chronic obstructive pulmonary disease, unspecified"
+      }
+    ]
+  }
+}
