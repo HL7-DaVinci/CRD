@@ -3,6 +3,13 @@
   "id": "pat016",
   "gender": "female",
   "birthDate": "1976-02-23",
+  "address": [
+    {
+      "use": "home",
+      "type": "both",
+      "state": "VT"
+    }
+  ],
   "name": [
     {
       "use": "official",

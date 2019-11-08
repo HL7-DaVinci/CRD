@@ -20,7 +20,7 @@
       {
         "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
         "code": "E0601",
-        "display": "Respiratory assist device, bi-level w/o backup"
+        "display": "Respiratory assist device (CPAP), bi-level w/o backup"
       }
     ]
   },

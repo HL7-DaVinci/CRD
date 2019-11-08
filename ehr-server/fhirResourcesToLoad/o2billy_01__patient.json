@@ -3,6 +3,13 @@
   "id": "pat015",
   "gender": "male",
   "birthDate": "2015-02-23",
+  "address": [
+    {
+      "use": "home",
+      "type": "both",
+      "state": "MA"
+    }
+  ],
   "name": [
     {
       "use": "official",

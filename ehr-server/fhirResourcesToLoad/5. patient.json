@@ -9,5 +9,16 @@
       "type": "both",
       "state": "MA"
     }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Tables",
+      "given": [
+        "Bobby",
+        "D",
+        "Tables"
+      ]
+    }
   ]
 }

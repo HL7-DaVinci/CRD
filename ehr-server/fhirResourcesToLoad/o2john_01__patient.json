@@ -3,6 +3,13 @@
   "id": "pat013",
   "gender": "male",
   "birthDate": "1956-12-01",
+  "address": [
+    {
+      "use": "home",
+      "type": "both",
+      "state": "NY"
+    }
+  ],
   "name": [
     {
       "use": "official",

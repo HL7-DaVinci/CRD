@@ -29,7 +29,11 @@ public class CardBuilder {
     }
 
     public CqlResultsForCard setRuleApplies(Boolean ruleApplies) {
-      this.ruleApplies = ruleApplies;
+      if (ruleApplies == null) {
+        this.ruleApplies = false;
+      } else {
+        this.ruleApplies = ruleApplies;
+      }
       return this;
     }
 
