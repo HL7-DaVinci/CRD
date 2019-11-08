@@ -19,6 +19,12 @@
       "valueReference": {
         "reference": "urn:hl7:davinci:crd:library-oxygen-therapy-prepopulate"
       }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate"
+      }
     }
   ],
   "contained": [
@@ -64,7 +70,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientLastName"
+              "valueString": "\"BasicPatientInfo\".LastName"
             }
           ]
         },
@@ -76,7 +82,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientFirstName"
+              "valueString": "\"BasicPatientInfo\".FirstName"
             }
           ]
         },
@@ -88,7 +94,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientMiddleInitial"
+              "valueString": "\"BasicPatientInfo\".MiddleInitial"
             }
           ]
         },
@@ -100,7 +106,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientDateOfBirth"
+              "valueString": "\"BasicPatientInfo\".DateOfBirth"
             }
           ]
         },
@@ -115,7 +121,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientGender"
+              "valueString": "\"BasicPatientInfo\".Gender"
             }
           ]
         },
@@ -127,7 +133,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientMedicareId"
+              "valueString": "\"BasicPatientInfo\".MedicareId"
             }
           ]
         }
@@ -146,7 +152,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderLastName"
+              "valueString": "\"OxygenTherapy\".OrderingProviderLastName"
             }
           ]
         },
@@ -158,7 +164,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderFirstName"
+              "valueString": "\"OxygenTherapy\".OrderingProviderFirstName"
             }
           ]
         },
@@ -170,7 +176,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderMiddleInitial"
+              "valueString": "\"OxygenTherapy\".OrderingProviderMiddleInitial"
             }
           ]
         },
@@ -182,7 +188,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "OrderingProviderNPI"
+              "valueString": "\"OxygenTherapy\".OrderingProviderNPI"
             }
           ]
         },
@@ -194,7 +200,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "Today"
+              "valueString": "\"OxygenTherapy\".Today"
             }
           ]
         }
@@ -261,7 +267,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "RelevantDiagnoses"
+              "valueString": "\"OxygenTherapy\".RelevantDiagnoses"
             }
           ]
         },
@@ -273,7 +279,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "ArterialOxygenSaturation"
+              "valueString": "\"OxygenTherapy\".ArterialOxygenSaturation"
             }
           ]
         },
@@ -285,7 +291,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "ArterialPartialPressureOfOxygen"
+              "valueString": "\"OxygenTherapy\".ArterialPartialPressureOfOxygen"
             }
           ]
         },
@@ -297,7 +303,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "ArterialOxygenSaturationExercise"
+              "valueString": "\"OxygenTherapy\".ArterialOxygenSaturationExercise"
             }
           ]
         },
@@ -327,7 +333,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientMobile"
+              "valueString": "\"OxygenTherapy\".PatientMobile"
             }
           ]
         },
@@ -378,7 +384,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "PatientHasHematocritThatIsGreaterThanThreshold"
+              "valueString": "\"OxygenTherapy\".PatientHasHematocritThatIsGreaterThanThreshold"
             }
           ]
         },
@@ -396,7 +402,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "HematocritThatIsGreaterThanThreshold"
+              "valueString": "\"OxygenTherapy\".HematocritThatIsGreaterThanThreshold"
             }
           ]
         }
@@ -415,7 +421,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "Today"
+              "valueString": "\"OxygenTherapy\".Today"
             }
           ]
         },
@@ -515,7 +521,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "DeviceRequestDescription"
+              "valueString": "\"OxygenTherapy\".DeviceRequestDescription"
             }
           ]
         },
@@ -527,7 +533,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "DeviceRequestedIsPortable"
+              "valueString": "\"OxygenTherapy\".DeviceRequestedIsPortable"
             }
           ]
         },

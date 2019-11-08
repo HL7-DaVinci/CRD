@@ -19,10 +19,23 @@
       }
     }
   ],
+  "dataRequirement": [
+    {
+      "type": "Condition",
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSetReference": {
+            "reference": "urn:hl7:davinci:crd:valueset-copd"
+          }
+        }
+      ]
+    }
+  ],
   "content": [
     {
       "contentType": "application/elm+json",
-      "url": "urn:hl7:davinci:crd:OxygenTherapyPrepopulation.json"
+      "url": "urn:hl7:davinci:crd:OxygenTherapyPrepopulation.cql"
     }
   ]
 }

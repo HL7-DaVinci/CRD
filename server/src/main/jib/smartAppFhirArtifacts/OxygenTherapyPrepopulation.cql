@@ -14,10 +14,7 @@ codesystem "LOINC": 'http://loinc.org'
 codesystem "SNOMED-CT": 'http://snomed.info/sct'
 
 //COPD_Codes
-code "J44": 'J44' from "ICD-10-CM"
-code "J44.0": 'J44.0' from "ICD-10-CM"
-code "J44.1": 'J44.1' from "ICD-10-CM"
-code "J44.9": 'J44.9' from "ICD-10-CM"
+valueset "COPD": 'urn:hl7:davinci:crd:valueset-copd'
 
 //Bronchiectasis_Codes
 code "J47": 'J47' from "ICD-10-CM"
@@ -109,7 +106,6 @@ code "8510008": '8510008' from "SNOMED-CT"
 parameter device_request DeviceRequest
 
 // Relevant Diagnosis Code Lists
-define "COPD_Codes": { "J44", "J44.0", "J44.1", "J44.9" }
 define "Bronchiectasis_Codes": { "J47", "J47.0", "J47.1", "J47.9" }
 define "Diffuse_interstitial_lung_disease_Codes": { "J84", "J84.0", "J84.01", "J84.02", "J84.03",
   "J84.09", "J84.1", "J84.10", "J84.11", "J84.111", "J84.112", "J84.113", "J84.114", "J84.115",
@@ -139,23 +135,9 @@ define function GetMiddleInitials(name FHIR.HumanName):
 
 define Today: Today()
 
-// basic patient stuff
-define PatientName: singleton from (Patient.name name where name.use.value = 'official')
-define PatientLastName: "PatientName".family.value
-define PatientMiddleInitial: GetMiddleInitials("PatientName")
-define PatientFirstName: "PatientName".given[0].value
-define PatientGender: Patient.gender.value
-define PatientDateOfBirth: Patient.birthDate.value
-
-define PatientCoverageResource: singleton from (
-  [Coverage] coverage
-    // pull coverage resource id from the device request insurance extension
-    where ('Coverage/' + coverage.id) = ((device_request.extension ext where ext.url = 'http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html')[0].value.reference.value))
-define PatientMedicareId: "PatientCoverageResource".subscriberId.value
-
 // coverage requirement info
 define RelevantDiagnoses: {
-  if exists(Confirmed(ActiveOrRecurring([Condition: "COPD_Codes"]))) then 'COPD' else 'null',
+  if exists(Confirmed(ActiveOrRecurring([Condition: "COPD"]))) then 'COPD' else 'null',
   if exists(Confirmed(ActiveOrRecurring([Condition: "Bronchiectasis_Codes"]))) then 'Bronchiectasis' else 'null',
   if exists(Confirmed(ActiveOrRecurring([Condition: "Diffuse_interstitial_lung_disease_Codes"]))) then 'Diffuse Interstitial Lung Disease' else 'null',
   if exists(Confirmed(ActiveOrRecurring([Condition: "Cystic_fibrosis_Codes"]))) then 'Cystic Fibrosis' else 'null',
