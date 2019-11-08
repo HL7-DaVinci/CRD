@@ -3,6 +3,13 @@
   "id": "pat014",
   "gender": "male",
   "birthDate": "1946-07-04",
+  "address": [
+    {
+      "use": "home",
+      "type": "both",
+      "state": "VA"
+    }
+  ],
   "name": [
     {
       "use": "official",

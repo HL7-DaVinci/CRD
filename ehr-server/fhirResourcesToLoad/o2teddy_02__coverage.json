@@ -4,8 +4,18 @@
   "id": "cov014",
   "subscriberId": "10A3D58WH1600",
   "status": "active",
-  "grouping": {
-    "subGroup": "Medicare",
-    "subPlan": "Part A"
-  }
+  "class": [
+    {
+      "type": {
+        "system": "http://hl7.org/fhir/coverage-class",
+        "code": "plan"
+      },
+      "value": "Medicare Part A"
+    }
+  ],
+  "payor": [
+    {
+      "reference": "Organization/org1234"
+    }
+  ]
 }
