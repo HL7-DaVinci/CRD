@@ -19,3 +19,9 @@ define RESULT_Details:
 
 define RESULT_InfoLink:
     'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforGlucoseMonitors-ICN909465.pdf'
+
+define RESULT_QuestionnaireUri:
+    'urn:hl7:davinci:crd:home-blood-glucose-questionnaire'
+
+define RESULT_requestId:
+  device_request

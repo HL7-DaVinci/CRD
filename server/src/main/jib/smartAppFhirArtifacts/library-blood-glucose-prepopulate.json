@@ -1,0 +1,31 @@
+{
+  "resourceType": "Library",
+  "id": "urn:hl7:davinci:crd:library-blood-glucose-prepopulate",
+  "version": "0.0.1",
+  "title": "Blood Glucose Monitor Prepopulation",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "code": "logic-library"
+      }
+    ]
+  },
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": {
+        "reference": "urn:hl7:davinci:crd:library-fhir-helpers"
+      }
+    }
+  ],
+  "dataRequirement": [
+    
+  ],
+  "content": [
+    {
+      "contentType": "application/elm+json",
+      "url": "urn:hl7:davinci:crd:BloodGlucosePrepopulation.cql"
+    }
+  ]
+}
