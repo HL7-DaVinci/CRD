@@ -64,31 +64,32 @@ Visit the [server README](server/README.md) to see how to run the server or the 
 If you want to test CRD in a secure fashion using OAuth, you will need to install and configure Keycloak. The following instructions are for configuring Keycloak for all subprojects in the RI:
 
 1. Download and unzip KeyCloak Server from [here](https://www.keycloak.org/downloads.html)
-2. From command line navigate to the directory KeyCloak was downloaded to and then type `unzip keycloak-<Version>.Final.zip` followed by `cd keycloak-<Version>.Final/bin`
+2. From command line navigate to the directory KeyCloak was downloaded to and then type `unzip keycloak-<Version>.zip` followed by `cd keycloak-<Version>/bin`
 3. Run `./standalone.sh -Djboss.socket.binding.port-offset=100` from command line to start the server.  It should run on port 8180
 4. Navigate to the KeyCloak instance in a browser, it should be at [http://localhost:8180/](http://localhost:8180)
-5. When prompted, create a new administrative username and password.
-6. Click Add Realm (hover over the word 'Master' in the sidebar) to find the button.  The realm will be protecting the `ehr-server`.
-	* Import the realm by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
+5. When prompted, create a new administrative username and password in Administration Console.
+6. Login Administration Console with administrative username and password created in previuos step.
+7. Click Add Realm (hover over the word 'Master' in the sidebar) to find the button.  The realm will be protecting the `ehr-server`.
+	* Import the realm by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `[CDR repo]/ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
 
 			Add a new realm:
 			1) click Master (top left nav bar)
 			2) click add realm
 			3) Import | Select file to import (e.g. file from above) 
 
-7. If building the realm manually, make two clients by navigating to the `Clients` tab
+8. If building the realm manually, make two clients by navigating to the `Clients` tab
 	* The name given to the clients will be their `client ID`
 	* Make one client 'public' named `app-login` and one client 'bearer-only' named `app-token` with the `Access-type` dropdown.
 	* In the public client, find the `Web Origins` input and add the address of the EHR fhir server.  Alternatively just put `*` in `Web Origins` if running everything locally, this is less secure and should not be done in a production setting.
 	* In the public client, add a redirect URL.  It can generally work fine as the base url of the server such as [http://localhost:8080](http://localhost:8080)
-8. If building the realm manually, Navigate to the `Roles` tab and make a new role called `user`. This role will already exist if the realm was imported.
-9. Navigate to the `Users` tab and make a new user.
+9. If building the realm manually, Navigate to the `Roles` tab and make a new role called `user`. This role will already exist if the realm was imported.
+10. Navigate to the `Users` tab and make a new user.
 	* Give the new user a password in the `credentials` tab. Make sure to turn 'Temporary' slider off before clicking 'Reset Password'.
 	* Go to `Role Mappings` and add the `user` role
-10. Modify config files to point at your new clients and realms
-	* Change `ehr-server/src/main/resources/fhirServer.properties` to use the client ID (`app-token` if using imported realm), realm name, and client secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
+11. Modify config files to point at your new clients and realms
+	* Change `[CDR repo]/ehr-server/src/main/resources/fhirServer.properties` to use the client ID (`app-token` if using imported realm), realm name, and client secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
 		* The bearer only client's secret can be found in the `Credentials` tab
-	* Change `request-generator/src/properties.json` to include the name of the realm and the client ID of the public client
+	* Change `[cdr-request-generator repo]/src/properties.json` to include the name of the realm and the client ID of the public client
 	
 NOTE: As of right now, the security feature will protect the EHR server in its entirety.  There is no way to choose which endpoints to protect and to what degree.  The security feature will hopefully be able to identify different types of users (e.g `admin` vs `user`) in the future.   
 
