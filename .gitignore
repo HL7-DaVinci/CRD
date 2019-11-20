@@ -20,6 +20,7 @@
 gradle/gradle-4.10.1/*
 request-generator/*
 server/src/main/resources/react/node_modules/*
+ehr-server/src/main/resources/fhirServer.properties
 
 # CMake
 cmake-build-*/
