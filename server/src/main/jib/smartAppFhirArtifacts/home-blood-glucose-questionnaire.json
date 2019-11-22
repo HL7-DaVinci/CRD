@@ -23,7 +23,7 @@
     {
       "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
       "valueReference": {
-        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate"
+        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate-r4"
       }
     }
   ],
@@ -69,8 +69,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BasicPatientInfo\".LastName"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".LastName"
+              }
             }
           ]
         },
@@ -81,8 +84,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BasicPatientInfo\".FirstName"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".FirstName"
+              }
             }
           ]
         },
@@ -93,8 +99,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BasicPatientInfo\".MiddleInitial"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".MiddleInitial"
+              }
             }
           ]
         },
@@ -105,8 +114,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BasicPatientInfo\".DateOfBirth"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".DateOfBirth"
+              }
             }
           ]
         },
@@ -120,8 +132,11 @@
           },
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BasicPatientInfo\".Gender"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".Gender"
+              }
             }
           ]
         },
@@ -132,8 +147,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BasicPatientInfo\".MedicareId"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".MedicareId"
+              }
             }
           ]
         }
@@ -151,8 +169,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BloodGlucose\".OrderingProviderLastName"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BloodGlucose\".OrderingProviderLastName"
+              }
             }
           ]
         },
@@ -163,8 +184,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BloodGlucose\".OrderingProviderFirstName"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BloodGlucose\".OrderingProviderFirstName"
+              }
             }
           ]
         },
@@ -175,8 +199,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BloodGlucose\".OrderingProviderMiddleInitial"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BloodGlucose\".OrderingProviderMiddleInitial"
+              }
             }
           ]
         },
@@ -187,8 +214,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BloodGlucose\".OrderingProviderNPI"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BloodGlucose\".OrderingProviderNPI"
+              }
             }
           ]
         },
@@ -199,8 +229,11 @@
           "required": true,
           "extension": [
             {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"BloodGlucose\".Today"
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BloodGlucose\".Today"
+              }
             }
           ]
         }
