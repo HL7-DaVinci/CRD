@@ -1,8 +1,8 @@
 {
   "resourceType": "Library",
-  "id": "urn:hl7:davinci:crd:library-blood-glucose-prepopulate",
-  "version": "0.0.1",
-  "title": "Blood Glucose Monitor Prepopulation",
+  "id": "urn:hl7:davinci:crd:library-basic-patient-info-r4",
+  "version": "0.2.0",
+  "title": "Basic Patient Info FHIR R4",
   "status": "draft",
   "type": {
     "coding": [
@@ -19,13 +19,10 @@
       }
     }
   ],
-  "dataRequirement": [
-    
-  ],
   "content": [
     {
       "contentType": "application/elm+json",
-      "url": "urn:hl7:davinci:crd:BloodGlucosePrepopulation.cql"
+      "url": "urn:hl7:davinci:crd:BasicPatientInfoPrepopulate-R4.cql"
     }
   ]
 }
