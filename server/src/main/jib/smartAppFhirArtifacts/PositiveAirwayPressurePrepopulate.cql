@@ -40,13 +40,14 @@ define OtherDiagnoses:
   distinct(flatten(
     [Condition] C
       let ICD10Codings:
-        (C.code.coding) CODING where CODING.system.value in {
+        ((C.code.coding) CODING where CODING.system.value in {
           'http://hl7.org/fhir/sid/icd-10',
           'http://hl7.org/fhir/sid/icd-10-cm'
         }
+        return CODING.code.value + ' - ' + CODING.display.value)
       where C.clinicalStatus.value = 'active'
       and exists(ICD10Codings)
-      return ICD10Codings.code.value + ' - ' + ICD10Codings.display.value
+      return ICD10Codings
   ))
 
 
