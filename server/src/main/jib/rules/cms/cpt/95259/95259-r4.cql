@@ -1,0 +1,27 @@
+library Rule version '0.1.0'
+using FHIR version '4.0.0'
+include FHIRHelpers version '4.0.0' called FHIRHelpers
+
+parameter Patient Patient
+parameter device_request DeviceRequest
+
+define "Age":
+  AgeInYears()
+
+define RULE_APPLIES:
+  "Age" >= 10 and "Age" <= 55
+
+define RESULT_Summary:
+  'Authorization required.'
+
+define RESULT_Details:
+  'Authorization is required, follow the link for more information.'
+
+define RESULT_InfoLink:
+    'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforGlucoseMonitors-ICN909465.pdf'
+
+define RESULT_QuestionnaireUri:
+    'urn:hl7:davinci:crd:home-blood-glucose-questionnaire'
+
+define RESULT_requestId:
+  device_request
