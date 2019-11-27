@@ -3,7 +3,8 @@
   "id": "urn:hl7:davinci:crd:home-blood-glucose",
   "meta": {
     "profile": [
-      "http://hl7.org/fhir/StructureDefinition/cqif-questionnaire"
+      "http://hl7.org/fhir/StructureDefinition/cqif-questionnaire",
+      "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-r4"
     ]
   },
   "title": "Home Blood Glucose Monitor",
