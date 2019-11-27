@@ -25,6 +25,6 @@ define DateOfBirth: Patient.birthDate.value
 define CoverageResource: singleton from (
   [Coverage] coverage
     // pull coverage resource id from the device request insurance extension
-    where ('Coverage/' + coverage.id) = ((device_request.extension ext where ext.url = 'http://build.fhir.org/ig/HL7/davinci-crd/STU3/ext-insurance.html')[0].value.reference.value))
+    where ('Coverage/' + coverage.id) = ((device_request.extension ext where ext.url = 'http://build.fhir.org/ig/HL7/davinci-crd/R4/ext-insurance.html')[0].value.reference.value))
 
 define MedicareId: "CoverageResource".subscriberId.value
