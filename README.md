@@ -52,9 +52,9 @@ On the left side of the diagram, we have two components that simulate functional
 ## Building, testing and running
 1. Clone the repo
   * `git clone https://github.com/HL7-DaVinci/CRD.git`
-1. Test the code (optional)
+2. Test the code (optional)
   * `gradle clean check`
-1. Build the code
+3. Build the code
   * `gradle build`
 
 Visit the [server README](server/README.md) to see how to run the server or the [request-generator README](request-generator/README.md) for information on running these subprojects.
