@@ -26,7 +26,7 @@ apply plugin: 'war'
 apply from: 'https://raw.github.com/gretty-gradle-plugin/gretty/master/pluginScripts/gretty.plugin'
 
 gretty {
-    servletContainer = 'tomcat8'
+    servletContainer = 'tomcat9'
 }
 
 dependencies {
