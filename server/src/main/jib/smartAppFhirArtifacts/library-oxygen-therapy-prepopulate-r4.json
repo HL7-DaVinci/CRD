@@ -1,0 +1,41 @@
+{
+  "resourceType": "Library",
+  "id": "urn:hl7:davinci:crd:library-oxygen-therapy-prepopulate-r4",
+  "version": "0.1.0",
+  "title": "Oxygen Therapy Prepopulation",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "code": "logic-library"
+      }
+    ]
+  },
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": {
+        "reference": "urn:hl7:davinci:crd:library-fhir-helpers"
+      }
+    }
+  ],
+  "dataRequirement": [
+    {
+      "type": "Condition",
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSetReference": {
+            "reference": "urn:hl7:davinci:crd:valueset-copd"
+          }
+        }
+      ]
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/elm+json",
+      "url": "urn:hl7:davinci:crd:OxygenTherapyPrepopulation-R4.cql"
+    }
+  ]
+}
