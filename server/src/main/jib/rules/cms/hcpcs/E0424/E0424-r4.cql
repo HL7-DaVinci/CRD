@@ -18,10 +18,10 @@ define RULE_APPLIES:
   "Age" > 0
 
 define RESULT_Summary:
-  'Authorization not required.'
+  'No auth needed'
 
 define RESULT_Details:
-  'Authorization is not required.'
+  'No authorization is required, as laid out at the attached link.'
 
 define RESULT_InfoLink:
     'https://www.cms.gov/outreach-and-education/medicare-learning-network-mln/mlnproducts/downloads/home-oxygen-therapy-text-only.pdf'
