@@ -18,10 +18,10 @@ define RESULT_Details:
   'Authorization is not required.'
 
 define RESULT_InfoLink:
-    'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/downloads/PAP_DocCvg_Factsheet_ICN905064.pdf'
+  'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/downloads/PAP_DocCvg_Factsheet_ICN905064.pdf'
 
 define RESULT_QuestionnaireUri:
-    'urn:hl7:davinci:crd:positive-airway-pressure-questionnaire'
+  'urn:hl7:davinci:crd:positive-airway-pressure-questionnaire'
 
 define RESULT_requestId:
   device_request

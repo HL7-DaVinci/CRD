@@ -12,7 +12,7 @@ define "Gender":
     Patient.gender.value
 
 define "PatientHomeState":
-    Patient.address.WHERE(use.value = 'home')[0].state.value
+    Patient.address.where(use.value = 'home')[0].state.value
 
 define RULE_APPLIES:
     "Age" > 0
@@ -21,15 +21,15 @@ define "Auth_Needed":
     "Age" > 65
 
 define RESULT_Summary:
-    if "Auth_Needed" THEN
+    if "Auth_Needed" then
     'No auth needed'
-ELSE
+else
     'Auth required'
 
 define RESULT_Details:
-    if "Auth_Needed" THEN
+    if "Auth_Needed" then
     'No authorization is required, as laid out at the attached link.'
-ELSE
+else
     'Authorization is required, follow the attached link for information.'
 
 define RESULT_InfoLink:
