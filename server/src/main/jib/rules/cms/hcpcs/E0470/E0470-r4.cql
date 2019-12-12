@@ -9,7 +9,7 @@ define "Age":
 AgeInYears()
 
 define RULE_APPLIES:
-"Age" > 0
+    "Age" > 0
 
 define RESULT_Summary:
   'Authorization not required.'
