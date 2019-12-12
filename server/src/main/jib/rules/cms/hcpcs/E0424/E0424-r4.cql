@@ -17,20 +17,11 @@ define "PatientHomeState":
 define RULE_APPLIES:
   "Age" > 0
 
-define "Auth_Needed":
-  "Age" > 65
-
 define RESULT_Summary:
-  if "Auth_Needed" then
-    'No auth needed'
-  else
-    'Auth required'
+  'Authorization not required.'
 
 define RESULT_Details:
-  if "Auth_Needed" then
-    'No authorization is required, as laid out at the attached link.'
-  else
-    'Authorization is required, follow the attached link for information.'
+  'Authorization is not required.'
 
 define RESULT_InfoLink:
     'https://www.cms.gov/outreach-and-education/medicare-learning-network-mln/mlnproducts/downloads/home-oxygen-therapy-text-only.pdf'
