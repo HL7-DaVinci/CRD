@@ -8,6 +8,12 @@ parameter device_request DeviceRequest
 define "Age":
   AgeInYears()
 
+define "Gender":
+  Patient.gender.value
+
+define "PatientHomeState":
+  Patient.address.where(use.value = 'home')[0].state.value
+
 define RULE_APPLIES:
   "Age" > 0
 
