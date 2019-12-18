@@ -1,6 +1,6 @@
 library Rule version '0.1.0'
-using FHIR version '4.0.0'
-include FHIRHelpers version '4.0.0' called FHIRHelpers
+using FHIR version '3.0.0'
+include FHIRHelpers version '3.0.0' called FHIRHelpers
 
 parameter Patient Patient
 parameter device_request DeviceRequest

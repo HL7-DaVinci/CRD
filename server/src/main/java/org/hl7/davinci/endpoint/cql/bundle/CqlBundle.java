@@ -191,7 +191,7 @@ public class CqlBundle {
         }
       }
     } catch (Exception e) {
-      logger.warn("exception in CqlBundle::getFhirVersinoFromCqlFile(): " + e.getMessage());
+      logger.warn("exception in CqlBundle::getFhirVersionFromCqlFile(): " + e.getMessage());
     }
     return fhirVersion;
   }

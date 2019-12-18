@@ -6,7 +6,7 @@ parameter Patient Patient
 parameter device_request DeviceRequest
 
 define RULE_APPLIES:
-  true
+    true
 
 define RESULT_Summary:
   'Documentation Required.'
