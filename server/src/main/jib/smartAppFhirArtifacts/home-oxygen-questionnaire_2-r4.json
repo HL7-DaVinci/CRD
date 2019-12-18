@@ -173,7 +173,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"OxygenTherapy\".OrderingProviderLastName"
+                "expression": "\"OrderingProvider\".LastName"
               }
             }
           ]
@@ -188,7 +188,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"OxygenTherapy\".OrderingProviderFirstName"
+                "expression": "\"OrderingProvider\".FirstName"
               }
             }
           ]
@@ -203,7 +203,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"OxygenTherapy\".OrderingProviderMiddleInitial"
+                "expression": "\"OrderingProvider\".MiddleInitial"
               }
             }
           ]
@@ -218,7 +218,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"OxygenTherapy\".OrderingProviderNPI"
+                "expression": "\"OrderingProvider\".NPI"
               }
             }
           ]

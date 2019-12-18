@@ -128,11 +128,6 @@ define "Immobilization_Codes": { "102491009", "129857008", "129859006", "1606850
 
 context Patient
 
-
-define function GetMiddleInitials(name FHIR.HumanName):
-  Substring(Combine((name.given given return Substring(given.value,0,1)),', '),3)
-
-
 define Today: Today()
 
 // coverage requirement info
@@ -164,27 +159,6 @@ define DeviceRequestHcpcsCoding: singleton from (
 define DeviceRequestDescription: 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + "DeviceRequestHcpcsCoding".display.value
 define DeviceRequestedIsPortable: "DeviceRequestHcpcsCoding".code.value in { 'E0433', 'E0434', 'E0444', 'EO431', 'K0738', 'E0443', 'E1392' }
 define DeviceRequestedIsStationary: "DeviceRequestHcpcsCoding".code.value in { 'E0439', 'E0442', 'E0424', 'E0441', 'E1390', 'E1391' }
-
-
-// ordering provider info
-define OrderingProvider: singleton from (
-  [Practitioner] practitioner
-    where ('Practitioner/' + practitioner.id) = device_request.performer.reference.value)
-define OrderingProviderName: singleton from ("OrderingProvider".name name where name.use.value = 'official')
-define OrderingProviderLastName: "OrderingProviderName".family.value
-define OrderingProviderMiddleInitial: GetMiddleInitials("OrderingProviderName")
-define OrderingProviderFirstName: "OrderingProviderName".given[0].value
-define OrderingProviderNPI: (singleton from (
-  "OrderingProvider".identifier identifier
-    where identifier.system.value = 'http://hl7.org/fhir/sid/us-npi')).value.value
-
-
-
-
-
-
-
-
 
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with stu3 version of helper library
