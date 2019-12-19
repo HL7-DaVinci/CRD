@@ -1,6 +1,6 @@
 {
   "resourceType": "Library",
-  "id": "urn:hl7:davinci:crd:library-basic-practitioner-info",
+  "id": "urn:hl7:davinci:crd:library-basic-practitioner-info-r4",
   "version": "0.0.1",
   "title": "Basic Practitioner Info",
   "status": "draft",
@@ -22,7 +22,7 @@
   "content": [
     {
       "contentType": "application/elm+json",
-      "url": "urn:hl7:davinci:crd:BasicPractitionerInfoPrepopulate.cql"
+      "url": "urn:hl7:davinci:crd:BasicPractitionerInfoPrepopulate-R4.cql"
     }
   ]
 }

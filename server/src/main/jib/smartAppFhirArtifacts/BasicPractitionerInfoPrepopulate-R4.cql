@@ -1,6 +1,6 @@
 library BasicPractitionerInfo version '0.0.1'
-using FHIR version '3.0.0'
-include FHIRHelpers version '3.0.0' called FHIRHelpers
+using FHIR version '4.0.0'
+include FHIRHelpers version '4.0.0' called FHIRHelpers
 
 parameter device_request DeviceRequest
 
@@ -14,7 +14,7 @@ define Today: Today()
 // Get Practitioner
 define OrderingProvider: singleton from (
   [Practitioner] practitioner
-    where ('Practitioner/' + practitioner.id) = device_request.performer.reference.value)
+    where ('Practitioner/' + practitioner.id) =  device_request.performer.reference.value)
 
 // Get Practitioner's Name
 define Name: singleton from (

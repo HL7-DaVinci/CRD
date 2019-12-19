@@ -26,6 +26,12 @@
       "valueReference": {
         "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate-r4"
       }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-basic-practitioner-info-prepopulate-r4"
+      }
     }
   ],
   "contained": [
