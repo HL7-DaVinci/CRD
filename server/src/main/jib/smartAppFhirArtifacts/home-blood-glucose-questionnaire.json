@@ -245,6 +245,90 @@
           ]
         }
       ]
+    },
+    {
+      "linkId": "3",
+      "text": "Coverage Requirements",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "3.1",
+          "text": "Diagnosis",
+          "type": "choice",
+          "required": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Diabetes"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Other"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.2",
+          "text": "Diabetes Treatment",
+          "type": "choice",
+          "required": true,
+          "enableWhen": [
+            {
+              "question": "3.1",
+              "answerCoding": {
+                "code": "Diabetes"
+              }
+            }
+          ],
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Insulin Treated"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Non-insulin Treated"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "3.3",
+          "text": "Other Diagnosis Description",
+          "type": "string",
+          "required": true,
+          "enableWhen": [
+            {
+              "question": "3.1",
+              "answerCoding": {
+                "code": "Other"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "text": "Prescribed Use",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "4.1",
+          "text": "Start date of order",
+          "type": "date",
+          "required": true
+        },
+        {
+          "linkId": "4.2",
+          "text": "Start date",
+          "type": "date",
+          "required": true
+        }
+      ]
     }
   ]
 }
