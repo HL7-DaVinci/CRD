@@ -38,7 +38,7 @@ define OtherDiagnoses:
           'http://hl7.org/fhir/sid/icd-10-cm'
         }
         return CODING.code.value + ' - ' + CODING.display.value)
-      where C.clinicalStatus.value = 'active'
+      where C.clinicalStatus.coding.code = 'active'
       and exists(ICD10Codings)
       return ICD10Codings
   ))
@@ -72,7 +72,7 @@ define OrderingProviderFullName:
 
 
 
-////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with stu3 version of helper library
+////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with r4 version of helper library
 define function ActiveOrRecurring(CondList List<Condition>):
   CondList C where C.clinicalStatus.coding.code in {'active', 'relapse'}
 
