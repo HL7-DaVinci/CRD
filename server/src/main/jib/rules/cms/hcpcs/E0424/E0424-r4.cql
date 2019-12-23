@@ -6,10 +6,10 @@ parameter Patient Patient
 parameter device_request DeviceRequest
 
 define "Age":
-  AgeInYears()
+    AgeInYears()
 
 define RULE_APPLIES:
-  "Age" > 0
+    "Age" > 0
 
 define RESULT_Summary:
   'No auth needed'
@@ -24,4 +24,4 @@ define RESULT_QuestionnaireUri:
     'urn:hl7:davinci:crd:home-oxygen-questionnaire_2-r4'
 
 define RESULT_requestId:
-  device_request
+    device_request
