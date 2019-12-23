@@ -134,7 +134,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"OrderingProvider\".LastName"
+              "valueString": "\"BasicPractitionerInfo\".LastName"
             }
           ],
           "linkId": "2.1",
@@ -146,7 +146,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"OrderingProvider\".FirstName"
+              "valueString": "\"BasicPractitionerInfo\".FirstName"
             }
           ],
           "linkId": "2.2",
@@ -158,7 +158,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"OrderingProvider\".MiddleInitial"
+              "valueString": "\"BasicPractitionerInfo\".MiddleInitial"
             }
           ],
           "linkId": "2.3",
@@ -350,7 +350,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"OrderingProvider\".FullName"
+              "valueString": "\"BasicPractitionerInfo\".FullName"
             }
           ],
           "linkId": "9.2",
@@ -374,7 +374,7 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"OrderingProvider\".NPI"
+              "valueString": "\"BasicPractitionerInfo\".NPI"
             }
           ],
           "linkId": "9.4",

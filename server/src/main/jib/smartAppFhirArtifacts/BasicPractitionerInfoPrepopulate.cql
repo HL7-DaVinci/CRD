@@ -18,7 +18,7 @@ define OrderingProvider: singleton from (
 
 // Get Practitioner's Name
 define Name: singleton from (
-  "OrderingProvider".name name where name.use.value = 'official' 
+  ("OrderingProvider".name name where name.use.value = 'official') 
   union 
   "OrderingProvider".name)
 

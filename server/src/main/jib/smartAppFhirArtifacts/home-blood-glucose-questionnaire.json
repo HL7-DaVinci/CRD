@@ -179,7 +179,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"OrderingProvider\".LastName"
+                "expression": "\"BasicPractitionerInfo\".LastName"
               }
             }
           ]
@@ -194,7 +194,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"OrderingProvider\".FirstName"
+                "expression": "\"BasicPractitionerInfo\".FirstName"
               }
             }
           ]
@@ -209,7 +209,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"OrderingProvider\".MiddleInitial"
+                "expression": "\"BasicPractitionerInfo\".MiddleInitial"
               }
             }
           ]
@@ -224,7 +224,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"OrderingProvider\".NPI"
+                "expression": "\"BasicPractitionerInfo\".NPI"
               }
             }
           ]
