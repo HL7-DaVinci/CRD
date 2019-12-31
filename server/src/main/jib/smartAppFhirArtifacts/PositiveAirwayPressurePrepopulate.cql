@@ -9,15 +9,12 @@ codesystem "SNOMED-CT": 'http://snomed.info/sct'
 //Obstructive Sleep Apnea
 code "G47.33": 'G47.33' from "ICD-10-CM"
 
-
 parameter device_request DeviceRequest
 
 
 define "OSA_Codes": { "G47.33" }
 
 context Patient
-
-define Today: Today()
 
 // coverage requirement info
 define OsaDiagnosis:
