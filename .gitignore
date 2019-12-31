@@ -145,3 +145,9 @@ gradle-app.setting
 
 # End of https://www.gitignore.io/api/osx,java,gradle,intellij
 
+# Visual Studio Code
+ehr-server/target/
+.classpath
+.settings/
+bin/
+.vscode/
