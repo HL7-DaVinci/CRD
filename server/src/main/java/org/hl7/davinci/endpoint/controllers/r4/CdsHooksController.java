@@ -7,9 +7,11 @@ import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.MedicationPrescribeService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderReviewService;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSelectService;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
+import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ public class CdsHooksController {
 
   @Autowired private OrderReviewService orderReviewService;
   @Autowired private MedicationPrescribeService medicationPrescribeService;
+  @Autowired private OrderSelectService orderSelectService;
 
   /**
    * The FHIR r4 services discovery endpoint.
@@ -75,5 +78,21 @@ public class CdsHooksController {
       request.setPrefetch(new CrdPrefetch());
     }
     return medicationPrescribeService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+  }
+
+  /**
+   * The coverage requirement discovery endpoint for the order select hook.
+   * @param request An order select triggered cds request
+   * @return The card response
+   */
+  @CrossOrigin
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderSelectService.ID,
+      consumes = "application/json;charset=UTF-8")
+  public CdsResponse handleOrderSelect(@Valid @RequestBody OrderSelectRequest request, final HttpServletRequest httpServletRequest) {
+    logger.info("r4/handleOrderSelect");
+    if (request.getPrefetch() == null) {
+      request.setPrefetch(new CrdPrefetch());
+    }
+    return orderSelectService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
 }

@@ -52,7 +52,7 @@ public class CrdPrefetchTemplateElements {
       Bundle.class);
 
   public static final PrefetchTemplateElement REFERRAL_REQUEST_BUNDLE = new PrefetchTemplateElement(
-      "referralRequest",
+      "referralRequestBundle",
       "ReferralRequest?_id={{context.orders.ReferralRequest.id}}"
           + "&_include=ReferralRequest:patient"
           + "&_include=ReferralRequest:recipient"
@@ -69,6 +69,32 @@ public class CrdPrefetchTemplateElements {
           + "&_include=SupplyRequest:requester:Practitioner"
           + "&_include=SupplyRequest:requester:Organization"
           + "&_include=SupplyRequest:insurance:Coverage",
+      Bundle.class);
+
+  public static final PrefetchTemplateElement VISION_PRESCRIPTION_BUNDLE = new PrefetchTemplateElement(
+      "visionPrescriptionBundle",
+      "VisionPrescription?_id={{context.draftOrders.VisionPrescription.id}}"
+          + "&_include=VisionPrescription:patient"
+          + "&_include=VisionPrescription:prescriber"
+          + "&_include=VisionPrescription:insurance:Coverage",
+      Bundle.class);
+
+  public static final PrefetchTemplateElement APPOINTMENT_BUNDLE = new PrefetchTemplateElement(
+      "appointmentBundle",
+      "Appointment?_id={{context.appointments.Appointment.id}}"
+          + "&_include=Appointment:patient, Appointment:practitioner"
+          + "&_include=Appointment:location"
+          + "&_include=Appointment:insurance:Coverage",
+      Bundle.class);
+
+  public static final PrefetchTemplateElement ENCOUNTER_BUNDLE = new PrefetchTemplateElement(
+      "encounterBundle",
+      "Encounter?_id={{context.encounterId}}"
+          + "&_include=Encounter:patient"
+          + "&_include=Encounter:service-provider"
+          + "&_include=Encounter:practitioner"
+          + "&_include=Encounter:location"
+          + "&_include=Encounter:insurance:Coverage",
       Bundle.class);
 
 }
