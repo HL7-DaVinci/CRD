@@ -112,14 +112,25 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
   private List<CoverageRequirementRuleCriteria> createCriteriaList(DaVinciDeviceRequest deviceRequest) {
     try {
       List<Coding> codings = deviceRequest.getCodeCodeableConcept().getCoding();
+      if (codings.size() > 0) {
+        logger.info("stu3/OrderReviewService::createCriteriaList: code[0]: " + codings.get(0).getCode() + " - " + codings.get(0).getSystem());
+      } else {
+        logger.info("stu3/OrderReviewService::createCriteriaList: empty codes list!");
+      }
+
       List<Coverage> coverages = deviceRequest.getInsurance().stream()
           .map(reference -> (Coverage) reference.getResource()).collect(Collectors.toList());
       List<Organization> payors = Utilities.getPayors(coverages);
-      // workaround for rush
-//      Organization org = new Organization().setName("Centers for Medicare and Medicaid Services");
-//      org.setId("75f39025-65db-43c8-9127-693cdf75e712");
-//      List<Organization> payors = new ArrayList<>();
-//      payors.add(org);
+      if (payors.size() > 0) {
+        logger.info("stu3/OrderReviewService::createCriteriaList: payer[0]: " + payors.get(0).getName());
+      } else {
+        // default to CMS if no payer was provided
+        logger.info("stu3/OrderReviewService::createCriteriaList: empty payers list, working around by adding CMS!");
+        Organization org = new Organization().setName("Centers for Medicare and Medicaid Services");
+        org.setId("75f39025-65db-43c8-9127-693cdf75e712");
+        payors.add(org);
+      }
+
       List<CoverageRequirementRuleCriteria> criteriaList = CoverageRequirementRuleCriteria
           .createQueriesFromStu3(codings, payors);
       return criteriaList;
