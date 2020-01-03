@@ -1,7 +1,7 @@
 {
   "resourceType": "Library",
   "id": "urn:hl7:davinci:crd:library-basic-practitioner-info-r4",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "title": "Basic Practitioner Info",
   "status": "draft",
   "type": {
