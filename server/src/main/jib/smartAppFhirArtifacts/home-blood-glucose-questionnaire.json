@@ -26,6 +26,12 @@
       "valueReference": {
         "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate-r4"
       }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-basic-practitioner-info-prepopulate-r4"
+      }
     }
   ],
   "contained": [
@@ -173,7 +179,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"BloodGlucose\".OrderingProviderLastName"
+                "expression": "\"BasicPractitionerInfo\".LastName"
               }
             }
           ]
@@ -188,7 +194,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"BloodGlucose\".OrderingProviderFirstName"
+                "expression": "\"BasicPractitionerInfo\".FirstName"
               }
             }
           ]
@@ -203,7 +209,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"BloodGlucose\".OrderingProviderMiddleInitial"
+                "expression": "\"BasicPractitionerInfo\".MiddleInitial"
               }
             }
           ]
@@ -218,7 +224,7 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"BloodGlucose\".OrderingProviderNPI"
+                "expression": "\"BasicPractitionerInfo\".NPI"
               }
             }
           ]
