@@ -130,6 +130,15 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
+# Settings, classpath and bin directories
+.settings/
+.vscode/
+.classpath
+*/.settings
+*/.classpath
+*/bin/
+*/target/
+
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 

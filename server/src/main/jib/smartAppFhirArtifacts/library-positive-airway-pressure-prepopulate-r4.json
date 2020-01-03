@@ -1,0 +1,28 @@
+{
+  "resourceType": "Library",
+  "id": "urn:hl7:davinci:crd:library-positive-airway-pressure-prepopulate-r4",
+  "version": "0.0.1",
+  "title": "CPAP Prepopulation",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "code": "logic-library"
+      }
+    ]
+  },
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": {
+        "reference": "urn:hl7:davinci:crd:library-fhir-helpers-r4"
+      }
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/elm+json",
+      "url": "urn:hl7:davinci:crd:PositiveAirwayPressurePrepopulate-r4.cql"
+    }
+  ]
+}
