@@ -6,7 +6,9 @@ import java.io.IOException;
 
 public enum Hook {
 
-  ORDER_REVIEW("order-review"), MEDICATION_PRESCRIBE("medication-prescribe");
+  ORDER_REVIEW("order-review"),
+  MEDICATION_PRESCRIBE("medication-prescribe"),
+  ORDER_SELECT("order-select");
 
   private String value;
 
