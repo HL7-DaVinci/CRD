@@ -229,7 +229,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     appContextMap.put("template", questionnaireUri);
     appContextMap.put("request", reqResourceId);
     String filepath = "../../getfile/" + criteria.getQueryString();
-    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId + "&filepath=";
+
+    String appContext = "template$" + questionnaireUri + "&request$" + reqResourceId + "&filepath$";
     if (myConfig.getIncludeFilepathInAppContext()) {
       appContext = appContext + filepath;
     } else {
