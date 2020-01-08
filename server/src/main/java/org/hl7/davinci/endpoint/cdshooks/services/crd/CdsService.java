@@ -240,6 +240,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId + "&filepath=";
     try {
       appContext = URLEncoder.encode(appContext, "UTF-8").toString();
+      appContext = "appContext=" + appContext;
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
