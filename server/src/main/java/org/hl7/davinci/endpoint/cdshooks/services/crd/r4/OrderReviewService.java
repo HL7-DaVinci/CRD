@@ -2,36 +2,20 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.cql.r4.CqlExecutionContextBuilder;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.r4.FhirComponents;
-import org.hl7.davinci.r4.Utilities;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.fhir.r4.model.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.opencds.cqf.cql.execution.Context;
-
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.DeviceRequest;
-import org.hl7.fhir.r4.model.Organization;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Resource;
 
 
 @Component("r4_OrderReviewService")
@@ -55,85 +39,17 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
 
   @Override
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderReviewRequest orderReviewRequest, CoverageRequirementRuleFinder ruleFinder) {
-    // Note only device requests are currently supported, but you could follow this model to add
-    // the others (e.g. supply request), just make sure we have at least one bundle
-    List<DeviceRequest> deviceRequestList = extractDeviceRequests(orderReviewRequest);
-    if (deviceRequestList.isEmpty()) {
+
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderReviewRequest.getPrefetch(), ruleFinder);
+    fhirBundleProcessor.processDeviceRequests();
+    fhirBundleProcessor.processMedicationRequests();
+    fhirBundleProcessor.processServiceRequests();
+    List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
+
+    if (results.isEmpty()) {
       throw RequestIncompleteException.NoSupportedBundlesFound();
     }
-
-    List<CoverageRequirementRuleResult> results = new ArrayList<>();
-    results.addAll(getDeviceRequestExecutionContexts(deviceRequestList, ruleFinder));
-
     return results;
-  }
-
-  private Context createCqlExecutionContext(CqlBundle cqlPackage, DeviceRequest deviceRequest) {
-    Patient patient = (Patient) deviceRequest.getSubject().getResource();
-    HashMap<String,Resource> cqlParams = new HashMap<>();
-    cqlParams.put("Patient", patient);
-    cqlParams.put("device_request", deviceRequest);
-    return CqlExecutionContextBuilder.getExecutionContext(cqlPackage, cqlParams);
-  }
-
-  private List<CoverageRequirementRuleResult> getDeviceRequestExecutionContexts(List<DeviceRequest> deviceRequestList, CoverageRequirementRuleFinder ruleFinder) {
-    List<CoverageRequirementRuleResult> results = new ArrayList<>();
-    for (DeviceRequest deviceRequest : deviceRequestList) {
-      List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest);
-      for (CoverageRequirementRuleCriteria criteria : criteriaList) {
-        CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
-        query.execute();
-        for (CoverageRequirementRule rule: query.getResponse()) {
-          CoverageRequirementRuleResult result = new CoverageRequirementRuleResult();
-          result.setCriteria(criteria);
-          try {
-            result.setContext(createCqlExecutionContext(rule.getCqlBundle(), deviceRequest));
-            results.add(result);
-          } catch (Exception e) {
-            logger.info("r4/OrderReviewService::getDeviceRequestExecutionContexts: failed processing cql bundle: " + e.getMessage());
-          }
-        }
-      }
-    }
-    return results;
-  }
-
-  private List<DeviceRequest> extractDeviceRequests(OrderReviewRequest orderReviewRequest) {
-    Bundle deviceRequestBundle = orderReviewRequest.getPrefetch().getDeviceRequestBundle();
-    List<DeviceRequest> deviceRequestList = Utilities
-        .getResourcesOfTypeFromBundle(DeviceRequest.class, deviceRequestBundle);
-    return deviceRequestList;
-  }
-
-  private List<CoverageRequirementRuleCriteria> createCriteriaList(DeviceRequest deviceRequest) {
-    try {
-      List<Coding> codings = deviceRequest.getCodeCodeableConcept().getCoding();
-      if (codings.size() > 0) {
-        logger.info("r4/OrderReviewService::createCriteriaList: code[0]: " + codings.get(0).getCode() + " - " + codings.get(0).getSystem());
-      } else {
-        logger.info("r4/OrderReviewService::createCriteriaList: empty codes list!");
-      }
-
-      List<Coverage> coverages = deviceRequest.getInsurance().stream()
-          .map(reference -> (Coverage) reference.getResource()).collect(Collectors.toList());
-      List<Organization> payors = Utilities.getPayors(coverages);
-      if (payors.size() > 0) {
-        logger.info("r4/OrderReviewService::createCriteriaList: payer[0]: " + payors.get(0).getName());
-      } else {
-        // default to CMS if no payer was provided
-        logger.info("r4/OrderReviewService::createCriteriaList: empty payers list, working around by adding CMS!");
-        Organization org = new Organization().setName("Centers for Medicare and Medicaid Services");
-        org.setId("75f39025-65db-43c8-9127-693cdf75e712");
-        payors.add(org);
-      }
-
-      List<CoverageRequirementRuleCriteria> criteriaList = CoverageRequirementRuleCriteria
-          .createQueriesFromR4(codings, payors);
-      return criteriaList;
-    } catch (Exception e) {
-      System.out.println(e);
-      throw new RequestIncompleteException("Unable to parse list of codes, codesystems, and payors from a device request.");
-    }
   }
 
 }
