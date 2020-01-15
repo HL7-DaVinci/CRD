@@ -18,8 +18,8 @@ define RESULT_InfoLink:
   'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNMattersArticles/Downloads/SE1514.pdf'
 
 // TODO - need to define the questionnaire in next story
-// define RESULT_QuestionnaireUri:
-//  'urn:hl7:davinci:crd:non-emergency-ambulance-questionnaire-r4'
+define RESULT_QuestionnaireUri:
+  'urn:hl7:davinci:crd:non-emergency-ambulance-questionnaire-r4'
 
 define RESULT_requestId:
   service_request
