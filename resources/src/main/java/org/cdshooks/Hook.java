@@ -8,7 +8,8 @@ public enum Hook {
 
   ORDER_REVIEW("order-review"),
   MEDICATION_PRESCRIBE("medication-prescribe"),
-  ORDER_SELECT("order-select");
+  ORDER_SELECT("order-select"),
+  ORDER_SIGN("order-sign");
 
   private String value;
 
