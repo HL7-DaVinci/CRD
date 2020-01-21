@@ -1,0 +1,417 @@
+{
+  "resourceType": "Questionnaire",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-non-emergency-ambulance-transportation-prepopulate-r4"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate-r4"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-basic-practitioner-info-servicerequest-prepopulate-r4"
+      }
+    }
+  ],
+  "id": "urn:hl7:davinci:crd:non-emergency-ambulance-transportation-questionnaire-r4",
+  "title": "Non Emergency Ambulance Transportation Questionnaire",
+  "status": "draft",
+  "date": "2020-1-21",
+  "publisher": "Da Vinci DTR",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".LastName"
+              }
+            }
+          ],
+          "linkId": "1.1",
+          "text": "Last Name:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".FirstName"
+              }
+            }
+          ],
+          "linkId": "1.2",
+          "text": "First Name:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".MiddleInitial"
+              }
+            }
+          ],
+          "linkId": "1.3",
+          "text": "Middle Initial:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".DateOfBirth"
+              }
+            }
+          ],
+          "linkId": "1.4",
+          "text": "Date of Birth:",
+          "type": "date",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".Gender"
+              }
+            }
+          ],
+          "linkId": "1.5",
+          "text": "Gender:",
+          "type": "choice",
+          "required": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "male",
+                "display": "Male"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "female",
+                "display": "Female"
+              }
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".MedicareId"
+              }
+            }
+          ],
+          "linkId": "1.6",
+          "text": "Medicare ID:",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "text": "Provider Information (Certifying Physician/Practioner)",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".LastName"
+              }
+            }
+          ],
+          "linkId": "2.1",
+          "text": "Last Name",
+          "type": "string",
+          "required": false
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".FirstName"
+              }
+            }
+          ],
+          "linkId": "2.2",
+          "text": "First Name",
+          "type": "string",
+          "required": false
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".MiddleInitial"
+              }
+            }
+          ],
+          "linkId": "2.3",
+          "text": "Middle Initial",
+          "type": "string",
+          "required": false
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".MiddleInitial"
+              }
+            }
+          ],
+          "linkId": "2.4",
+          "text": "Place of employment",
+          "type": "string",
+          "required": false
+        },
+        {
+          "linkId": "2.5",
+          "text": "Address",
+          "type": "string",
+          "required": false
+        },
+        {
+          "linkId": "2.6",
+          "text": "City",
+          "type": "string",
+          "required": false
+        },
+        {
+          "linkId": "2.7",
+          "text": "State",
+          "type": "string",
+          "required": false
+        },
+        {
+          "linkId": "2.8",
+          "text": "Zip Code",
+          "type": "string",
+          "required": false
+        },
+        {
+          "linkId": "2.8",
+          "text": "Telephone Number",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "text": "Order Information:",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "3.1",
+          "text": "Order start date, if different from date of order (MM/DD/YYYY):",
+          "type": "date"
+        },
+        {
+          "linkId": "3.2",
+          "text": "Order Data",
+          "type": "date",
+          "required": false
+        },
+        {
+          "linkId": "3.3",
+          "text": "Start Date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "linkId": "3.4",
+          "text": "End Date",
+          "type": "date",
+          "required": false
+        },
+        {
+          "linkId": "3.5",
+          "text": "Round Trip",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "linkId": "3.6",
+          "text": "Is transport from Home",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "linkId": "3.7",
+          "text": "Origin",
+          "type": "string",
+          "required": true
+        },
+        {
+          "linkId": "3.8",
+          "text": "Destination",
+          "type": "string",
+          "required": true
+        },
+        {
+          "linkId": "3.9",
+          "text": "Services",
+          "type": "open-choice",
+          "required": true
+        },
+        {
+          "linkId": "3.10",
+          "text": "Other",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "text": "Reasons for Transport",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"PositiveAirwayPressureDevice\".OsaDiagnosis"
+              }
+            }
+          ],
+          "linkId": "4.1",
+          "type": "choice",
+          "option": [
+            {
+              "valueCoding": {
+                "code": "OSA",
+                "display": "Obstructive Sleep Apnea"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "4.2",
+          "text": "Other:",
+          "type": "choice",
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Other",
+                "display": "Yes"
+              }
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"PositiveAirwayPressureDevice\".OtherDiagnoses"
+              }
+            }
+          ],
+          "linkId": "4.3",
+          "text": "Other (describe):",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "5.1",
+          "text": "Signature:",
+          "type": "string"
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".FullName"
+              }
+            }
+          ],
+          "linkId": "5.2",
+          "text": "Name (Printed):",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".Today"
+              }
+            }
+          ],
+          "linkId": "5.3",
+          "text": "Date (MM/DD/YYYY):",
+          "type": "date",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".NPI"
+              }
+            }
+          ],
+          "linkId": "5.4",
+          "text": "NPI:",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

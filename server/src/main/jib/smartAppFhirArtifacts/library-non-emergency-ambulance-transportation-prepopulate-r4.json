@@ -1,0 +1,28 @@
+{
+  "resourceType": "Library",
+  "id": "urn:hl7:davinci:crd:library-non-emergency-ambulance-transportation-r4",
+  "version": "0.0.1",
+  "title": "NEAT Prepopulation",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "code": "logic-library"
+      }
+    ]
+  },
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": {
+        "reference": "urn:hl7:davinci:crd:library-fhir-helpers-r4"
+      }
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/elm+json",
+      "url": "urn:hl7:davinci:crd:NonEmergencyAmbulanceTransportation-r4.cql"
+    }
+  ]
+}
