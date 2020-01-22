@@ -10,7 +10,7 @@
     {
       "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
       "valueReference": {
-        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate-r4"
+        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-servicerequest-prepopulate-r4"
       }
     },
     {
@@ -141,7 +141,7 @@
     },
     {
       "linkId": "2",
-      "text": "Provider Information (Certifying Physician/Practioner)",
+      "text": "Provider Information (Certifying Physician/Practitioner)",
       "type": "group",
       "item": [
         {
@@ -229,7 +229,7 @@
           "required": false
         },
         {
-          "linkId": "2.8",
+          "linkId": "2.9",
           "text": "Telephone Number",
           "type": "string",
           "required": false
@@ -291,7 +291,7 @@
         {
           "linkId": "3.9",
           "text": "Services",
-          "type": "open-choice",
+          "type": "string",
           "required": true
         },
         {
@@ -313,47 +313,18 @@
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
               "valueExpression": {
                 "language": "text/cql",
-                "expression": "\"PositiveAirwayPressureDevice\".OsaDiagnosis"
+                "expression": "\"NonEmergencyAmbulanceTransportation\".ServiceRequestReason"
               }
             }
           ],
           "linkId": "4.1",
-          "type": "choice",
-          "option": [
-            {
-              "valueCoding": {
-                "code": "OSA",
-                "display": "Obstructive Sleep Apnea"
-              }
-            }
-          ]
+          "type": "string",
+          "text": "Reasons for Transport"
         },
         {
           "linkId": "4.2",
           "text": "Other:",
-          "type": "choice",
-          "option": [
-            {
-              "valueCoding": {
-                "code": "Other",
-                "display": "Yes"
-              }
-            }
-          ]
-        },
-        {
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
-              "valueExpression": {
-                "language": "text/cql",
-                "expression": "\"PositiveAirwayPressureDevice\".OtherDiagnoses"
-              }
-            }
-          ],
-          "linkId": "4.3",
-          "text": "Other (describe):",
-          "type": "text"
+          "type": "string"
         }
       ]
     },

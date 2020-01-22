@@ -10,35 +10,17 @@ parameter service_request ServiceRequest
 
 context Patient
 
-// coverage requirement info
-define OsaDiagnosis:
-  if exists(Confirmed(ActiveOrRecurring([Condition: "OSA_Codes"]))) then 'OSA' else 'null'
-
-
-define OtherDiagnoses:
-  distinct(flatten(
-    [Condition] C
-      let ICD10Codings:
-        ((C.code.coding) CODING where CODING.system.value in {
-          'http://hl7.org/fhir/sid/icd-10',
-          'http://hl7.org/fhir/sid/icd-10-cm'
-        }
-        return CODING.code.value + ' - ' + CODING.display.value)
-      where C.clinicalStatus.coding.code = 'active'
-      and exists(ICD10Codings)
-      return ICD10Codings
-  ))
-
-
 define ServiceRequestHcpcsCoding: singleton from (
-  service_request.code.coding
+  service_request.code.coding coding
     where coding.system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
 
 define ServiceRequestDescription: 'HCPCS ' + "ServiceRequestHcpcsCoding".code.value + ' - ' + "ServiceRequestHcpcsCoding".display.value
 define NeatServiceRequested:
   if "ServiceRequestHcpcsCoding".code.value = 'A0426' then 'A0426'
-  else if  "DeviceRequestHcpcsCoding".code.value = 'A0428' then 'A0428'
+  else if  "ServiceRequestHcpcsCoding".code.value = 'A0428' then 'A0428'
   else 'null'
+
+define ServiceRequestReason: service_request.reasonCode[0].text 
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with r4 version of helper library
 define function ActiveOrRecurring(CondList List<Condition>):

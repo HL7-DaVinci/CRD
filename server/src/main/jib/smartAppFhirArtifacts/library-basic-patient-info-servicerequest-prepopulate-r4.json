@@ -1,8 +1,8 @@
 {
   "resourceType": "Library",
-  "id": "urn:hl7:davinci:crd:library-non-emergency-ambulance-transportation-r4",
-  "version": "0.0.1",
-  "title": "NEAT Prepopulation",
+  "id": "urn:hl7:davinci:crd:library-basic-patient-info-servicerequest-r4",
+  "version": "0.2.0",
+  "title": "Basic Patient Info FHIR R4 from Service Request",
   "status": "draft",
   "type": {
     "coding": [
@@ -22,7 +22,7 @@
   "content": [
     {
       "contentType": "application/elm+json",
-      "url": "urn:hl7:davinci:crd:NonEmergencyAmbulanceTransportationPrepopulate-r4.cql"
+      "url": "urn:hl7:davinci:crd:BasicPatientInfoServiceRequestPrepopulate-R4.cql"
     }
   ]
 }
