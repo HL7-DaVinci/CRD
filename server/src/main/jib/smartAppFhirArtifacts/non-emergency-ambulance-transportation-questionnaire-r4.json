@@ -190,15 +190,6 @@
           "required": false
         },
         {
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
-              "valueExpression": {
-                "language": "text/cql",
-                "expression": "\"BasicPractitionerInfo\".MiddleInitial"
-              }
-            }
-          ],
           "linkId": "2.4",
           "text": "Place of employment",
           "type": "string",
@@ -318,8 +309,126 @@
             }
           ],
           "linkId": "4.1",
-          "type": "string",
-          "text": "Reasons for Transport"
+          "type": "open-choice",
+          "text": "Reasons for Transport",
+          "required": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Mobility: Bed confined"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Mobility: Unable to maintain erect sitting position in a chair"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Mobility: Risk of falling off wheelchair or stretcher"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Musculoskeletal: Non-healed fractures requiring ambulance"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Musculoskeletal: Contractures that impair mobility and result in be confinement"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Musculoskeletal: Incapacitating Osteoarthritis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Musculoskeletal: Severe muscular weakness precludes significant activity"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Musculoskeletal: Orthopedic device required in transit"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Musculoskeletal: Amputation(s)"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Cardiovascular: CVA with sequelea (late effect of CVA) that impair mobility and result in bed confinement"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Cardiovascular: DVT requires elevation of lower extremity"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Neurological: Spinal Cord Injury – Paralysis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Neurological: Progressive demyelinating disease"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Neurological: Moderate to severe pain on movemente"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Wound: Unable to sit to Grade II or greater decubitus ulcers on buttocks"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Wound: Chronic wounds requiring immobilization"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Attendant: Morbid obesity requires additional personnel/equipment"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Attendant: Third party attendant to regulate or adjust oxygen en route"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Attendant: Special handling en route – isolation"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Attendant: IV medications/fluids required during transport"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Attendant: Restraints (physical or chemical) anticipated or used during transport"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Mental: Danger to self or others"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Mental: Confused, combative, lethargic, comatose"
+              }
+            }
+          ]
         },
         {
           "linkId": "4.2",
