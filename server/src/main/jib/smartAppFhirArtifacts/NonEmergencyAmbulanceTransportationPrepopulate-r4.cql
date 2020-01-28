@@ -12,7 +12,7 @@ context Patient
 
 define ServiceRequestHcpcsCoding: singleton from (
   service_request.code.coding coding
-    where coding.system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
+    where coding[0].system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
 
 define ServiceRequestDescription: 'HCPCS ' + "ServiceRequestHcpcsCoding".code.value + ' - ' + "ServiceRequestHcpcsCoding".display.value
 define NeatServiceRequested:
@@ -20,41 +20,5 @@ define NeatServiceRequested:
   else if  "ServiceRequestHcpcsCoding".code.value = 'A0428' then 'A0428'
   else 'null'
 
-define ServiceRequestReason: service_request.reasonCode[0].text 
+define ServiceRequestReason: service_request.reasonCode[0].text.value
 
-////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with r4 version of helper library
-define function ActiveOrRecurring(CondList List<Condition>):
-  CondList C where C.clinicalStatus.coding.code in {'active', 'relapse'}
-
-define function ObservationLookBack(ObsList List<Observation>, LookBack System.Quantity):
-  ObsList O
-    let LookBackInterval: Interval[Now() - LookBack, Now()]
-    where (cast O.effective as dateTime).value in LookBackInterval
-      or NullSafeToInterval(cast O.effective as Period) overlaps LookBackInterval
-      or FHIRHelpers."ToDateTime"(O.issued) in LookBackInterval
-
-define function NullSafeToInterval(Pd FHIR.Period):
-  if Pd is not null then Interval[Pd."start".value, Pd."end".value] else null
-
-define function Verified(ObsList List<Observation>):
-  ObsList O where O.status.value in {'final', 'amended'}
-
-define function WithUnit(ObsList List<Observation>, Unit String):
-  ObsList O where (cast O.value as Quantity).unit.value = Unit or (cast O.value as Quantity).code.value = Unit
-
-define function HighestObservation(ObsList List<Observation>):
-  Max(ObsList O return NullSafeToQuantity(cast O.value as Quantity))
-
-define function Confirmed(CondList List<Condition>):
-  CondList C where C.verificationStatus.coding.code = 'confirmed'
-
-define function NullSafeToQuantity(Qty FHIR.Quantity):
-  if Qty is not null then
-    System.Quantity {
-      value: Qty.value.value,
-      unit: Coalesce(Qty.unit.value, Qty.code.value)
-    }
-  else null
-
-define function LowestObservation(ObsList List<Observation>):
-  Min(ObsList O return NullSafeToQuantity(cast O.value as Quantity))
