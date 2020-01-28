@@ -22,6 +22,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -70,8 +75,15 @@ public class DataController {
   @GetMapping(value = "/api/requests")
   @CrossOrigin
   public Iterable<RequestLog> showAllLogs() {
-    logger.info("showAllLogs: GET /api/requests");
-    return requestRepository.findAll();
+    // logger.info("showAllLogs: GET /api/requests");
+
+    boolean[] timelineTrue = new boolean[5];
+    Arrays.fill(timelineTrue, Boolean.TRUE);
+    boolean[] timelineFalse = new boolean[5];
+    Arrays.fill(timelineFalse, Boolean.FALSE);
+
+    Iterable<RequestLog> list = requestRepository.findAll();
+    return list;
   }
 
   @GetMapping(value = "/api/data")
@@ -148,7 +160,7 @@ public class DataController {
 
     Resource resource = fhirUriFetcher.fetch(fhirUri);
 
-    if (resource == null){
+    if (resource == null) {
       return ResponseEntity.notFound().build();
     }
 
@@ -158,7 +170,7 @@ public class DataController {
         .body(resource);
   }
 
-  @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such rule")  // 404
+  @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such rule") // 404
   public class RuleNotFoundException extends RuntimeException {
   }
 

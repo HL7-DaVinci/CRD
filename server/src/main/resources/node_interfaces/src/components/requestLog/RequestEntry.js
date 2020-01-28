@@ -3,39 +3,39 @@ import DetailEntry from './DetailEntry';
 import './request.css';
 
 export default class RequestEntry extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
-        this.state={
-            hookType:this.props.data.hookType,
-            fhirVersion:this.props.data.fhirVersion,
-            success: this.props.data.timeline?this.props.data.timeline[4]:false,
-            timeStamp: new Date(this.props.data.timestamp),
+        this.state = {
+            hookType: this.props.data.hookType,
+            fhirVersion: this.props.data.fhirVersion,
+            success: this.props.data.timeline ? this.props.data.timeline[4] : false,
+            timeStamp: new Date(parseInt(this.props.data.timeStamp, 10)),
             viewDetails: false
         };
 
         this.openDetails = this.openDetails.bind(this);
-         
+
     }
 
 
-    openDetails(){
+    openDetails() {
 
-        this.setState((prevState)=>{
-            return {viewDetails: !prevState.viewDetails};
+        this.setState((prevState) => {
+            return { viewDetails: !prevState.viewDetails };
         })
 
-        
-    }
-     render() {
-         return (
-             <div>
 
-                 <div 
-                 className={"requestEntry " + 
-                 [this.state.success?"successRequest ":"failureRequest "] +
-                 [this.state.viewDetails?"active":""]
-                } 
-                 onClick={this.openDetails}>
+    }
+    render() {
+        return (
+            <div>
+
+                <div
+                    className={"requestEntry " +
+                        [this.state.success ? "successRequest " : "failureRequest "] +
+                        [this.state.viewDetails ? "active" : ""]
+                    }
+                    onClick={this.openDetails}>
                     <div className="element timestamp">
                         {this.state.timeStamp.toISOString()}
                     </div>
@@ -46,11 +46,11 @@ export default class RequestEntry extends Component {
                         {this.state.hookType}
                     </div>
                     <div className="element successElement">
-                        {this.state.success?"success":"failure"}
+                        {this.state.success ? "success" : "failure"}
                     </div>
-                 </div>
-                 {this.state.viewDetails?<DetailEntry data={this.props.data} />:null}
-             </div>
-         )
+                </div>
+                {this.state.viewDetails ? <DetailEntry data={this.props.data} /> : null}
+            </div>
+        )
     }
-} 
+}

@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Date;
 import javax.validation.Valid;
 
 import org.cdshooks.CdsRequest;
@@ -19,6 +20,7 @@ import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
@@ -121,9 +123,21 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
 
+    // create the RequestLog
+    RequestLog requestLog = new RequestLog(request, new Date().getTime(), this.fhirComponents.getFhirVersion().toString(),
+        this.id, requestService,5);
+
+    // Parsed request
+    requestLog.advanceTimeline(requestService);
+
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
+
+    // hydrated
+    requestLog.advanceTimeline(requestService);
+
+    // logger.info("***** ***** request from requestLog:  "+requestLog.toString() );
 
     CdsResponse response = new CdsResponse();
 
@@ -133,9 +147,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage()+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
+      requestLog.setResults(e.getMessage());
+      requestService.edit(requestLog);
       return response;
     }
 
+    requestLog.advanceTimeline(requestService);
     boolean foundApplicableRule = false;
     for (CoverageRequirementRuleResult lookupResult: lookupResults) {
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext());
