@@ -124,9 +124,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
-    final String baseUrl =
-        ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-    System.out.println(baseUrl);
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
