@@ -16,7 +16,7 @@
     {
       "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
       "valueReference": {
-        "reference": "urn:hl7:davinci:crd:library-basic-practitioner-info-servicerequest-prepopulate-r4"
+        "reference": "urn:hl7:davinci:crd:library-basic-practitioner-info-prepopulate-r4"
       }
     }
   ],
