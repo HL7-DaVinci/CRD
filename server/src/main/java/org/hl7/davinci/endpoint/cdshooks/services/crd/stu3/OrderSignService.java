@@ -12,21 +12,21 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.stu3.FhirComponents;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetch;
 import org.hl7.davinci.stu3.crdhook.CrdPrefetchTemplateElements;
-import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
+import org.hl7.davinci.stu3.crdhook.ordersign.OrderSignRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 
-@Component("stu3_OrderReviewService")
-public class OrderReviewService extends CdsService<OrderReviewRequest>  {
+@Component("stu3_OrderSignService")
+public class OrderSignService extends CdsService<OrderSignRequest>  {
 
-  public static final String ID = "order-review-crd";
-  public static final String TITLE = "order-review Coverage Requirements Discovery";
-  public static final Hook HOOK = Hook.ORDER_REVIEW;
+  public static final String ID = "order-sign-crd";
+  public static final String TITLE = "order-select Coverage Requirements Discovery";
+  public static final Hook HOOK = Hook.ORDER_SIGN;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
-  static final Logger logger = LoggerFactory.getLogger(OrderReviewService.class);
+  static final Logger logger = LoggerFactory.getLogger(OrderSignService.class);
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
         CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
@@ -34,18 +34,20 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
         CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
         CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE,
         CrdPrefetchTemplateElements.PROCEDURE_REQUEST_BUNDLE,
-        CrdPrefetchTemplateElements.REFERRAL_REQUEST_BUNDLE
+        CrdPrefetchTemplateElements.REFERRAL_REQUEST_BUNDLE,
+        CrdPrefetchTemplateElements.VISION_PRESCRIPTION_BUNDLE
     );
 
-  public OrderReviewService() {
+  public OrderSignService() {
     super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
   }
 
   @Override
-  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderReviewRequest orderReviewRequest, CoverageRequirementRuleFinder ruleFinder) {
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, CoverageRequirementRuleFinder ruleFinder) {
 
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderReviewRequest.getPrefetch(), ruleFinder);
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSignRequest.getPrefetch(), ruleFinder);
     fhirBundleProcessor.processDeviceRequests();
+    fhirBundleProcessor.processMedicationRequests();
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {

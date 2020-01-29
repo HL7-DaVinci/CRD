@@ -73,4 +73,24 @@ public class CrdPrefetchTemplateElements {
           + "&_include=SupplyRequest:insurance:Coverage",
       Bundle.class);
 
+  public static final PrefetchTemplateElement APPOINTMENT_BUNDLE = new PrefetchTemplateElement(
+      "appointmentBundle",
+      "Appointment?_id={{context.appointments.Appointment.id}}"
+          + "&_include=Appointment:patient"
+          + "&_include=Appointment:practitioner:PractitionerRole"
+          + "&_include:iterate=PractitionerRole:organization"
+          + "&_include:iterate=PractitionerRole:practitioner"
+          + "&_include=Appointment:location"
+          + "&_include=Appointment:insurance:Coverage",
+      Bundle.class);
+
+  public static final PrefetchTemplateElement ENCOUNTER_BUNDLE = new PrefetchTemplateElement(
+      "encounterBundle",
+      "Encounter?_id={{context.encounterId}}"
+          + "&_include=Encounter:patient&_include=Encounter:service-provider"
+          + "&_include=Encounter:practitioner"
+          + "&_include=Encounter:location"
+          + "&_include=Encounter:insurance:Coverage",
+      Bundle.class);
+
 }

@@ -1,0 +1,28 @@
+{
+  "resourceType": "Library",
+  "id": "urn:hl7:davinci:crd:library-basic-practitioner-info-r4",
+  "version": "0.1.0",
+  "title": "Basic Practitioner Info",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "code": "logic-library"
+      }
+    ]
+  },
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": {
+        "reference": "urn:hl7:davinci:crd:library-fhir-helpers"
+      }
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/elm+json",
+      "url": "urn:hl7:davinci:crd:BasicPractitionerInfoPrepopulate-R4.cql"
+    }
+  ]
+}
