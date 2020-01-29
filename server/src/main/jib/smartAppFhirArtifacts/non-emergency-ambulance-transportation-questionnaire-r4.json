@@ -10,7 +10,7 @@
     {
       "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
       "valueReference": {
-        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-servicerequest-prepopulate-r4"
+        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate-r4"
       }
     },
     {
@@ -299,15 +299,6 @@
       "type": "group",
       "item": [
         {
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
-              "valueExpression": {
-                "language": "text/cql",
-                "expression": "\"NonEmergencyAmbulanceTransportation\".ServiceRequestReason"
-              }
-            }
-          ],
           "linkId": "4.1",
           "type": "open-choice",
           "text": "Reasons for Transport",

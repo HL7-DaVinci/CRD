@@ -3,6 +3,7 @@ using FHIR version '4.0.0'
 include FHIRHelpers version '4.0.0' called FHIRHelpers
 
 parameter device_request DeviceRequest
+parameter service_request ServiceRequest
 
 context Patient
 
@@ -22,9 +23,13 @@ define FirstName: "Name".given[0].value
 define Gender: Patient.gender.value
 define DateOfBirth: Patient.birthDate.value
 
+// pulling from insurance from both device request and service request
+define CoverageResourceId:
+  Coalesce(First(service_request.insurance), First(device_request.insurance)).reference.value
+
 define CoverageResource: singleton from (
   [Coverage] coverage
     // pull coverage resource id from the device request insurance extension
-    where ('Coverage/' + coverage.id) = ((device_request.extension ext where ext.url = 'http://build.fhir.org/ig/HL7/davinci-crd/R4/ext-insurance.html')[0].value.reference.value))
+    where ('Coverage/' + coverage.id) = "CoverageResourceId")
 
 define MedicareId: "CoverageResource".subscriberId.value
