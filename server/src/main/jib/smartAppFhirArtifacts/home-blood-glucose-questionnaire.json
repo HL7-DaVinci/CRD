@@ -3,7 +3,7 @@
   "id": "urn:hl7:davinci:crd:home-blood-glucose",
   "meta": {
     "profile": [
-      "http://hl7.org/fhir/StructureDefinition/cqif-questionnaire",
+      "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
       "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-r4"
     ]
   },
@@ -248,63 +248,89 @@
     },
     {
       "linkId": "3",
-      "text": "Coverage Requirements",
+      "text": "Prescribed Use",
       "type": "group",
       "item": [
         {
           "linkId": "3.1",
+          "text": "Start date of order",
+          "type": "date",
+          "required": true
+        },
+        {
+          "linkId": "3.2",
+          "text": "Start date",
+          "type": "date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "text": "Coverage Requirements",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "4.1",
           "text": "Diagnosis",
           "type": "choice",
           "required": true,
-          "option": [
+          "answerOption": [
             {
               "valueCoding": {
-                "code": "Diabetes"
+                "code": "Diabetes",
+                "display": "Diabetes"
               }
             },
             {
               "valueCoding": {
-                "code": "Other"
+                "code": "Other",
+                "display": "Other"
               }
             }
           ]
         },
         {
-          "linkId": "3.2",
+          "linkId": "4.2",
           "text": "Diabetes Treatment",
           "type": "choice",
           "required": true,
           "enableWhen": [
             {
-              "question": "3.1",
+              "question": "4.1",
+              "operator": "=",
               "answerCoding": {
                 "code": "Diabetes"
               }
             }
           ],
-          "option": [
+          "answerOption": [
             {
               "valueCoding": {
-                "code": "Insulin Treated"
+                "code": "Insulin Treated",
+                "display": "Insulin Treated"
               }
             },
             {
               "valueCoding": {
-                "code": "Non-insulin Treated"
+                "code": "Non-insulin Treated",
+                "display": "Non-insulin Treated"
               }
             }
           ]
         },
         {
-          "linkId": "3.3",
+          "linkId": "4.3",
           "text": "Other Diagnosis Description",
           "type": "string",
           "required": true,
           "enableWhen": [
             {
-              "question": "3.1",
+              "question": "4.1",
+              "operator": "=",
               "answerCoding": {
-                "code": "Other"
+                "code": "Other",
+                "display": "Other"
               }
             }
           ]
@@ -312,21 +338,57 @@
       ]
     },
     {
-      "linkId": "4",
-      "text": "Prescribed Use",
       "type": "group",
+      "required": true,
+      "linkId": "5",
+      "text": "Device Order",
       "item": [
         {
-          "linkId": "4.1",
-          "text": "Start date of order",
-          "type": "date",
-          "required": true
+          "type": "string",
+          "required": false,
+          "linkId": "5.1",
+          "text": "Glucose Monitor Description"
         },
         {
-          "linkId": "4.2",
-          "text": "Start date",
-          "type": "date",
-          "required": true
+          "type": "choice",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "drop-down",
+                    "display": "Drop down"
+                  }
+                ],
+                "text": "Drop down"
+              }
+            }
+          ],
+          "required": true,
+          "linkId": "5.2",
+          "text": "Glucose Monitor Type",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "Standard Monitor",
+                "display": "Standard Monitor"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Monitor With Special Features",
+                "display": "Monitor With Special Features"
+              }
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "required": true,
+          "linkId": "5.3",
+          "text": "Is patient or caregiver able to use the glucose monitor?"
         }
       ]
     }
