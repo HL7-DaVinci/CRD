@@ -10,15 +10,15 @@ parameter service_request ServiceRequest
 
 context Patient
 
-define ServiceRequestHcpcsCoding: singleton from (
+define "ServiceRequestHcpcsCoding": singleton from (
   service_request.code.coding coding
     where coding[0].system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
 
-define ServiceRequestDescription: 'HCPCS ' + "ServiceRequestHcpcsCoding".code.value + ' - ' + "ServiceRequestHcpcsCoding".display.value
-define NeatServiceRequested:
+define "ServiceRequestDescription": 'HCPCS ' + "ServiceRequestHcpcsCoding".code.value + ' - ' + "ServiceRequestHcpcsCoding".display.value
+define "NeatServiceRequested":
   if "ServiceRequestHcpcsCoding".code.value = 'A0426' then 'A0426'
   else if  "ServiceRequestHcpcsCoding".code.value = 'A0428' then 'A0428'
   else 'null'
 
-define ServiceRequestReason: service_request.reasonCode[0].text.value
+define "ServiceRequestReason": service_request.reasonCode[0].text.value
 
