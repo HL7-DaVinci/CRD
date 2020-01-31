@@ -1,8 +1,11 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import javax.validation.Valid;
@@ -31,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Component
 public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
@@ -120,7 +124,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
-
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
@@ -169,6 +172,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   private CqlResultsForCard executeCqlAndGetRelevantResults(Context context) {
     CqlResultsForCard results = new CqlResultsForCard();
+
 
     results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES",context));
     if (!results.ruleApplies()) {
@@ -229,7 +233,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     appContextMap.put("template", questionnaireUri);
     appContextMap.put("request", reqResourceId);
     String filepath = "../../getfile/" + criteria.getQueryString();
+
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId + "&filepath=";
+    try {
+      appContext = URLEncoder.encode(appContext, "UTF-8").toString();
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+
     if (myConfig.getIncludeFilepathInAppContext()) {
       appContext = appContext + filepath;
     } else {

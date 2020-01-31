@@ -35,7 +35,7 @@
   "content": [
     {
       "contentType": "application/elm+json",
-      "url": "urn:hl7:davinci:crd:OxygenTherapyPrepopulation.cql"
+      "url": "urn:hl7:davinci:crd:OxygenTherapyPrepopulation"
     }
   ]
 }
