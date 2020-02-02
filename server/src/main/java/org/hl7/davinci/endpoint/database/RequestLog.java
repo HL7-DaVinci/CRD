@@ -177,6 +177,7 @@ public class RequestLog {
   }
 
   public void advanceTimeline(RequestService requestService) {
+    // Note that the first timeline element ("Authorized") is set in the constructor
     this.timeline[this.timelineCounter] = true;
     this.timelineCounter++;
     requestService.edit(this);

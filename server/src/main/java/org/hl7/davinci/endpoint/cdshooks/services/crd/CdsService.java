@@ -141,9 +141,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     CdsResponse response = new CdsResponse();
 
+    // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
     try {
       lookupResults = this.createCqlExecutionContexts(request, ruleFinder);
+      requestLog.advanceTimeline(requestService); 
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage()+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
@@ -152,7 +154,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return response;
     }
 
-    requestLog.advanceTimeline(requestService);
     boolean foundApplicableRule = false;
     for (CoverageRequirementRuleResult lookupResult: lookupResults) {
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext());
@@ -173,12 +174,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         }
       }
     }
+
+    // CQL Executed
+    requestLog.advanceTimeline(requestService);
+
     if (!foundApplicableRule) {
       String msg = "No documentation rules found";
       logger.warn(msg+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(msg));
     }
-
 
     CardBuilder.errorCardIfNonePresent(response);
     return response;

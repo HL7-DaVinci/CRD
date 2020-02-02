@@ -21,7 +21,7 @@ export default class RequestLog extends Component {
 
         };
 
-        this.generateData = this.generateData.bind(this);
+        // this.generateData = this.generateData.bind(this);    
         this.getPage = this.getPage.bind(this);
         this.renderPageNumbers = this.renderPageNumbers.bind(this);
         this.getData = this.getData.bind(this);
@@ -115,7 +115,7 @@ export default class RequestLog extends Component {
     render() {
         const showForward = (this.state.view + pagesShown - 1) < (this.state.data.length / entriesPerPage);
         const showBackward = this.state.view != 1;
-        console.log(this.state.view);
+        // console.log(this.state.view);
         // page should only render when switching pages.
         // on page switch we scroll to top automatically.
         window.scrollTo(0, 0)

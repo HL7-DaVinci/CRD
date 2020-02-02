@@ -1,15 +1,22 @@
-import React, {Component} from 'react';
-import DetailEntry from './DetailEntry';
-import './request.css';
+import React, {Component} from 'react'
+import { format } from 'date-fns'
+import DetailEntry from './DetailEntry'
+import './request.css'
 
 export default class RequestEntry extends Component {
     constructor(props) {
         super(props);
+        let timestamp = props.data.timeStamp;
+        if (!timestamp) {
+            timestamp = new Date()
+        }
+        timestamp = format(new Date(timestamp), 'yyyy-MM-dd   HH:mm:ss  O')
+        // console.log(`date: ${timestamp}`)
         this.state = {
             hookType: this.props.data.hookType,
             fhirVersion: this.props.data.fhirVersion,
             success: this.props.data.timeline ? this.props.data.timeline[4] : false,
-            timeStamp: new Date(parseInt(this.props.data.timeStamp, 10)),
+            timeStamp: timestamp,
             viewDetails: false
         };
 
@@ -37,7 +44,7 @@ export default class RequestEntry extends Component {
                     }
                     onClick={this.openDetails}>
                     <div className="element timestamp">
-                        {this.state.timeStamp.toISOString()}
+                        {this.state.timeStamp}
                     </div>
                     <div className="element fhirversion">
                         {this.state.fhirVersion}
