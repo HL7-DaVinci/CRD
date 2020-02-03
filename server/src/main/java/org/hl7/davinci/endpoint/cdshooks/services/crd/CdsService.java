@@ -235,10 +235,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     String filepath = "../../getfile/" + criteria.getQueryString();
 
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId + "&filepath=";
-    try {
-      appContext = URLEncoder.encode(appContext, "UTF-8").toString();
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+    if (myConfig.getUrlEncodeAppContext()) {
+      try {
+        logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
+        appContext = URLEncoder.encode(appContext, "UTF-8").toString();
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
     }
 
     if (myConfig.getIncludeFilepathInAppContext()) {

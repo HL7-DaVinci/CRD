@@ -37,6 +37,8 @@ public class YamlConfig {
 
   private String localDbFhirArtifacts;
 
+  private boolean urlEncodeAppContext;
+
   public String getLocalDbFhirArtifacts() {
     return localDbFhirArtifacts;
   }
@@ -98,4 +100,8 @@ public class YamlConfig {
   public GitHubConfig getGitHubConfig() { return gitHubConfig; }
 
   public void setGitHubConfig(GitHubConfig gitHubConfig) { this.gitHubConfig = gitHubConfig; }
+
+  public boolean getUrlEncodeAppContext() { return this.urlEncodeAppContext; }
+
+  public void setUrlEncodeAppContext(boolean urlEncodeAppContext) { this.urlEncodeAppContext = urlEncodeAppContext; }
 }
