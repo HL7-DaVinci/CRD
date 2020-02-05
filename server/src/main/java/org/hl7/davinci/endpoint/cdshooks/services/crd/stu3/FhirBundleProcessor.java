@@ -27,11 +27,16 @@ public class FhirBundleProcessor {
 
   private CoverageRequirementRuleFinder ruleFinder;
   private CrdPrefetch prefetch;
+  private List<String> selections;
   private List<CoverageRequirementRuleResult> results = new ArrayList<>();
 
-  public FhirBundleProcessor(CrdPrefetch prefetch, CoverageRequirementRuleFinder ruleFinder) {
+  public FhirBundleProcessor(CrdPrefetch prefetch, CoverageRequirementRuleFinder ruleFinder, List<String> selections) {
     this.prefetch = prefetch;
     this.ruleFinder = ruleFinder;
+    this.selections = selections;
+  }
+  public FhirBundleProcessor(CrdPrefetch prefetch, CoverageRequirementRuleFinder ruleFinder) {
+    this(prefetch, ruleFinder, new ArrayList<>());
   }
 
   public List<CoverageRequirementRuleResult> getResults() { return results; }
@@ -43,8 +48,10 @@ public class FhirBundleProcessor {
       logger.info("stu3/FhirBundleProcessor::getAndProcessDeviceRequests: DeviceRequest(s) found");
 
       for (DaVinciDeviceRequest deviceRequest : deviceRequestList) {
-        List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest.getCodeCodeableConcept(), deviceRequest.getInsurance());
-        buildExecutionContexts(criteriaList, (Patient) deviceRequest.getSubject().getResource(), "device_request", deviceRequest);
+        if (idInSelectionsList(deviceRequest.getId())) {
+          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest.getCodeCodeableConcept(), deviceRequest.getInsurance());
+          buildExecutionContexts(criteriaList, (Patient) deviceRequest.getSubject().getResource(), "device_request", deviceRequest);
+        }
       }
     }
   }
@@ -56,8 +63,10 @@ public class FhirBundleProcessor {
       logger.info("stu3/FhirBundleProcessor::getAndProcessMedicationRequests MedicationRequest(s) found");
 
       for (DaVinciMedicationRequest medicationRequest : medicationRequestList) {
-        List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance());
-        buildExecutionContexts(criteriaList, (Patient) medicationRequest.getSubject().getResource(), "medication_request", medicationRequest);
+        if (idInSelectionsList(medicationRequest.getId())) {
+          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance());
+          buildExecutionContexts(criteriaList, (Patient) medicationRequest.getSubject().getResource(), "medication_request", medicationRequest);
+        }
       }
     }
   }
@@ -115,6 +124,31 @@ public class FhirBundleProcessor {
     cqlParams.put("Patient", patient);
     cqlParams.put(requestType, request);
     return CqlExecutionContextBuilder.getExecutionContext(cqlPackage, cqlParams);
+  }
+
+  private String stripResourceType(String identifier) {
+    int indexOfDivider = identifier.indexOf('/');
+    if (indexOfDivider+1 == identifier.length()) {
+      // remove the trailing '/'
+      return identifier.substring(0, indexOfDivider);
+    } else {
+      return identifier.substring(indexOfDivider+1);
+    }
+  }
+
+  private boolean idInSelectionsList(String identifier) {
+    if (this.selections.isEmpty()) {
+      // if selections list is empty, just assume we should process the request
+      return true;
+    } else {
+      for ( String selection : selections) {
+        if (identifier.contains(stripResourceType(selection))) {
+          logger.info("stu3/FhirBundleProcessor::idInSelectionsList(" + identifier + "): identifier found in selections list");
+          return true;
+        }
+      }
+      return false;
+    }
   }
 
 }
