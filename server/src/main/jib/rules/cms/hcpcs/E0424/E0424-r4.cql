@@ -6,10 +6,16 @@ parameter Patient Patient
 parameter device_request DeviceRequest
 
 define "Age":
-    AgeInYears()
+  AgeInYears()
 
 define RULE_APPLIES:
-    "Age" > 0
+  "Age" > 0
+
+define PRIORAUTH_REQUIRED:
+  true
+
+define DOCUMENTATION_REQUIRED:
+  true
 
 define RESULT_Summary:
   'No auth needed'

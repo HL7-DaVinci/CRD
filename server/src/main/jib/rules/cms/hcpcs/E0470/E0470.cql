@@ -8,6 +8,12 @@ parameter device_request DeviceRequest
 define RULE_APPLIES:
   true
 
+define PRIORAUTH_REQUIRED:
+  false
+
+define DOCUMENTATION_REQUIRED:
+  true
+
 define RESULT_Summary:
   'Documentation Required.'
 

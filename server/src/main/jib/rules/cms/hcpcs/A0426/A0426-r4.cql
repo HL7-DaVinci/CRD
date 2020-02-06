@@ -8,6 +8,12 @@ parameter service_request ServiceRequest
 define RULE_APPLIES:
   true
 
+define PRIORAUTH_REQUIRED:
+    true
+
+define DOCUMENTATION_REQUIRED:
+    true
+
 define RESULT_Summary:
   'Prior Authorization required.'
 
