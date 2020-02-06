@@ -23,6 +23,8 @@ public class CardBuilder {
     private String infoLink;
     private String questionnaireUri;
     private String requestId;
+    private Boolean priorAuthRequired;
+    private Boolean documentationRequired;
 
     public Boolean ruleApplies() {
       return ruleApplies;
@@ -79,6 +81,24 @@ public class CardBuilder {
 
     public CqlResultsForCard setRequestId(String requestId) {
       this.requestId = requestId;
+      return this;
+    }
+
+    public boolean getPriorAuthRequired() {
+      return priorAuthRequired;
+    }
+
+    public CqlResultsForCard setPriorAuthRequired(boolean priorAuthRequired) {
+      this.priorAuthRequired = priorAuthRequired;
+      return this;
+    }
+
+    public boolean getDocumentationRequired() {
+      return documentationRequired;
+    }
+
+    public CqlResultsForCard setDocumentationRequired(boolean documentationRequired) {
+      this.documentationRequired = documentationRequired;
       return this;
     }
 
