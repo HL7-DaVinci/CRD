@@ -14,6 +14,12 @@ define "Gender":
 define RULE_APPLIES:
   "Age" >= 60 and "Age" <= 90 and "Gender" = 'male'
 
+define PRIORAUTH_REQUIRED:
+  false
+
+define DOCUMENTATION_REQUIRED:
+  true
+
 define RESULT_Summary:
   'Auth required.'
 

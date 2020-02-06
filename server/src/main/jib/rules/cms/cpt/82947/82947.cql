@@ -12,6 +12,12 @@ define "Age":
 define RULE_APPLIES:
   "Age" >= 18 and "Age" <= 60
 
+define PRIORAUTH_REQUIRED:
+  false
+
+define DOCUMENTATION_REQUIRED:
+  true
+
 define RESULT_Summary:
   'Authorization required.'
 

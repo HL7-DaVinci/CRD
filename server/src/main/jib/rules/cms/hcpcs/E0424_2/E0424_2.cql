@@ -22,6 +22,12 @@ define RULE_APPLIES:
   and "PatientHomeState" = 'MA'
   and "Blah" = 2
 
+define PRIORAUTH_REQUIRED:
+  true
+
+define DOCUMENTATION_REQUIRED:
+  true
+
 define "Auth_Needed":
   "Age" > 57
 

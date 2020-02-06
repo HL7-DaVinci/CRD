@@ -163,14 +163,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext());
       if (results.ruleApplies()){
         foundApplicableRule = true;
-        if (results.getQuestionnaireUri() != null && !results.getQuestionnaireUri().isEmpty()){
+        if ((results.getDocumentationRequired() || results.getPriorAuthRequired()) &&
+            (results.getQuestionnaireUri() != null && !results.getQuestionnaireUri().isEmpty())) {
           Link smartAppLink = smartLinkBuilder(
               request.getContext().getPatientId(),
               request.getFhirServer(),
               applicationBaseUrl,
               results.getQuestionnaireUri(),
               results.getRequestId(),
-              lookupResult.getCriteria());
+              lookupResult.getCriteria(),
+              results.getPriorAuthRequired());
           response.addCard(CardBuilder.transform(results, smartAppLink));
         } else{
           logger.warn("Unspecified Questionnaire URI; summary card sent to client");
@@ -200,9 +202,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     if (!results.ruleApplies()) {
       return results;
     }
+
     results.setSummary(evaluateStatement("RESULT_Summary",context).toString())
         .setDetails(evaluateStatement("RESULT_Details",context).toString())
-        .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString());
+        .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString())
+        .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
+        .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
 
     if (evaluateStatement("RESULT_QuestionnaireUri",context) != null) {
       results
@@ -224,7 +229,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri,
-                                String reqResourceId, CoverageRequirementRuleCriteria criteria) {
+                                String reqResourceId, CoverageRequirementRuleCriteria criteria, boolean priorAuthRequired) {
     URI configLaunchUri = myConfig.getLaunchUrl();
     String launchUrl;
     if (myConfig.getLaunchUrl().isAbsolute()) {
@@ -251,12 +256,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // PARAMS:
     // template is the uri of the questionnaire
     // request is the ID of the device request or medrec (not the full URI like the IG says, since it should be taken from fhirBase
-    HashMap<String,String> appContextMap = new HashMap<>();
-    appContextMap.put("template", questionnaireUri);
-    appContextMap.put("request", reqResourceId);
+    //HashMap<String,String> appContextMap = new HashMap<>();
+    //appContextMap.put("template", questionnaireUri);
+    //appContextMap.put("request", reqResourceId);
     String filepath = "../../getfile/" + criteria.getQueryString();
 
-    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId + "&filepath=";
+    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
+    
+    appContext = appContext + "&priorauth=" + (priorAuthRequired?"true":"false");
+    appContext = appContext + "&filepath=";
     if (myConfig.getUrlEncodeAppContext()) {
       try {
         logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
