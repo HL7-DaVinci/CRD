@@ -64,22 +64,6 @@ dependencies {
     compile group: 'org.kohsuke', name:'github-api', version:'1.77'
 }
 
-task integrationTest(type: Test) {
-
-    doFirst{
-        project(':ehr-server').tasks.appBeforeIntegrationTest.execute()
-        filter{
-            includeTestsMatching "*PrefetchIntegrationTest*"
-        }
-    }
-    doLast{
-        project(':ehr-server').tasks.appAfterIntegrationTest.execute()
-
-    }
-
-
-}
-
 task buildReact(type:Exec) {
     workingDir 'src/main/resources/node_interfaces'
     commandLine './buildout.sh'

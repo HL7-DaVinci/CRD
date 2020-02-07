@@ -13,7 +13,6 @@ Folders within this project make up subprojects. This section provides a brief d
 
 Subprojects:
 
-* [EHR Server](https://github.com/HL7-DaVinci/CRD/tree/master/ehr-server) - FHIR server that acts as a representation of the FHIR server that an EHR would host
 * [CRD RI Server](https://github.com/HL7-DaVinci/CRD/tree/master/server) - java application that implements the CDS service in CRD
 
 * creator - small java application that writes out a CDS Hook request for `order-review` to a JSON file
@@ -32,12 +31,12 @@ The subprojects in this repository are capable of simulating the entire set of i
 
 It is not necessary to run all of the components in this system to work with the RI. Depending on your organization's role, you are likely to use a particular subset of the components.
 
-The RI supports the use of [OAuth 2.0](https://oauth.net/2/) as described in the [FHIR Resource Access](https://cds-hooks.org/specification/1.0/#fhir-resource-access) and [SMART App Authorization Guide](http://docs.smarthealthit.org/authorization/). The management of OAuth tokens is handled by [Keycloak](https://www.keycloak.org/), an open source identity management system. In this system, the `request-generator` uses Keycloak to manage JSON Web Tokens that authorize usage of the CRD app, and the DTR SMART app uses Keycloak to retrieve tokens that can be used to access the `ehr-server`. The `ehr-server` will contact Keycloak to check the validity of the token. The RI can be set up to operate securely and use OAuth tokens to authorize access, or it may be configured in an open fashion for testing.
+The RI supports the use of [OAuth 2.0](https://oauth.net/2/) as described in the [FHIR Resource Access](https://cds-hooks.org/specification/1.0/#fhir-resource-access) and [SMART App Authorization Guide](http://docs.smarthealthit.org/authorization/). The management of OAuth tokens is handled by [Keycloak](https://www.keycloak.org/), an open source identity management system. In this system, the `request-generator` uses Keycloak to manage JSON Web Tokens that authorize usage of the CRD app, and the DTR SMART app uses Keycloak to retrieve tokens that can be used to access the `test-ehr`. The `test-ehr` will contact Keycloak to check the validity of the token. The RI can be set up to operate securely and use OAuth tokens to authorize access, or it may be configured in an open fashion for testing.
 
 ### Healthcare Provider Components
 On the left side of the diagram, we have two components that simulate functionality that is provided by an EHR system. The first is `request-generator`. This is a web application that can generate a simple CRD request via CDS Hook. The web application allows a user to enter basic demographic information as well as a code for the requested service/device. Once the request has been submitted, the application will display any cards that have been returned by the CDS Service.
 
-`ehr-server` provides a basic FHIR server that is intended to satisfy any requests from the CDS Service that have not been populated via prefetch. If the system generating the request completely populates the prefetch, or the CDS Service processing the request is simplistic, this component is not necessary. Though the `request-generator` can be run by itself, it is recommended to run the embedded version that is hosted by the `ehr-server` at the `/reqgen` endpoint.
+`test-ehr` provides a basic FHIR server that is intended to satisfy any requests from the CDS Service that have not been populated via prefetch. If the system generating the request completely populates the prefetch, or the CDS Service processing the request is simplistic, this component is not necessary. Though the `request-generator` can be run by itself, it is recommended to run the embedded version that is hosted by the `test-ehr` at the `/reqgen` endpoint.
 
 ### Healthcare Payer Components
 `server` is an implementation of a CDS Service. It handles CDS Hooks requests and returns results. The service performs some basic parsing of the request to extract basic demographic information and the code of the requested item. Based on that information, the service will consult a simple database and then return information from the database in CDS Hook cards. The simplistic documentation requirements rules can be modified via an administrative web interface.
@@ -69,8 +68,8 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 4. Navigate to the KeyCloak instance in a browser, it should be at [http://localhost:8180/](http://localhost:8180)
 5. When prompted, create a new administrative username and password in Administration Console.
 6. Login Administration Console with administrative username and password created in previuos step.
-7. Click Add Realm (hover over the word 'Master' in the sidebar) to find the button.  The realm will be protecting the `ehr-server`.
-	* Import the realm by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `[CDR repo]/ehr-server/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
+7. Click Add Realm (hover over the word 'Master' in the sidebar) to find the button.  The realm will be protecting the `test-ehr`.
+	* Import the realm by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `[test-ehr repo]/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
 
 			Add a new realm:
 			1) click Master (top left nav bar)
@@ -87,7 +86,7 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 	* Give the new user a password in the `credentials` tab. Make sure to turn 'Temporary' slider off before clicking 'Reset Password'.
 	* Go to `Role Mappings` and add the `user` role
 11. Modify config files to point at your new clients and realms
-	* Change `[CDR repo]/ehr-server/src/main/resources/fhirServer.properties` to use the client ID (`app-token` if using imported realm), realm name, and client secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
+	* Change `[test-ehr repo]/src/main/resources/fhirServer.properties` to use the client ID (`app-token` if using imported realm), realm name, and client secret of the bearer only client, then set `use_oauth` to `true` in order to use the security feature.
 		* The bearer only client's secret can be found in the `Credentials` tab
 	* Change `[cdr-request-generator repo]/src/properties.json` to include the name of the realm and the client ID of the public client
 	

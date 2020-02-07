@@ -95,7 +95,7 @@ public class PrefetchIntegrationTest {
         HttpEntity<String> entity = new HttpEntity<String>(resource
             .getAsJsonObject().toString(), headers);
         ResponseEntity<String> project= restTemplate.exchange(
-            "http://localhost:8080/ehr-server/r4/"+resourceType+"/"+id+"/",
+            "http://localhost:8080/test-ehr/r4/"+resourceType+"/"+id+"/",
             HttpMethod.PUT,
             entity,
             String.class);

@@ -20,7 +20,6 @@
 gradle/gradle-4.10.1/*
 request-generator/*
 server/src/main/resources/react/node_modules/*
-ehr-server/src/main/resources/fhirServer.properties
 
 # CMake
 cmake-build-*/
@@ -146,7 +145,6 @@ gradle-app.setting
 # End of https://www.gitignore.io/api/osx,java,gradle,intellij
 
 # Visual Studio Code
-ehr-server/target/
 .classpath
 .settings/
 bin/

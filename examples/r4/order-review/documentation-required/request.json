@@ -1,6 +1,6 @@
 {
   "hookInstance": "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
-  "fhirServer": "http://localhost:8080/ehr-server/r4/",
+  "fhirServer": "http://localhost:8080/test-ehr/r4/",
   "hook": "order-review",
   "fhirAuthorization": {
     "access_token": null,
