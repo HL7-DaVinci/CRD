@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Date;
 import javax.validation.Valid;
 
 import org.cdshooks.CdsRequest;
@@ -22,6 +23,7 @@ import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
@@ -124,18 +126,35 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
+
+    // create the RequestLog
+    RequestLog requestLog = new RequestLog(request, new Date().getTime(), this.fhirComponents.getFhirVersion().toString(),
+        this.id, requestService,5);
+
+    // Parsed request
+    requestLog.advanceTimeline(requestService);
+
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
 
+    // hydrated
+    requestLog.advanceTimeline(requestService);
+
+    // logger.info("***** ***** request from requestLog:  "+requestLog.toString() );
+
     CdsResponse response = new CdsResponse();
 
+    // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
     try {
       lookupResults = this.createCqlExecutionContexts(request, ruleFinder);
+      requestLog.advanceTimeline(requestService); 
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage()+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
+      requestLog.setResults(e.getMessage());
+      requestService.edit(requestLog);
       return response;
     }
 
@@ -161,12 +180,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         }
       }
     }
+
+    // CQL Executed
+    requestLog.advanceTimeline(requestService);
+
     if (!foundApplicableRule) {
       String msg = "No documentation rules found";
       logger.warn(msg+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(msg));
     }
-
 
     CardBuilder.errorCardIfNonePresent(response);
     return response;
