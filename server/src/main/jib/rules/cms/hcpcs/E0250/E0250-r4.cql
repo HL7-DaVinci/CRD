@@ -5,29 +5,14 @@ include FHIRHelpers version '4.0.0' called FHIRHelpers
 parameter Patient Patient
 parameter device_request DeviceRequest
 
-define "Age":
-  AgeInYears()
-
-define "Gender":
-  Patient.gender.value
-
 define RULE_APPLIES:
-  true
-
-define "Auth_Needed":
-  "Gender" = 'male'
+    true
 
 define RESULT_Summary:
-  if "Auth_Needed" then
-    'Authorization required.'
-  else
-    'No authorization is required'
+  'Documentation Required.'
 
 define RESULT_Details:
-  if "Auth_Needed" then
-    'Authorization is required, follow the attached link for information.'
-  else
-    'No authorization is required, as laid out at the attached link.'
+  'Documentation Required, please complete form via Smart App link.'
 
 define RESULT_InfoLink:
     'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforHospitalBedsandAccessories-ICN909476.pdf'
