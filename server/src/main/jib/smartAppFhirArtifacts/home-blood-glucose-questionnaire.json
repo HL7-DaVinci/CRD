@@ -134,9 +134,7 @@
           "text": "Gender",
           "type": "choice",
           "required": true,
-          "options": {
-            "reference": "#gender"
-          },
+          "answerValueSet": "#gender",
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
