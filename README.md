@@ -21,7 +21,9 @@ Subprojects:
 * testingClient - small java application that makes a CRD request and logs the response
 
 Standalone or supporting apps for this project are contained in other repositories.  These include:
-* [request-generator](https://github.com/HL7-DaVinci/crd-request-generator) - [React](https://reactjs.org/) based web UI that can generate basic CRD requests and display the returned CDS Hooks cards
+
+* [request-generator](https://github.com/HL7-DaVinci/crd-request-generator) - [React](https://reactjs.org/) based web UI that can generate basic CRD requests and display the returned CDS Hooks cards.
+* [test-ehr](https://github.com/HL7-DaVinci/test-ehr) - A HAPI FHIR server with additional support for the data needed to be forwarded to the dtr SMART on FHIR application.
 * [smart-app](https://github.com/HL7-DaVinci/dtr) - A SMART of FHIR application for Documentation Templates and Rules (DTR).
 
 ## System Architecture
