@@ -47,6 +47,9 @@ dependencies {
     compile 'ca.uhn.hapi.fhir:hapi-fhir-base:4.0.3'
     compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:4.0.3'
 
+    compile 'com.jayway.jsonpath:json-path:2.4.0'
+    compile 'joda-time:joda-time:2.10.5'
+
     //cql stuff
     compile (group: 'org.opencds.cqf', name: 'cql-engine', version: '1.3.10-SNAPSHOT') {
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
