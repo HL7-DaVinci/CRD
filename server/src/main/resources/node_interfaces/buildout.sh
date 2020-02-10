@@ -28,8 +28,8 @@ fi
 
 if [ -f ./build/static/js/main.*.js ]; then
     mv ./build/static/js/main.*.js ../static/js/main.index.js
-    mv ./build/static/js/1.*.js ../static/js/vendor.index.js
-    mv ./build/static/js/runtime~main.*.js ../static/js/runtime.index.js
+    mv ./build/static/js/2.*.js ../static/js/vendor.index.js
+    mv ./build/static/js/runtime-main.*.js ../static/js/runtime.index.js
 
     echo Moved JS
 fi

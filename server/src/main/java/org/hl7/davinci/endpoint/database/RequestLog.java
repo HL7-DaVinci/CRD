@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.database;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.lang.reflect.Field;
@@ -19,6 +20,16 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
 
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+// import com.jayway.jsonpath.Option;
+// import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // request_body: BLOB
 // timestamp: timestamp
 // patient_age: integer
@@ -33,6 +44,7 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
 @Entity
 @Table(name = "request_log")
 public class RequestLog {
+  static final Logger logger = LoggerFactory.getLogger(RequestLog.class);
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -95,32 +107,77 @@ public class RequestLog {
     setRequestBody(requestBody);
     setTimestamp(timestamp);
   }
+
   public RequestLog(Object request, long timestamp, String fhirVersion,
                     String hookType, RequestService requestService, int sections) {
+    // parse and assign to RequestLog all the relevant information from the request
+    // object
+    String requestStr = this.setFromRequest(request);
+
+    // override what is in the request with what is passed in
+    setHookType(hookType); // note: this may be different than what is specified in request
+
+    // assign data that is not in request
     setTimestamp(timestamp);
     setFhirVersion(fhirVersion);
-    setHookType(hookType);
     boolean[] timeline = new boolean[sections];
     // one for free because if we're here, we're authorized
     timeline[0] = true;
     setTimeline(timeline);
     this.timelineCounter = 1;
+    requestService.create(this);
+  }
+
+  /**
+   * sets members of this object using the data in the request object
+   * @param request
+   * @return the JSON string version of the request object
+   */
+  public String setFromRequest( Object request ) {
     String requestStr;
     try {
       ObjectMapper mapper = new ObjectMapper();
       ObjectWriter w = mapper.writer();
       requestStr = w.writeValueAsString(request);
+      Object reqDoc = Configuration.defaultConfiguration().jsonProvider().parse(requestStr);
+      String jStr;
+      List<String> jList;
+
+      // set data from main section of request
+
+      jStr = JsonPath.read(reqDoc, "$.hook");
+      this.setHookType( jStr );  // note that this is usually overridden in the constructor
+
+      // jList = JsonPath.read(reqDoc, "$..code");  // easiest, but least robust---works only if document contains the code you want first
+      jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='DeviceRequest')].codeCodeableConcept.coding[*].code");
+      this.setCode( jList.get(0) );
+
+      jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='DeviceRequest')].codeCodeableConcept.coding[*].system");
+      this.setCodeSystem( jList.get(0) );
+
+      jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Location')].address.state");
+      this.setProviderAddressState( jList.get(0) );
+
+      jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].address[*].state");
+      this.setPatientAddressState( jList.get(0) );
+
+      jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].gender");
+      this.setPatientGender( jList.get(0) );
+
+      jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].birthDate");
+      Period period = new Period(new DateTime(jList.get(0)), new DateTime());
+      this.setPatientAge( period.getYears() );
+      
     } catch (Exception e) {
-//      logger.error("failed to write request json: " + e.getMessage());
+      logger.error("failed to write request json: " + e.getMessage());
       requestStr = "error";
     }
-
     setRequestBody(requestStr.getBytes());
-
-    requestService.create(this);
+    return requestStr;
   }
 
   public void advanceTimeline(RequestService requestService) {
+    // Note that the first timeline element ("Authorized") is set in the constructor
     this.timeline[this.timelineCounter] = true;
     this.timelineCounter++;
     requestService.edit(this);
