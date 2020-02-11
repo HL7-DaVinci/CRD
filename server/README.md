@@ -53,10 +53,3 @@ Run the gradle task `embedDtr` to automatically clone the repo (master) and buil
 
 Once done, the application can be accessed at (e.g.) `localhost:8090/smart/index.html`. This files are in `src/main/resources/static/smart` and should be commited. Note that files should be accessed by their full name, (e.g. `smart/index.html` vs `smart/`).
 
-
-## Integration Testing
-
-Integration tests will set up an actual running instance of this server as well as `ehr-server` to monitor the handling of requests from beginning to end.
-
-Integration tests can be run with `gradle integrationTest`.
-
