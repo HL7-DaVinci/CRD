@@ -2,6 +2,7 @@ package org.hl7.davinci.endpoint.cql;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import javax.xml.bind.JAXBException;
 import org.cqframework.cql.cql2elm.CqlTranslator;
@@ -9,6 +10,7 @@ import org.cqframework.cql.cql2elm.CqlTranslatorException;
 import org.cqframework.cql.cql2elm.LibraryManager;
 import org.cqframework.cql.cql2elm.ModelManager;
 import org.cqframework.cql.cql2elm.FhirLibrarySourceProvider;
+import org.cqframework.cql.cql2elm.DefaultLibrarySourceProvider;
 import org.cqframework.cql.elm.execution.Library;
 import org.cqframework.cql.elm.tracking.TrackBack;
 import org.fhir.ucum.UcumEssenceService;
@@ -22,6 +24,8 @@ public class CqlExecution {
     ModelManager modelManager = new ModelManager();
     LibraryManager libraryManager = new LibraryManager(modelManager);
     libraryManager.getLibrarySourceLoader().registerProvider(new FhirLibrarySourceProvider());
+    // TODO: update this the more appropiately target path
+    libraryManager.getLibrarySourceLoader().registerProvider(new DefaultLibrarySourceProvider(Paths.get("src", "main", "jib", "smartAppFhirArtifacts")));
 
     ArrayList<CqlTranslator.Options> options = new ArrayList<>();
     options.add(CqlTranslator.Options.EnableDateRangeOptimization);

@@ -15,7 +15,7 @@
     {
       "type": "depends-on",
       "resource": {
-        "reference": "urn:hl7:davinci:crd:library-fhir-helpers"
+        "reference": "urn:hl7:davinci:crd:library-fhir-helpers-r4"
       }
     }
   ],

@@ -17,10 +17,26 @@
       "resource": {
         "reference": "urn:hl7:davinci:crd:library-fhir-helpers-r4"
       }
+    },
+    {
+      "type": "depends-on",
+      "resource": {
+        "reference": "urn:hl7:davinci:crd:library-cds-connect-commons-r4"
+      }
     }
   ],
   "dataRequirement": [
-    
+    {
+      "type": "Condition",
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSetReference": {
+            "reference": "urn:hl7:davinci:crd:valueset-diabetes"
+          }
+        }
+      ]
+    }
   ],
   "content": [
     {

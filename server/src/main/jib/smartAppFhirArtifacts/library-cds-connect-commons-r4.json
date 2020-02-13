@@ -1,0 +1,20 @@
+{
+  "resourceType": "Library",
+  "id": "urn:hl7:davinci:crd:library-cds-connect-commons-r4",
+  "version": "1.0.1",
+  "title": "CDS Connect Commons for FHIR",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "code": "logic-library"
+      }
+    ]
+  },
+  "content": [
+    {
+      "contentType": "application/elm+json",
+      "url": "urn:hl7:davinci:crd:CDS_Connect_Commons_for_FHIRv400-1.0.1.cql"
+    }
+  ]
+}
