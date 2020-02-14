@@ -219,7 +219,6 @@
           ],
           "linkId": "4.1",
           "type": "open-choice",
-          "required": true,
           "repeats": true,
           "option": [
             {
@@ -240,6 +239,32 @@
             {
               "valueCoding": {
                 "code": "Chest Wall Deformity"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "4.2",
+          "text": "Describe Neuromuscular Disease",
+          "type": "text",
+          "enableWhen": [
+            {
+              "question": "4.1",
+              "answerCoding": {
+                "code": "Neuromuscular Disease"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "4.3",
+          "text": "Describe Thoracic Restrictive Disease",
+          "type": "text",
+          "enableWhen": [
+            {
+              "question": "4.1",
+              "answerCoding": {
+                "code": "Thoracic Restrictive Disease"
               }
             }
           ]
