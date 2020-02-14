@@ -8,12 +8,18 @@ codesystem "SNOMED-CT": 'http://snomed.info/sct'
 
 //Obstructive Sleep Apnea
 code "G47.33": 'G47.33' from "ICD-10-CM"
-
+//Body Weight code
+code "29463-7": '29463-7' from "LOINC"
 
 parameter device_request DeviceRequest
 
-
 define "OSA_Codes": { "G47.33" }
+
+define "BodyWeight_Codes": { "29463-7" }
+
+define "BodyWeight": HighestObservation(WithUnit(Verified(ObservationLookBack([Observation: "BodyWeight_Codes"], 6 months)), '[lb_av]'))
+
+define "RecentEncounters": EncounterLookBack([Encounter], 6 months)
 
 context Patient
 
@@ -35,16 +41,21 @@ define OtherDiagnoses:
       and exists(ICD10Codings)
       return ICD10Codings
   ))
-
-
-define DeviceRequestHcpcsCoding: singleton from (
+  
+define "DeviceRequestHcpcsCoding": singleton from (
   ((cast device_request.code as CodeableConcept).coding) coding
     where coding.system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
 
-define DeviceRequestDescription: 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + "DeviceRequestHcpcsCoding".display.value
-define PapDeviceRequested:
+define "DeviceRequestDescription": 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + "DeviceRequestHcpcsCoding".display.value
+define "DeviceRequested":
   if "DeviceRequestHcpcsCoding".code.value = 'E0250' then 'E0250'
   else 'null'
+
+define function EncounterLookBack(EncounterList List<Encounter>, LookBack System.Quantity):
+  EncounterList E
+    let LookBackInterval: Interval[Now() - LookBack, Now()]
+    where (cast E.period.start as dateTime).value in LookBackInterval
+      or NullSafeToInterval(cast E.period as Period) overlaps LookBackInterval
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with r4 version of helper library
 define function ActiveOrRecurring(CondList List<Condition>):
