@@ -1,0 +1,28 @@
+{
+  "resourceType": "Library",
+  "id": "urn:hl7:davinci:crd:library-ventilator-prepopulate-r4",
+  "version": "0.1.0",
+  "title": "Ventilator Prepopulation",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "code": "logic-library"
+      }
+    ]
+  },
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": {
+        "reference": "urn:hl7:davinci:crd:library-fhir-helpers-r4"
+      }
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/elm+json",
+      "url": "urn:hl7:davinci:crd:VentilatorPrepopulate-r4.cql"
+    }
+  ]
+}

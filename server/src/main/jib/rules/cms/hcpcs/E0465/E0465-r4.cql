@@ -18,7 +18,7 @@ define RESULT_InfoLink:
     'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforVentilators-MLN9725344Print-Friendly.pdf'
 
 define RESULT_QuestionnaireUri:
-    'urn:hl7:davinci:crd:positive-airway-pressure-questionnaire-r4'
+    'urn:hl7:davinci:crd:ventilator-questionnaire-r4'
 
 define RESULT_requestId:
   device_request
