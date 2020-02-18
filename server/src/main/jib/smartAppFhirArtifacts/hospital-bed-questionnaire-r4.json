@@ -160,26 +160,56 @@
           "required": false
         },
         {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"HospitalBed\".OtherDiagnoses"
+              }
+            }
+          ],
           "linkId": "2.2",
-          "text": "Relevant Diagnosis",
-          "type": "string",
-          "required": false
+          "text": "Relevant Diagnosis:",
+          "type": "open-choice",
+          "repeats": true,
+          "option": [
+          ]
         }
       ]
     },
     {
       "linkId": "3",
+      "text": "Face-to-face Evaluation",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
+              "valueString": "\"HospitalBed\".RecentEncounters"
+            }
+          ],
+          "linkId": "3.1",
+          "text": "Face-to-face Evaluation within 6 months",
+          "type": "select-encounter",
+          "required": false
+        }
+      ]
+    },
+    {
+      "linkId": "4",
       "text": "Order Date",
       "type": "group",
       "item": [
         {
-          "linkId": "3.1",
+          "linkId": "4.1",
           "text": "Order start date, if different from date of order",
           "type": "date",
           "required": false
         },
         {
-          "linkId": "3.2",
+          "linkId": "4.2",
           "text": "Order date, if different from date of signature",
           "type": "date",
           "required": false
@@ -187,12 +217,12 @@
       ]
     },
     {
-      "linkId": "4",
+      "linkId": "5",
       "text": "Type of order:",
       "type": "group",
       "item": [
         {
-          "linkId": "4.1",
+          "linkId": "5.1",
           "text": "Device:",
           "type": "choice",
           "option": [
@@ -231,7 +261,7 @@
       ]
     },
     {
-      "linkId": "5",
+      "linkId": "6",
       "text": "Order",
       "type": "group",
       "item": [
@@ -242,7 +272,7 @@
               "valueString": "\"HospitalBed\".DeviceRequested"
             }
           ],
-          "linkId": "5.1",
+          "linkId": "6.1",
           "text": "Equipment",
           "type": "choice",
           "required": false,
@@ -264,11 +294,11 @@
       ]
     },  
     {
-      "linkId": "6",
+      "linkId": "7",
       "type": "group",
       "item": [
         {
-          "linkId": "6.1",
+          "linkId": "7.1",
           "text": "Signature:",
           "type": "string"
         },
@@ -282,7 +312,7 @@
               }
             }
           ],
-          "linkId": "6.2",
+          "linkId": "7.2",
           "text": "Name (Printed):",
           "type": "string",
           "required": true
@@ -297,7 +327,7 @@
               }
             }
           ],
-          "linkId": "6.3",
+          "linkId": "7.3",
           "text": "Date (MM/DD/YYYY):",
           "type": "date",
           "required": true
@@ -312,7 +342,7 @@
               }
             }
           ],
-          "linkId": "6.4",
+          "linkId": "7.4",
           "text": "NPI:",
           "type": "string",
           "required": true
