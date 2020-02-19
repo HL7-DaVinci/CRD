@@ -6,27 +6,18 @@ codesystem "ICD-10-CM": 'http://hl7.org/fhir/sid/icd-10-cm'
 codesystem "LOINC": 'http://loinc.org'
 codesystem "SNOMED-CT": 'http://snomed.info/sct'
 
-//Obstructive Sleep Apnea
-code "G47.33": 'G47.33' from "ICD-10-CM"
 //Body Weight code
 code "29463-7": '29463-7' from "LOINC"
 
 parameter device_request DeviceRequest
 
-define "OSA_Codes": { "G47.33" }
+context Patient
 
 define "BodyWeight_Codes": { "29463-7" }
 
 define "BodyWeight": HighestObservation(WithUnit(Verified(ObservationLookBack([Observation: "BodyWeight_Codes"], 6 months)), '[lb_av]'))
 
 define "RecentEncounters": EncounterLookBack([Encounter], 6 months)
-
-context Patient
-
-// coverage requirement info
-define OsaDiagnosis:
-  if exists(Confirmed(ActiveOrRecurring([Condition: "OSA_Codes"]))) then 'OSA' else 'null'
-
 
 define OtherDiagnoses:
   distinct(flatten(
@@ -41,7 +32,9 @@ define OtherDiagnoses:
       and exists(ICD10Codings)
       return ICD10Codings
   ))
-  
+
+define CurrentDiagnoses: ActiveConfirmedDiagnoese([Condition])
+
 define "DeviceRequestHcpcsCoding": singleton from (
   ((cast device_request.code as CodeableConcept).coding) coding
     where coding.system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
@@ -49,13 +42,37 @@ define "DeviceRequestHcpcsCoding": singleton from (
 define "DeviceRequestDescription": 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + "DeviceRequestHcpcsCoding".display.value
 define "DeviceRequested":
   if "DeviceRequestHcpcsCoding".code.value = 'E0250' then 'E0250'
+  else if "DeviceRequestHcpcsCoding".code.value = 'E0251' then 'E0251'
   else 'null'
 
-define function EncounterLookBack(EncounterList List<Encounter>, LookBack System.Quantity):
+define function ActiveConfirmedDiagnoese(CondList List<FHIR.Condition>):
+  distinct(
+    flatten(
+      CondList C
+        let DiagnosesCodings:
+          (C.code.coding) CODING where CODING.system.value in {
+            'http://hl7.org/fhir/sid/icd-10',
+            'http://hl7.org/fhir/sid/icd-10-cm',
+            'http://snomed.info/sct'
+          }
+          return Tuple {
+            code: CODING.code.value,
+            system: CODING.system.value,
+            display: CODING.display.value
+          }
+        where C.verificationStatus.coding.code = 'confirmed'
+          and C.clinicalStatus.coding.code in {'active', 'relapse'}
+          and exists(DiagnosesCodings)
+        return DiagnosesCodings
+    )
+  )
+
+  define function EncounterLookBack(EncounterList List<Encounter>, LookBack System.Quantity):
   EncounterList E
     let LookBackInterval: Interval[Now() - LookBack, Now()]
     where (cast E.period.start as dateTime).value in LookBackInterval
       or NullSafeToInterval(cast E.period as Period) overlaps LookBackInterval
+
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with r4 version of helper library
 define function ActiveOrRecurring(CondList List<Condition>):
