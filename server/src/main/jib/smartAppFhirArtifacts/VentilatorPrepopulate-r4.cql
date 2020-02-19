@@ -21,6 +21,7 @@ code "G12.9": 'G12.9' from "ICD-10-CM"
 
 // Thoracic restrictive disease
 code "J98.4": 'J98.4' from "ICD-10-CM"
+code "36485005": '36485005' from "SNOMED-CT"
 
 // Chest Wall Deformity
 code "M95.4": 'M95.4' from "ICD-10-CM"
@@ -43,19 +44,16 @@ parameter device_request DeviceRequest
 
 define "Neuromuscular_Codes": { "G12.0", "G12.1", "G12.20", "G12.21", "G12.22", "G12.23", "G12.24", "G12.25", "G12.29", "G12.8", "G12.9"}
 define "COPD_Codes": { "J96.10", "J96.11", "J96.12", "J96.20", "J96.21", "J96.22", "J96.90", "J96.91", "J96.22"}
-define "Thoracic_Restrictive_Codes": { "J98.4" }
+define "Thoracic_Restrictive_Codes": { "J98.4", "36485005" }
 define "Chest_Wall_Codes": {"M95.4", "Q67.8"}
+
+define "All_Codes": "Neuromuscular_Codes" union "COPD_Codes" union "Thoracic_Restrictive_Codes" union "Chest_Wall_Codes"
 
 context Patient
 
 // coverage requirement info
-define RelevantDiagnoses: {
-  if exists(Confirmed(ActiveOrRecurring([Condition: "Neuromuscular_Codes"]))) then 'Neuromuscular Disease' else 'null',
-  if exists(Confirmed(ActiveOrRecurring([Condition: "COPD_Codes"]))) then 'COPD' else 'null',
-  if exists(Confirmed(ActiveOrRecurring([Condition: "Thoracic_Restrictive_Codes"]))) then 'Thoracic Restrictive Disease' else 'null',
-  if exists(Confirmed(ActiveOrRecurring([Condition: "Chest_Wall_Codes"]))) then 'Chest Wall Deformity' else 'null'
-} except { 'null' } // except 'null' is a workaround since I don't see how to remove actual nulls
-
+define RelevantDiagnoses: 
+  ActiveConfirmedDiagnoese([Condition: "All_Codes"])
 
 
 define DeviceRequestHcpcsCoding: singleton from (
@@ -68,6 +66,28 @@ define VentilatorDeviceRequested:
   if "DeviceRequestHcpcsCoding".code.value = 'E0465' then 'E0465'
   else if  "DeviceRequestHcpcsCoding".code.value = 'E0466' then 'E0466'
   else 'null'
+
+define function ActiveConfirmedDiagnoese(CondList List<Condition>):
+  distinct(
+    flatten(
+      CondList C
+        let DiagnosesCodings:
+          (C.code.coding) CODING where CODING.system.value in {
+            'http://hl7.org/fhir/sid/icd-10',
+            'http://hl7.org/fhir/sid/icd-10-cm',
+            'http://snomed.info/sct'
+          }
+          return Tuple {
+            code: CODING.code.value,
+            system: CODING.system.value,
+            display: CODING.display.value
+          }
+        where C.verificationStatus.coding.code = 'confirmed'
+          and C.clinicalStatus.coding.code in {'active', 'relapse'}
+          and exists(DiagnosesCodings)
+        return DiagnosesCodings
+    )
+  )
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with r4 version of helper library
 define function ActiveOrRecurring(CondList List<Condition>):

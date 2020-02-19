@@ -107,7 +107,7 @@
           "text": "Gender:",
           "type": "choice",
           "required": true,
-          "option": [
+          "answerOption": [
             {
               "valueCoding": {
                 "code": "male",
@@ -220,53 +220,7 @@
           "linkId": "4.1",
           "type": "open-choice",
           "repeats": true,
-          "option": [
-            {
-              "valueCoding": {
-                "code": "Neuromuscular Disease"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "Thoracic Restrictive Disease"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "COPD"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "Chest Wall Deformity"
-              }
-            }
-          ]
-        },
-        {
-          "linkId": "4.2",
-          "text": "Describe Neuromuscular Disease",
-          "type": "text",
-          "enableWhen": [
-            {
-              "question": "4.1",
-              "answerCoding": {
-                "code": "Neuromuscular Disease"
-              }
-            }
-          ]
-        },
-        {
-          "linkId": "4.3",
-          "text": "Describe Thoracic Restrictive Disease",
-          "type": "text",
-          "enableWhen": [
-            {
-              "question": "4.1",
-              "answerCoding": {
-                "code": "Thoracic Restrictive Disease"
-              }
-            }
+          "answerOption": [
           ]
         }
       ]
@@ -280,7 +234,7 @@
           "linkId": "5.1",
           "text": "Device:",
           "type": "choice",
-          "option": [
+          "answerOption": [
             {
               "valueCoding": {
                 "code": "initial",
@@ -305,7 +259,7 @@
           "linkId": "5.2",
           "text": "Supplies:",
           "type": "choice",
-          "option": [
+          "answerOption": [
             {
               "valueCoding": {
                 "code": "initial",
@@ -355,7 +309,7 @@
           "linkId": "6.2",
           "type": "choice",
           "repeats": true,
-          "option": [
+          "answerOption": [
             {
               "valueCoding": {
                 "code": "E0465",
