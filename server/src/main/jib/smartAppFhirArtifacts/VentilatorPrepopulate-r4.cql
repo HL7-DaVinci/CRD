@@ -2,6 +2,7 @@ library VentilatorDevice  version '0.1.0'
 using FHIR version '4.0.0'
 include FHIRHelpers version '4.0.0' called FHIRHelpers
 
+codesystem "ICD-10": 'http://hl7.org/fhir/sid/icd-10'
 codesystem "ICD-10-CM": 'http://hl7.org/fhir/sid/icd-10-cm'
 codesystem "LOINC": 'http://loinc.org'
 codesystem "SNOMED-CT": 'http://snomed.info/sct'
@@ -39,6 +40,7 @@ code "J96.91": 'J96.91' from "ICD-10-CM"
 code "J96.92": 'J96.92' from "ICD-10-CM"
 
 
+
 parameter device_request DeviceRequest
 
 
@@ -53,7 +55,7 @@ context Patient
 
 // coverage requirement info
 define RelevantDiagnoses: 
-  ActiveConfirmedDiagnoese([Condition: "All_Codes"])
+  CodesFromConditions(Confirmed(ActiveOrRecurring([Condition: "All_Codes"])))
 
 
 define DeviceRequestHcpcsCoding: singleton from (
@@ -67,11 +69,10 @@ define VentilatorDeviceRequested:
   else if  "DeviceRequestHcpcsCoding".code.value = 'E0466' then 'E0466'
   else 'null'
 
-define function ActiveConfirmedDiagnoese(CondList List<Condition>):
-  distinct(
-    flatten(
-      CondList C
-        let DiagnosesCodings:
+define function CodesFromConditions(CondList List<Condition>):
+  distinct(flatten(
+    CondList C
+      let DiagnosesCodings:
           (C.code.coding) CODING where CODING.system.value in {
             'http://hl7.org/fhir/sid/icd-10',
             'http://hl7.org/fhir/sid/icd-10-cm',
@@ -82,12 +83,8 @@ define function ActiveConfirmedDiagnoese(CondList List<Condition>):
             system: CODING.system.value,
             display: CODING.display.value
           }
-        where C.verificationStatus.coding.code = 'confirmed'
-          and C.clinicalStatus.coding.code in {'active', 'relapse'}
-          and exists(DiagnosesCodings)
-        return DiagnosesCodings
-    )
-  )
+      return DiagnosesCodings
+  ))
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with r4 version of helper library
 define function ActiveOrRecurring(CondList List<Condition>):
