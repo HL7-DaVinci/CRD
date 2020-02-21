@@ -6,9 +6,11 @@ This RI offers very basic responses to CRD requests. It will use the patient's g
 Users are able to create and edit entries in the coverage requirements rules through a web based interface. The goal of this functionality is to allow requesting systems to vary the payload of the request and see different response cards returned.
 
 ## Running the server
-Assuming the current directory is still `server`:
+If you are still in the `server` folder: `gradle bootRun`
 
-`gradle bootRun`
+or
+
+If you are in the `CRD` folder: `gradle server:bootRun` 
 
 This will start the server running on http://localhost:8090.
 

@@ -1,0 +1,476 @@
+{
+  "resourceType": "Questionnaire",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-ventilator-prepopulate-r4"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-basic-patient-info-prepopulate-r4"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqif-library",
+      "valueReference": {
+        "reference": "urn:hl7:davinci:crd:library-basic-practitioner-info-prepopulate-r4"
+      }
+    }
+  ],
+  "id": "urn:hl7:davinci:crd:ventilator-questionnaire-r4",
+  "title": "Ventilator Questionnaire",
+  "status": "draft",
+  "date": "2020-02-04",
+  "publisher": "Da Vinci DTR",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".LastName"
+              }
+            }
+          ],
+          "linkId": "1.1",
+          "text": "Last Name:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".FirstName"
+              }
+            }
+          ],
+          "linkId": "1.2",
+          "text": "First Name:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".MiddleInitial"
+              }
+            }
+          ],
+          "linkId": "1.3",
+          "text": "Middle Initial:",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".DateOfBirth"
+              }
+            }
+          ],
+          "linkId": "1.4",
+          "text": "Date of Birth:",
+          "type": "date",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".Gender"
+              }
+            }
+          ],
+          "linkId": "1.5",
+          "text": "Gender:",
+          "type": "choice",
+          "required": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "male",
+                "display": "Male"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "female",
+                "display": "Female"
+              }
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfo\".MedicareId"
+              }
+            }
+          ],
+          "linkId": "1.6",
+          "text": "Medicare ID:",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "text": "Provider who perfromed the in-person evaluation",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".LastName"
+              }
+            }
+          ],
+          "linkId": "2.1",
+          "text": "Last Name",
+          "type": "string",
+          "required": false
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".FirstName"
+              }
+            }
+          ],
+          "linkId": "2.2",
+          "text": "First Name",
+          "type": "string",
+          "required": false
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".MiddleInitial"
+              }
+            }
+          ],
+          "linkId": "2.3",
+          "text": "Middle Initial",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "text": "Date of in-person evaluation (MM/DD/YYYY):",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "3.1",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "text": "Patient diagnosis:",
+      "type": "group",
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"VentilatorDevice\".RelevantDiagnoses"
+              }
+            }
+          ],
+          "linkId": "4.1",
+          "type": "open-choice",
+          "repeats": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Neuromuscular Disease"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Thoracic Restrictive Disease"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "COPD"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Chest Wall Deformity"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "4.2",
+          "text": "Describe Neuromuscular Disease",
+          "type": "text",
+          "enableWhen": [
+            {
+              "question": "4.1",
+              "answerCoding": {
+                "code": "Neuromuscular Disease"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "4.3",
+          "text": "Describe Thoracic Restrictive Disease",
+          "type": "text",
+          "enableWhen": [
+            {
+              "question": "4.1",
+              "answerCoding": {
+                "code": "Thoracic Restrictive Disease"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "text": "Type of order:",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "5.1",
+          "text": "Device:",
+          "type": "choice",
+          "option": [
+            {
+              "valueCoding": {
+                "code": "initial",
+                "display": "Initial"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "revision",
+                "display": "Revision or change in equipment"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "replacement",
+                "display": "Replacement"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "5.2",
+          "text": "Supplies:",
+          "type": "choice",
+          "option": [
+            {
+              "valueCoding": {
+                "code": "initial",
+                "display": "Initial"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "reorder",
+                "display": "Reorder"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "other",
+                "display": "Other"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "5.3",
+          "text": "Other (description):",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "linkId": "6",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "6.1",
+          "text": "Device Order (description of device):",
+          "type": "text"
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"VentilatorDevice\".VentilatorDeviceRequested"
+              }
+            }
+          ],
+          "linkId": "6.2",
+          "type": "choice",
+          "repeats": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "E0465",
+                "display": "E0465 Home Ventilator used with invasive interface (e.g. tracheostomy tube)"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "E0466",
+                "display": "E0466 Home Ventilator used with non-invasive interface (e.g. mask, chest shell)"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "7",
+      "type": "group",
+      "text": "Accessory Order",
+      "item": [
+        {
+          "linkId": "7.1",
+          "type": "group",
+          "repeats": "true",
+          "item": [
+            {
+              "linkId": "7.1.1",
+              "text": "Item Description",
+              "type": "string"
+            },
+            {
+              "linkId": "7.1.2",
+              "text": "Frequency",
+              "type": "string"
+            },
+            {
+              "linkId": "7.1.3",
+              "text": "Duration",
+              "type": "string"
+            },
+            {
+              "linkId": "7.1.4",
+              "text": "Quantity",
+              "type": "string"
+            },
+            {
+              "linkId": "7.1.5",
+              "text": "Refills",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "linkId": "7.2",
+          "text": "Other",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "linkId": "8",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "8.1",
+          "text": "Signature:",
+          "type": "string"
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".FullName"
+              }
+            }
+          ],
+          "linkId": "8.2",
+          "text": "Name (Printed):",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".Today"
+              }
+            }
+          ],
+          "linkId": "8.3",
+          "text": "Date (MM/DD/YYYY):",
+          "type": "date",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".NPI"
+              }
+            }
+          ],
+          "linkId": "8.4",
+          "text": "NPI:",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
