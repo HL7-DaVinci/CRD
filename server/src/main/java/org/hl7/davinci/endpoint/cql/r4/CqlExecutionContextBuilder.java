@@ -5,7 +5,7 @@ import org.cqframework.cql.cql2elm.ModelManager;
 import org.cqframework.cql.elm.execution.Library;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.LocalLibraryLoader;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
+import org.hl7.davinci.endpoint.cql.bundle.CqlRule;
 import org.hl7.fhir.r4.model.Resource;
 import org.opencds.cqf.cql.data.fhir.BaseFhirDataProvider;
 import org.opencds.cqf.cql.execution.Context;
@@ -18,7 +18,7 @@ public class CqlExecutionContextBuilder {
 
   public static String CQL_VERSION = "4.0.0";
 
-  public static Context getExecutionContext(CqlBundle cqlPackage, HashMap<String, Resource> cqlParams) {
+  public static Context getExecutionContext(CqlRule cqlRule, HashMap<String, Resource> cqlParams) {
     ModelManager modelManager = new ModelManager();
     LibraryManager libraryManager = new LibraryManager(modelManager);
     libraryManager.getLibrarySourceLoader().clearProviders();
@@ -26,13 +26,13 @@ public class CqlExecutionContextBuilder {
     Library library = null;
     LibraryLoader libraryLoader = null;
 
-    if (cqlPackage.isPrecompiled()){
+    if (cqlRule.isPrecompiled()) {
       //todo
     } else {
-      libraryManager.getLibrarySourceLoader().registerProvider(cqlPackage.getRawCqlLibrarySourceProvider(CQL_VERSION));
+      libraryManager.getLibrarySourceLoader().registerProvider(cqlRule.getRawCqlLibrarySourceProvider(CQL_VERSION));
       libraryLoader = new LocalLibraryLoader(libraryManager);
       try {
-        library = CqlExecution.translate(cqlPackage.getRawMainCqlLibrary(CQL_VERSION), libraryManager, modelManager);
+        library = CqlExecution.translate(cqlRule.getRawMainCqlLibrary(CQL_VERSION), libraryManager, modelManager);
       } catch (Exception e){
         throw new RuntimeException(e);
       }

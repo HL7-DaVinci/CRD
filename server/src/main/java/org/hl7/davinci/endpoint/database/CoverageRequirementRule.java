@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
+import org.hl7.davinci.endpoint.cql.bundle.CqlRule;
 
 // patientAgeRangeLow, patientAgeRangeHigh,
 // patientGender, patientPlanId, equipmentCode,
@@ -124,6 +125,18 @@ public class CoverageRequirementRule {
       cqlBundle = CqlBundle.fromZip(new File(getCqlPackagePath()));
     }
     return cqlBundle;
+  }
+
+  @Transient
+  private CqlRule cqlRule = null;
+
+  public void setCqlRule(CqlRule cqlRule) { this.cqlRule = cqlRule; }
+
+  public CqlRule getCqlRule(String fhirVersion) {
+    if (cqlRule == null) {
+      cqlRule = new CqlRule(getCqlPackagePath(), fhirVersion);
+    }
+    return cqlRule;
   }
 
   @Override

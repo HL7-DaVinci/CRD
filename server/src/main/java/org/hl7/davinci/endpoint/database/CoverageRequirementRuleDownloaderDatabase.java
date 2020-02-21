@@ -41,7 +41,7 @@ public class CoverageRequirementRuleDownloaderDatabase implements CoverageRequir
   public CqlBundleFile getFile(String payer, String codeSystem, String code, String name) {
     CqlBundleFile bundleFile = null;
     // ignore the payer/codesystem/code
-    Path path = Paths.get(config.getLocalDbFhirArtifacts(), name);
+    Path path = Paths.get(config.getLocalDb().getFhirArtifacts(), name);
 
     if (FilenameUtils.getExtension(name).toUpperCase().equals("CQL")) {
       logger.info("Converting CQL to ELM");

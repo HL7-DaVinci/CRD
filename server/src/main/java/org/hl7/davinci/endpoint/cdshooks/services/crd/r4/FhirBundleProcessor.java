@@ -1,12 +1,11 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
+import org.hl7.davinci.endpoint.cql.bundle.CqlRule;
 import org.hl7.davinci.endpoint.cql.r4.CqlExecutionContextBuilder;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
+import org.hl7.davinci.endpoint.database.RuleMapping;
+import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
@@ -23,19 +22,20 @@ import java.util.stream.Collectors;
 public class FhirBundleProcessor {
   static final Logger logger = LoggerFactory.getLogger(FhirBundleProcessor.class);
 
-  private CoverageRequirementRuleFinder ruleFinder;
+  private FileStore fileStore;
   private CrdPrefetch prefetch;
   private List<String> selections;
   private List<CoverageRequirementRuleResult> results = new ArrayList<>();
 
-  public FhirBundleProcessor(CrdPrefetch prefetch, CoverageRequirementRuleFinder ruleFinder, List<String> selections) {
+
+  public FhirBundleProcessor(CrdPrefetch prefetch, FileStore fileStore, List<String> selections) {
     this.prefetch = prefetch;
-    this.ruleFinder = ruleFinder;
+    this.fileStore = fileStore;
     this.selections = selections;
   }
 
-  public FhirBundleProcessor(CrdPrefetch prefetch, CoverageRequirementRuleFinder ruleFinder) {
-    this(prefetch, ruleFinder, new ArrayList<>());
+  public FhirBundleProcessor(CrdPrefetch prefetch, FileStore fileStore) {
+    this(prefetch, fileStore, new ArrayList<>());
   }
 
   public List<CoverageRequirementRuleResult> getResults() { return results; }
@@ -118,13 +118,18 @@ public class FhirBundleProcessor {
 
   private void buildExecutionContexts(List<CoverageRequirementRuleCriteria> criteriaList, Patient patient, String requestType, DomainResource request) {
     for (CoverageRequirementRuleCriteria criteria : criteriaList) {
-      CoverageRequirementRuleQuery query = new CoverageRequirementRuleQuery(ruleFinder, criteria);
-      query.execute();
-      for (CoverageRequirementRule rule: query.getResponse()) {
+      logger.info("FhirBundleProcessor::buildExecutionContexts() criteria: " + criteria.toString());
+      List<RuleMapping> rules = fileStore.findRules(criteria);
+
+      for (RuleMapping rule: rules) {
         CoverageRequirementRuleResult result = new CoverageRequirementRuleResult();
         result.setCriteria(criteria);
         try {
-          result.setContext(createCqlExecutionContext(rule.getCqlBundle(), patient, requestType, request));
+          logger.info("FhirBundleProcessor::buildExecutionContexts() found rule topic: " + rule.getTopic());
+
+          //get the CqlRule
+          CqlRule cqlRule = fileStore.getCqlRule(rule.getTopic(), rule.getFhirVersion());
+          result.setContext(createCqlExecutionContext(cqlRule, patient, requestType, request));
           results.add(result);
         } catch (Exception e) {
           logger.info("r4/FhirBundleProcessor::buildExecutionContexts: failed processing cql bundle: " + e.getMessage());
@@ -133,11 +138,11 @@ public class FhirBundleProcessor {
     }
   }
 
-  private Context createCqlExecutionContext(CqlBundle cqlPackage, Patient patient, String requestType, DomainResource request) {
+  private Context createCqlExecutionContext(CqlRule cqlRule, Patient patient, String requestType, DomainResource request) {
     HashMap<String, Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     cqlParams.put(requestType, request);
-    return CqlExecutionContextBuilder.getExecutionContext(cqlPackage, cqlParams);
+    return CqlExecutionContextBuilder.getExecutionContext(cqlRule, cqlParams);
   }
 
   private String stripResourceType(String identifier) {

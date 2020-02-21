@@ -5,8 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 import javax.validation.Valid;
@@ -25,8 +23,8 @@ import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
+import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.json.simple.JSONObject;
@@ -36,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Component
 public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
@@ -78,7 +75,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   RequestService requestService;
 
   @Autowired
-  private CoverageRequirementRuleFinder ruleFinder;
+  FileStore fileStore;
 
   private List<PrefetchTemplateElement> prefetchElements = null;
   private FhirComponentsT fhirComponents;
@@ -95,6 +92,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    */
   public CdsService(String id, Hook hook, String title, String description,
       List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents) {
+
     if (id == null) {
       throw new NullPointerException("CDSService id cannot be null");
     }
@@ -148,7 +146,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
     try {
-      lookupResults = this.createCqlExecutionContexts(request, ruleFinder);
+      lookupResults = this.createCqlExecutionContexts(request, fileStore);
       requestLog.advanceTimeline(requestService); 
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage()+"; summary card sent to client");
@@ -299,7 +297,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   // Implement this in child class
-  public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request, CoverageRequirementRuleFinder ruleFinder)
+  public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request, FileStore fileStore)
       throws RequestIncompleteException;
 
 }

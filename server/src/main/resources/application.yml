@@ -58,7 +58,9 @@ gitHubConfig:
   artifact-path: smartAppFhirArtifacts
   rule-path: rules
 
-localDbRules: src/main/jib/rules/
-localDbFhirArtifacts: src/main/jib/smartAppFhirArtifacts/
+localDb:
+  rules: src/main/jib/rules/
+  fhirArtifacts: src/main/jib/smartAppFhirArtifacts/
+  path: ../../rule_sets/
 
 hostOrg: default
