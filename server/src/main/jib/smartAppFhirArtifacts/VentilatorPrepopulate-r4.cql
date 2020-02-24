@@ -55,8 +55,7 @@ context Patient
 
 // coverage requirement info
 define RelevantDiagnoses: 
-  CodesFromConditions(Confirmed(ActiveOrRecurring([Condition: "All_Codes"])))
-
+  CodesFromConditions(Confirmed(ActiveOrRecurring([Condition: "All_Codes"]))) 
 
 define DeviceRequestHcpcsCoding: singleton from (
   ((cast device_request.code as CodeableConcept).coding) coding
@@ -78,11 +77,7 @@ define function CodesFromConditions(CondList List<Condition>):
             'http://hl7.org/fhir/sid/icd-10-cm',
             'http://snomed.info/sct'
           }
-          return Tuple {
-            code: CODING.code.value,
-            system: CODING.system.value,
-            display: CODING.display.value
-          }
+          return FHIRHelpers.ToCode(CODING)
       return DiagnosesCodings
   ))
 
