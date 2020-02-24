@@ -36,6 +36,7 @@ public class HomeController {
 
   @RequestMapping("/")
   public String index(Model model, final HttpServletRequest request) {
+    logger.info("HomeController::index(): /");
     model.addAttribute("contextPath", request.getContextPath());
     model.addAttribute("hostOrg", config.getHostOrg());
     return "index";
@@ -43,6 +44,7 @@ public class HomeController {
 
   @GetMapping("/data")
   public String data(Model model, final HttpServletRequest request) {
+    logger.info("HomeController::data(): /data");
     model.addAttribute("contextPath", request.getContextPath());
     request.getContextPath();
     return "index";

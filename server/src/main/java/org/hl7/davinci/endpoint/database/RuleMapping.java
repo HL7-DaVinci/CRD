@@ -29,6 +29,11 @@ public class RuleMapping {
   @Column(name = "topic", nullable = false)
   private String topic;
 
+  @Column(name = "rule_file", nullable = false)
+  private String ruleFile;
+
+  private String link = "";
+
   public long getId() {
     return id;
   }
@@ -83,9 +88,31 @@ public class RuleMapping {
     return this;
   }
 
+  public String getRuleFile() {
+    return ruleFile;
+  }
+
+  public RuleMapping setRuleFile(String ruleFile) {
+    this.ruleFile = ruleFile;
+    return this;
+  }
+
   @Override
   public String toString() {
     return String.format("(row id: %d) Payer: %s, CodeSystem: %s, Code: %s, FHIR Version: %s, Topic: %s", id, payer, codeSystem, code, fhirVersion, topic);
+  }
+
+  public String getLink() {
+    if (link.isEmpty()) {
+      return "/files/" + topic + "/" + fhirVersion + "/" + ruleFile + "?noconvert=true";
+    } else {
+      return link;
+    }
+  }
+
+  public RuleMapping setLink(String link) {
+    this.link = link;
+    return this;
   }
 
   public RuleMapping() {}

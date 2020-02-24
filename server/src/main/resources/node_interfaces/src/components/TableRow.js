@@ -13,6 +13,7 @@ const trueFalse=[
     {key:true,value:true,text:"true"},
     {key:false,value:false,text:"false"}
 ]
+
 const stateOptions = [
     { key: null, value: "", text: ""},
     { key: 'AL', value: 'AL', text: 'Alabama' },
@@ -67,26 +68,19 @@ const stateOptions = [
     { key: 'WI', value: 'WI', text: 'Wisconsin' },
     { key: 'WY', value: 'WY', text: 'Wyoming' },
 ]
-// recieves data as a prop
+// receives data as a prop
 export default class TableRow extends Component {
     constructor(props){
         super(props);
         this.state={
-            data: {},
-            edit: this.props.edit,
-            deleteConfirm: false
+            data: {}
         };
-        this.handleRuleDeletePre = this.handleRuleDeletePre.bind(this);
-        this.handleRuleDelete = this.handleRuleDelete.bind(this);
-        this.handleRuleEdit = this.handleRuleEdit.bind(this);
-        this.handleUpdate = this.handleUpdate.bind(this);
-        this.handleEnter = this.handleEnter.bind(this);
-        
     }
 
     componentDidMount() {
         const data = this.props.data;
         Object.keys(data).forEach(key => {
+            // replace null values with a '-'
             if(data[key] == null) {
                 data[key] = "-";
             }
@@ -95,64 +89,16 @@ export default class TableRow extends Component {
         this.setState({data});
     }
 
-    handleRuleDelete() {
-        // delete the rule from the external table database
-        fetch("/api/data/"+this.state.data.id, {
-        method: 'DELETE',
-            }).then(function(response) {
-                // delete the rule from the internal table representation
-                return response.json();
-            }).then((json)=>{
-                if(json >=0){
-                    this.props.handleDeleteCB(this.state.data.id);
-                }
-            }).catch(function(err) {
-                console.log(err)
-            });
-    }
-
-    handleRuleDeletePre() {
-        this.setState({deleteConfirm:!this.state.deleteConfirm})
-    }
-    handleRuleEdit() {
-        console.log(this.state.data);
-        if(this.state.edit) {
-            fetch("/api/data/"+this.state.data.id, {
-                method: 'PUT',
-                body: JSON.stringify(this.state.data),
-                headers: {'Content-Type':'application/json'}
-                    }).then(function(response) {
-                        console.log(response.body);
-                    }).catch(function(err) {
-                        console.log(err)
-                    });
-        }
-        this.setState({edit:!this.state.edit})
-    }
-
-    handleUpdate(e,value){
-        const updatedData = this.state.data;
-        updatedData[value] = e.target.value;
-        this.setState({data:updatedData});
-    }
-
-    handleEnter(e){
-        if(e.key==='Enter'){
-            this.handleRuleEdit()
-        }
-    }
-
-     render() {
-         return(
-
-                <tr> 
-                    <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"infoLink")}} className="informationInput formInput"placeholder={this.state.data.infoLink}></input>:this.state.data.payor}</td>
-                    <td >{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"equipmentCode")}} className="codeInput formInput" placeholder={this.state.data.equipmentCode}></input>:this.state.data.code}</td>
-                    <td title={this.state.data.codeSystem}>{this.state.edit?<input onKeyPress={this.handleEnter} onChange={(e)=>{this.handleUpdate(e,"codeSystem")}} className="formInput" placeholder={this.state.data.codeSystem} ></input>:<span>{codeSystemConversion[this.state.data.codeSystem]}</span>}</td>
-                    <td><a href={this.state.data.link}>download</a></td>
-                    <td><a href={this.state.data.editLink}>edit</a></td>
-                </tr>
-
-         )
+    render() {
+        return(
+            <tr>
+                <td>{this.state.data.topic}</td>
+                <td>{this.state.data.payer}</td>
+                <td>{this.state.data.code}</td>
+                <td>{codeSystemConversion[this.state.data.codeSystem]}</td>
+                <td>{this.state.data.fhirVersion}</td>
+                <td><a href={this.state.data.link}>download</a></td>
+            </tr>
+        )
     }
 } 

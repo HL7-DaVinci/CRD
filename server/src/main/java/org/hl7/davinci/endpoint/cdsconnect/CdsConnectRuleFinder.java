@@ -51,7 +51,8 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
           CoverageRequirementRule rule = new CoverageRequirementRule();
           CqlBundle bundle = CqlBundle.fromZip(cqlBundle);
 
-          rule.setCqlBundle(bundle);
+          //TODO: fixme
+          // rule.setCqlBundle(bundle);
           rule.setCodeSystem(artifact.getCodeSystem());
           rule.setCode(artifact.getCode());
           rule.setPayor(artifact.getPayor());

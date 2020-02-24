@@ -1,21 +1,21 @@
 package org.hl7.davinci.endpoint.files.local;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.bundle.CqlRule;
 import org.hl7.davinci.endpoint.database.RuleMapping;
 import org.hl7.davinci.endpoint.database.RuleMappingRepository;
-import org.hl7.davinci.endpoint.files.FileStore;
-import org.hl7.davinci.endpoint.files.Mapping;
-import org.hl7.davinci.endpoint.files.RuleFinder;
-import org.hl7.davinci.endpoint.files.TopicMetadata;
+import org.hl7.davinci.endpoint.files.*;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -45,18 +45,21 @@ public class LocalFileStore implements FileStore {
     logger.info("Using LocalFileStore");
   }
 
-  public void update() {
+  public void reload() {
+    // clear the database first
+    lookupTable.deleteAll();
+
     String path = config.getLocalDb().getPath();
-    logger.info("LocalFileStore::update(): " + path);
+    logger.info("LocalFileStore::reload(): " + path);
     File[] topics = new File(path).listFiles();
     for (File topic: topics) {
       if (topic.isDirectory()) {
 
         // skip the shared folder for now...
         if (topic.getName().equalsIgnoreCase("Shared")) {
-          logger.info("  LocalFileStore::update() found Shared files");
+          logger.info("  LocalFileStore::reload() found Shared files");
         } else {
-          logger.info("  LocalFileStore::update() found topic: " + topic.getName());
+          logger.info("  LocalFileStore::reload() found topic: " + topic.getName());
 
           // process the metadata file
           File[] files = topic.listFiles();
@@ -75,17 +78,25 @@ public class LocalFileStore implements FileStore {
                   for (String code: mapping.getCodes()) {
                     for (String payer: metadata.getPayers()) {
                       for (String fhirVersion: metadata.getFhirVersions()) {
-                        logger.info("    Added: " + metadata.getTopic() + ": " + payer + ", "
-                            + mapping.getCodeSystem() + ", " + code + " (" + fhirVersion + ")");
 
-                        // create table entry and store it back to the table
-                        RuleMapping ruleMappingEntry = new RuleMapping();
-                        ruleMappingEntry.setPayer(ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payer))
-                            .setCodeSystem(ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(mapping.getCodeSystem()))
-                            .setCode(code)
-                            .setFhirVersion(fhirVersion)
-                            .setTopic(metadata.getTopic());
-                        lookupTable.save(ruleMappingEntry);
+                        String mainCqlLibraryName = metadata.getTopic() + "Rule";
+                        File mainCqlFile = findFile(metadata.getTopic(), fhirVersion, mainCqlLibraryName, ".cql");
+                        if (mainCqlFile == null) {
+                          logger.warn("LocalFileStore::reload(): failed to find main CQL file for topic: " + metadata.getTopic());
+                        } else {
+                          logger.info("    Added: " + metadata.getTopic() + ": " + payer + ", "
+                              + mapping.getCodeSystem() + ", " + code + " (" + fhirVersion + ")");
+
+                          // create table entry and store it back to the table
+                          RuleMapping ruleMappingEntry = new RuleMapping();
+                          ruleMappingEntry.setPayer(ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payer))
+                              .setCodeSystem(ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(mapping.getCodeSystem()))
+                              .setCode(code)
+                              .setFhirVersion(fhirVersion)
+                              .setTopic(metadata.getTopic())
+                              .setRuleFile(mainCqlFile.getName());
+                          lookupTable.save(ruleMappingEntry);
+                        }
                       }
                     }
                   }
@@ -108,7 +119,7 @@ public class LocalFileStore implements FileStore {
     HashMap<String, byte[]> cqlFiles = new HashMap<>();
 
     String mainCqlLibraryName = topic + "Rule";
-    File mainCqlFile = findCqlFile(topic, mainCqlLibraryName, fhirVersion);
+    File mainCqlFile = findFile(topic, fhirVersion, mainCqlLibraryName, ".cql");
     if (mainCqlFile == null) {
       logger.warn("LocalFileStore::getCqlRule(): failed to find main CQL file");
     } else {
@@ -120,7 +131,7 @@ public class LocalFileStore implements FileStore {
       }
     }
 
-    File helperCqlFile = findCqlFile("Shared", "FHIRHelpers", fhirVersion);
+    File helperCqlFile = findFile("Shared", fhirVersion, "FHIRHelpers", ".cql");
     if (mainCqlFile == null) {
       logger.warn("LocalFileStore::getCqlRule(): failed to find FHIR helper CQL file");
     } else {
@@ -135,19 +146,36 @@ public class LocalFileStore implements FileStore {
     return new CqlRule(mainCqlLibraryName, cqlFiles, fhirVersion);
   }
 
-  private File findCqlFile(String topic, String name, String fhirVersion) {
+  public FileResource getFile(String topic, String fileName, String fhirVersion, boolean convert) {
+    FileResource fileResource = new FileResource();
+    fileResource.setFilename(fileName);
+
     String localPath = config.getLocalDb().getPath();
-    String cqlFileLocation = localPath + topic + "/" + fhirVersion + "/files/";
-    File dir = new File(cqlFileLocation);
-    String regex = name + "-\\d.\\d.\\d.cql";
-    FileFilter fileFilter = new RegexFileFilter(regex);
-    File[] files = dir.listFiles(fileFilter);
-    for (int i=0; i < files.length; i++) {
-      //logger.info("LocalFileStore::findCqlFile(): matched file: " + files[i]);
-      return files[i];
+    String filePath = localPath + topic + "/" + fhirVersion + "/files/" + fileName;
+    File file = new File(filePath);
+    byte[] fileData = null;
+    try {
+      fileData = Files.readAllBytes(file.toPath());
+
+      // convert to ELM
+      if (convert && FilenameUtils.getExtension(fileName).toUpperCase().equals("CQL")) {
+        logger.info("LocalFileStore::getFile() converting CQL to JSON ELM");
+        String cql = new String(fileData);
+        try {
+          String elm = CqlExecution.translateToElm(cql);
+          fileData = elm.getBytes();
+        } catch (Exception e) {
+          logger.warn("LocalFileStore::getFile() Error: could not convert CQL: " + e.getMessage());
+          return null;
+        }
+      }
+    } catch (IOException e) {
+      logger.warn("LocalFileStore::getFile() failed to get file: " + e.getMessage());
+      return null;
     }
-    logger.info("LocalFileStore::findCqlFile(): no files match: " + cqlFileLocation + regex);
-    return null;
+
+    fileResource.setResource(new ByteArrayResource(fileData));
+    return fileResource;
   }
 
   public List<RuleMapping> findRules(CoverageRequirementRuleCriteria criteria) {
@@ -158,5 +186,20 @@ public class LocalFileStore implements FileStore {
   public List<RuleMapping> findAll() {
     logger.info("LocalFileStore::findAll()");
     return ruleFinder.findAll();
+  }
+
+  private File findFile(String topic, String fhirVersion, String name, String extension) {
+    String localPath = config.getLocalDb().getPath();
+    String cqlFileLocation = localPath + topic + "/" + fhirVersion + "/files/";
+    File dir = new File(cqlFileLocation);
+    String regex = name + "-\\d.\\d.\\d" + extension;
+    FileFilter fileFilter = new RegexFileFilter(regex);
+    File[] files = dir.listFiles(fileFilter);
+    for (int i=0; i < files.length; i++) {
+      //logger.info("LocalFileStore::findFile(): matched file: " + files[i]);
+      return files[i];
+    }
+    logger.info("LocalFileStore::findFile(): no files match: " + cqlFileLocation + regex);
+    return null;
   }
 }

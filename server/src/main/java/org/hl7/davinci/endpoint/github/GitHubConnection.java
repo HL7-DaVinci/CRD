@@ -169,7 +169,8 @@ public class GitHubConnection {
       if (!getFile) {
         rule.setCqlPackagePath("unknown");
         CqlBundle emptyCqlBundle = new CqlBundle();
-        rule.setCqlBundle(emptyCqlBundle);
+        //TODO: fixme
+        // rule.setCqlBundle(emptyCqlBundle);
       }
       try {
         List<GHContent> files = repo.getDirectoryContent(code.getPath(), branch);
@@ -189,7 +190,8 @@ public class GitHubConnection {
                 InputStream inputStream = file.read();
                 byte[] cqlBundle = IOUtils.toByteArray(inputStream);
                 CqlBundle bundle = CqlBundle.fromZip(cqlBundle);
-                rule.setCqlBundle(bundle);
+                //TODO: fixme
+                // rule.setCqlBundle(bundle);
               } catch (IOException e) {
                 logger.warning("GitHubConnection::processCode(): ERROR: failed to get file contents: " + e.getMessage());
               }

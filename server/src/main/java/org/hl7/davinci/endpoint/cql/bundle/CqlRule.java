@@ -154,12 +154,12 @@ public class CqlRule {
   }
 
   public RawCqlLibrarySourceProvider getRawCqlLibrarySourceProvider(String fhirVersion) {
-    logger.info("CqlBundle::getRawCqlLibrarySourceProvider(): " + fhirVersion);
+    logger.info("CqlRule::getRawCqlLibrarySourceProvider(): " + fhirVersion);
     return new RawCqlLibrarySourceProvider(rawCqlLibraries.get(fhirVersion));
   }
 
   public String getRawMainCqlLibrary(String fhirVersion) {
-    logger.info("CqlBundle::getRawMainCqlLibrary(): " + fhirVersion);
+    logger.info("CqlRule::getRawMainCqlLibrary(): " + fhirVersion);
 
     try {
       if (!mainCqlLibraryId.containsKey(fhirVersion) || !rawCqlLibraries.containsKey(fhirVersion)) {

@@ -114,20 +114,6 @@ public class CoverageRequirementRule {
   }
 
   @Transient
-  private CqlBundle cqlBundle = null;
-
-  public void setCqlBundle(CqlBundle cqlBundle) {
-    this.cqlBundle = cqlBundle;
-  }
-
-  public CqlBundle getCqlBundle() {
-    if (cqlBundle == null){
-      cqlBundle = CqlBundle.fromZip(new File(getCqlPackagePath()));
-    }
-    return cqlBundle;
-  }
-
-  @Transient
   private CqlRule cqlRule = null;
 
   public void setCqlRule(CqlRule cqlRule) { this.cqlRule = cqlRule; }
