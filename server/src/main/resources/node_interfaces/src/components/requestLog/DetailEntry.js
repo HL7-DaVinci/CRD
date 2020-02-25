@@ -87,7 +87,7 @@ export default class DetailEntry extends Component {
                             Show Request Body
                         </div>
                         <div className={"errorDetail " + [this.state.showResults?"filled":"empty"]} onClick={this.showResults}>
-                            Results <span>[ {this.props.data.rulesFound.length} ]</span>
+                            CQL Results <span>[ {this.props.data.rulesFound.length} ]</span>
                         </div>
                     </div>
 

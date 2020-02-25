@@ -6,9 +6,11 @@ This RI offers very basic responses to CRD requests. It will use the patient's g
 Users are able to create and edit entries in the coverage requirements rules through a web based interface. The goal of this functionality is to allow requesting systems to vary the payload of the request and see different response cards returned.
 
 ## Running the server
-Assuming the current directory is still `server`:
+If you are still in the `server` folder: `gradle bootRun`
 
-`gradle bootRun`
+or
+
+If you are in the `CRD` folder: `gradle server:bootRun` 
 
 This will start the server running on http://localhost:8090.
 
@@ -52,11 +54,4 @@ The CRD server can embed the DTR smart application from https://github.com/HL7-D
 Run the gradle task `embedDtr` to automatically clone the repo (master) and build into the appropriate location. This task must be manually run to pull down new versions of DTR.
 
 Once done, the application can be accessed at (e.g.) `localhost:8090/smart/index.html`. This files are in `src/main/resources/static/smart` and should be commited. Note that files should be accessed by their full name, (e.g. `smart/index.html` vs `smart/`).
-
-
-## Integration Testing
-
-Integration tests will set up an actual running instance of this server as well as `ehr-server` to monitor the handling of requests from beginning to end.
-
-Integration tests can be run with `gradle integrationTest`.
 

@@ -6,16 +6,22 @@ parameter Patient Patient
 parameter device_request DeviceRequest
 
 define "Age":
-    AgeInYears()
+  AgeInYears()
 
 define RULE_APPLIES:
-    "Age" > 0
+  "Age" > 0
+
+define PRIORAUTH_REQUIRED:
+  false
+
+define DOCUMENTATION_REQUIRED:
+  true
 
 define RESULT_Summary:
-  'No auth needed'
+  'Yes, this DME item has Coverage Requirements.'
 
 define RESULT_Details:
-  'No authorization is required, as laid out at the attached link.'
+  'Coverage Requirement details are specified, in the **Documentation Requirements** link below. Click the **SMART App** link below to begin the Coverage Requirements questionnaire.'
 
 define RESULT_InfoLink:
     'https://www.cms.gov/outreach-and-education/medicare-learning-network-mln/mlnproducts/downloads/home-oxygen-therapy-text-only.pdf'

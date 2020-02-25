@@ -41,8 +41,9 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
   @Override
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSelectRequest orderSelectRequest, CoverageRequirementRuleFinder ruleFinder) {
 
-    // Note: the selections array is currently ignored, all of the draftOrders are processed, not just those selected.
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSelectRequest.getPrefetch(), ruleFinder);
+    List<String> selections = Arrays.asList(orderSelectRequest.getContext().getSelections());
+
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSelectRequest.getPrefetch(), ruleFinder, selections);
     fhirBundleProcessor.processDeviceRequests();
     fhirBundleProcessor.processMedicationRequests();
     fhirBundleProcessor.processServiceRequests();

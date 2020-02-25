@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Date;
 import javax.validation.Valid;
 
 import org.cdshooks.CdsRequest;
@@ -22,6 +23,7 @@ import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
@@ -124,18 +126,35 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
+
+    // create the RequestLog
+    RequestLog requestLog = new RequestLog(request, new Date().getTime(), this.fhirComponents.getFhirVersion().toString(),
+        this.id, requestService,5);
+
+    // Parsed request
+    requestLog.advanceTimeline(requestService);
+
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
         this.fhirComponents);
     prefetchHydrator.hydrate();
 
+    // hydrated
+    requestLog.advanceTimeline(requestService);
+
+    // logger.info("***** ***** request from requestLog:  "+requestLog.toString() );
+
     CdsResponse response = new CdsResponse();
 
+    // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
     try {
       lookupResults = this.createCqlExecutionContexts(request, ruleFinder);
+      requestLog.advanceTimeline(requestService); 
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage()+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
+      requestLog.setResults(e.getMessage());
+      requestService.edit(requestLog);
       return response;
     }
 
@@ -144,14 +163,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext());
       if (results.ruleApplies()){
         foundApplicableRule = true;
-        if (results.getQuestionnaireUri() != null && !results.getQuestionnaireUri().isEmpty()){
+        if ((results.getDocumentationRequired() || results.getPriorAuthRequired()) &&
+            (results.getQuestionnaireUri() != null && !results.getQuestionnaireUri().isEmpty())) {
           Link smartAppLink = smartLinkBuilder(
               request.getContext().getPatientId(),
               request.getFhirServer(),
               applicationBaseUrl,
               results.getQuestionnaireUri(),
               results.getRequestId(),
-              lookupResult.getCriteria());
+              lookupResult.getCriteria(),
+              results.getPriorAuthRequired());
           response.addCard(CardBuilder.transform(results, smartAppLink));
         } else{
           logger.warn("Unspecified Questionnaire URI; summary card sent to client");
@@ -159,12 +180,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         }
       }
     }
+
+    // CQL Executed
+    requestLog.advanceTimeline(requestService);
+
     if (!foundApplicableRule) {
       String msg = "No documentation rules found";
       logger.warn(msg+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(msg));
     }
-
 
     CardBuilder.errorCardIfNonePresent(response);
     return response;
@@ -178,9 +202,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     if (!results.ruleApplies()) {
       return results;
     }
+
     results.setSummary(evaluateStatement("RESULT_Summary",context).toString())
         .setDetails(evaluateStatement("RESULT_Details",context).toString())
-        .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString());
+        .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString())
+        .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
+        .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
 
     if (evaluateStatement("RESULT_QuestionnaireUri",context) != null) {
       results
@@ -202,7 +229,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri,
-                                String reqResourceId, CoverageRequirementRuleCriteria criteria) {
+                                String reqResourceId, CoverageRequirementRuleCriteria criteria, boolean priorAuthRequired) {
     URI configLaunchUri = myConfig.getLaunchUrl();
     String launchUrl;
     if (myConfig.getLaunchUrl().isAbsolute()) {
@@ -229,16 +256,22 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // PARAMS:
     // template is the uri of the questionnaire
     // request is the ID of the device request or medrec (not the full URI like the IG says, since it should be taken from fhirBase
-    HashMap<String,String> appContextMap = new HashMap<>();
-    appContextMap.put("template", questionnaireUri);
-    appContextMap.put("request", reqResourceId);
+    //HashMap<String,String> appContextMap = new HashMap<>();
+    //appContextMap.put("template", questionnaireUri);
+    //appContextMap.put("request", reqResourceId);
     String filepath = "../../getfile/" + criteria.getQueryString();
 
-    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId + "&filepath=";
-    try {
-      appContext = URLEncoder.encode(appContext, "UTF-8").toString();
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
+    
+    appContext = appContext + "&priorauth=" + (priorAuthRequired?"true":"false");
+    appContext = appContext + "&filepath=";
+    if (myConfig.getUrlEncodeAppContext()) {
+      try {
+        logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
+        appContext = URLEncoder.encode(appContext, "UTF-8").toString();
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
     }
 
     if (myConfig.getIncludeFilepathInAppContext()) {

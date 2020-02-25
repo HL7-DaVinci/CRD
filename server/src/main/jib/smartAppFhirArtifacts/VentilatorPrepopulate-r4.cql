@@ -40,7 +40,6 @@ code "J96.91": 'J96.91' from "ICD-10-CM"
 code "J96.92": 'J96.92' from "ICD-10-CM"
 
 
-
 parameter device_request DeviceRequest
 
 
