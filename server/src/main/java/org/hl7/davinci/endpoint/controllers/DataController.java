@@ -164,16 +164,17 @@ public class DataController {
 
 
 
-  /*TODO: placeholders for fhir queries
   @GetMapping(path = "/fhir/{fhirVersion}/metadata")
   public ResponseEntity<Resource> getFhirResourceById(@PathVariable String fhirVersion) throws IOException {
-    logger.info("GET /fhir/" + fhirVersion + "/metadat/");
+    fhirVersion = fhirVersion.toUpperCase();
+    logger.info("GET /fhir/" + fhirVersion + "/metadata");
     //TODO
     return ResponseEntity.ok().build();
   }
 
   @GetMapping(path = "/fhir/{fhirVersion}/{resource}/{id}")
   public ResponseEntity<Resource> getFhirResourceById(@PathVariable String fhirVersion, @PathVariable String resource, @PathVariable String id) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
     logger.info("GET /fhir/" + fhirVersion + "/" + resource + "/" + id);
     //TODO
     return ResponseEntity.ok().build();
@@ -181,11 +182,11 @@ public class DataController {
 
   @GetMapping(path = "/fhir/{fhirVersion}/{resource}") //?name={topic}
   public ResponseEntity<Resource> getFhirResourceByTopic(@PathVariable String fhirVersion, @PathVariable String resource, @RequestParam String name) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
     logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?name=" + name);
     //TODO
     return ResponseEntity.ok().build();
   }
-  */
 
   @GetMapping(path = "/files/{topic}/{fhirVersion}/{fileName}")
   public ResponseEntity<Resource> getFile(@PathVariable String topic, @PathVariable String fhirVersion, @PathVariable String fileName, @RequestParam(required = false) boolean noconvert) throws IOException {

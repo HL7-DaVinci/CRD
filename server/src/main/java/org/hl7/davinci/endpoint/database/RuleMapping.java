@@ -1,5 +1,7 @@
 package org.hl7.davinci.endpoint.database;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ public class RuleMapping {
   private String ruleFile;
 
   private String link = "";
+
+  private String readableTopic = "";
 
   public long getId() {
     return id;
@@ -112,6 +116,20 @@ public class RuleMapping {
 
   public RuleMapping setLink(String link) {
     this.link = link;
+    return this;
+  }
+
+  public String getReadableTopic() {
+    if (readableTopic.isEmpty()) {
+      // add a space between the pieces of the CamelCase topic (Camel Case)
+      return StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(topic), ' ');
+    } else {
+      return readableTopic;
+    }
+  }
+
+  public RuleMapping setReadableTopic(String readableTopic) {
+    this.readableTopic = readableTopic;
     return this;
   }
 

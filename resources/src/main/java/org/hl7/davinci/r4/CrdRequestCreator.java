@@ -4,40 +4,34 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import org.cdshooks.Hook;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeContext;
 import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewContext;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.fhir.r4.model.Address;
+import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectContext;
+import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.r4.crdhook.ordersign.OrderSignContext;
+import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Address.AddressUse;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Device;
-import org.hl7.fhir.r4.model.DeviceRequest;
-import org.hl7.fhir.r4.model.Enumerations;
-import org.hl7.fhir.r4.model.HumanName;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Location;
-import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Organization;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.PractitionerRole;
-import org.hl7.fhir.r4.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * CrdRequestCreator is a class that creates example CRD requests in the form of a CDS Hook.
  */
 public class CrdRequestCreator {
+  static final Logger logger = LoggerFactory.getLogger(CrdRequestCreator.class);
 
   /**
-   * Generate a request.
+   * Generate a order review request that contains a DeviceRequest.
    *
    * @param patientGender Desired gender of the patient in the request
    * @param patientBirthdate Desired birth date of the patient in the request
@@ -94,7 +88,7 @@ public class CrdRequestCreator {
   }
 
   /**
-   * Generate a medication prescribe request.
+   * Generate a medication prescribe request that contains a MedicationRequest.
    *
    * @param patientGender Desired gender of the patient in the request
    * @param patientBirthdate Desired birth date of the patient in the request
@@ -139,6 +133,123 @@ public class CrdRequestCreator {
     pfMrBec.setResource(mr);
     prefetchBundle.addEntry(pfMrBec);
     context.setMedications(medicationBundle);
+
+    return request;
+  }
+
+  /**
+   * Generate a order select request that contains a DeviceRequest.
+   *
+   * @param patientGender Desired gender of the patient in the request
+   * @param patientBirthdate Desired birth date of the patient in the request
+   * @return Fully populated CdsRequest
+   */
+  public static OrderSelectRequest createOrderSelectRequest(
+      Enumerations.AdministrativeGender patientGender,
+      Date patientBirthdate, String patientAddressState, String providerAddressState) {
+
+    OrderSelectRequest request = new OrderSelectRequest();
+    request.setUser("Practitioner/1234");
+    request.setHook(Hook.ORDER_REVIEW);
+    request.setHookInstance(UUID.randomUUID());
+    OrderSelectContext context = new OrderSelectContext();
+    request.setContext(context);
+    Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
+    context.setPatientId(patient.getId());
+
+    DeviceRequest dr = new DeviceRequest();
+    dr.setStatus(DeviceRequest.DeviceRequestStatus.DRAFT);
+    dr.setId("DeviceRequest/123");
+
+    PrefetchCallback callback = (p, c) -> {
+      dr.setPerformer(new Reference(p));
+      dr.addInsurance(new Reference(c));
+    };
+    dr.setSubject(new Reference(patient));
+    Practitioner provider = createPractitioner();
+    Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
+    CrdPrefetch prefetch = new CrdPrefetch();
+    prefetch.setDeviceRequestBundle(prefetchBundle);
+    request.setPrefetch(prefetch);
+
+    Coding oxygen = new Coding().setCode("E0424")
+        .setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
+        .setDisplay("Stationary Compressed Gaseous Oxygen System, Rental");
+    dr.setCode(new CodeableConcept().addCoding(oxygen));
+    Bundle orderBundle = new Bundle();
+    Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
+    bec.setResource(dr);
+    orderBundle.addEntry(bec);
+    Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
+    pfDrBec.setResource(dr);
+    prefetchBundle.addEntry(pfDrBec);
+    context.setDraftOrders(orderBundle);
+    context.setSelections(new String[] {"123"});
+
+    Device device = new Device();
+    device.setType(new CodeableConcept().addCoding(oxygen));
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(device);
+    prefetchBundle.addEntry(bec);
+
+    return request;
+  }
+
+  /**
+   * Generate a order sign request that contains a ServiceRequest.
+   *
+   * @param patientGender Desired gender of the patient in the request
+   * @param patientBirthdate Desired birth date of the patient in the request
+   * @return Fully populated CdsRequest
+   */
+  public static OrderSignRequest createOrderSignRequest(
+      Enumerations.AdministrativeGender patientGender,
+      Date patientBirthdate, String patientAddressState, String providerAddressState) {
+
+    OrderSignRequest request = new OrderSignRequest();
+    request.setUser("Practitioner/1234");
+    request.setHook(Hook.ORDER_REVIEW);
+    request.setHookInstance(UUID.randomUUID());
+    OrderSignContext context = new OrderSignContext();
+    request.setContext(context);
+    Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
+    context.setPatientId(patient.getId());
+
+    ServiceRequest sr = new ServiceRequest();
+    sr.setStatus(ServiceRequest.ServiceRequestStatus.DRAFT);
+    sr.setId("DeviceRequest/123");
+    sr.setIntent(ServiceRequest.ServiceRequestIntent.ORDER);
+
+    PrefetchCallback callback = (p, c) -> {
+      sr.addPerformer(new Reference(p));
+      sr.addInsurance(new Reference(c));
+    };
+    sr.setSubject(new Reference(patient));
+    Practitioner provider = createPractitioner();
+    Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
+
+    Coding oxygen = new Coding().setCode("A0426")
+        .setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
+        .setDisplay("Ambulance service, advanced life support, non-emergency transport, level 1 (als 1)");
+    sr.setCode(new CodeableConcept().addCoding(oxygen).setText("Ambulance service Non-Emergency Transport"));
+    Bundle orderBundle = new Bundle();
+    Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
+    bec.setResource(sr);
+    orderBundle.addEntry(bec);
+    Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
+    pfDrBec.setResource(sr);
+    prefetchBundle.addEntry(pfDrBec);
+    context.setDraftOrders(orderBundle);
+
+    Device device = new Device();
+    device.setType(new CodeableConcept().addCoding(oxygen));
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(device);
+    prefetchBundle.addEntry(bec);
+
+    CrdPrefetch prefetch = new CrdPrefetch();
+    prefetch.setServiceRequestBundle(prefetchBundle);
+    request.setPrefetch(prefetch);
 
     return request;
   }

@@ -92,7 +92,7 @@ export default class TableRow extends Component {
     render() {
         return(
             <tr>
-                <td>{this.state.data.topic}</td>
+                <td>{this.state.data.readableTopic}</td>
                 <td>{this.state.data.payer}</td>
                 <td>{this.state.data.code}</td>
                 <td>{codeSystemConversion[this.state.data.codeSystem]}</td>

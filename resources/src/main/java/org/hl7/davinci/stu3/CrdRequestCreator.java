@@ -8,6 +8,10 @@ import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeConte
 import org.hl7.davinci.stu3.crdhook.medicationprescribe.MedicationPrescribeRequest;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewContext;
 import org.hl7.davinci.stu3.crdhook.orderreview.OrderReviewRequest;
+import org.hl7.davinci.stu3.crdhook.orderselect.OrderSelectContext;
+import org.hl7.davinci.stu3.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.stu3.crdhook.ordersign.OrderSignContext;
+import org.hl7.davinci.stu3.crdhook.ordersign.OrderSignRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciDeviceRequest;
 import org.hl7.davinci.stu3.fhirresources.DaVinciMedicationRequest;
 import org.hl7.fhir.dstu3.model.Address;
@@ -38,7 +42,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 public class CrdRequestCreator {
 
   /**
-   * Generate a request.
+   * Generate a order review request.
    *
    * @param patientGender Desired gender of the patient in the request
    * @param patientBirthdate Desired birth date of the patient in the request
@@ -94,7 +98,7 @@ public class CrdRequestCreator {
   }
 
   /**
-   * Generate a request.
+   * Generate a medication prescribe request.
    *
    * @param patientGender Desired gender of the patient in the request
    * @param patientBirthdate Desired birth date of the patient in the request
@@ -138,6 +142,119 @@ public class CrdRequestCreator {
     pfMrBec.setResource(medicationRequest);
     prefetchBundle.addEntry(pfMrBec);
     context.setMedications(medicationBundle);
+
+    return request;
+  }
+
+  /**
+   * Generate a order select request.
+   *
+   * @param patientGender Desired gender of the patient in the request
+   * @param patientBirthdate Desired birth date of the patient in the request
+   * @return Fully populated CdsRequest
+   */
+  public static OrderSelectRequest createOrderSelectRequest(
+      Enumerations.AdministrativeGender patientGender,
+      Date patientBirthdate, String patientAddressState, String providerAddressState) {
+
+    OrderSelectRequest request = new OrderSelectRequest();
+    request.setUser("Practitioner/1234");
+    request.setHook(Hook.ORDER_REVIEW);
+    request.setHookInstance(UUID.randomUUID());
+    OrderSelectContext context = new OrderSelectContext();
+    request.setContext(context);
+    Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
+    context.setPatientId(patient.getId());
+
+    DaVinciDeviceRequest deviceRequest = new DaVinciDeviceRequest();
+    deviceRequest.setStatus(DaVinciDeviceRequest.DeviceRequestStatus.DRAFT);
+    deviceRequest.setId("DeviceRequest/123");
+
+    PrefetchCallback callback = (c) -> {
+      deviceRequest.addInsurance(new Reference(c));
+    };
+    deviceRequest.setSubject(new Reference(patient));
+    Practitioner provider = createPractitioner();
+    Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
+    CrdPrefetch prefetch = new CrdPrefetch();
+    prefetch.setDeviceRequestBundle(prefetchBundle);
+    request.setPrefetch(prefetch);
+
+    Coding oxygen = new Coding().setCode("E0424")
+        .setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
+        .setDisplay("Stationary Compressed Gaseous Oxygen System, Rental");
+    deviceRequest.setCode(new CodeableConcept().addCoding(oxygen));
+    Bundle orderBundle = new Bundle();
+    Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
+    bec.setResource(deviceRequest);
+    orderBundle.addEntry(bec);
+    Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
+    pfDrBec.setResource(deviceRequest);
+    prefetchBundle.addEntry(pfDrBec);
+    context.setDraftOrders(orderBundle);
+    context.setSelections(new String[] {"123"});
+
+    Device device = new Device();
+    device.setType(new CodeableConcept().addCoding(oxygen));
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(device);
+    prefetchBundle.addEntry(bec);
+
+    return request;
+  }
+
+  /**
+   * Generate a order sign request.
+   *
+   * @param patientGender Desired gender of the patient in the request
+   * @param patientBirthdate Desired birth date of the patient in the request
+   * @return Fully populated CdsRequest
+   */
+  public static OrderSignRequest createOrderSignRequest(
+      Enumerations.AdministrativeGender patientGender,
+      Date patientBirthdate, String patientAddressState, String providerAddressState) {
+
+    OrderSignRequest request = new OrderSignRequest();
+    request.setUser("Practitioner/1234");
+    request.setHook(Hook.ORDER_REVIEW);
+    request.setHookInstance(UUID.randomUUID());
+    OrderSignContext context = new OrderSignContext();
+    request.setContext(context);
+    Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
+    context.setPatientId(patient.getId());
+
+    DaVinciDeviceRequest deviceRequest = new DaVinciDeviceRequest();
+    deviceRequest.setStatus(DaVinciDeviceRequest.DeviceRequestStatus.DRAFT);
+    deviceRequest.setId("DeviceRequest/123");
+
+    PrefetchCallback callback = (c) -> {
+      deviceRequest.addInsurance(new Reference(c));
+    };
+    deviceRequest.setSubject(new Reference(patient));
+    Practitioner provider = createPractitioner();
+    Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
+    CrdPrefetch prefetch = new CrdPrefetch();
+    prefetch.setDeviceRequestBundle(prefetchBundle);
+    request.setPrefetch(prefetch);
+
+    Coding oxygen = new Coding().setCode("E0424")
+        .setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
+        .setDisplay("Stationary Compressed Gaseous Oxygen System, Rental");
+    deviceRequest.setCode(new CodeableConcept().addCoding(oxygen));
+    Bundle orderBundle = new Bundle();
+    Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
+    bec.setResource(deviceRequest);
+    orderBundle.addEntry(bec);
+    Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
+    pfDrBec.setResource(deviceRequest);
+    prefetchBundle.addEntry(pfDrBec);
+    context.setDraftOrders(orderBundle);
+
+    Device device = new Device();
+    device.setType(new CodeableConcept().addCoding(oxygen));
+    bec = new Bundle.BundleEntryComponent();
+    bec.setResource(device);
+    prefetchBundle.addEntry(bec);
 
     return request;
   }

@@ -108,7 +108,7 @@ public class FhirBundleProcessor {
 
       for (RuleMapping rule: rules) {
         CoverageRequirementRuleResult result = new CoverageRequirementRuleResult();
-        result.setCriteria(criteria);
+        result.setCriteria(criteria).setTopic(rule.getTopic());
         try {
           logger.info("FhirBundleProcessor::buildExecutionContexts() found rule topic: " + rule.getTopic());
 

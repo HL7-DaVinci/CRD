@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Date;
 import javax.validation.Valid;
 
+import org.apache.commons.lang.StringUtils;
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
@@ -124,7 +125,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
-
     // create the RequestLog
     RequestLog requestLog = new RequestLog(request, new Date().getTime(), this.fhirComponents.getFhirVersion().toString(),
         this.id, requestService,5);
@@ -147,7 +147,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     List<CoverageRequirementRuleResult> lookupResults;
     try {
       lookupResults = this.createCqlExecutionContexts(request, fileStore);
-      requestLog.advanceTimeline(requestService); 
+      requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage()+"; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
@@ -158,7 +158,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     boolean foundApplicableRule = false;
     for (CoverageRequirementRuleResult lookupResult: lookupResults) {
-      CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext());
+      CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext(), lookupResult.getTopic());
       if (results.ruleApplies()){
         foundApplicableRule = true;
         if ((results.getDocumentationRequired() || results.getPriorAuthRequired()) &&
@@ -192,7 +192,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return response;
   }
 
-  private CqlResultsForCard executeCqlAndGetRelevantResults(Context context) {
+  private CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
     CqlResultsForCard results = new CqlResultsForCard();
 
 
@@ -201,7 +201,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return results;
     }
 
-    results.setSummary(evaluateStatement("RESULT_Summary",context).toString())
+    String humanReadableTopic = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(topic), ' ');
+
+    results.setSummary(humanReadableTopic + ": " + evaluateStatement("RESULT_Summary",context).toString())
         .setDetails(evaluateStatement("RESULT_Details",context).toString())
         .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString())
         .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
