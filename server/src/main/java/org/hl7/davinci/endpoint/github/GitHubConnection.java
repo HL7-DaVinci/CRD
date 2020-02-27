@@ -70,8 +70,25 @@ public class GitHubConnection {
     return connected;
   }
 
-  public InputStream getFile(String filename) {
-    logger.info("GitHubConnection::getFile(" + filename + ")");
+  public List<String> getDirectory(String path) {
+    logger.info("GitHubConnection::getDirectory(): " + path);
+    ArrayList<String> fileList = new ArrayList<>();
+
+    try {
+      List<GHContent> files = repo.getDirectoryContent(path, branch);
+
+      files.forEach((GHContent file) -> {
+        fileList.add(file.getName());
+      });
+    } catch (Exception e) {
+      logger.info("GitHubConnection::getDirectory(): ERROR: problem getting directory list: " + e.getMessage());
+    }
+
+    return fileList;
+  }
+
+  public InputStream getFile(String filePath) {
+    logger.info("GitHubConnection::getFile(" + filePath + ")");
     InputStream fileStream = null;
 
     // connect if needed
@@ -80,11 +97,11 @@ public class GitHubConnection {
     }
 
     try {
-      GHContent file = repo.getFileContent(artifactPath + "/" + filename, branch);
+      GHContent file = repo.getFileContent(filePath, branch);
       fileStream = file.read();
 
     } catch (IOException e) {
-      logger.warning("GitHubConnection::getFile(): ERROR: failed to connect to get file: " + filename + ": " + e.getMessage());
+      logger.warning("GitHubConnection::getFile(): ERROR: failed to connect to get file: " + filePath + ": " + e.getMessage());
     }
     return fileStream;
   }

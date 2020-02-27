@@ -3,6 +3,7 @@ package org.hl7.davinci.endpoint.github;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.davinci.endpoint.Application;
+import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
@@ -12,9 +13,14 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.io.InputStream;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 @Component
@@ -26,17 +32,23 @@ public class GitHubRuleDownloader implements CoverageRequirementRuleDownloader {
   @Autowired
   private GitHubConnection connection;
 
+  @Autowired
+  YamlConfig config;
+
   public CqlBundleFile getFile(String payer, String codeSystem, String code, String name) {
+    //TODO: remove
+    // This is a duplicate of the CoverageRequirementRuleDownloaderDatabse.
+    // It will be removed when the new file storage location is implemented.
+
     CqlBundleFile bundleFile = null;
-    String query = payer + "/" + codeSystem + "/" + code;
-    logger.info("GitHubRuleDownloader::getFile(" + query + ", " + name + ")");
-    InputStream fileStream = connection.getFile(name);
+    // ignore the payer/codesystem/code
+    Path path = Paths.get(config.getLocalDb().getFhirArtifacts(), name);
 
     if (FilenameUtils.getExtension(name).toUpperCase().equals("CQL")) {
       logger.info("Converting CQL to ELM");
       try {
-        String fileContent = IOUtils.toString(fileStream, StandardCharsets.UTF_8.name());
-        String elm = CqlExecution.translateToElm(fileContent);
+        String cql = new String(Files.readAllBytes(path));
+        String elm = CqlExecution.translateToElm(cql);
         byte[] elmData = elm.getBytes();
 
         bundleFile = new CqlBundleFile();
@@ -47,8 +59,13 @@ public class GitHubRuleDownloader implements CoverageRequirementRuleDownloader {
         return bundleFile;
       }
     } else {
-      bundleFile = new CqlBundleFile();
-      bundleFile.setFilename(name).setResource(new InputStreamResource(fileStream));
+      try {
+        bundleFile = new CqlBundleFile();
+        bundleFile.setResource(new InputStreamResource(new FileInputStream(path.toFile()))).setFilename(name);
+      } catch (FileNotFoundException e) {
+        logger.info("file not found: " + name);
+        bundleFile = null;
+      }
     }
 
     return bundleFile;

@@ -55,16 +55,21 @@ public class LocalFileStore implements FileStore {
     for (File topic: topics) {
       if (topic.isDirectory()) {
 
+        String topicName = topic.getName();
+
         // skip the shared folder for now...
-        if (topic.getName().equalsIgnoreCase("Shared")) {
+        if (topicName.equalsIgnoreCase("Shared")) {
           logger.info("  LocalFileStore::reload() found Shared files");
+        } else if (topicName.startsWith(".")) {
+          //logger.info("  LocalFileStore::reload() skipping all folders starting with .: " + topicName);
         } else {
-          logger.info("  LocalFileStore::reload() found topic: " + topic.getName());
+          logger.info("  LocalFileStore::reload() found topic: " + topicName);
 
           // process the metadata file
           File[] files = topic.listFiles();
           for (File file: files) {
-            if (file.getName().equalsIgnoreCase("TopicMetadata.json")) {
+            String fileName = file.getName();
+            if (fileName.equalsIgnoreCase("TopicMetadata.json")) {
               ObjectMapper objectMapper = new ObjectMapper();
 
               try {
@@ -132,7 +137,7 @@ public class LocalFileStore implements FileStore {
     }
 
     File helperCqlFile = findFile("Shared", fhirVersion, "FHIRHelpers", ".cql");
-    if (mainCqlFile == null) {
+    if (helperCqlFile == null) {
       logger.warn("LocalFileStore::getCqlRule(): failed to find FHIR helper CQL file");
     } else {
       try {
