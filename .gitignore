@@ -151,3 +151,6 @@ ehr-server/target/
 .settings/
 bin/
 .vscode/
+
+# Node-modules in valueset-loader
+valueset-loader/node_modules

@@ -192,7 +192,10 @@ define function ActiveCondition(CondList List<Condition>):
  * @returns {List<Condition>} a list of active or recurring Conditions, or null if null was passed in
  */
 define function ActiveOrRecurring(CondList List<Condition>):
-  CondList C where C.clinicalStatus in {"Condition Active", "Condition Recurrence", "Condition Relapse"}
+  CondList C 
+    where C.clinicalStatus ~ "Condition Active"
+      or C.clinicalStatus ~ "Condition Recurrence"
+      or C.clinicalStatus ~ "Condition Relapse"
 
 /**
  * Conditions with an onset or recorded date in the specified "look back" period.  For example, pregnancy in
