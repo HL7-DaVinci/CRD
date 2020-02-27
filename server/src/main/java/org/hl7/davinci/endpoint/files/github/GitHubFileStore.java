@@ -56,6 +56,7 @@ public class GitHubFileStore implements FileStore {
 
     String rulePath = config.getGitHubConfig().getRulePath();
     for (String topicName : connection.getDirectory(rulePath)) {
+      // skip files with an extension or folders that start with a '.'
       if (!topicName.contains(".")) {
 
         // skip the shared folder for now...

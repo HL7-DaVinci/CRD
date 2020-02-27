@@ -53,14 +53,14 @@ cdsConnect:
 gitHubConfig:
   username: user
   token: token
-  repository: repo
+  repository: HL7-DaVinci/CDS-Library
   branch: master
   artifact-path: smartAppFhirArtifacts
-  rule-path: rules
+  rule-path: .
 
 localDb:
   rules: src/main/jib/rules/
   fhirArtifacts: src/main/jib/smartAppFhirArtifacts/
-  path: ../../CDS-Library/
+  path: CDS-Library/
 
 hostOrg: default

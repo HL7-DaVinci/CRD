@@ -104,3 +104,31 @@ void embedDtrScript() {
         commandLine 'rm', '-rf', 'tempFolder'
     }
 }
+
+task embedCdsLibrary() {
+    doLast {
+        embedCdsLibraryScript()
+    }
+}
+void embedCdsLibraryScript() {
+    exec {
+        workingDir './'
+        commandLine 'git', 'clone', 'https://github.com/HL7-DaVinci/CDS-Library.git', 'CDS-Library'
+    }
+    exec {
+        workingDir './CDS-Library'
+        commandLine 'git', 'checkout', 'master'
+    }
+}
+
+task updateCdsLibrary() {
+    doLast {
+        updateCdsLibraryScript()
+    }
+}
+void updateCdsLibraryScript() {
+    exec {
+        workingDir './CDS-Library'
+        commandLine 'git', 'pull', 'origin', 'master'
+    }
+}
