@@ -32,7 +32,8 @@ define "LastName": "Name".family.value
 define "MiddleInitial": GetMiddleInitials("Name")
 define "FirstName": "Name".given[0].value
 define "FullName":
-  "FirstName" + ' ' + "MiddleInitial" + ' ' + "LastName"
+  Coalesce("FirstName" + ' ' + "MiddleInitial" + ' ' + "LastName", "FirstName" + ' ' + "LastName")
+  
 
 // Get Practitioner's NPI
 define "NPI": (singleton from (
