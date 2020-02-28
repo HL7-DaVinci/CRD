@@ -20,23 +20,23 @@ valueset "COPD": 'urn:hl7:davinci:crd:valueset-copd'
 
 //Home Oxygen Device Codes
 //Concentrators
-code "E1390": 'E1390' from "HCPCS"
-code "E1391": 'E1391' from "HCPCS"
-code "E1392": 'E1392' from "HCPCS"
+code "E1390": 'E1390' from "HCPCS" display 'Oxygen concentrator, single delivery port'
+code "E1391": 'E1391' from "HCPCS" display 'Oxygen concentrator, dual delivery port'
+code "E1392": 'E1392' from "HCPCS" display 'Portable Oxygen Concentrator, Rental'
 
 //Compressed gas
-code "E0424": 'E0424' from "HCPCS"
-code "E0431": 'E0431' from "HCPCS"
-code "K0738": 'K0738' from "HCPCS"
-code "E0441": 'E0441' from "HCPCS"
-code "E0443": 'E0443' from "HCPCS"
+code "E0424": 'E0424' from "HCPCS" display 'Stationary gaseous oxygen system, rental (F2F required)'
+code "E0431": 'E0431' from "HCPCS" display 'Portable gaseous oxygen system, rental (F2F required)'
+code "K0738": 'K0738' from "HCPCS" display 'Portable gaseous oxygen system (includes compressor), rental'
+code "E0441": 'E0441' from "HCPCS" display 'Stationary gaseous oxygen contents, 1 month’s supply (F2F required)'
+code "E0443": 'E0443' from "HCPCS" display 'Portable gaseous oxygen contents, 1 month’s supply (F2F required)'
 
 //Liquid Oxygen
-code "E0439": 'E0439' from "HCPCS"
-code "E0434": 'E0434' from "HCPCS"
-code "E0433": 'E0433' from "HCPCS"
-code "E0442": 'E0442' from "HCPCS"
-code "E0444": 'E0444' from "HCPCS"
+code "E0439": 'E0439' from "HCPCS" display 'Stationary liquid oxygen system, rental (F2F required)'
+code "E0434": 'E0434' from "HCPCS" display 'Portable liquid oxygen system, rental (F2F required)'
+code "E0433": 'E0433' from "HCPCS" display 'Portable liquid oxygen system (including liquefier), rental (F2F required)'
+code "E0442": 'E0442' from "HCPCS" display 'Stationary liquid oxygen contents, 1 month’s supply (F2F required)'
+code "E0444": 'E0444' from "HCPCS" display 'Portable liquid oxygen contents, 1 month’s supply (F2F required)'
 
 //Bronchiectasis_Codes
 code "J47": 'J47' from "ICD-10-CM"
@@ -135,6 +135,8 @@ concept "Liquid Oxygen": { "E0439", "E0434", "E0433", "E0442", "E0444" }
 
 parameter device_request DeviceRequest
 
+define "All Oxygen Device Codes": { "E1390", "E1391", "E1392", "E0424", "E0431", "K0738", "E0441", "E0443", "E0439", "E0434", "E0433", "E0442", "E0444" }
+
 // Relevant Diagnosis Code Lists
 define "Bronchiectasis_Codes": { "J47", "J47.0", "J47.1", "J47.9" }
 define "Diffuse_interstitial_lung_disease_Codes": { "J84", "J84.0", "J84.01", "J84.02", "J84.03",
@@ -204,7 +206,11 @@ define "DeviceRequestHcpcsCoding": singleton from (
   ((cast device_request.code as CodeableConcept).coding) coding
     where coding.system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
 
-define "DeviceRequestDescription": 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + "DeviceRequestHcpcsCoding".display.value
+define "DeviceRequestCode":
+  singleton from ("All Oxygen Device Codes" DeviceCode
+    where DeviceCode ~ DeviceRequestHcpcsCoding)
+
+define "DeviceRequestDescription": 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + Coalesce("DeviceRequestHcpcsCoding".display.value, "DeviceRequestCode".display)
 define "DeviceRequestedIsPortable": "DeviceRequestHcpcsCoding".code.value in { 'E0433', 'E0434', 'E0444', 'EO431', 'K0738', 'E0443', 'E1392' }
 define "DeviceRequestedIsStationary": "DeviceRequestHcpcsCoding".code.value in { 'E0439', 'E0442', 'E0424', 'E0441', 'E1390', 'E1391' }
 
