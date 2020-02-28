@@ -3,7 +3,6 @@ package org.hl7.davinci.endpoint.controllers;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.FhirUriFetcher;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
@@ -34,9 +33,6 @@ public class DataController {
 
 
   @Autowired
-  private DataRepository repository;
-
-  @Autowired
   private RequestRepository requestRepository;
 
   @Autowired
@@ -53,12 +49,10 @@ public class DataController {
 
   /**
    * Basic constructor to initialize both data repositories.
-   * @param repository the database for the data (rules)
    * @param requestRepository the database for request logging
    */
   @Autowired
-  public DataController(DataRepository repository, RequestRepository requestRepository) {
-    this.repository = repository;
+  public DataController(RequestRepository requestRepository) {
     this.requestRepository = requestRepository;
 
   }
@@ -84,55 +78,11 @@ public class DataController {
     return fileStore.findAll();
   }
 
-  /**
-   * Gets some data from the repository.
-   * @param id the id of the desired data.
-   * @return the data from the repository
-   */
-  @CrossOrigin
-  @GetMapping("/api/data/{id}")
-  public CoverageRequirementRule getRule(@PathVariable long id) {
-    logger.info("getRule: GET /api/data/" + id);
-    Optional<CoverageRequirementRule> rule = repository.findById(id);
-
-    if (!rule.isPresent()) {
-      throw new RuleNotFoundException();
-    }
-
-    return rule.get();
-  }
-
-  public ResponseEntity<Resource> downloadFile(long id, String name) {
-    CqlBundleFile bundleFile = downloader.downloadCqlBundleFile(id, name);
-
-    if (bundleFile == null) {
-      logger.warning("file not found, return error (404)");
-      return ResponseEntity.notFound().build();
-    }
-
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + bundleFile.getFilename() + "\"")
-        .contentType(MediaType.parseMediaType("application/octet-stream"))
-        .body(bundleFile.getResource());
-  }
-
-  @GetMapping(path = "/download/{id}")
-  public ResponseEntity<Resource> download(@PathVariable long id) throws IOException {
-    logger.info("download: GET /download/" + id);
-    return downloadFile(id, "");
-  }
-
-  @GetMapping(path = "/getfileid/{id}/{name}")
-  public ResponseEntity<Resource> getFileRuleId(@PathVariable long id, @PathVariable String name) throws IOException {
-    logger.info("getfile: GET /getfileid/" + id + "/" + name);
-    return downloadFile(id, name);
-  }
-
   @GetMapping(path = "/getfile/{payer}/{codeSystem}/{code}/{name}")
   public ResponseEntity<Resource> getFile(@PathVariable String payer, @PathVariable String codeSystem, @PathVariable String code, @PathVariable String name) {
     logger.info("getfile: GET /getfile/" + payer + "/" + codeSystem + "/" + code + "/" + name);
 
-    CqlBundleFile bundleFile = downloader.getFile(payer, codeSystem, code, name);
+    FileResource bundleFile = downloader.getFile(payer, codeSystem, code, name);
 
     if (bundleFile == null) {
       logger.warning("file not found, return error (404)");
@@ -160,8 +110,6 @@ public class DataController {
         .contentType(MediaType.parseMediaType("application/octet-stream"))
         .body(resource);
   }
-
-
 
 
   @GetMapping(path = "/fhir/{fhirVersion}/metadata")

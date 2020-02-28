@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.cql.bundle;
+package org.hl7.davinci.endpoint.cql;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;

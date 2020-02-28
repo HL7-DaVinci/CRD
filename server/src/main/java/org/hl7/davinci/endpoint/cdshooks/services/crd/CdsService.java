@@ -10,11 +10,7 @@ import java.util.Date;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
-import org.cdshooks.CdsRequest;
-import org.cdshooks.CdsResponse;
-import org.cdshooks.Hook;
-import org.cdshooks.Link;
-import org.cdshooks.Prefetch;
+import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
@@ -158,6 +154,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     boolean foundApplicableRule = false;
     for (CoverageRequirementRuleResult lookupResult: lookupResults) {
+      requestLog.addTopic(requestService, lookupResult.getTopic());
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext(), lookupResult.getTopic());
       if (results.ruleApplies()){
         foundApplicableRule = true;
@@ -189,6 +186,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     }
 
     CardBuilder.errorCardIfNonePresent(response);
+
     return response;
   }
 

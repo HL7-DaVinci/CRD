@@ -5,7 +5,7 @@ import org.cqframework.cql.cql2elm.ModelManager;
 import org.cqframework.cql.elm.execution.Library;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.LocalLibraryLoader;
-import org.hl7.davinci.endpoint.cql.bundle.CqlRule;
+import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.opencds.cqf.cql.data.fhir.BaseFhirDataProvider;
 import org.opencds.cqf.cql.execution.Context;

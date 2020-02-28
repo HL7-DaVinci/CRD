@@ -16,6 +16,22 @@ export default class DetailEntry extends Component {
         };
          this.showRequestBody = this.showRequestBody.bind(this);
          this.showResults = this.showResults.bind(this);
+
+         // process the topics array
+         this.resultsCount = 0;
+         this.topics = '';
+         var i;
+         for (i=0; i< this.props.data.topics.length; i++) {
+            if (this.props.data.topics[i] != null) {
+                this.resultsCount = this.resultsCount + 1;
+
+                if (i == 0) {
+                    this.topics = this.props.data.topics[i];
+                } else {
+                    this.topics = this.topics + ', ' + this.props.data.topics[i];
+                }
+            }
+         }
     }
 
     showRequestBody(){
@@ -67,7 +83,6 @@ export default class DetailEntry extends Component {
                         if(this.state.showResults){
                             this.setState({showResults: false})
                         }
-                    
                     }}>
 
                     <div className="col1">
@@ -87,7 +102,7 @@ export default class DetailEntry extends Component {
                             Show Request Body
                         </div>
                         <div className={"errorDetail " + [this.state.showResults?"filled":"empty"]} onClick={this.showResults}>
-                            CQL Results <span>[ {this.props.data.rulesFound.length} ]</span>
+                            Topic Results <span>[ {this.resultsCount} ]</span>
                         </div>
                     </div>
 
@@ -99,11 +114,8 @@ export default class DetailEntry extends Component {
                  :
                  null}
                  {this.state.showResults?
-                 <div className="requestBody">
-                 <ResponseCheck results={this.props.data.rulesFound}></ResponseCheck></div>
-                 :null
-                 }
-               
+                 <div className="requestBody">&nbsp;&nbsp;Topics: {this.topics}</div>
+                 :null}
 
              </div>
          )

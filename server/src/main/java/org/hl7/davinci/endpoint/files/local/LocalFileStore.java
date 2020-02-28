@@ -6,7 +6,7 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
-import org.hl7.davinci.endpoint.cql.bundle.CqlRule;
+import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.RuleMapping;
 import org.hl7.davinci.endpoint.database.RuleMappingRepository;
 import org.hl7.davinci.endpoint.files.*;

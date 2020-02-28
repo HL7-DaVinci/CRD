@@ -1,7 +1,7 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.endpoint.cql.bundle.CqlRule;
+import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.cql.r4.CqlExecutionContextBuilder;
 import org.hl7.davinci.endpoint.database.RuleMapping;
 import org.hl7.davinci.endpoint.files.FileStore;

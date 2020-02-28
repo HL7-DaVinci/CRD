@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.cql.bundle;
+package org.hl7.davinci.endpoint.cql;
 
 import java.io.InputStream;
 import java.util.HashMap;

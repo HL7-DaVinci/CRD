@@ -1,7 +1,6 @@
 package org.hl7.davinci.endpoint.files.cdsconnect;
 
-import org.hl7.davinci.endpoint.YamlConfig;
-import org.hl7.davinci.endpoint.cql.bundle.CqlRule;
+import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.RuleMapping;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
@@ -12,7 +11,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

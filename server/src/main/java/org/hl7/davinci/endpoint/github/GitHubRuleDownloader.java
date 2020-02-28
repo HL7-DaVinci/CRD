@@ -5,7 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
+import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -35,12 +35,12 @@ public class GitHubRuleDownloader implements CoverageRequirementRuleDownloader {
   @Autowired
   YamlConfig config;
 
-  public CqlBundleFile getFile(String payer, String codeSystem, String code, String name) {
+  public FileResource getFile(String payer, String codeSystem, String code, String name) {
     //TODO: remove
     // This is a duplicate of the CoverageRequirementRuleDownloaderDatabse.
     // It will be removed when the new file storage location is implemented.
 
-    CqlBundleFile bundleFile = null;
+    FileResource fileResource = null;
     // ignore the payer/codesystem/code
     Path path = Paths.get(config.getLocalDb().getFhirArtifacts(), name);
 
@@ -51,30 +51,23 @@ public class GitHubRuleDownloader implements CoverageRequirementRuleDownloader {
         String elm = CqlExecution.translateToElm(cql);
         byte[] elmData = elm.getBytes();
 
-        bundleFile = new CqlBundleFile();
-        bundleFile.setFilename(name).setResource(new ByteArrayResource(elmData));
+        fileResource = new FileResource();
+        fileResource.setFilename(name).setResource(new ByteArrayResource(elmData));
 
       } catch (Exception e) {
         logger.info("Error: could not convert CQL: " + e.getMessage());
-        return bundleFile;
+        return fileResource;
       }
     } else {
       try {
-        bundleFile = new CqlBundleFile();
-        bundleFile.setResource(new InputStreamResource(new FileInputStream(path.toFile()))).setFilename(name);
+        fileResource = new FileResource();
+        fileResource.setResource(new InputStreamResource(new FileInputStream(path.toFile()))).setFilename(name);
       } catch (FileNotFoundException e) {
         logger.info("file not found: " + name);
-        bundleFile = null;
+        fileResource = null;
       }
     }
 
-    return bundleFile;
-  }
-
-  public CqlBundleFile downloadCqlBundleFile(Long id, String name) {
-    logger.info("GitHubRuleDownloader::downloadCqlBundleFile(" + id + ", " + name + ")");
-    CqlBundleFile bundleFile = null;
-    logger.warning("id named file download not supported");
-    return bundleFile;
+    return fileResource;
   }
 }
