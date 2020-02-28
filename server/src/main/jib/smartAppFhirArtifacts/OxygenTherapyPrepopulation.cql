@@ -12,9 +12,31 @@ include FHIRHelpers version '3.0.0' called FHIRHelpers
 codesystem "ICD-10-CM": 'http://hl7.org/fhir/sid/icd-10-cm'
 codesystem "LOINC": 'http://loinc.org'
 codesystem "SNOMED-CT": 'http://snomed.info/sct'
+codesystem "HCPCS": 'https://bluebutton.cms.gov/resources/codesystem/hcpcs'
+codesystem "FHIRRequestIntent": 'http://hl7.org/fhir/request-intent'
 
 //COPD_Codes
 valueset "COPD": 'urn:hl7:davinci:crd:valueset-copd'
+
+//Home Oxygen Device Codes
+//Concentrators
+code "E1390": 'E1390' from "HCPCS"
+code "E1391": 'E1391' from "HCPCS"
+code "E1392": 'E1392' from "HCPCS"
+
+//Compressed gas
+code "E0424": 'E0424' from "HCPCS"
+code "E0431": 'E0431' from "HCPCS"
+code "K0738": 'K0738' from "HCPCS"
+code "E0441": 'E0441' from "HCPCS"
+code "E0443": 'E0443' from "HCPCS"
+
+//Liquid Oxygen
+code "E0439": 'E0439' from "HCPCS"
+code "E0434": 'E0434' from "HCPCS"
+code "E0433": 'E0433' from "HCPCS"
+code "E0442": 'E0442' from "HCPCS"
+code "E0444": 'E0444' from "HCPCS"
 
 //Bronchiectasis_Codes
 code "J47": 'J47' from "ICD-10-CM"
@@ -102,6 +124,14 @@ code "160685001": '160685001' from "SNOMED-CT"
 code "371632003": '371632003' from "SNOMED-CT"
 code "8510008": '8510008' from "SNOMED-CT"
 
+// FHIR Request Intent Codes
+code "Intent Original Order code": 'original-order' from "FHIRRequestIntent" display 'Original Order'
+concept "Intent Original Order": { "Intent Original Order code" } display 'Original Order'
+
+// Device Categories
+concept "Concentrator": { "E1390", "E1391", "E1392" }
+concept "Compressed Gas": { "E0424", "E0431", "K0738", "E0441", "E0443" }
+concept "Liquid Oxygen": { "E0439", "E0434", "E0433", "E0442", "E0444" }
 
 parameter device_request DeviceRequest
 
@@ -149,7 +179,19 @@ define PatientMobile: not exists(Confirmed(ActiveOrRecurring([Condition: "Immobi
 define HematocritThatIsGreaterThanThreshold: HighestObservation(WithUnit(Verified(ObservationLookBack([Observation: "Hematocrit_lab_test_Codes"], 3 months)), '%'))
 define PatientHasHematocritThatIsGreaterThanThreshold: exists("HematocritThatIsGreaterThanThreshold")
 
+// prescribed use
+define OccurrenceTimingDuration: (device_request.occurrence as FHIR.Timing).repeat.bounds as FHIR.Duration
+define OccurrenceTimingQuantity:
+  if OccurrenceTimingDuration is not null
+  then System.Quantity { value: OccurrenceTimingDuration.value.value, unit: OccurrenceTimingDuration.unit.value }
+  else null
+define LengthOfNeed: 
+  ConvertQuantity(OccurrenceTimingQuantity, 'mo').value
 
+define FrequencyOfUse:
+  if (device_request.occurrence as FHIR.Timing).repeat."when" = 'HS'
+    then { 'During sleep' }
+    else {}
 
 // device request info
 define DeviceRequestHcpcsCoding: singleton from (
@@ -160,6 +202,20 @@ define DeviceRequestDescription: 'HCPCS ' + "DeviceRequestHcpcsCoding".code.valu
 define DeviceRequestedIsPortable: "DeviceRequestHcpcsCoding".code.value in { 'E0433', 'E0434', 'E0444', 'EO431', 'K0738', 'E0443', 'E1392' }
 define DeviceRequestedIsStationary: "DeviceRequestHcpcsCoding".code.value in { 'E0439', 'E0442', 'E0424', 'E0441', 'E1390', 'E1391' }
 
+define DeviceType:
+  if device_request.code ~ "Compressed Gas"
+    then 'Compressed Gas'
+  else if device_request.code ~ "Liquid Oxygen"
+    then 'Liquid'
+  else if device_request.code ~ "Concentrator"
+    then 'Concentrator'
+  else
+    null
+
+define DeviceOrderType:
+  if device_request.intent ~ "Intent Original Order"
+    then 'Initial or original order for certification'
+    else null
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with stu3 version of helper library
 define function ActiveOrRecurring(CondList List<Condition>):
