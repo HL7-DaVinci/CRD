@@ -12,9 +12,31 @@ include FHIRHelpers version '3.0.0' called FHIRHelpers
 codesystem "ICD-10-CM": 'http://hl7.org/fhir/sid/icd-10-cm'
 codesystem "LOINC": 'http://loinc.org'
 codesystem "SNOMED-CT": 'http://snomed.info/sct'
+codesystem "HCPCS": 'https://bluebutton.cms.gov/resources/codesystem/hcpcs'
+codesystem "FHIRRequestIntent": 'http://hl7.org/fhir/request-intent'
 
 //COPD_Codes
 valueset "COPD": 'urn:hl7:davinci:crd:valueset-copd'
+
+//Home Oxygen Device Codes
+//Concentrators
+code "E1390": 'E1390' from "HCPCS" display 'Oxygen concentrator, single delivery port'
+code "E1391": 'E1391' from "HCPCS" display 'Oxygen concentrator, dual delivery port'
+code "E1392": 'E1392' from "HCPCS" display 'Portable Oxygen Concentrator, Rental'
+
+//Compressed gas
+code "E0424": 'E0424' from "HCPCS" display 'Stationary gaseous oxygen system, rental (F2F required)'
+code "E0431": 'E0431' from "HCPCS" display 'Portable gaseous oxygen system, rental (F2F required)'
+code "K0738": 'K0738' from "HCPCS" display 'Portable gaseous oxygen system (includes compressor), rental'
+code "E0441": 'E0441' from "HCPCS" display 'Stationary gaseous oxygen contents, 1 month’s supply (F2F required)'
+code "E0443": 'E0443' from "HCPCS" display 'Portable gaseous oxygen contents, 1 month’s supply (F2F required)'
+
+//Liquid Oxygen
+code "E0439": 'E0439' from "HCPCS" display 'Stationary liquid oxygen system, rental (F2F required)'
+code "E0434": 'E0434' from "HCPCS" display 'Portable liquid oxygen system, rental (F2F required)'
+code "E0433": 'E0433' from "HCPCS" display 'Portable liquid oxygen system (including liquefier), rental (F2F required)'
+code "E0442": 'E0442' from "HCPCS" display 'Stationary liquid oxygen contents, 1 month’s supply (F2F required)'
+code "E0444": 'E0444' from "HCPCS" display 'Portable liquid oxygen contents, 1 month’s supply (F2F required)'
 
 //Bronchiectasis_Codes
 code "J47": 'J47' from "ICD-10-CM"
@@ -102,8 +124,18 @@ code "160685001": '160685001' from "SNOMED-CT"
 code "371632003": '371632003' from "SNOMED-CT"
 code "8510008": '8510008' from "SNOMED-CT"
 
+// FHIR Request Intent Codes
+code "Intent Original Order code": 'original-order' from "FHIRRequestIntent" display 'Original Order'
+concept "Intent Original Order": { "Intent Original Order code" } display 'Original Order'
+
+// Device Categories
+concept "Concentrator": { "E1390", "E1391", "E1392" }
+concept "Compressed Gas": { "E0424", "E0431", "K0738", "E0441", "E0443" }
+concept "Liquid Oxygen": { "E0439", "E0434", "E0433", "E0442", "E0444" }
 
 parameter device_request DeviceRequest
+
+define "All Oxygen Device Codes": { "E1390", "E1391", "E1392", "E0424", "E0431", "K0738", "E0441", "E0443", "E0439", "E0434", "E0433", "E0442", "E0444" }
 
 // Relevant Diagnosis Code Lists
 define "Bronchiectasis_Codes": { "J47", "J47.0", "J47.1", "J47.9" }
@@ -128,66 +160,102 @@ define "Immobilization_Codes": { "102491009", "129857008", "129859006", "1606850
 
 context Patient
 
-define Today: Today()
+define "Today": Today()
 
 // coverage requirement info
-define RelevantDiagnoses: {
-  if exists(Confirmed(ActiveOrRecurring([Condition: "COPD"]))) then 'COPD' else 'null',
-  if exists(Confirmed(ActiveOrRecurring([Condition: "Bronchiectasis_Codes"]))) then 'Bronchiectasis' else 'null',
-  if exists(Confirmed(ActiveOrRecurring([Condition: "Diffuse_interstitial_lung_disease_Codes"]))) then 'Diffuse Interstitial Lung Disease' else 'null',
-  if exists(Confirmed(ActiveOrRecurring([Condition: "Cystic_fibrosis_Codes"]))) then 'Cystic Fibrosis' else 'null',
-  if exists(Confirmed(ActiveOrRecurring([Condition: "Pulmonary_hypertension_Codes"]))) then 'Pulmonary Hypertension' else 'null',
-  if exists(Confirmed(ActiveOrRecurring([Condition: "Hypoxemia_Codes"]))) then 'Hypoxemia' else 'null'
+define "RelevantDiagnoses": {
+  if exists("Confirmed"("ActiveOrRecurring"([Condition: "COPD"]))) then 'COPD' else 'null',
+  if exists("Confirmed"("ActiveOrRecurring"([Condition: "Bronchiectasis_Codes"]))) then 'Bronchiectasis' else 'null',
+  if exists("Confirmed"("ActiveOrRecurring"([Condition: "Diffuse_interstitial_lung_disease_Codes"]))) then 'Diffuse Interstitial Lung Disease' else 'null',
+  if exists("Confirmed"("ActiveOrRecurring"([Condition: "Cystic_fibrosis_Codes"]))) then 'Cystic Fibrosis' else 'null',
+  if exists("Confirmed"("ActiveOrRecurring"([Condition: "Pulmonary_hypertension_Codes"]))) then 'Pulmonary Hypertension' else 'null',
+  if exists("Confirmed"("ActiveOrRecurring"([Condition: "Hypoxemia_Codes"]))) then 'Hypoxemia' else 'null'
 } except { 'null' } // except 'null' is a workaround since I don't see how to remove actual nulls
 
-define ArterialOxygenSaturation: LowestObservation(WithUnit(Verified(ObservationLookBack([Observation: "Arterial_oxygen_saturation_Codes"], 3 months)), '%'))
-define ArterialPartialPressureOfOxygen: LowestObservation(WithUnit(Verified(ObservationLookBack([Observation: "Arterial_partial_pressure_of_oxygen_Codes"], 3 months)), 'mm[Hg]'))
-define ArterialOxygenSaturationExercise: LowestObservation(WithUnit(Verified(ObservationLookBack([Observation: "Arterial_oxygen_saturation_during_exercise_Codes"], 3 months)), '%'))
+define "ArterialOxygenSaturation": "LowestObservation"("WithUnit"("Verified"("ObservationLookBack"([Observation: "Arterial_oxygen_saturation_Codes"], 3 months)), '%'))
+define "ArterialPartialPressureOfOxygen": "LowestObservation"("WithUnit"("Verified"("ObservationLookBack"([Observation: "Arterial_partial_pressure_of_oxygen_Codes"], 3 months)), 'mm[Hg]'))
+define "ArterialOxygenSaturationExercise": "LowestObservation"("WithUnit"("Verified"("ObservationLookBack"([Observation: "Arterial_oxygen_saturation_during_exercise_Codes"], 3 months)), '%'))
 
-define PatientMobile: not exists(Confirmed(ActiveOrRecurring([Condition: "Immobilization_Codes"])))
+define "PatientMobile": not exists("Confirmed"("ActiveOrRecurring"([Condition: "Immobilization_Codes"])))
 
-define HematocritThatIsGreaterThanThreshold: HighestObservation(WithUnit(Verified(ObservationLookBack([Observation: "Hematocrit_lab_test_Codes"], 3 months)), '%'))
-define PatientHasHematocritThatIsGreaterThanThreshold: exists("HematocritThatIsGreaterThanThreshold")
+define "HematocritThatIsGreaterThanThreshold": "HighestObservation"("WithUnit"("Verified"("ObservationLookBack"([Observation: "Hematocrit_lab_test_Codes"], 3 months)), '%'))
+define "PatientHasHematocritThatIsGreaterThanThreshold": exists("HematocritThatIsGreaterThanThreshold")
 
+// prescribed use
+define "OccurrenceTimingDuration": (device_request.occurrence as FHIR.Timing).repeat.bounds as FHIR.Duration
+define "OccurrenceTimingQuantity":
+  if "OccurrenceTimingDuration" is not null
+  then System.Quantity { value: "OccurrenceTimingDuration".value.value, unit: "OccurrenceTimingDuration".unit.value }
+  else null
+define "LengthOfNeed": 
+  ConvertQuantity("OccurrenceTimingQuantity", 'mo').value
 
+define "FrequencyOfUseText":
+  (device_request.occurrence as FHIR.Timing).code.text.value
+
+define "FrequencyOfUseList":
+  Split("FrequencyOfUseText", ' AND ')
+
+// filters out invalid frequencies
+define "FrequencyOfUse":
+  "FrequencyOfUseList" FrequencyText
+    where FrequencyText in { 'During sleep', 'During exertion', 'At rest and awake' }
 
 // device request info
-define DeviceRequestHcpcsCoding: singleton from (
+define "DeviceRequestHcpcsCoding": singleton from (
   ((cast device_request.code as CodeableConcept).coding) coding
     where coding.system.value = 'https://bluebutton.cms.gov/resources/codesystem/hcpcs')
 
-define DeviceRequestDescription: 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + "DeviceRequestHcpcsCoding".display.value
-define DeviceRequestedIsPortable: "DeviceRequestHcpcsCoding".code.value in { 'E0433', 'E0434', 'E0444', 'EO431', 'K0738', 'E0443', 'E1392' }
-define DeviceRequestedIsStationary: "DeviceRequestHcpcsCoding".code.value in { 'E0439', 'E0442', 'E0424', 'E0441', 'E1390', 'E1391' }
+define "DeviceRequestCode":
+  singleton from ("All Oxygen Device Codes" DeviceCode
+    where DeviceCode ~ DeviceRequestHcpcsCoding)
 
+define "DeviceRequestDescription": 'HCPCS ' + "DeviceRequestHcpcsCoding".code.value + ' - ' + Coalesce("DeviceRequestHcpcsCoding".display.value, "DeviceRequestCode".display)
+define "DeviceRequestedIsPortable": "DeviceRequestHcpcsCoding".code.value in { 'E0433', 'E0434', 'E0444', 'EO431', 'K0738', 'E0443', 'E1392' }
+define "DeviceRequestedIsStationary": "DeviceRequestHcpcsCoding".code.value in { 'E0439', 'E0442', 'E0424', 'E0441', 'E1390', 'E1391' }
+
+define "DeviceType":
+  if device_request.code ~ "Compressed Gas"
+    then 'Compressed Gas'
+  else if device_request.code ~ "Liquid Oxygen"
+    then 'Liquid'
+  else if device_request.code ~ "Concentrator"
+    then 'Concentrator'
+  else
+    null
+
+define "DeviceOrderType":
+  if device_request.intent ~ "Intent Original Order"
+    then 'Initial or original order for certification'
+    else null
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with stu3 version of helper library
-define function ActiveOrRecurring(CondList List<Condition>):
+define function "ActiveOrRecurring"(CondList List<Condition>):
   CondList C where C.clinicalStatus.value in {'active', 'relapse'}
 
-define function ObservationLookBack(ObsList List<Observation>, LookBack System.Quantity):
+define function "ObservationLookBack"(ObsList List<Observation>, LookBack System.Quantity):
   ObsList O
     let LookBackInterval: Interval[Now() - LookBack, Now()]
     where (cast O.effective as dateTime).value in LookBackInterval
-      or NullSafeToInterval(cast O.effective as Period) overlaps LookBackInterval
+      or "NullSafeToInterval"(cast O.effective as Period) overlaps LookBackInterval
       or O.issued in LookBackInterval
 
-define function NullSafeToInterval(Pd FHIR.Period):
+define function "NullSafeToInterval"(Pd FHIR.Period):
   if Pd is not null then Interval[Pd."start".value, Pd."end".value] else null
 
-define function Verified(ObsList List<Observation>):
+define function "Verified"(ObsList List<Observation>):
   ObsList O where O.status.value in {'final', 'amended'}
 
-define function WithUnit(ObsList List<Observation>, Unit String):
+define function "WithUnit"(ObsList List<Observation>, Unit String):
   ObsList O where (cast O.value as Quantity).unit.value = Unit or (cast O.value as Quantity).code.value = Unit
 
-define function HighestObservation(ObsList List<Observation>):
-  Max(ObsList O return NullSafeToQuantity(cast O.value as Quantity))
+define function "HighestObservation"(ObsList List<Observation>):
+  Max(ObsList O return "NullSafeToQuantity"(cast O.value as Quantity))
 
-define function Confirmed(CondList List<Condition>):
+define function "Confirmed"(CondList List<Condition>):
   CondList C where C.verificationStatus.value = 'confirmed'
 
-define function NullSafeToQuantity(Qty FHIR.Quantity):
+define function "NullSafeToQuantity"(Qty FHIR.Quantity):
   if Qty is not null then
     System.Quantity {
       value: Qty.value.value,
@@ -195,6 +263,6 @@ define function NullSafeToQuantity(Qty FHIR.Quantity):
     }
   else null
 
-define function LowestObservation(ObsList List<Observation>):
-  Min(ObsList O return NullSafeToQuantity(cast O.value as Quantity))
+define function "LowestObservation"(ObsList List<Observation>):
+  Min(ObsList O return "NullSafeToQuantity"(cast O.value as Quantity))
 
