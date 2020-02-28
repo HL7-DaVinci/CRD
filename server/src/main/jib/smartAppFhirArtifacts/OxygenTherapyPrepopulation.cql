@@ -188,10 +188,16 @@ define "OccurrenceTimingQuantity":
 define "LengthOfNeed": 
   ConvertQuantity("OccurrenceTimingQuantity", 'mo').value
 
+define "FrequencyOfUseText":
+  (device_request.occurrence as FHIR.Timing).code.text.value
+
+define "FrequencyOfUseList":
+  Split("FrequencyOfUseText", ' AND ')
+
+// filters out invalid frequencies
 define "FrequencyOfUse":
-  if (device_request.occurrence as FHIR.Timing).repeat."when" = 'HS'
-    then { 'During sleep' }
-    else {}
+  "FrequencyOfUseList" FrequencyText
+    where FrequencyText in { 'During sleep', 'During exertion', 'At rest and awake' }
 
 // device request info
 define "DeviceRequestHcpcsCoding": singleton from (
