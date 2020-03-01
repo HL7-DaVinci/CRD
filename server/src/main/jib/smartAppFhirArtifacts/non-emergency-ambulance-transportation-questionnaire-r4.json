@@ -20,14 +20,14 @@
       }
     }
   ],
-  "id": "urn:hl7:davinci:crd:non-emergency-ambulance-transportation-questionnaire-r4",
+  "identifier": "urn:hl7:davinci:crd:non-emergency-ambulance-transportation-questionnaire-r4",
+  "version": "2020-2-28",
+  "date": "2020-2-28",
+  "name": "Non Emergency Ambulance Transportation Questionnaire",
   "title": "Non Emergency Ambulance Transportation Questionnaire",
   "status": "draft",
-  "date": "2020-1-21",
   "publisher": "Da Vinci DTR",
-  "subjectType": [
-    "Patient"
-  ],
+  "subjectType": ["Patient"],
   "item": [
     {
       "linkId": "1",
@@ -44,7 +44,7 @@
             }
           ],
           "linkId": "1.1",
-          "text": "Last Name:",
+          "text": "Last Name",
           "type": "string",
           "required": true
         },
@@ -59,7 +59,7 @@
             }
           ],
           "linkId": "1.2",
-          "text": "First Name:",
+          "text": "First Name",
           "type": "string",
           "required": true
         },
@@ -74,9 +74,9 @@
             }
           ],
           "linkId": "1.3",
-          "text": "Middle Initial:",
+          "text": "Middle Initial",
           "type": "string",
-          "required": true
+          "required": false
         },
         {
           "extension": [
@@ -89,9 +89,9 @@
             }
           ],
           "linkId": "1.4",
-          "text": "Date of Birth:",
+          "text": "Date of Birth",
           "type": "date",
-          "required": true
+          "required": false
         },
         {
           "extension": [
@@ -104,9 +104,9 @@
             }
           ],
           "linkId": "1.5",
-          "text": "Gender:",
+          "text": "Gender",
           "type": "choice",
-          "required": true,
+          "required": false,
           "option": [
             {
               "valueCoding": {
@@ -118,6 +118,12 @@
               "valueCoding": {
                 "code": "female",
                 "display": "Female"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "other",
+                "display": "Other"
               }
             }
           ]
@@ -133,9 +139,9 @@
             }
           ],
           "linkId": "1.6",
-          "text": "Medicare ID:",
+          "text": "Medicare ID",
           "type": "string",
-          "required": true
+          "required": false
         }
       ]
     },
@@ -157,7 +163,7 @@
           "linkId": "2.1",
           "text": "Last Name",
           "type": "string",
-          "required": false
+          "required": true
         },
         {
           "extension": [
@@ -172,7 +178,7 @@
           "linkId": "2.2",
           "text": "First Name",
           "type": "string",
-          "required": false
+          "required": true
         },
         {
           "extension": [
@@ -190,38 +196,152 @@
           "required": false
         },
         {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".Suffix"
+              }
+            }
+          ],
           "linkId": "2.4",
+          "text": "Suffix",
+          "type": "string",
+          "required": false
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".NPI"
+              }
+            }
+          ],
+          "linkId": "2.5",
+          "text": "Certifying Provider NPI",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".PlaceOfEmployment"
+              }
+            }
+          ],
+          "linkId": "2.6",
           "text": "Place of employment",
           "type": "string",
-          "required": false
+          "required": true
         },
         {
-          "linkId": "2.5",
-          "text": "Address",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".AddressLine1"
+              }
+            }
+          ],
+          "linkId": "2.7",
+          "text": "Address (Line 1)",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".AddressLine2"
+              }
+            }
+          ],
+          "linkId": "2.8",
+          "text": "Address (Line 2)",
           "type": "string",
           "required": false
         },
         {
-          "linkId": "2.6",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".City"
+              }
+            }
+          ],
+          "linkId": "2.9",
           "text": "City",
           "type": "string",
-          "required": false
+          "required": true
         },
         {
-          "linkId": "2.7",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".State"
+              }
+            }
+          ],
+          "linkId": "2.10",
           "text": "State",
           "type": "string",
-          "required": false
+          "required": true
         },
         {
-          "linkId": "2.8",
-          "text": "Zip Code",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".Zip"
+              }
+            }
+          ],
+          "linkId": "2.11",
+          "text": "ZIP Code",
+          "type": "string",
+          "required": true
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".Phone"
+              }
+            }
+          ],
+          "linkId": "2.12",
+          "text": "Phone Number",
           "type": "string",
           "required": false
         },
         {
-          "linkId": "2.9",
-          "text": "Telephone Number",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".DirectAddress"
+              }
+            }
+          ],
+          "linkId": "2.13",
+          "text": "Direct address (optional)",
           "type": "string",
           "required": false
         }
@@ -229,65 +349,116 @@
     },
     {
       "linkId": "3",
-      "text": "Order Information:",
+      "text": "Order Information",
       "type": "group",
       "item": [
         {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfo\".Today"
+              }
+            }
+          ],
           "linkId": "3.1",
-          "text": "Order start date, if different from date of order (MM/DD/YYYY):",
-          "type": "date"
-        },
-        {
-          "linkId": "3.2",
-          "text": "Order Data",
+          "text": "Order date, if different from signature date",
           "type": "date",
           "required": false
         },
         {
-          "linkId": "3.3",
+          "linkId": "3.2",
           "text": "Start Date",
           "type": "date",
           "required": true
         },
         {
-          "linkId": "3.4",
+          "linkId": "3.3",
           "text": "End Date",
           "type": "date",
           "required": false
         },
         {
-          "linkId": "3.5",
+          "linkId": "3.4",
           "text": "Round Trip",
           "type": "boolean",
-          "required": true
+          "required": false
         },
         {
-          "linkId": "3.6",
+          "linkId": "3.5",
           "text": "Is transport from Home",
           "type": "boolean",
           "required": true
         },
         {
-          "linkId": "3.7",
+          "linkId": "3.6",
           "text": "Origin",
           "type": "string",
           "required": true
         },
         {
-          "linkId": "3.8",
+          "linkId": "3.7",
           "text": "Destination",
           "type": "string",
           "required": true
         },
         {
-          "linkId": "3.9",
-          "text": "Services",
-          "type": "string",
-          "required": true
+          "linkId": "3.8",
+          "type": "open-choice",
+          "text": "Services (Purpose of transport)",
+          "repeats": true,
+          "required": true,
+          "option": [
+            {
+              "valueCoding": {
+                "code": "Dialysis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Wound Care"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Radiation therapy"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Chemotherapy"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "O&P services"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Imaging"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Other"
+              }
+            }
+          ]
         },
         {
-          "linkId": "3.10",
-          "text": "Other",
+          "linkId": "3.9",
+          "enableWhen": [
+            {
+              "question": "3.8",
+              "operator": "=",
+              "answerCoding": {
+                "code": "Other"
+              }
+            }
+          ],
+          "text": "If Other, describe",
           "type": "string",
           "required": true
         }
@@ -301,7 +472,8 @@
         {
           "linkId": "4.1",
           "type": "open-choice",
-          "text": "Reasons for Transport",
+          "text": "Reason(s) that non-emergency ambulance transport is required",
+          "repeats": true,
           "required": true,
           "option": [
             {
@@ -418,13 +590,28 @@
               "valueCoding": {
                 "code": "Mental: Confused, combative, lethargic, comatose"
               }
+            },
+            {
+              "valueCoding": {
+                "code": "Other"
+              }
             }
           ]
         },
         {
           "linkId": "4.2",
-          "text": "Other:",
-          "type": "string"
+          "enableWhen": [
+            {
+              "question": "4.1",
+              "operator": "=",
+              "answerCoding": {
+                "code": "Other"
+              }
+            }
+          ],
+          "text": "If Other, describe",
+          "type": "string",
+          "required": true
         }
       ]
     },
@@ -434,7 +621,7 @@
       "item": [
         {
           "linkId": "5.1",
-          "text": "Signature:",
+          "text": "Signature",
           "type": "string"
         },
         {
@@ -448,7 +635,7 @@
             }
           ],
           "linkId": "5.2",
-          "text": "Name (Printed):",
+          "text": "Name (Printed)",
           "type": "string",
           "required": true
         },
@@ -463,7 +650,7 @@
             }
           ],
           "linkId": "5.3",
-          "text": "Date (MM/DD/YYYY):",
+          "text": "Date (MM/DD/YYYY)",
           "type": "date",
           "required": true
         },
@@ -478,7 +665,7 @@
             }
           ],
           "linkId": "5.4",
-          "text": "NPI:",
+          "text": "NPI",
           "type": "string",
           "required": true
         }

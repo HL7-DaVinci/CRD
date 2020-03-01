@@ -31,8 +31,12 @@ define "Name": singleton from (
 define "LastName": "Name".family.value
 define "MiddleInitial": GetMiddleInitials("Name")
 define "FirstName": "Name".given[0].value
+define "Suffix": "Name".suffix[0].value
 define "FullName":
-  "FirstName" + ' ' + "MiddleInitial" + ' ' + "LastName"
+  "FirstName" & ' ' 
+    & Coalesce( "MiddleInitial" + ' ', '' ) // this skips the middle initial if it's not defined
+    & "LastName" 
+    & Coalesce( ', ' + "Suffix", '' ) // this skips the comma and suffix if suffix is not defined
 
 // Get Practitioner's NPI
 define "NPI": (singleton from (
