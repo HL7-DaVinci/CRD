@@ -83,7 +83,7 @@ public class EndToEndRequestPrefetchTest {
 
     System.out.println(cards);
     assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "Authorization required.");
+        "Documentation Required.");
   }
 
   @Test

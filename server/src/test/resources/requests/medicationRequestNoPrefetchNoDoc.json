@@ -1,7 +1,7 @@
 {
   "hook": "medication-prescribe",
   "hookInstance": "660fafe5-9be3-4ffb-8bce-c1ffd04df29f",
-  "fhirServer": "http://localhost:8080/ehr-server/r4/",
+  "fhirServer": "http://localhost:8080/test-ehr/r4/",
   "fhirAuthorization": null,
   "user": "Practitioner/1234",
   "context": {
