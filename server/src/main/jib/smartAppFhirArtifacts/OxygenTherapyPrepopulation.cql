@@ -225,8 +225,10 @@ define "DeviceType":
     null
 
 define "DeviceOrderType":
-  if device_request.intent ~ "Intent Original Order"
-    then 'Initial or original order for certification'
+  if device_request.intent is not null
+    then if device_request.intent ~ "Intent Original Order"
+      then 'Initial or original order for certification'
+      else null
     else null
 
 ////////////////////////////// Taken from CDS Connect Commons for FHIR, could replace with stu3 version of helper library
