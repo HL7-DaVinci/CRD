@@ -20,8 +20,10 @@ This will start the server running on http://localhost:8090.
 |`/`|Web page with basic RI information|
 |`/data`|Web-based administrative interface|
 |`/cds-services/`|CDS Hook Discovery endpoint|
-|`/cds-services/order-review-crd`|CDS Hook endpoint for order-review|
-|`/cds-services/medication-prescribe-crd`|CDS Hook endpoint for medication-prescribe|
+|~`/cds-services/order-review-crd`~|CDS Hook endpoint for order-review (deprecated)|
+|~`/cds-services/medication-prescribe-crd`~|CDS Hook endpoint for medication-prescribe (deprecated)|
+|`/cds-services/order-sign-crd`|CDS Hook endpoint for order-sign|
+|`/cds-services/order-select-crd`|CDS Hook endpoint for order-select|
 |`/fetchFhirUri/`|Used by the smart application to fetch fhir resources by URI|
 
 ## Configuration
