@@ -107,28 +107,47 @@ void embedDtrScript() {
 
 task embedCdsLibrary() {
     doLast {
-        embedCdsLibraryScript()
-    }
-}
-void embedCdsLibraryScript() {
-    exec {
-        workingDir './'
-        commandLine 'git', 'clone', 'https://github.com/HL7-DaVinci/CDS-Library.git', 'CDS-Library'
-    }
-    exec {
-        workingDir './CDS-Library'
-        commandLine 'git', 'checkout', 'master'
+        if (project.hasProperty('branch')) {
+            cloneCdsLibraryScript(branch)
+        } else {
+            cloneCdsLibraryScript('master')
+        }
     }
 }
 
 task updateCdsLibrary() {
     doLast {
-        updateCdsLibraryScript()
+        if (project.hasProperty('branch')) {
+            checkoutCdsLibraryScript(branch)
+            pullCdsLibraryScript()
+        } else {
+            pullCdsLibraryScript()
+        }
     }
 }
-void updateCdsLibraryScript() {
+
+void cloneCdsLibraryScript(branch) {
+    println "GIT: clone CDS-Library branch " + branch
+    exec {
+        workingDir './'
+        commandLine 'git', 'clone', 'https://github.com/HL7-DaVinci/CDS-Library.git', 'CDS-Library'
+    }
+    checkoutCdsLibraryScript(branch)
+}
+
+void pullCdsLibraryScript() {
+    println "GIT: pull latest CDS-Library"
     exec {
         workingDir './CDS-Library'
-        commandLine 'git', 'pull', 'origin', 'master'
+        commandLine 'git', 'pull'
     }
 }
+
+void checkoutCdsLibraryScript(branch) {
+    println "GIT: checkout CDS-Library branch " + branch
+    exec {
+        workingDir './CDS-Library'
+        commandLine 'git', 'checkout', branch
+    }
+}
+

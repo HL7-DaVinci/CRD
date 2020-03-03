@@ -94,6 +94,19 @@ To edit the web apps, the code in `src/main/resources/node_interfaces` should be
 
 You can also run the gradle task `buildReact` in the `server` directory to do the same thing.  Alternatively, running the bash script itself using `./buildout.sh` with `node_interfaces` as a working directory.
 
+## The embedded CDS-Library
+
+As described above, the CDS-Library can be cloned from github for embedded use with the "localDb". To clone with a different branch named some-other-branch:
+
+	CRD$ gradle :server:embedCdsLibrary -Pbranch=some-other-branch
+	
+To update the embedded CDS-Library repository:
+
+	CRD$ gradle :server:updateCdsLibrary
+	
+To switch branches on the already cloned CDS-Library repository:
+
+	CRD$ gradle :server:updateCdsLibrary -Pbranch=some-other-branch
 
 ## The integrated smart app
 
