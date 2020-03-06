@@ -25,6 +25,8 @@ public class CardBuilder {
     private String requestId;
     private Boolean priorAuthRequired;
     private Boolean documentationRequired;
+    private String questionnaireF2FUri;
+    private String questionnaireLabUri;
 
     public Boolean ruleApplies() {
       return ruleApplies;
@@ -104,6 +106,24 @@ public class CardBuilder {
 
     public CqlResultsForCard() {
     }
+
+    public String getQuestionnaireF2FUri() {
+      return this.questionnaireF2FUri;
+    }
+
+    public CqlResultsForCard setQuestionnaireF2FUri(String questionnaireF2FUri) {
+      this.questionnaireF2FUri = questionnaireF2FUri;
+      return this;
+    }
+
+    public String getQuestionnaireLabUri() {
+      return questionnaireLabUri;
+    }
+
+    public CqlResultsForCard setQuestionnaireLabUri(String questionnaireLabUri) {
+      this.questionnaireLabUri = questionnaireLabUri;
+      return this;
+    }
   }
 
   /**
@@ -138,6 +158,14 @@ public class CardBuilder {
     Card card = transform(cqlResults);
     List<Link> links = new ArrayList<Link>(card.getLinks());
     links.add(smartAppLaunchLink);
+    card.setLinks(links);
+    return card;
+  }
+
+  public static Card transform(CqlResultsForCard cqlResults, List<Link> smartAppLaunchLink) {
+    Card card = transform(cqlResults);
+    List<Link> links = new ArrayList<Link>(card.getLinks());
+    links.addAll(smartAppLaunchLink);
     card.setLinks(links);
     return card;
   }
