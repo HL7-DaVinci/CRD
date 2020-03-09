@@ -106,6 +106,13 @@ void embedDtrScript() {
 }
 
 task embedCdsLibrary() {
+    doFirst {
+        exec {
+            workingDir './'
+            commandLine 'rm', '-rf', 'CDS-Library'
+        }
+    }
+
     doLast {
         if (project.hasProperty('branch')) {
             cloneCdsLibraryScript(branch)

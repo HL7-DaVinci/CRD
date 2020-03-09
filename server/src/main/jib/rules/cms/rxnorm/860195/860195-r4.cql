@@ -26,7 +26,7 @@ define RESULT_Details:
 define RESULT_InfoLink:
     'https://www.medicare.gov/forms-help-and-resources/forms/medicare-forms.html'
 
-define RESULT_QuestionnaireUri:
+define RESULT_QuestionnaireOrderUri:
     'urn:hl7:davinci:crd:botox-questionnaire'
 
 define RESULT_requestId:

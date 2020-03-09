@@ -26,8 +26,14 @@ define RESULT_Details:
 define RESULT_InfoLink:
     'https://www.cms.gov/outreach-and-education/medicare-learning-network-mln/mlnproducts/downloads/home-oxygen-therapy-text-only.pdf'
 
-define RESULT_QuestionnaireUri:
+define RESULT_QuestionnaireOrderUri:
     'urn:hl7:davinci:crd:home-oxygen-questionnaire_2-r4'
+
+define RESULT_QuestionnaireFaceToFaceUri:
+    'urn:hl7:davinci:crd:home-oxygen-questionnaire_2-r4'
+
+define RESULT_QuestionnaireLabUri:
+    'urn:hl7:davinci:crd:home-oxygen-questionnaire_2-r4'      
 
 define RESULT_requestId:
     device_request

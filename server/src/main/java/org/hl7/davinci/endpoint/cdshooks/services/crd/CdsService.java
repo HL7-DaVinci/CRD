@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 import javax.validation.Valid;
 
@@ -37,8 +38,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   static final Logger logger = LoggerFactory.getLogger(CdsService.class);
 
   /**
-   * The {id} portion of the URL to this service which is available at {baseUrl}/cds-services/{id}.
-   * REQUIRED
+   * The {id} portion of the URL to this service which is available at
+   * {baseUrl}/cds-services/{id}. REQUIRED
    */
   public String id = null;
 
@@ -58,9 +59,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   public String description = null;
 
   /**
-   * An object containing key/value pairs of FHIR queries that this service is requesting that the
-   * EHR prefetch and provide on each service call. The key is a string that describes the type of
-   * data being requested and the value is a string representing the FHIR query. OPTIONAL
+   * An object containing key/value pairs of FHIR queries that this service is
+   * requesting that the EHR prefetch and provide on each service call. The key is
+   * a string that describes the type of data being requested and the value is a
+   * string representing the FHIR query. OPTIONAL
    */
   public Prefetch prefetch = null;
   Class<?> requestClass = null;
@@ -80,12 +82,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   /**
    * Create a new cdsservice.
    *
-   * @param id Will be used in the url, should be unique.
-   * @param hook Which hook can call this.
-   * @param title Human title.
-   * @param description Human description.
-   * @param prefetchElements List of prefetch elements, will be in prefetch template.
-   * @param fhirComponents Fhir components to use
+   * @param id               Will be used in the url, should be unique.
+   * @param hook             Which hook can call this.
+   * @param title            Human title.
+   * @param description      Human description.
+   * @param prefetchElements List of prefetch elements, will be in prefetch
+   *                         template.
+   * @param fhirComponents   Fhir components to use
    */
   public CdsService(String id, Hook hook, String title, String description,
       List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents) {
@@ -117,25 +120,25 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   /**
    * Performs generic operations for incoming requests of any type.
+   * 
    * @param request the generically typed incoming request
    * @return The response from the server
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
     // create the RequestLog
-    RequestLog requestLog = new RequestLog(request, new Date().getTime(), this.fhirComponents.getFhirVersion().toString(),
-        this.id, requestService,5);
+    RequestLog requestLog = new RequestLog(request, new Date().getTime(),
+        this.fhirComponents.getFhirVersion().toString(), this.id, requestService, 5);
 
     // Parsed request
     requestLog.advanceTimeline(requestService);
 
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request,
-        this.fhirComponents);
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
     prefetchHydrator.hydrate();
 
     // hydrated
     requestLog.advanceTimeline(requestService);
 
-    // logger.info("***** ***** request from requestLog:  "+requestLog.toString() );
+    // logger.info("***** ***** request from requestLog: "+requestLog.toString() );
 
     CdsResponse response = new CdsResponse();
 
@@ -145,7 +148,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       lookupResults = this.createCqlExecutionContexts(request, fileStore);
       requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
-      logger.warn(e.getMessage()+"; summary card sent to client");
+      logger.warn(e.getMessage() + "; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
@@ -153,23 +156,18 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     }
 
     boolean foundApplicableRule = false;
-    for (CoverageRequirementRuleResult lookupResult: lookupResults) {
+    for (CoverageRequirementRuleResult lookupResult : lookupResults) {
       requestLog.addTopic(requestService, lookupResult.getTopic());
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext(), lookupResult.getTopic());
-      if (results.ruleApplies()){
+      if (results.ruleApplies()) {
         foundApplicableRule = true;
-        if ((results.getDocumentationRequired() || results.getPriorAuthRequired()) &&
-            (results.getQuestionnaireUri() != null && !results.getQuestionnaireUri().isEmpty())) {
-          Link smartAppLink = smartLinkBuilder(
-              request.getContext().getPatientId(),
-              request.getFhirServer(),
-              applicationBaseUrl,
-              results.getQuestionnaireUri(),
-              results.getRequestId(),
-              lookupResult.getCriteria(),
-              results.getPriorAuthRequired());
-          response.addCard(CardBuilder.transform(results, smartAppLink));
-        } else{
+        if ((results.getDocumentationRequired() || results.getPriorAuthRequired())
+            && (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())
+                || StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())
+                || StringUtils.isNotEmpty(results.getQuestionnaireLabUri()))) {
+          List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
+          response.addCard(CardBuilder.transform(results, smartAppLinks));
+        } else {
           logger.warn("Unspecified Questionnaire URI; summary card sent to client");
           response.addCard(CardBuilder.transform(results));
         }
@@ -181,7 +179,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     if (!foundApplicableRule) {
       String msg = "No documentation rules found";
-      logger.warn(msg+"; summary card sent to client");
+      logger.warn(msg + "; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(msg));
     }
 
@@ -190,27 +188,68 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return response;
   }
 
+  private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
+      CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
+    List<Link> listOfLinks = new ArrayList<>();
+    if (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          results.getQuestionnaireOrderUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getPriorAuthRequired(), "Order Form"));
+    }
+    if (StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          results.getQuestionnaireFaceToFaceUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getPriorAuthRequired(), "Face to Face Encounter Form"));
+    }
+    if (StringUtils.isNotEmpty(results.getQuestionnaireLabUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          results.getQuestionnaireLabUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getPriorAuthRequired(), "Lab Form"));
+    }
+    return listOfLinks;
+  }
+
   private CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
     CqlResultsForCard results = new CqlResultsForCard();
 
-
-    results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES",context));
+    results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES", context));
     if (!results.ruleApplies()) {
       return results;
     }
 
     String humanReadableTopic = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(topic), ' ');
 
-    results.setSummary(humanReadableTopic + ": " + evaluateStatement("RESULT_Summary",context).toString())
-        .setDetails(evaluateStatement("RESULT_Details",context).toString())
-        .setInfoLink(evaluateStatement("RESULT_InfoLink",context).toString())
+    results.setSummary(humanReadableTopic + ": " + evaluateStatement("RESULT_Summary", context).toString())
+        .setDetails(evaluateStatement("RESULT_Details", context).toString())
+        .setInfoLink(evaluateStatement("RESULT_InfoLink", context).toString())
         .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
         .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
 
-    if (evaluateStatement("RESULT_QuestionnaireUri",context) != null) {
-      results
-          .setQuestionnaireUri(evaluateStatement("RESULT_QuestionnaireUri",context).toString())
-          .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser().encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId",context))));
+    if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null) {
+      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString())
+          .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+              .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+    }
+
+    try {
+      if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null) {
+        results
+            .setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString())
+            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      }
+    } catch (Exception e) {
+      logger.info("-- No face to face questionnaire defined");
+    }
+
+    try {
+      if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null) {
+        results.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString())
+            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      }
+    } catch (Exception e) {
+      logger.info("-- No Lab questionnaire defined");
     }
 
     return results;
@@ -227,7 +266,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri,
-                                String reqResourceId, CoverageRequirementRuleCriteria criteria, boolean priorAuthRequired) {
+      String reqResourceId, CoverageRequirementRuleCriteria criteria, boolean priorAuthRequired, String label) {
     URI configLaunchUri = myConfig.getLaunchUrl();
     String launchUrl;
     if (myConfig.getLaunchUrl().isAbsolute()) {
@@ -235,8 +274,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } else {
       try {
         launchUrl = new URL(applicationBaseUrl.getProtocol(), applicationBaseUrl.getHost(),
-            applicationBaseUrl.getPort(), applicationBaseUrl.getFile() + configLaunchUri.toString(),
-            null).toString();
+            applicationBaseUrl.getPort(), applicationBaseUrl.getFile() + configLaunchUri.toString(), null).toString();
       } catch (MalformedURLException e) {
         String msg = "Error creating smart launch URL";
         logger.error(msg);
@@ -248,20 +286,21 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
     }
     if (patientId != null && patientId.startsWith("Patient/")) {
-      patientId = patientId.substring(8,patientId.length());
+      patientId = patientId.substring(8, patientId.length());
     }
 
     // PARAMS:
     // template is the uri of the questionnaire
-    // request is the ID of the device request or medrec (not the full URI like the IG says, since it should be taken from fhirBase
-    //HashMap<String,String> appContextMap = new HashMap<>();
-    //appContextMap.put("template", questionnaireUri);
-    //appContextMap.put("request", reqResourceId);
+    // request is the ID of the device request or medrec (not the full URI like the
+    // IG says, since it should be taken from fhirBase
+    // HashMap<String,String> appContextMap = new HashMap<>();
+    // appContextMap.put("template", questionnaireUri);
+    // appContextMap.put("request", reqResourceId);
     String filepath = "../../getfile/" + criteria.getQueryString();
 
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
-    
-    appContext = appContext + "&priorauth=" + (priorAuthRequired?"true":"false");
+
+    appContext = appContext + "&priorauth=" + (priorAuthRequired ? "true" : "false");
     appContext = appContext + "&filepath=";
     if (myConfig.getUrlEncodeAppContext()) {
       try {
@@ -280,15 +319,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     logger.info("smarLinkBuilder: appContext: " + appContext);
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
-      launchUrl = launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId + "&template=" + questionnaireUri + "&request=" + reqResourceId;
-    }else {
+      launchUrl = launchUrl + "?iss=" + fhirBase + "&patientId=" + patientId + "&template=" + questionnaireUri
+          + "&request=" + reqResourceId;
+    } else {
       // TODO: The iss should be set by the EHR?
       launchUrl = launchUrl;
     }
 
     Link link = new Link();
     link.setType("smart");
-    link.setLabel("SMART App");
+    link.setLabel(label);
     link.setUrl(launchUrl);
 
     link.setAppContext(appContext);
@@ -297,9 +337,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   // Implement this in child class
-  public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request, FileStore fileStore)
-      throws RequestIncompleteException;
+  public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request,
+      FileStore fileStore) throws RequestIncompleteException;
 
 }
-
-
