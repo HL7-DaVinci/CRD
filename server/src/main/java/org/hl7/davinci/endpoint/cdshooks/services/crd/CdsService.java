@@ -327,11 +327,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     Link link = new Link();
     link.setType("smart");
-    if (StringUtils.isNotEmpty(label)) {
-      link.setLabel(label);
-    } else {
-      link.setLabel("SMART App");
-    }
+    link.setLabel(label);
     link.setUrl(launchUrl);
 
     link.setAppContext(appContext);
