@@ -162,10 +162,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       if (results.ruleApplies()) {
         foundApplicableRule = true;
         if ((results.getDocumentationRequired() || results.getPriorAuthRequired())
-            && (StringUtils.isNotEmpty(results.getQuestionnaireUri())
-                || StringUtils.isNotEmpty(results.getQuestionnaireF2FUri())
+            && (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())
+                || StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(results.getQuestionnaireLabUri()))) {
-          List<Link> smartAppLinks = createQuestionnarieLink(request, applicationBaseUrl, lookupResult, results);
+          List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
           response.addCard(CardBuilder.transform(results, smartAppLinks));
         } else {
           logger.warn("Unspecified Questionnaire URI; summary card sent to client");
@@ -188,17 +188,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return response;
   }
 
-  private List<Link> createQuestionnarieLink(requestTypeT request, URL applicationBaseUrl,
-      CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
+  private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
+                                              CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
-    if (StringUtils.isNotEmpty(results.getQuestionnaireUri())) {
+    if (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnaireUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getQuestionnaireOrderUri(), results.getRequestId(), lookupResult.getCriteria(),
           results.getPriorAuthRequired(), "Order Form"));
     }
-    if (StringUtils.isNotEmpty(results.getQuestionnaireF2FUri())) {
+    if (StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnaireF2FUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getQuestionnaireFaceToFaceUri(), results.getRequestId(), lookupResult.getCriteria(),
           results.getPriorAuthRequired(), "Face to Face Encounter Form"));
     }
     if (StringUtils.isNotEmpty(results.getQuestionnaireLabUri())) {
@@ -226,14 +226,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
 
     if (evaluateStatement("RESULT_QuestionnaireUri", context) != null) {
-      results.setQuestionnaireUri(evaluateStatement("RESULT_QuestionnaireUri", context).toString())
+      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireUri", context).toString())
           .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
               .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
     }
 
     try {
-      if (evaluateStatement("RESULT_QuestionnaireF2FUri", context) != null) {
-        results.setQuestionnaireF2FUri(evaluateStatement("RESULT_QuestionnaireF2FUri", context).toString())
+      if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null) {
+        results.setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString())
             .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
                 .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
       }

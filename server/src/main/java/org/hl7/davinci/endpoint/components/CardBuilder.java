@@ -21,12 +21,13 @@ public class CardBuilder {
     private String summary;
     private String details;
     private String infoLink;
-    private String questionnaireUri;
+    private String questionnaireOrderUri;
+    private String questionnaireFaceToFaceUri;
+    private String questionnaireLabUri;
     private String requestId;
     private Boolean priorAuthRequired;
     private Boolean documentationRequired;
-    private String questionnaireF2FUri;
-    private String questionnaireLabUri;
+
 
     public Boolean ruleApplies() {
       return ruleApplies;
@@ -68,12 +69,12 @@ public class CardBuilder {
       return this;
     }
 
-    public String getQuestionnaireUri() {
-      return questionnaireUri;
+    public String getQuestionnaireOrderUri() {
+      return questionnaireOrderUri;
     }
 
-    public CqlResultsForCard setQuestionnaireUri(String questionnaireUri) {
-      this.questionnaireUri = questionnaireUri;
+    public CqlResultsForCard setQuestionnaireOrderUri(String questionnaireOrderUri) {
+      this.questionnaireOrderUri = questionnaireOrderUri;
       return this;
     }
 
@@ -107,12 +108,12 @@ public class CardBuilder {
     public CqlResultsForCard() {
     }
 
-    public String getQuestionnaireF2FUri() {
-      return this.questionnaireF2FUri;
+    public String getQuestionnaireFaceToFaceUri() {
+      return this.questionnaireFaceToFaceUri;
     }
 
-    public CqlResultsForCard setQuestionnaireF2FUri(String questionnaireF2FUri) {
-      this.questionnaireF2FUri = questionnaireF2FUri;
+    public CqlResultsForCard setQuestionnaireFaceToFaceUri(String questionnaireFaceToFaceUri) {
+      this.questionnaireFaceToFaceUri = questionnaireFaceToFaceUri;
       return this;
     }
 
@@ -162,10 +163,17 @@ public class CardBuilder {
     return card;
   }
 
-  public static Card transform(CqlResultsForCard cqlResults, List<Link> smartAppLaunchLink) {
+  /**
+   * Tranform the CQL results for card
+   * then add a list of smart app launch links to the card
+   * @param cqlResults The CQL results
+   * @param smartAppLaunchLinks a list of links
+   * @return card to be returned
+   */
+  public static Card transform(CqlResultsForCard cqlResults, List<Link> smartAppLaunchLinks) {
     Card card = transform(cqlResults);
     List<Link> links = new ArrayList<Link>(card.getLinks());
-    links.addAll(smartAppLaunchLink);
+    links.addAll(smartAppLaunchLinks);
     card.setLinks(links);
     return card;
   }
