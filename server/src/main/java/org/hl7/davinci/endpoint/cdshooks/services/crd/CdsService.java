@@ -194,17 +194,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     if (StringUtils.isNotEmpty(results.getQuestionnaireUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           results.getQuestionnaireUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Order Questionnaire"));
+          results.getPriorAuthRequired(), "Order Form"));
     }
     if (StringUtils.isNotEmpty(results.getQuestionnaireF2FUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           results.getQuestionnaireF2FUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Face to Face Questionnaire"));
+          results.getPriorAuthRequired(), "Face to Face Encounter Form"));
     }
     if (StringUtils.isNotEmpty(results.getQuestionnaireLabUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           results.getQuestionnaireLabUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Lab Questionnaire"));
+          results.getPriorAuthRequired(), "Lab Form"));
     }
     return listOfLinks;
   }

@@ -61,6 +61,6 @@ gitHubConfig:
 localDb:
   rules: src/main/jib/rules/
   fhirArtifacts: src/main/jib/smartAppFhirArtifacts/
-  path: server/CDS-Library/
+  path: CDS-Library/
 
 hostOrg: default
