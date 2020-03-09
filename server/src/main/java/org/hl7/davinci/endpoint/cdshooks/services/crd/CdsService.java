@@ -189,7 +189,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
-                                              CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
+      CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
     if (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
@@ -225,20 +225,21 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
         .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
 
-    if (evaluateStatement("RESULT_QuestionnaireUri", context) != null) {
-      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireUri", context).toString())
+    if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null) {
+      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString())
           .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
               .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
     }
 
     try {
       if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null) {
-        results.setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString())
+        results
+            .setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString())
             .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
                 .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
       }
     } catch (Exception e) {
-      logger.info("-- No F2F questionnaire defined");
+      logger.info("-- No face to face questionnaire defined");
     }
 
     try {
