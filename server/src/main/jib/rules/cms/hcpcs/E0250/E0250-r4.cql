@@ -24,7 +24,7 @@ define RESULT_InfoLink:
     'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforHospitalBedsandAccessories-ICN909476.pdf'
 
 define RESULT_QuestionnaireOrderUri:
-    'urn:hl7:davinci:crd:hospital-bed-questionnaire'
+    'urn:hl7:davinci:crd:hospital-bed-questionnaire-r4'
 
 define RESULT_requestId:
   device_request

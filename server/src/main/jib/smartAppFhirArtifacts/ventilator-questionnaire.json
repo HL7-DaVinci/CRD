@@ -221,52 +221,6 @@
           "type": "open-choice",
           "repeats": true,
           "option": [
-            {
-              "valueCoding": {
-                "code": "Neuromuscular Disease"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "Thoracic Restrictive Disease"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "COPD"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "Chest Wall Deformity"
-              }
-            }
-          ]
-        },
-        {
-          "linkId": "4.2",
-          "text": "Describe Neuromuscular Disease",
-          "type": "text",
-          "enableWhen": [
-            {
-              "question": "4.1",
-              "answerCoding": {
-                "code": "Neuromuscular Disease"
-              }
-            }
-          ]
-        },
-        {
-          "linkId": "4.3",
-          "text": "Describe Thoracic Restrictive Disease",
-          "type": "text",
-          "enableWhen": [
-            {
-              "question": "4.1",
-              "answerCoding": {
-                "code": "Thoracic Restrictive Disease"
-              }
-            }
           ]
         }
       ]
@@ -378,6 +332,19 @@
       "text": "Accessory Order",
       "item": [
         {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "table"
+                  }
+                ]
+              }
+            }
+          ],
           "linkId": "7.1",
           "type": "group",
           "repeats": "true",
