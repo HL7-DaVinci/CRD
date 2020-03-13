@@ -23,7 +23,7 @@ define RESULT_Details:
 define RESULT_InfoLink:
     'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforVentilators-MLN9725344Print-Friendly.pdf'
 
-define RESULT_QuestionnaireUri:
+define RESULT_QuestionnaireOrderUri:
     'urn:hl7:davinci:crd:ventilator-questionnaire-r4'
 
 define RESULT_requestId:

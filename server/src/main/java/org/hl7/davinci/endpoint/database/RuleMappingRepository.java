@@ -13,14 +13,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @RepositoryRestResource
 @CrossOrigin(origins = "http://localhost:4200")
 @Repository
-public interface DataRepository extends CrudRepository<CoverageRequirementRule, Long> {
+public interface RuleMappingRepository extends CrudRepository<RuleMapping, Long> {
 
   @Query(
-      "SELECT r FROM CoverageRequirementRule r WHERE "
-          + "r.payor = :#{#criteria.payor} "
+      "SELECT r FROM RuleMapping r WHERE "
+          + "r.payer = :#{#criteria.payor} "
           + "and r.code = :#{#criteria.code} "
-          + "and r.codeSystem = :#{#criteria.codeSystem} ")
-  List<CoverageRequirementRule> findRules(
+          + "and r.codeSystem = :#{#criteria.codeSystem} "
+          + "and r.fhirVersion = :#{#criteria.fhirVersion}")
+  List<RuleMapping> findRules(
       @Param("criteria") CoverageRequirementRuleCriteria criteria
   );
 }

@@ -122,3 +122,13 @@
 .no-button:hover {
     border: 2px solid #d9534f
 }
+
+div.spacer {
+    min-width: 10px;
+    min-height: 10px;
+    float: right;
+}
+
+input.reload {
+    float: right;
+}

@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
@@ -39,9 +41,8 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public OrderSignService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS); }
 
   @Override
-  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, CoverageRequirementRuleFinder ruleFinder) {
-
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSignRequest.getPrefetch(), ruleFinder);
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore) {
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSignRequest.getPrefetch(), fileStore);
     fhirBundleProcessor.processDeviceRequests();
     fhirBundleProcessor.processMedicationRequests();
     fhirBundleProcessor.processServiceRequests();

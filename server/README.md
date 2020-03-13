@@ -6,13 +6,27 @@ This RI offers very basic responses to CRD requests. It will use the patient's g
 Users are able to create and edit entries in the coverage requirements rules through a web based interface. The goal of this functionality is to allow requesting systems to vary the payload of the request and see different response cards returned.
 
 ## Running the server
-If you are still in the `server` folder: `gradle bootRun`
+If this is the first time the server is being run you must first configure the application for file retrieval. 
+	
+From the root of application:
+	
+	CRD$ gradle :server:embedCdsLibrary
+	
+From within the Server Folder:
 
-or
+	CRD/server$ gradle embedCdsLibrary
+	
+Next launch the server.
 
-If you are in the `CRD` folder: `gradle server:bootRun` 
+From the root of the application:
 
-This will start the server running on http://localhost:8090.
+	CRD$ gradle :server:bootRun
+	
+From withinthe server folder:
+
+	CRD/server$ gradle bootRun
+
+This will start the server running on http://localhost:8090 with the CDS-Library at server/CDS-Library.
 
 ## Server endpoints
 |Relative URL|Endpoint Description|
@@ -24,10 +38,43 @@ This will start the server running on http://localhost:8090.
 |~`/cds-services/medication-prescribe-crd`~|CDS Hook endpoint for medication-prescribe (deprecated)|
 |`/cds-services/order-sign-crd`|CDS Hook endpoint for order-sign|
 |`/cds-services/order-select-crd`|CDS Hook endpoint for order-select|
+|`/files/`|File retrieval endpoint|
+|`/fhir/`|Endpoint for retrieving FHIR Resources (Quesionnaire and Library) needed by DTR|
+|`/reload`|Rebuild the database of rules|
 |`/fetchFhirUri/`|Used by the smart application to fetch fhir resources by URI|
 
 ## Configuration
 As a Spring Boot application, configuration information is maintained in [application.yml](src/main/resources/application.yml).
+### File Retrieval
+The application can be configured to retrieve CQL files for running the CRD rules as well as support CQL files and FHIR Resources from a couple of different locations. These support files are now stored in a separate repository called [CDS-Library](https://github.com/HL7-DaVinci/CDS-Library).
+
+#### Local Database
+To access the files locally to where the server is running, the CDS-Library repository must be cloned. This can be done with `git clone` or by running the `gradle embedCdsLibrary` command from within the server folder. These will pull down the latest version found in master. The tool then needs to be configured to access the repository in the correct location with the `localDb` profile.
+
+	application.yml:
+		{
+			spring:
+				profiles:
+					active: localDb
+			localDb:
+				path: CDS-Library/
+		}
+
+#### GitHub
+To access files directly in a GitHub repo without needing to clone or pull anything down, the application needs to be configured to use the `gitHub` profile. The token must be configured through GitHub.
+
+	application.yml:
+		{
+			spring:
+				profiles:
+					active: gitHub
+			gitHubConfig:
+				username: user
+				token: token
+				repository: HL7-DaVinci/CDS-Library
+				branch: master
+				rule-path: .
+		}
 
 ## Security
 The server is protected with JSON Web Tokens (JWT), an industry standard for authentication.  Tokens are generated in the `request-generator` using SHA256 for hashing and RSA-2048 encryption.  The tokens DO NOT encrypt the data that is sent to the server, they simply provide a signature that can be verified using a public key.  The tokens are only used to verify that the request comes from a trusted source. 
@@ -49,6 +96,19 @@ To edit the web apps, the code in `src/main/resources/node_interfaces` should be
 
 You can also run the gradle task `buildReact` in the `server` directory to do the same thing.  Alternatively, running the bash script itself using `./buildout.sh` with `node_interfaces` as a working directory.
 
+## The embedded CDS-Library
+
+As described above, the CDS-Library can be cloned from github for embedded use with the "localDb". To clone with a different branch named some-other-branch:
+
+	CRD$ gradle :server:embedCdsLibrary -Pbranch=some-other-branch
+	
+To update the embedded CDS-Library repository:
+
+	CRD$ gradle :server:updateCdsLibrary
+	
+To switch branches on the already cloned CDS-Library repository:
+
+	CRD$ gradle :server:updateCdsLibrary -Pbranch=some-other-branch
 
 ## The integrated smart app
 

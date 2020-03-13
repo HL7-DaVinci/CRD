@@ -82,8 +82,8 @@ public class EndToEndRequestPrefetchTest {
             JsonNode.class);
 
     System.out.println(cards);
-    assertEquals(cards.get("cards").get(0).get("summary").textValue(),
-        "Documentation Required.");
+    String summary = cards.get("cards").get(0).get("summary").textValue();
+    assert(summary.endsWith("Documentation Required."));
   }
 
   @Test

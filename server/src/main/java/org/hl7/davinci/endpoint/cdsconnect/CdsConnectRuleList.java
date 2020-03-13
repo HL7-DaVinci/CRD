@@ -1,8 +1,6 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
 import org.hl7.ShortNameMaps;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -49,6 +47,7 @@ public class CdsConnectRuleList {
    * This method creates rules from the rules list without populating the CqlBundle and CqlPackagePath with valid
    * information. It is useful for querying a list of rules without needing the CQL data.
    */
+  /*
   public List<CoverageRequirementRule> getRulesForDisplay() {
     List<CoverageRequirementRule> rules = new ArrayList<>();
 
@@ -93,12 +92,14 @@ public class CdsConnectRuleList {
         }
 
         rule.setCqlPackagePath("unknown");
-        CqlBundle emptyCqlBundle = new CqlBundle();
-        rule.setCqlBundle(emptyCqlBundle);
+        //TODO: fixme
+        // CqlBundle emptyCqlBundle = new CqlBundle();
+        // rule.setCqlBundle(emptyCqlBundle);
         rules.add(rule);
       }
     }
 
     return rules;
   }
+  */
 }

@@ -1,0 +1,17 @@
+{
+    "topic": "NonEmergencyAmbulanceTransportation",
+    "payers": [
+        "cms"
+    ],
+    "mappings": [
+        {
+            "codeSystem": "hcpcs",
+            "codes": [
+                "A0426"
+            ]
+        }
+    ],
+    "fhirVersions": [
+        "R4"
+    ]
+}

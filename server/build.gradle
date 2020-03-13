@@ -104,3 +104,57 @@ void embedDtrScript() {
         commandLine 'rm', '-rf', 'tempFolder'
     }
 }
+
+task embedCdsLibrary() {
+    doFirst {
+        exec {
+            workingDir './'
+            commandLine 'rm', '-rf', 'CDS-Library'
+        }
+    }
+
+    doLast {
+        if (project.hasProperty('branch')) {
+            cloneCdsLibraryScript(branch)
+        } else {
+            cloneCdsLibraryScript('master')
+        }
+    }
+}
+
+task updateCdsLibrary() {
+    doLast {
+        if (project.hasProperty('branch')) {
+            checkoutCdsLibraryScript(branch)
+            pullCdsLibraryScript()
+        } else {
+            pullCdsLibraryScript()
+        }
+    }
+}
+
+void cloneCdsLibraryScript(branch) {
+    println "GIT: clone CDS-Library branch " + branch
+    exec {
+        workingDir './'
+        commandLine 'git', 'clone', 'https://github.com/HL7-DaVinci/CDS-Library.git', 'CDS-Library'
+    }
+    checkoutCdsLibraryScript(branch)
+}
+
+void pullCdsLibraryScript() {
+    println "GIT: pull latest CDS-Library"
+    exec {
+        workingDir './CDS-Library'
+        commandLine 'git', 'pull'
+    }
+}
+
+void checkoutCdsLibraryScript(branch) {
+    println "GIT: checkout CDS-Library branch " + branch
+    exec {
+        workingDir './CDS-Library'
+        commandLine 'git', 'checkout', branch
+    }
+}
+

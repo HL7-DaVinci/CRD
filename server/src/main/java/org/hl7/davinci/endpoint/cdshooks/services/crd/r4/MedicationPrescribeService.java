@@ -7,7 +7,7 @@ import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
+import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
@@ -35,9 +35,9 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
   public MedicationPrescribeService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS); }
 
   @Override
-  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(MedicationPrescribeRequest medicationPrescribeRequest, CoverageRequirementRuleFinder ruleFinder) {
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(MedicationPrescribeRequest medicationPrescribeRequest, FileStore fileStore) {
 
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(medicationPrescribeRequest.getPrefetch(), ruleFinder);
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(medicationPrescribeRequest.getPrefetch(), fileStore);
     fhirBundleProcessor.processMedicationRequests();
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 

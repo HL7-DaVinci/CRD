@@ -6,12 +6,12 @@ import './request.css'
 export default class RequestEntry extends Component {
     constructor(props) {
         super(props);
-        let timestamp = props.data.timeStamp;
+        let timestamp = this.props.data.timestamp;
         if (!timestamp) {
             timestamp = new Date()
         }
         timestamp = format(new Date(timestamp), 'yyyy-MM-dd   HH:mm:ss  O')
-        // console.log(`date: ${timestamp}`)
+        //console.log(`date: ${timestamp}`)
         this.state = {
             hookType: this.props.data.hookType,
             fhirVersion: this.props.data.fhirVersion,

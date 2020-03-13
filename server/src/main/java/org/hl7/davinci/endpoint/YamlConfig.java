@@ -3,6 +3,7 @@ package org.hl7.davinci.endpoint;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.hl7.davinci.endpoint.config.LocalDb;
 import org.hl7.davinci.endpoint.config.CdsConnect;
 import org.hl7.davinci.endpoint.config.GitHubConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -33,19 +34,9 @@ public class YamlConfig {
 
   private GitHubConfig gitHubConfig;
 
-  private String localDbRules;
-
-  private String localDbFhirArtifacts;
+  private LocalDb localDb;
 
   private boolean urlEncodeAppContext;
-
-  public String getLocalDbFhirArtifacts() {
-    return localDbFhirArtifacts;
-  }
-
-  public void setLocalDbFhirArtifacts(String localDbFhirArtifacts) {
-    this.localDbFhirArtifacts = localDbFhirArtifacts;
-  }
 
   public boolean getCheckJwt() {
     return checkJwt;
@@ -71,10 +62,6 @@ public class YamlConfig {
   public boolean isCheckPractitionerLocation() {
     return checkPractitionerLocation;
   }
-
-  public String getLocalDbRules() { return localDbRules; }
-
-  public void setLocalDbRules(String localDbRules) { this.localDbRules = localDbRules; }
 
   public boolean isAppendParamsToSmartLaunchUrl() {
     return appendParamsToSmartLaunchUrl;
@@ -102,6 +89,10 @@ public class YamlConfig {
   public void setGitHubConfig(GitHubConfig gitHubConfig) { this.gitHubConfig = gitHubConfig; }
 
   public boolean getUrlEncodeAppContext() { return this.urlEncodeAppContext; }
+
+  public LocalDb getLocalDb() { return localDb; }
+
+  public void setLocalDb(LocalDb localDb) { this.localDb = localDb; }
 
   public void setUrlEncodeAppContext(boolean urlEncodeAppContext) { this.urlEncodeAppContext = urlEncodeAppContext; }
 }

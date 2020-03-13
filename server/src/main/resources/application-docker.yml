@@ -1,3 +1,4 @@
 # These settings active when profile docker is active
-localDbRules: /rules/
-localDbFhirArtifacts: /smartAppFhirArtifacts/
+localDb:
+  rules: /rules/
+  fhirArtifacts: /smartAppFhirArtifacts/

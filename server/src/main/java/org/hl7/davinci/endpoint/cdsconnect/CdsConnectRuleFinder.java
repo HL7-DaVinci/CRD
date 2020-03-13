@@ -1,7 +1,7 @@
 package org.hl7.davinci.endpoint.cdsconnect;
 
+/*
 import com.google.gson.JsonSyntaxException;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 @Component
 @Profile("cdsConnect")
-public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
+public class CdsConnectRuleFinder {
 
   static final Logger logger =
       LoggerFactory.getLogger(CdsConnectRuleFinder.class);
@@ -31,7 +31,6 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
    * Find and return the relevant coverage rule in CdsConnect.
    *
    * @param criteria The search criteria object
-   */
   public List<CoverageRequirementRule> findRules(CoverageRequirementRuleCriteria criteria) {
     List<CoverageRequirementRule> ruleList = new ArrayList<>();
 
@@ -51,7 +50,8 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
           CoverageRequirementRule rule = new CoverageRequirementRule();
           CqlBundle bundle = CqlBundle.fromZip(cqlBundle);
 
-          rule.setCqlBundle(bundle);
+          //TODO: fixme
+          // rule.setCqlBundle(bundle);
           rule.setCodeSystem(artifact.getCodeSystem());
           rule.setCode(artifact.getCode());
           rule.setPayor(artifact.getPayor());
@@ -75,7 +75,6 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
   /**
    * Find and return all coverage rules in CdsConnect.
    * Note: the list of rules returned may not include valid CQL data. This was done as an optimization.
-   */
   public List<CoverageRequirementRule> findAll() {
 
     List<CoverageRequirementRule> ruleList = new ArrayList<>();
@@ -95,3 +94,4 @@ public class CdsConnectRuleFinder implements CoverageRequirementRuleFinder {
     return ruleList;
   }
 }
+*/

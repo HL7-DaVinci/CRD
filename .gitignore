@@ -149,3 +149,7 @@ gradle-app.setting
 .settings/
 bin/
 .vscode/
+
+# ignore the embeded CDS Library
+CDS-Library
+

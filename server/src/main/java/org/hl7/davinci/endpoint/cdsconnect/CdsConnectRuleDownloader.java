@@ -2,7 +2,7 @@ package org.hl7.davinci.endpoint.cdsconnect;
 
 import org.apache.commons.io.FilenameUtils;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
+import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +25,11 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
   @Autowired
   private CdsConnectConnection connection;
 
-  public CqlBundleFile getFile(String payer, String codeSystem, String code, String name) {
+  public FileResource getFile(String payer, String codeSystem, String code, String name) {
     String query = payer + "/" + codeSystem + "/" + code;
     logger.info("getFile(" + query + ", " + name + ")");
 
-    CqlBundleFile bundleFile = null;
+    FileResource fileResource = null;
 
     CdsConnectRuleList ruleList = connection.queryForRulesList(query);
 
@@ -76,37 +76,38 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
           String elm = CqlExecution.translateToElm(new String(match.getCqlBundle()));
           byte[] elmData = elm.getBytes();
 
-          bundleFile = new CqlBundleFile();
-          bundleFile.setFilename(name).setResource(new ByteArrayResource(elmData));
+          fileResource = new FileResource();
+          fileResource.setFilename(name).setResource(new ByteArrayResource(elmData));
 
         } catch (Exception e) {
           logger.info("Error: could not convert CQL: " + e.getMessage());
-          return bundleFile;
+          return fileResource;
         }
 
       } else {
         byte[] fileData = match.getCqlBundle();
-        bundleFile = new CqlBundleFile();
-        bundleFile.setFilename(name).setResource(new ByteArrayResource(fileData));
+        fileResource = new FileResource();
+        fileResource.setFilename(name).setResource(new ByteArrayResource(fileData));
       }
     } else {
       logger.info("No matching files found");
     }
 
-    return bundleFile;
+    return fileResource;
   }
 
-  public CqlBundleFile downloadCqlBundleFile(Long id, String name) {
-    logger.info("downloadCqlBundleFile(" + id + ", " + name + ")");
-    CqlBundleFile bundleFile = null;
+  /*
+  public FileResource downloadCqlFile(Long id, String name) {
+    logger.info("downloadCqlFile(" + id + ", " + name + ")");
+    FileResource fileResource = null;
 
     CdsConnectArtifact artifact = new CdsConnectArtifact(connection, connection.retrieveArtifact(id.intValue()));
 
     List<CdsConnectFile> files = artifact.getFiles();
 
     if (files.size() == 0) {
-      logger.warn("downloadCqlBundleFile(" + id + ", " + name + "): No files found");
-      return bundleFile;
+      logger.warn("downloadCqlFile(" + id + ", " + name + "): No files found");
+      return fileResource;
     }
 
     byte[] cqlBundle = null;
@@ -143,14 +144,15 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
 
       if (cqlBundle == null) {
         // file not found
-        logger.warn("downloadCqlBundleFile(" + id + ", " + name + "): file not found");
-        return bundleFile;
+        logger.warn("downloadCqlile(" + id + ", " + name + "): file not found");
+        return fileResource;
       }
     }
 
-    bundleFile = new CqlBundleFile();
-    bundleFile.setFilename(filename).setResource(new ByteArrayResource(cqlBundle));
+    fileResource = new FileResource();
+    fileResource.setFilename(filename).setResource(new ByteArrayResource(cqlBundle));
 
-    return bundleFile;
+    return fileResource;
   }
+  */
 }
