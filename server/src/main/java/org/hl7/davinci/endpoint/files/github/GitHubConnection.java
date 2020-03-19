@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.github;
+package org.hl7.davinci.endpoint.files.github;
 
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.Application;

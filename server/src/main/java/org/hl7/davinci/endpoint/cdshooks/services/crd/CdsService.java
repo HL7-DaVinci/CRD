@@ -145,7 +145,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
     try {
-      lookupResults = this.createCqlExecutionContexts(request, fileStore);
+      lookupResults = this.createCqlExecutionContexts(request, fileStore, applicationBaseUrl.toString() + "/");
       requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage() + "; summary card sent to client");
@@ -338,6 +338,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   // Implement this in child class
   public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request,
-      FileStore fileStore) throws RequestIncompleteException;
+      FileStore fileStore, String baseUrl) throws RequestIncompleteException;
 
 }

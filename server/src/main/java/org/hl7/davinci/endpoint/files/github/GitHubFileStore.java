@@ -7,10 +7,11 @@ import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.CqlRule;
+import org.hl7.davinci.endpoint.database.FhirResource;
+import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.database.RuleMapping;
 import org.hl7.davinci.endpoint.database.RuleMappingRepository;
 import org.hl7.davinci.endpoint.files.*;
-import org.hl7.davinci.endpoint.github.GitHubConnection;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,9 @@ public class GitHubFileStore implements FileStore {
 
   @Autowired
   private RuleMappingRepository lookupTable;
+
+  @Autowired
+  private FhirResourceRepository fhirResources;
 
   @Autowired
   GitHubConnection connection;
@@ -118,6 +122,14 @@ public class GitHubFileStore implements FileStore {
 
       }
     }
+
+    // print the fhir resources table
+    logger.info("GitHubFileStore: " + FhirResource.getColumnsString());
+    for (FhirResource fhirResource : fhirResources.findAll()) {
+      logger.info("GitHubFileStore: fhir resource: " + fhirResource.toString());
+    }
+
+    logger.info("GitHubFileStore::reload(): done");
   }
 
   public CqlRule getCqlRule(String topic, String fhirVersion) {
@@ -187,6 +199,27 @@ public class GitHubFileStore implements FileStore {
       fileResource.setResource(new InputStreamResource(inputStream));
     }
 
+    return fileResource;
+  }
+
+  public FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl) {
+    logger.info("GitHubFileStore::getFhirResourceByTopic(): " + fhirVersion + "/" + resourceType + "/" + name);
+    // Library-R4-HomeOxygenTherapy-prepopulation.json
+    //String fileName = resourceType + "-" + fhirVersion + "-"
+    String filename = "";
+    FileResource fileResource = new FileResource();
+    fileResource.setFilename(filename);
+    byte[] fileData = null;
+    fileResource.setResource(new ByteArrayResource(fileData));
+    return fileResource;
+  }
+  public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl) {
+    logger.info("GitHubFileStore::getFhirResourceById(): " + fhirVersion + "/" + resourceType + "/" + id);
+    String filename = "";
+    FileResource fileResource = new FileResource();
+    fileResource.setFilename(filename);
+    byte[] fileData = null;
+    fileResource.setResource(new ByteArrayResource(fileData));
     return fileResource;
   }
 

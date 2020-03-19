@@ -18,7 +18,7 @@ public class CqlExecutionContextBuilder {
 
   public static String CQL_VERSION = "3.0.0";
 
-  public static Context getExecutionContext(CqlRule cqlRule, HashMap<String, Resource> cqlParams) {
+  public static Context getExecutionContext(CqlRule cqlRule, HashMap<String, Resource> cqlParams, String baseUrl) {
     ModelManager modelManager = new ModelManager();
     LibraryManager libraryManager = new LibraryManager(modelManager);
     libraryManager.getLibrarySourceLoader().clearProviders();
@@ -50,6 +50,9 @@ public class CqlExecutionContextBuilder {
     for (Map.Entry<String, org.hl7.fhir.dstu3.model.Resource> entry : cqlParams.entrySet()) {
       context.setParameter(null, entry.getKey(), entry.getValue());
     }
+
+    context.setParameter(null, "base_url", baseUrl);
+
     return context;
   }
 }

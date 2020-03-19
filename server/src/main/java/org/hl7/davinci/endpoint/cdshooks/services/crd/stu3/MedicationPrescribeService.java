@@ -37,9 +37,9 @@ public class MedicationPrescribeService extends CdsService<MedicationPrescribeRe
   }
 
   @Override
-  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(MedicationPrescribeRequest medicationPrescribeRequest, FileStore fileStore) {
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(MedicationPrescribeRequest medicationPrescribeRequest, FileStore fileStore, String baseUrl) {
 
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(medicationPrescribeRequest.getPrefetch(), fileStore);
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(medicationPrescribeRequest.getPrefetch(), fileStore, baseUrl);
     fhirBundleProcessor.processMedicationRequests();
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
