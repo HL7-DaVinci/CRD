@@ -134,9 +134,7 @@
           "text": "Gender",
           "type": "choice",
           "required": true,
-          "options": {
-            "reference": "#gender"
-          },
+          "answerValueSet": "#gender",          
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
@@ -568,6 +566,12 @@
                 "code": "During sleep"
               }
             }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
+            }
           ]
         }
       ]
@@ -671,6 +675,12 @@
                 "code": "High flow oxygen therapy"
               }
             }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
+            }
           ]
         },
         {
@@ -726,6 +736,12 @@
                 "code": "Different supplier"
               }
             }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
+            }
           ]
         },
         {
@@ -752,6 +768,12 @@
               "valueCoding": {
                 "code": "Beneficiary requested upgrade with signed ABN"
               }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
             }
           ]
         },
@@ -784,6 +806,12 @@
               "valueCoding": {
                 "code": "Repair exceeds 60% of cost"
               }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
             }
           ]
         }
