@@ -34,12 +34,14 @@ This will start the server running on http://localhost:8090 with the CDS-Library
 |`/`|Web page with basic RI information|
 |`/data`|Web-based administrative interface|
 |`/cds-services/`|CDS Hook Discovery endpoint|
-|`/cds-services/order-review-crd`|CDS Hook endpoint for order-review|
-|`/cds-services/medication-prescribe-crd`|CDS Hook endpoint for medication-prescribe|
+|~`/cds-services/order-review-crd`~|CDS Hook endpoint for order-review (deprecated)|
+|~`/cds-services/medication-prescribe-crd`~|CDS Hook endpoint for medication-prescribe (deprecated)|
+|`/cds-services/order-sign-crd`|CDS Hook endpoint for order-sign|
+|`/cds-services/order-select-crd`|CDS Hook endpoint for order-select|
 |`/files/`|File retrieval endpoint|
 |`/fhir/`|Endpoint for retrieving FHIR Resources (Quesionnaire and Library) needed by DTR|
 |`/reload`|Rebuild the database of rules|
-
+|`/fetchFhirUri/`|Used by the smart application to fetch fhir resources by URI|
 
 ## Configuration
 As a Spring Boot application, configuration information is maintained in [application.yml](src/main/resources/application.yml).
