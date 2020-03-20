@@ -141,7 +141,6 @@
     },
     {
       "linkId": "2",
-      "text": "Patient Diagnosis",
       "type": "group",
       "item": [
         {
@@ -160,20 +159,26 @@
           "required": false
         },
         {
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
-              "valueExpression": {
-                "language": "text/cql",
-                "expression": "\"HospitalBed\".CurrentDiagnoses"
-              }
-            }
-          ],
           "linkId": "2.2",
           "text": "Relevant Diagnosis:",
-          "type": "open-choice",
-          "repeats": true,
-          "option": [
+          "type": "group",
+          "item": [
+            {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"HospitalBed\".CurrentDiagnoses"
+                  }
+                }
+              ],
+              "linkId": "2.2.1",
+              "text": "Diagnosis:",
+              "type": "open-choice",
+              "repeats": true,
+              "option": []
+            }
           ]
         }
       ]
@@ -187,13 +192,15 @@
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
-              "valueString": "\"HospitalBed\".RecentEncounters"
+              "valueString": "\"HospitalBed\".EncounterList"
             }
           ],
           "linkId": "3.1",
           "text": "Face-to-face Evaluation within 6 months",
-          "type": "select-encounter",
-          "required": false
+          "type": "open-choice",
+          "required": false,
+          "repeats": true,
+          "option": []
         }
       ]
     },
@@ -219,44 +226,37 @@
     {
       "linkId": "5",
       "text": "Type of order:",
-      "type": "group",
-      "item": [
+      "type": "choice",
+      "answerOption": [
         {
-          "linkId": "5.1",
-          "text": "Device:",
-          "type": "choice",
-          "option": [
-            {
-              "valueCoding": {
-                "code": "initial",
-                "display": "Initial or original order"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "revision",
-                "display": "Revision or change order"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "replacement",
-                "display": "Replacement"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "newSupplier",
-                "display": "New Supplier"
-              }
-            },
-            {
-              "valueCoding": {
-                "code": "other",
-                "display": "Other"
-              }
-            }
-          ]
+          "valueCoding": {
+            "code": "initial",
+            "display": "Initial or original order"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "revision",
+            "display": "Revision or change order"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "replacement",
+            "display": "Replacement"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "newSupplier",
+            "display": "New Supplier"
+          }
+        },
+        {
+          "valueCoding": {
+            "code": "other",
+            "display": "Other"
+          }
         }
       ]
     },
@@ -276,7 +276,7 @@
           "text": "Equipment",
           "type": "choice",
           "required": false,
-          "option": [
+          "answerOption": [
             {
               "valueCoding": {
                 "code": "E0250",
@@ -292,13 +292,29 @@
           ]
         }
       ]
-    },  
+    },
     {
       "linkId": "7",
       "type": "group",
       "item": [
         {
           "linkId": "7.1",
+          "text": "Other equipment, accessories, or supplies:",
+          "type": "string"
+        },
+        {
+          "linkId": "7.2",
+          "text": "Additional description:",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "linkId": "8",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "8.1",
           "text": "Signature:",
           "type": "string"
         },
@@ -312,7 +328,7 @@
               }
             }
           ],
-          "linkId": "7.2",
+          "linkId": "8.2",
           "text": "Name (Printed):",
           "type": "string",
           "required": true
@@ -327,7 +343,7 @@
               }
             }
           ],
-          "linkId": "7.3",
+          "linkId": "8.3",
           "text": "Date (MM/DD/YYYY):",
           "type": "date",
           "required": true
@@ -342,7 +358,7 @@
               }
             }
           ],
-          "linkId": "7.4",
+          "linkId": "8.4",
           "text": "NPI:",
           "type": "string",
           "required": true

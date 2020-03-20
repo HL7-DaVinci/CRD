@@ -31,7 +31,7 @@ checkPractitionerLocation: false
 # If you want it to be absolute, it MUST start with "http://" or "https://"
 # To use the embedded DTR smart app, use "/smart/launch.html"
 #launchUrl: /smart/launch.html
-launchUrl: https://localhost:3005/launch
+launchUrl: http://localhost:3005/launch
 
 # When the filepath is included in the appContext, the DTR smart app will use the "getfile" endpoint to retrieve the
 # files that it needs. This must be turned on for retrieval of resources from CDS Connect for DTR.

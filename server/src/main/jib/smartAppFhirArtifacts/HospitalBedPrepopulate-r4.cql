@@ -19,6 +19,8 @@ define "BodyWeight": HighestObservation(WithUnit(Verified(ObservationLookBack([O
 
 define "RecentEncounters": EncounterLookBack([Encounter], 6 months)
 
+//define "RecentEncounters": ConvertEncounterDetails("Encounters")
+
 define OtherDiagnoses:
   distinct(flatten(
     [Condition] C
@@ -44,6 +46,25 @@ define "DeviceRequested":
   if "DeviceRequestHcpcsCoding".code.value = 'E0250' then 'E0250'
   else if "DeviceRequestHcpcsCoding".code.value = 'E0251' then 'E0251'
   else 'null'
+
+define "EncounterList": ConvertEncounterDetails("RecentEncounters")
+define function ConvertEncounterDetails(EncounterList List<Encounter>):
+  distinct(
+    flatten(
+      EncounterList E
+        let EncounterCodings:
+          (E.type.coding) CODING
+          return Tuple {
+            code: CODING.code.value,
+            system: CODING.system.value,
+            display: CODING.display.value,
+            periodStart: E.period.start.value,
+            type: 'encounter'
+          }
+        
+        return EncounterCodings
+    )
+  )
 
 define function ActiveConfirmedDiagnoese(CondList List<FHIR.Condition>):
   distinct(
