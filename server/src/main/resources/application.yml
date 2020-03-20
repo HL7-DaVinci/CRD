@@ -13,9 +13,9 @@ spring:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
       hibernate.hbm2ddl.auto: create-drop
   profiles:
-#    active: localDb
+    active: localDb
 #    active: cdsConnect
-    active: gitHub
+#    active: gitHub
 
 server:
   port: 8090
@@ -47,8 +47,8 @@ cdsConnect:
   #proxy-port: 80
 
 gitHubConfig:
-  username: plarocque4
-  token: 5dc41c4525cdfd041ea9f6dbad69cfcdbea32e93
+  username: user
+  token: token
   repository: HL7-DaVinci/CDS-Library
   branch: file_store
   artifact-path: smartAppFhirArtifacts
