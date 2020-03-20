@@ -25,9 +25,15 @@ public class CdsConnectFileStore implements FileStore {
   }
 
   public void reload() {
+    long startTime = System.nanoTime();
+
     logger.info("CdsConnectFileStore::reload()");
 
-    logger.info("CdsConnectFileStore::reload(): done");
+    long endTime = System.nanoTime();
+    long timeElapsed = endTime - startTime;
+    float seconds = (float)timeElapsed / (float)1000000000;
+
+    logger.info("CdsConnectFileStore::reload(): completed in " + seconds + " seconds");
   }
 
   public CqlRule getCqlRule(String topic, String fhirVersion) {

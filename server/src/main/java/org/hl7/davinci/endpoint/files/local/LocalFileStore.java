@@ -2,7 +2,6 @@ package org.hl7.davinci.endpoint.files.local;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.parser.LenientErrorHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -52,12 +51,15 @@ public class LocalFileStore implements FileStore {
   }
 
   public void reload() {
+    long startTime = System.nanoTime();
+
     // clear the database first
     lookupTable.deleteAll();
     fhirResources.deleteAll();
 
     String path = config.getLocalDb().getPath();
     logger.info("LocalFileStore::reload(): " + path);
+
     File[] topics = new File(path).listFiles();
     for (File topic: topics) {
       if (topic.isDirectory()) {
@@ -137,7 +139,11 @@ public class LocalFileStore implements FileStore {
       }
     }
 
-    logger.info("LocalFileStore::reload(): done");
+    long endTime = System.nanoTime();
+    long timeElapsed = endTime - startTime;
+    float seconds = (float)timeElapsed / (float)1000000000;
+
+    logger.info("LocalFileStore::reload(): completed in " + seconds + " seconds");
   }
 
   private void processFhirFolder(String topic, String fhirVersion, File fhirPath) {
@@ -336,7 +342,7 @@ public class LocalFileStore implements FileStore {
         String partialUrl = baseUrl + "fhir/" + fhirVersion + "/";
 
         String fileString = new String(fileData, Charset.defaultCharset());
-        fileString = fileString.replace("<server-path>",partialUrl);
+        fileString = fileString.replace("<server-path>", partialUrl);
         fileData = fileString.getBytes(Charset.defaultCharset());
 
         FileResource fileResource = new FileResource();
@@ -357,20 +363,16 @@ public class LocalFileStore implements FileStore {
   public FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl) {
     logger.info("LocalFileStore::getFhirResourceByTopic(): " + fhirVersion + "/" + resourceType + "/" + name);
 
-    byte[] fileData = null;
-
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion)
-                        .setResourceType(resourceType)
-                        .setName(name);
+        .setResourceType(resourceType)
+        .setName(name);
     List<FhirResource> fhirResourceList = fhirResources.findByName(criteria);
     return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
   }
 
   public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl) {
     logger.info("LocalFileStore::getFhirResourceById(): " + fhirVersion + "/" + resourceType + "/" + id);
-
-    byte[] fileData = null;
 
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion)
@@ -413,14 +415,6 @@ public class LocalFileStore implements FileStore {
     int startIndex = fhirIndex + fhirVersion.length() + 1;
     int extensionIndex = filename.toUpperCase().indexOf(".json".toUpperCase());
     return filename.substring(startIndex, extensionIndex);
-  }
-
-
-  class SuppressParserErrorHandler extends LenientErrorHandler {
-    @Override
-    public void unknownElement(IParseLocation theLocation, String theElementName) {
-      //do nothing to suppress the unknown element error
-    }
   }
 }
 

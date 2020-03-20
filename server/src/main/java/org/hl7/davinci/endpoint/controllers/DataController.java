@@ -156,6 +156,7 @@ public class DataController {
    */
   @GetMapping(path = "/files/{topic}/{fhirVersion}/{fileName}")
   public ResponseEntity<Resource> getFile(@PathVariable String topic, @PathVariable String fhirVersion, @PathVariable String fileName, @RequestParam(required = false) boolean noconvert) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
     logger.info("GET /files/" + topic + "/" + fhirVersion + "/" + fileName);
 
     FileResource fileResource = fileStore.getFile(topic, fileName, fhirVersion, !noconvert);

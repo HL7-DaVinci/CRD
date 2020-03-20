@@ -311,11 +311,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       }
     }
 
-    if (myConfig.getIncludeFilepathInAppContext()) {
-      appContext = appContext + filepath;
-    } else {
-      appContext = appContext + "_";
-    }
+    appContext = appContext + "_";
     logger.info("smarLinkBuilder: appContext: " + appContext);
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
