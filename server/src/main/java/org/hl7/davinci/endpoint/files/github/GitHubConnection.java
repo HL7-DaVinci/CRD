@@ -119,9 +119,6 @@ public class GitHubConnection {
 
       int responseCode = response.getStatusLine().getStatusCode();
 
-      System.out.println("Request Url: " + request.getURI());
-      System.out.println("Response Code: " + responseCode);
-
       InputStream is = entity.getContent();
 
       String filePath = "githubrepo.zip";
@@ -136,7 +133,7 @@ public class GitHubConnection {
       fos.close();
 
       client.close();
-      System.out.println("File Download Completed!!!");
+      logger.info("GitHubConnection::downloadRepo() File Download Completed");
 
       return filePath;
     } catch (IOException e) {
