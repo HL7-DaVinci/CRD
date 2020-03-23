@@ -1,11 +1,8 @@
-package org.hl7.davinci.endpoint;
+package org.hl7.davinci.endpoint.config;
 
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.hl7.davinci.endpoint.config.LocalDb;
-import org.hl7.davinci.endpoint.config.CdsConnect;
-import org.hl7.davinci.endpoint.config.GitHubConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +22,6 @@ public class YamlConfig {
 
   private boolean checkJwt;
   private URI launchUrl;
-  private boolean includeFilepathInAppContext;
   private boolean checkPractitionerLocation;
   private boolean appendParamsToSmartLaunchUrl;
   private String hostOrg;
@@ -44,16 +40,9 @@ public class YamlConfig {
 
   public URI getLaunchUrl() { return launchUrl; }
 
-  public boolean getIncludeFilepathInAppContext() { return includeFilepathInAppContext; }
-
   public void setCheckJwt(boolean check) { checkJwt = check; }
 
   public void setLaunchUrl(URI launch) { launchUrl = launch; }
-
-  public YamlConfig setIncludeFilepathInAppContext(boolean includeFilepathInAppContext) {
-    this.includeFilepathInAppContext = includeFilepathInAppContext;
-    return this;
-  }
 
   public void setCheckPractitionerLocation(boolean checkPractitionerLocation) {
     this.checkPractitionerLocation = checkPractitionerLocation;

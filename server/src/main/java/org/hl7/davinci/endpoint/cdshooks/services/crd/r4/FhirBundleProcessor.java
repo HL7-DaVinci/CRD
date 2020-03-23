@@ -24,18 +24,20 @@ public class FhirBundleProcessor {
 
   private FileStore fileStore;
   private CrdPrefetch prefetch;
+  private String baseUrl;
   private List<String> selections;
   private List<CoverageRequirementRuleResult> results = new ArrayList<>();
 
 
-  public FhirBundleProcessor(CrdPrefetch prefetch, FileStore fileStore, List<String> selections) {
+  public FhirBundleProcessor(CrdPrefetch prefetch, FileStore fileStore, String baseUrl, List<String> selections) {
     this.prefetch = prefetch;
     this.fileStore = fileStore;
+    this.baseUrl = baseUrl;
     this.selections = selections;
   }
 
-  public FhirBundleProcessor(CrdPrefetch prefetch, FileStore fileStore) {
-    this(prefetch, fileStore, new ArrayList<>());
+  public FhirBundleProcessor(CrdPrefetch prefetch, FileStore fileStore, String baseUrl) {
+    this(prefetch, fileStore, baseUrl, new ArrayList<>());
   }
 
   public List<CoverageRequirementRuleResult> getResults() { return results; }
@@ -142,7 +144,7 @@ public class FhirBundleProcessor {
     HashMap<String, Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     cqlParams.put(requestType, request);
-    return CqlExecutionContextBuilder.getExecutionContext(cqlRule, cqlParams);
+    return CqlExecutionContextBuilder.getExecutionContext(cqlRule, cqlParams, baseUrl);
   }
 
   private String stripResourceType(String identifier) {

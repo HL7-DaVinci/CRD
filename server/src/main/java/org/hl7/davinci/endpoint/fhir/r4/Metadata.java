@@ -1,0 +1,99 @@
+package org.hl7.davinci.endpoint.fhir.r4;
+
+import java.util.Calendar;
+
+import ca.uhn.fhir.context.FhirContext;
+import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.fhir.r4.model.CapabilityStatement;
+import org.hl7.fhir.r4.model.StringType;
+import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementImplementationComponent;
+import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementKind;
+import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementRestComponent;
+import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementRestResourceComponent;
+import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementRestSecurityComponent;
+import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementSoftwareComponent;
+import org.hl7.fhir.r4.model.CapabilityStatement.RestfulCapabilityMode;
+import org.hl7.fhir.r4.model.CapabilityStatement.TypeRestfulInteraction;
+import org.hl7.fhir.r4.model.Enumerations.FHIRVersion;
+import org.hl7.fhir.r4.model.Enumerations.PublicationStatus;
+
+
+/**
+ * The metadata creates a CapabilityStatement.
+ */
+
+public class Metadata {
+
+  /**
+   * Cached CapabilityStatement.
+   */
+  private CapabilityStatement capabilityStatement = null;
+
+  public String getMetadata(String baseUrl) {
+    if (capabilityStatement == null) {
+      capabilityStatement = buildCapabilityStatement(baseUrl);
+    }
+    FhirContext fhirContext = new FhirComponents().getFhirContext();
+    return fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(capabilityStatement);
+  }
+
+  /**
+   * Builds the CapabilityStatement describing the Coverage Requirements Discovery Reference
+   * Implementation.
+   *
+   * @return CapabilityStatement - the CapabilityStatement.
+   */
+  private CapabilityStatement buildCapabilityStatement(String baseUrl) {
+    CapabilityStatement metadata = new CapabilityStatement();
+
+    metadata.setTitle("Da Vinci Coverage Requirements Discovery (CRD) Reference Implementation");
+    metadata.setStatus(PublicationStatus.DRAFT);
+    metadata.setExperimental(true);
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(2019, 4, 28, 0, 0, 0);
+    metadata.setDate(calendar.getTime());
+    metadata.setPublisher("Da Vinci");
+    metadata.setKind(CapabilityStatementKind.INSTANCE);
+    CapabilityStatementSoftwareComponent software = new CapabilityStatementSoftwareComponent();
+    software.setName("https://github.com/HL7-DaVinci/CRD");
+    metadata.setSoftware(software);
+    CapabilityStatementImplementationComponent implementation = new CapabilityStatementImplementationComponent();
+    implementation.setDescription(metadata.getTitle());
+    implementation.setUrl(baseUrl + "metadata");
+    metadata.setImplementation(implementation);
+    metadata.setFhirVersion(FHIRVersion._4_0_0);
+    metadata.addFormat("json");
+    metadata.addExtension("http://hl7.org/fhir/StructureDefinition/capabilitystatement-websocket", new StringType("/fhir/r4"));
+    metadata.addImplementationGuide("https://build.fhir.org/ig/HL7/davinci-crd/index.html");
+    CapabilityStatementRestComponent rest = new CapabilityStatementRestComponent();
+    rest.setMode(RestfulCapabilityMode.SERVER);
+    CapabilityStatementRestSecurityComponent security = new CapabilityStatementRestSecurityComponent();
+    security.setCors(true);
+    rest.setSecurity(security);
+
+    // Library Resource
+    CapabilityStatementRestResourceComponent library = new CapabilityStatementRestResourceComponent();
+    library.setType("Library");
+    library.addInteraction().setCode(TypeRestfulInteraction.READ);
+    library.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
+    rest.addResource(library);
+
+    // Questionnaire Resource
+    CapabilityStatementRestResourceComponent questionnaire = new CapabilityStatementRestResourceComponent();
+    questionnaire.setType("Questionnaire");
+    questionnaire.addInteraction().setCode(TypeRestfulInteraction.READ);
+    questionnaire.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
+    rest.addResource(questionnaire);
+
+    // ValueSet Resource
+    CapabilityStatementRestResourceComponent valueset = new CapabilityStatementRestResourceComponent();
+    valueset.setType("ValueSet");
+    valueset.addInteraction().setCode(TypeRestfulInteraction.READ);
+    valueset.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
+    rest.addResource(valueset);
+
+    metadata.addRest(rest);
+
+    return metadata;
+  }
+}

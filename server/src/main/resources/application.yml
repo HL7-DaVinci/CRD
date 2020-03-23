@@ -14,8 +14,8 @@ spring:
       hibernate.hbm2ddl.auto: create-drop
   profiles:
     active: localDb
-#    active: cdsConnect
 #    active: gitHub
+#    active: cdsConnect
 
 server:
   port: 8090
@@ -31,11 +31,7 @@ checkPractitionerLocation: false
 # If you want it to be absolute, it MUST start with "http://" or "https://"
 # To use the embedded DTR smart app, use "/smart/launch.html"
 #launchUrl: /smart/launch.html
-launchUrl: https://localhost:3005/launch
-
-# When the filepath is included in the appContext, the DTR smart app will use the "getfile" endpoint to retrieve the
-# files that it needs. This must be turned on for retrieval of resources from CDS Connect for DTR.
-includeFilepathInAppContext: true
+launchUrl: http://localhost:3005/launch
 
 appendParamsToSmartLaunchUrl: false
 
@@ -54,13 +50,11 @@ gitHubConfig:
   username: user
   token: token
   repository: HL7-DaVinci/CDS-Library
-  branch: master
-  artifact-path: smartAppFhirArtifacts
+  branch: file_store
   rule-path: .
+  useZipForReload: true
 
 localDb:
-  rules: src/main/jib/rules/
-  fhirArtifacts: src/main/jib/smartAppFhirArtifacts/
-  path: CDS-Library/
+  path: ../../CDS-Library/
 
 hostOrg: default

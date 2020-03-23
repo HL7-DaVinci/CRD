@@ -42,9 +42,9 @@ public class OrderReviewService extends CdsService<OrderReviewRequest>  {
   }
 
   @Override
-  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderReviewRequest orderReviewRequest, FileStore fileStore) {
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderReviewRequest orderReviewRequest, FileStore fileStore, String baseUrl) {
 
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderReviewRequest.getPrefetch(), fileStore);
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderReviewRequest.getPrefetch(), fileStore, baseUrl);
     fhirBundleProcessor.processDeviceRequests();
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 

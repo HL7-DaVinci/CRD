@@ -1,5 +1,5 @@
 package org.hl7.davinci.endpoint.cdsconnect;
-
+/*
 import org.apache.commons.io.FilenameUtils;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.files.FileResource;
@@ -96,7 +96,6 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
     return fileResource;
   }
 
-  /*
   public FileResource downloadCqlFile(Long id, String name) {
     logger.info("downloadCqlFile(" + id + ", " + name + ")");
     FileResource fileResource = null;
@@ -154,5 +153,5 @@ public class CdsConnectRuleDownloader implements CoverageRequirementRuleDownload
 
     return fileResource;
   }
-  */
 }
+*/
