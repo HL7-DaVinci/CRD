@@ -3,15 +3,14 @@ package org.hl7.davinci.endpoint.files.github;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.ShortNameMaps;
-import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.files.*;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,40 +26,89 @@ import java.util.HashMap;
 import java.util.List;
 import java.io.InputStream;
 
+import org.zeroturnaround.zip.ZipUtil;
+import java.io.File;
 
 @Component
 @Profile("gitHub")
-public class GitHubFileStore implements FileStore {
+public class GitHubFileStore extends CommonFileStore {
 
   static final Logger logger = LoggerFactory.getLogger(GitHubFileStore.class);
 
   @Autowired
-  RuleFinder ruleFinder;
-
-  @Autowired
-  private RuleMappingRepository lookupTable;
-
-  @Autowired
-  private FhirResourceRepository fhirResources;
-
-  @Autowired
   GitHubConnection connection;
 
-  @Autowired
-  YamlConfig config;
 
   public GitHubFileStore() {
     logger.info("Using GitHubFileStore");
   }
 
   public void reload() {
+
     long startTime = System.nanoTime();
+    boolean success = true;
 
     // clear the database first
     lookupTable.deleteAll();
     fhirResources.deleteAll();
 
     logger.info("GitHubFileStore::reload()");
+
+
+    if (config.getGitHubConfig().getUseZipForReload()) {
+      success = reloadFromZip();
+    } else {
+      success = reloadFromGitHub();
+    }
+
+    long endTime = System.nanoTime();
+    long timeElapsed = endTime - startTime;
+    float seconds = (float)timeElapsed / (float)1000000000;
+
+    if (success) {
+      logger.info("GitHubFileStore::reload(): completed in " + seconds + " seconds");
+    } else {
+      logger.warn("GitHubFileStore::reload(): failed in " + seconds + " seconds");
+    }
+  }
+
+  private boolean reloadFromZip() {
+    // download the repo
+    String zipPath = connection.downloadRepo();
+    File zipFile = new File(zipPath);
+
+    // unzip the file in place (folder will be name of zip file)
+    ZipUtil.explode(zipFile);
+
+    // get a list of files in the directory that was unzipped
+    File[] files = zipFile.listFiles();
+    File location = null;
+    if (files.length > 0) {
+      if (files[0].isDirectory()) {
+        location = files[0];
+      }
+    }
+    if (location != null) {
+      String rulePath = config.getGitHubConfig().getRulePath();
+      String path = location.getPath() + "/" + rulePath;
+
+      // load the folder
+      reloadFromFolder(path + "/");
+
+      // clean up the zip file
+      try {
+        FileUtils.deleteDirectory(zipFile);
+      } catch (IOException e) {
+        logger.warn("GitHubFileStore::reloadFromZip() failed to delete directory: " + e.getMessage());
+        return false;
+      }
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  private boolean reloadFromGitHub() {
     String rulePath = config.getGitHubConfig().getRulePath();
 
     for (String topicName : connection.getDirectory(rulePath)) {
@@ -69,7 +117,7 @@ public class GitHubFileStore implements FileStore {
 
         // skip the shared folder for now...
         if (topicName.equalsIgnoreCase("Shared")) {
-          logger.info("  GitHubFileStore::reload() found Shared files");
+          logger.info("  GitHubFileStore::reloadFromGitHub() found Shared files");
 
           for (String fhirFolder: connection.getDirectory(topicName)) {
             String fhirVersion = fhirFolder;
@@ -79,9 +127,9 @@ public class GitHubFileStore implements FileStore {
 
 
         } else if (topicName.startsWith(".")) {
-          //logger.info("  GitHubFileStore::reload() skipping all folders starting with .: " + topicName);
+          //logger.info("  GitHubFileStore::reloadFromGitHub() skipping all folders starting with .: " + topicName);
         } else {
-          logger.info("  GitHubFileStore::reload() found topic: " + topicName);
+          logger.info("  GitHubFileStore::reloadFromGitHub() found topic: " + topicName);
 
           // process the metadata file
           for (String fileName : connection.getDirectory(topicName)) {
@@ -104,9 +152,9 @@ public class GitHubFileStore implements FileStore {
                       for (String fhirVersion : metadata.getFhirVersions()) {
 
                         String mainCqlLibraryName = metadata.getTopic() + "Rule";
-                        String mainCqlFile = findFile(metadata.getTopic(), fhirVersion, mainCqlLibraryName, ".cql");
+                        String mainCqlFile = findGitHubFile(metadata.getTopic(), fhirVersion, mainCqlLibraryName, ".cql");
                         if (mainCqlFile == null) {
-                          logger.warn("GitHubFileStore::reload(): failed to find main CQL file for topic: " + metadata.getTopic());
+                          logger.warn("GitHubFileStore::reloadFromGitHub(): failed to find main CQL file for topic: " + metadata.getTopic());
                         } else {
                           logger.info("    Added: " + metadata.getTopic() + ": " + payer + ", "
                               + mapping.getCodeSystem() + ", " + code + " (" + fhirVersion + ")");
@@ -138,12 +186,7 @@ public class GitHubFileStore implements FileStore {
         }
       }
     }
-
-    long endTime = System.nanoTime();
-    long timeElapsed = endTime - startTime;
-    float seconds = (float)timeElapsed / (float)1000000000;
-
-    logger.info("GitHubFileStore::reload(): completed in " + seconds + " seconds");
+    return true;
   }
 
   private void processFhirFolder(String topic, String fhirVersion, String fhirPath) {
@@ -265,7 +308,7 @@ public class GitHubFileStore implements FileStore {
     HashMap<String, byte[]> cqlFiles = new HashMap<>();
 
     String mainCqlLibraryName = topic + "Rule";
-    String mainCqlFile = findFile(topic, fhirVersion, mainCqlLibraryName, ".cql");
+    String mainCqlFile = findGitHubFile(topic, fhirVersion, mainCqlLibraryName, ".cql");
     if (mainCqlFile == null) {
       logger.warn("GitHubFileStore::getCqlRule(): failed to find main CQL file");
     } else {
@@ -278,7 +321,7 @@ public class GitHubFileStore implements FileStore {
       }
     }
 
-    String helperCqlFile = findFile("Shared", fhirVersion, "FHIRHelpers", ".cql");
+    String helperCqlFile = findGitHubFile("Shared", fhirVersion, "FHIRHelpers", ".cql");
     if (helperCqlFile == null) {
       logger.warn("GitHubFileStore::getCqlRule(): failed to find FHIR helper CQL file");
     } else {
@@ -334,7 +377,7 @@ public class GitHubFileStore implements FileStore {
   }
 
 
-  private FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl) {
+  protected FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl) {
     byte[] fileData = null;
 
     if (fhirResourceList.size() > 0) {
@@ -372,54 +415,14 @@ public class GitHubFileStore implements FileStore {
     }
   }
 
-  public FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl) {
-    logger.info("GitHubFileStore::getFhirResourceByTopic(): " + fhirVersion + "/" + resourceType + "/" + name);
-
-    FhirResourceCriteria criteria = new FhirResourceCriteria();
-    criteria.setFhirVersion(fhirVersion)
-        .setResourceType(resourceType)
-        .setName(name);
-    List<FhirResource> fhirResourceList = fhirResources.findByName(criteria);
-    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
-  }
-
-  public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl) {
-    logger.info("GitHubFileStore::getFhirResourceById(): " + fhirVersion + "/" + resourceType + "/" + id);
-
-    FhirResourceCriteria criteria = new FhirResourceCriteria();
-    criteria.setFhirVersion(fhirVersion)
-        .setResourceType(resourceType)
-        .setId(id);
-    List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
-    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
-  }
-
-  public List<RuleMapping> findRules(CoverageRequirementRuleCriteria criteria) {
-    logger.info("GitHubFileStore::findRules(): " + criteria.toString());
-    return ruleFinder.findRules(criteria);
-  }
-
-  public List<RuleMapping> findAll() {
-    logger.info("GitHubFileStore::findAll()");
-    return ruleFinder.findAll();
-  }
-
-  private String findFile(String topic, String fhirVersion, String name, String extension) {
+  private String findGitHubFile(String topic, String fhirVersion, String name, String extension) {
     String cqlFileLocation =  topic + "/" + fhirVersion + "/files/";
     for (String file : connection.getDirectory(cqlFileLocation)) {
       if (file.startsWith(name) && file.endsWith(extension)) {
         return file;
       }
     }
-    logger.info("GitHubFileStore::findFile(): no files match: " + cqlFileLocation + name + "*.*.*" + extension);
+    logger.info("GitHubFileStore::findGitHubFile(): no files match: " + cqlFileLocation + name + "*.*.*" + extension);
     return null;
-  }
-
-  private String stripNameFromResourceFilename(String filename, String fhirVersion) {
-    // example filename: Library-R4-HomeOxygenTherapy-prepopulation.json
-    int fhirIndex = filename.toUpperCase().indexOf(fhirVersion.toUpperCase());
-    int startIndex = fhirIndex + fhirVersion.length() + 1;
-    int extensionIndex = filename.toUpperCase().indexOf(".json".toUpperCase());
-    return filename.substring(startIndex, extensionIndex);
   }
 }

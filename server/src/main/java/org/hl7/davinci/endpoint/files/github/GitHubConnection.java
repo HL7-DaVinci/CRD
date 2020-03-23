@@ -1,10 +1,18 @@
 package org.hl7.davinci.endpoint.files.github;
 
-import org.hl7.ShortNameMaps;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+
+import java.io.FileOutputStream;
+import java.io.File;
+
+
 import org.hl7.davinci.endpoint.Application;
-import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.config.GitHubConfig;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -20,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.IOUtils;
-
 @Component
 @Profile("gitHub")
 public class GitHubConnection {
@@ -32,8 +38,6 @@ public class GitHubConnection {
   private String token;
   private String repository;
   private String branch;
-  private String artifactPath;
-  private String rulePath;
 
   private GitHub github;
   private GHRepository repo;
@@ -46,8 +50,6 @@ public class GitHubConnection {
     this.token = githubConfig.getToken();
     this.repository = githubConfig.getRepository();
     this.branch = githubConfig.getBranch();
-    this.artifactPath = githubConfig.getArtifactPath();
-    this.rulePath = githubConfig.getRulePath();
 
     connect();
   }
@@ -104,14 +106,42 @@ public class GitHubConnection {
     return fileStream;
   }
 
-  public void downloadRepo() {
-    //TODO: perhaps download the entire repo as a zip, extract it and reload from that
-    // https://github.com/<repo>/archive/<branch>.zip -- https://github.com/HL7-DaVinci/CDS-Library/archive/master.zip
-    // <repo_short>-<branch>.zip -- CDS-Library-master.zip
+  public String downloadRepo() {
     String htmlDownload = "https://github.com/" + repository + "/archive/" + branch + ".zip";
     logger.info("GitHubConnection::downloadRepo() htmlDownload: " + htmlDownload);
-    String zipFolderName = repo.getName() + "-" + branch;
-    String zipFileName = zipFolderName + ".zip";
-    logger.info("GitHubConnection::downloadRepo() zipFileName: " + zipFileName);
+
+    CloseableHttpClient client = HttpClientBuilder.create().build();
+    HttpGet request = new HttpGet(htmlDownload);
+
+    try {
+      HttpResponse response = client.execute(request);
+      HttpEntity entity = response.getEntity();
+
+      int responseCode = response.getStatusLine().getStatusCode();
+
+      System.out.println("Request Url: " + request.getURI());
+      System.out.println("Response Code: " + responseCode);
+
+      InputStream is = entity.getContent();
+
+      String filePath = "githubrepo.zip";
+      FileOutputStream fos = new FileOutputStream(new File(filePath));
+
+      int inByte;
+      while ((inByte = is.read()) != -1) {
+        fos.write(inByte);
+      }
+
+      is.close();
+      fos.close();
+
+      client.close();
+      System.out.println("File Download Completed!!!");
+
+      return filePath;
+    } catch (IOException e) {
+      logger.warning("GitHubConnection::downloadRepo() failed to get zip: " + e.getMessage());
+      return null;
+    }
   }
 }

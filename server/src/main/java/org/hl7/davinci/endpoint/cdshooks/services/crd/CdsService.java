@@ -15,7 +15,7 @@ import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;

@@ -1,11 +1,8 @@
-package org.hl7.davinci.endpoint;
+package org.hl7.davinci.endpoint.config;
 
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.hl7.davinci.endpoint.config.LocalDb;
-import org.hl7.davinci.endpoint.config.CdsConnect;
-import org.hl7.davinci.endpoint.config.GitHubConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

@@ -2,7 +2,7 @@ package org.hl7.davinci.endpoint.controllers;
 
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.Utils;
-import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 
 
 import javax.servlet.http.HttpServletRequest;
-import org.hl7.davinci.endpoint.fhir.r4.Metadata;
 
 
 /**

@@ -14,8 +14,8 @@ spring:
       hibernate.hbm2ddl.auto: create-drop
   profiles:
     active: localDb
-#    active: cdsConnect
 #    active: gitHub
+#    active: cdsConnect
 
 server:
   port: 8090
@@ -51,8 +51,8 @@ gitHubConfig:
   token: token
   repository: HL7-DaVinci/CDS-Library
   branch: file_store
-  artifact-path: smartAppFhirArtifacts
   rule-path: .
+  useZipForReload: true
 
 localDb:
   path: ../../CDS-Library/

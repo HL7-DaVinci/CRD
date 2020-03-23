@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.config.CdsConnect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
