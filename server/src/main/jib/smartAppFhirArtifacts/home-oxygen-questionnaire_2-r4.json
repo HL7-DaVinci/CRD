@@ -395,7 +395,7 @@
           "enableWhen": [
             {
               "question": "3.2",
-              "operator": "=",
+              "operator": ">=",
               "answerQuantity": {
                 "value": 89,
                 "unit": "%"
@@ -411,7 +411,7 @@
           "enableWhen": [
             {
               "question": "3.2",
-              "operator": "=",
+              "operator": ">=",
               "answerQuantity": {
                 "value": 89,
                 "unit": "%"
@@ -427,7 +427,7 @@
           "enableWhen": [
             {
               "question": "3.2",
-              "operator": "=",
+              "operator": ">=",
               "answerQuantity": {
                 "value": 89,
                 "unit": "%"
