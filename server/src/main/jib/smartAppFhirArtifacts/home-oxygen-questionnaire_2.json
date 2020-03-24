@@ -222,7 +222,6 @@
           "text": "Relevant Patient Diagnoses (conditions that might be expected to improve with oxygen therapy)",
           "type": "open-choice",
           "required": true,
-          "repeats": true,
           "option": [
             {
               "valueCoding": {
@@ -274,6 +273,10 @@
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
               "valueString": "\"OxygenTherapy\".RelevantDiagnoses"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
             }
           ]
         },
@@ -329,13 +332,7 @@
           "linkId": "3.7",
           "text": "Is the patient mobile within the home? ",
           "type": "boolean",
-          "required": false,
-          "enableWhen": [
-            {
-              "question": "5.1b",
-              "answerBoolean": true
-            }
-          ],
+          "required": false,         
           "extension": [
             {
               "url": "http://hl7.org/fhir/StructureDefinition/cqif-calculatedValue",
@@ -453,19 +450,19 @@
               "text": "oxygen %",
               "type": "integer",
               "required": true
-            }
-          ]
-        },
-        {
-          "linkId": "4.4b",
-          "text": "Since > 4 LPM prescribed, enter arterial oxygen saturation or PO2 while patient was on 4 LPM in stable state.",
-          "type": "quantity",
-          "required": true,
-          "enableWhen": [
+            },
             {
-              "operator": ">",
-              "question": "4.4.1",
-              "answerInteger": 4
+              "linkId": "4.4.3",
+              "text": "Since > 4 LPM prescribed, enter arterial oxygen saturation or PO2 while patient was on 4 LPM in stable state.",
+              "type": "quantity",
+              "required": true,
+              "enableWhen": [
+                {
+                  "operator": ">",
+                  "question": "4.4.1",
+                  "answerInteger": 4
+                }
+              ]
             }
           ]
         },
@@ -493,7 +490,6 @@
           "text": "Frequency of use (choose all that apply)",
           "type": "open-choice",
           "required": true,
-          "repeats": true,
           "option": [
             {
               "valueCoding": {
@@ -509,6 +505,12 @@
               "valueCoding": {
                 "code": "During sleep"
               }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
             }
           ]
         }
@@ -571,7 +573,6 @@
           "text": "Means of oxygen delivery and accessories",
           "type": "open-choice",
           "required": true,
-          "repeats": true,
           "option": [
             {
               "valueCoding": {
@@ -607,6 +608,12 @@
               "valueCoding": {
                 "code": "High flow oxygen therapy"
               }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
             }
           ]
         },
@@ -662,6 +669,12 @@
                 "code": "Different supplier"
               }
             }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
+            }
           ]
         },
         {
@@ -687,6 +700,12 @@
               "valueCoding": {
                 "code": "Beneficiary requested upgrade with signed ABN"
               }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
             }
           ]
         },
@@ -718,6 +737,12 @@
               "valueCoding": {
                 "code": "Repair exceeds 60% of cost"
               }
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+              "valueBoolean": true
             }
           ]
         }
