@@ -27,8 +27,10 @@ cdsConnectUrl: http://cdsc-dev.dd:8083
 cdsConnectUsername: admin
 cdsConnectPassword: admin
 
-localDbRules: src/main/jib/rules/
-localDbFhirArtifacts: src/main/jib/smartAppFhirArtifacts/
+localDb:
+  rules: src/main/jib/rules/
+  fhirArtifacts: src/main/jib/smartAppFhirArtifacts/
+  path: src/test/resources/CDS-Library/
 
 launchUrl: /smart/launch.html
 appendParamsToSmartLaunchUrl: true

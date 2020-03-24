@@ -33,7 +33,7 @@ public class FhirUriFetcherLocal implements FhirUriFetcher {
     if (!fhirUri.endsWith(".json")) {
       fhirUri = fhirUri + ".json";
     }
-    File file = Paths.get(config.getLocalDbFhirArtifacts(),fhirUri).toFile();
+    File file = Paths.get(config.getLocalDb().getFhirArtifacts(),fhirUri).toFile();
     if (!file.exists()){
       return null;
     }

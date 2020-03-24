@@ -18,15 +18,15 @@ define DOCUMENTATION_REQUIRED:
   true
 
 define RESULT_Summary:
-  'Yes, this DME item has Coverage Requirements.'
+  'Home Oxygen Therapy: Documentation Required'
 
 define RESULT_Details:
-  'Coverage Requirement details are specified, in the **Documentation Requirements** link below. Click the **SMART App** link below to begin the Coverage Requirements questionnaire.'
+  'Home Oxygen Therapy: Documentation Required, please complete questionnaire via Smart App link below'
 
 define RESULT_InfoLink:
     'https://www.cms.gov/outreach-and-education/medicare-learning-network-mln/mlnproducts/downloads/home-oxygen-therapy-text-only.pdf'
 
-define RESULT_QuestionnaireUri:
+define RESULT_QuestionnaireOrderUri:
     'urn:hl7:davinci:crd:home-oxygen-questionnaire_2-r4'
 
 define RESULT_requestId:

@@ -4,8 +4,6 @@ import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.config.GitHubConfig;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundle;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -70,8 +68,25 @@ public class GitHubConnection {
     return connected;
   }
 
-  public InputStream getFile(String filename) {
-    logger.info("GitHubConnection::getFile(" + filename + ")");
+  public List<String> getDirectory(String path) {
+    logger.info("GitHubConnection::getDirectory(): " + path);
+    ArrayList<String> fileList = new ArrayList<>();
+
+    try {
+      List<GHContent> files = repo.getDirectoryContent(path, branch);
+
+      files.forEach((GHContent file) -> {
+        fileList.add(file.getName());
+      });
+    } catch (Exception e) {
+      logger.info("GitHubConnection::getDirectory(): ERROR: problem getting directory list: " + e.getMessage());
+    }
+
+    return fileList;
+  }
+
+  public InputStream getFile(String filePath) {
+    logger.info("GitHubConnection::getFile(" + filePath + ")");
     InputStream fileStream = null;
 
     // connect if needed
@@ -80,15 +95,16 @@ public class GitHubConnection {
     }
 
     try {
-      GHContent file = repo.getFileContent(artifactPath + "/" + filename, branch);
+      GHContent file = repo.getFileContent(filePath, branch);
       fileStream = file.read();
 
     } catch (IOException e) {
-      logger.warning("GitHubConnection::getFile(): ERROR: failed to connect to get file: " + filename + ": " + e.getMessage());
+      logger.warning("GitHubConnection::getFile(): ERROR: failed to connect to get file: " + filePath + ": " + e.getMessage());
     }
     return fileStream;
   }
 
+  /*
   public List<CoverageRequirementRule> getAllRules() {
     logger.info("GitHubConnection::getAllRules():");
     CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria();
@@ -168,8 +184,9 @@ public class GitHubConnection {
 
       if (!getFile) {
         rule.setCqlPackagePath("unknown");
-        CqlBundle emptyCqlBundle = new CqlBundle();
-        rule.setCqlBundle(emptyCqlBundle);
+        //TODO: fixme
+        // CqlBundle emptyCqlBundle = new CqlBundle();
+        // rule.setCqlBundle(emptyCqlBundle);
       }
       try {
         List<GHContent> files = repo.getDirectoryContent(code.getPath(), branch);
@@ -188,8 +205,9 @@ public class GitHubConnection {
                 rule.setId(file.hashCode());
                 InputStream inputStream = file.read();
                 byte[] cqlBundle = IOUtils.toByteArray(inputStream);
-                CqlBundle bundle = CqlBundle.fromZip(cqlBundle);
-                rule.setCqlBundle(bundle);
+                //TODO: fixme
+                // CqlBundle bundle = CqlBundle.fromZip(cqlBundle);
+                // rule.setCqlBundle(bundle);
               } catch (IOException e) {
                 logger.warning("GitHubConnection::processCode(): ERROR: failed to get file contents: " + e.getMessage());
               }
@@ -206,4 +224,5 @@ public class GitHubConnection {
       logger.info("GitHubConnection::processCode():skip code: '" + code.getName() + "'");
     }
   }
+  */
 }

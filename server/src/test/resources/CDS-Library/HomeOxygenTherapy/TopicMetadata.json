@@ -1,0 +1,17 @@
+{
+    "topic": "HomeOxygenTherapy",
+    "payers": [
+        "cms"
+    ],
+    "mappings": [
+        {
+            "codeSystem": "hcpcs",
+            "codes": [
+                "E0424", "E0431", "E0433", "E0434", "E0439", "E0441", "E0442", "E0443", "E0444", "E1390", "E1391", "E1392", "K0738"
+            ]
+        }
+    ],
+    "fhirVersions": [
+        "STU3", "R4"
+    ]
+}

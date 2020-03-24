@@ -3,25 +3,20 @@ package org.hl7.davinci.endpoint.controllers;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.components.FhirUriFetcher;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
-import org.hl7.davinci.endpoint.database.CoverageRequirementRule;
-import org.hl7.davinci.endpoint.database.DataRepository;
-import org.hl7.davinci.endpoint.database.RequestLog;
-import org.hl7.davinci.endpoint.database.RequestRepository;
+import org.hl7.davinci.endpoint.database.*;
+import org.hl7.davinci.endpoint.files.FileResource;
+import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -40,18 +35,10 @@ public class DataController {
 
 
   @Autowired
-  private DataRepository repository;
-
-  @Autowired
   private RequestRepository requestRepository;
-
-
 
   @Autowired
   private YamlConfig myConfig;
-
-  @Autowired
-  private CoverageRequirementRuleFinder ruleFinder;
 
   @Autowired
   private CoverageRequirementRuleDownloader downloader;
@@ -59,15 +46,15 @@ public class DataController {
   @Autowired
   private FhirUriFetcher fhirUriFetcher;
 
+  @Autowired
+  private FileStore fileStore;
 
   /**
    * Basic constructor to initialize both data repositories.
-   * @param repository the database for the data (rules)
    * @param requestRepository the database for request logging
    */
   @Autowired
-  public DataController(DataRepository repository, RequestRepository requestRepository) {
-    this.repository = repository;
+  public DataController(RequestRepository requestRepository) {
     this.requestRepository = requestRepository;
 
   }
@@ -88,60 +75,16 @@ public class DataController {
 
   @GetMapping(value = "/api/data")
   @CrossOrigin
-  public Iterable<CoverageRequirementRule> showAll() {
+  public Iterable<RuleMapping> showAll() {
     logger.info("showAll: GET /api/data");
-    return ruleFinder.findAll();
-  }
-
-  /**
-   * Gets some data from the repository.
-   * @param id the id of the desired data.
-   * @return the data from the repository
-   */
-  @CrossOrigin
-  @GetMapping("/api/data/{id}")
-  public CoverageRequirementRule getRule(@PathVariable long id) {
-    logger.info("getRule: GET /api/data/" + id);
-    Optional<CoverageRequirementRule> rule = repository.findById(id);
-
-    if (!rule.isPresent()) {
-      throw new RuleNotFoundException();
-    }
-
-    return rule.get();
-  }
-
-  public ResponseEntity<Resource> downloadFile(long id, String name) {
-    CqlBundleFile bundleFile = downloader.downloadCqlBundleFile(id, name);
-
-    if (bundleFile == null) {
-      logger.warning("file not found, return error (404)");
-      return ResponseEntity.notFound().build();
-    }
-
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + bundleFile.getFilename() + "\"")
-        .contentType(MediaType.parseMediaType("application/octet-stream"))
-        .body(bundleFile.getResource());
-  }
-
-  @GetMapping(path = "/download/{id}")
-  public ResponseEntity<Resource> download(@PathVariable long id) throws IOException {
-    logger.info("download: GET /download/" + id);
-    return downloadFile(id, "");
-  }
-
-  @GetMapping(path = "/getfileid/{id}/{name}")
-  public ResponseEntity<Resource> getFileRuleId(@PathVariable long id, @PathVariable String name) throws IOException {
-    logger.info("getfile: GET /getfileid/" + id + "/" + name);
-    return downloadFile(id, name);
+    return fileStore.findAll();
   }
 
   @GetMapping(path = "/getfile/{payer}/{codeSystem}/{code}/{name}")
   public ResponseEntity<Resource> getFile(@PathVariable String payer, @PathVariable String codeSystem, @PathVariable String code, @PathVariable String name) {
     logger.info("getfile: GET /getfile/" + payer + "/" + codeSystem + "/" + code + "/" + name);
 
-    CqlBundleFile bundleFile = downloader.getFile(payer, codeSystem, code, name);
+    FileResource bundleFile = downloader.getFile(payer, codeSystem, code, name);
 
     if (bundleFile == null) {
       logger.warning("file not found, return error (404)");
@@ -168,6 +111,57 @@ public class DataController {
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fhirUri + "\"")
         .contentType(MediaType.parseMediaType("application/octet-stream"))
         .body(resource);
+  }
+
+
+  @GetMapping(path = "/fhir/{fhirVersion}/metadata")
+  public ResponseEntity<Resource> getFhirResourceById(@PathVariable String fhirVersion) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
+    logger.info("GET /fhir/" + fhirVersion + "/metadata");
+    //TODO
+    return ResponseEntity.ok().build();
+  }
+
+  @GetMapping(path = "/fhir/{fhirVersion}/{resource}/{id}")
+  public ResponseEntity<Resource> getFhirResourceById(@PathVariable String fhirVersion, @PathVariable String resource, @PathVariable String id) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
+    logger.info("GET /fhir/" + fhirVersion + "/" + resource + "/" + id);
+    //TODO
+    return ResponseEntity.ok().build();
+  }
+
+  @GetMapping(path = "/fhir/{fhirVersion}/{resource}") //?name={topic}
+  public ResponseEntity<Resource> getFhirResourceByTopic(@PathVariable String fhirVersion, @PathVariable String resource, @RequestParam String name) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
+    logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?name=" + name);
+    //TODO
+    return ResponseEntity.ok().build();
+  }
+
+  @GetMapping(path = "/files/{topic}/{fhirVersion}/{fileName}")
+  public ResponseEntity<Resource> getFile(@PathVariable String topic, @PathVariable String fhirVersion, @PathVariable String fileName, @RequestParam(required = false) boolean noconvert) throws IOException {
+    logger.info("GET /files/" + topic + "/" + fhirVersion + "/" + fileName);
+
+    FileResource fileResource = fileStore.getFile(topic, fileName, fhirVersion, !noconvert);
+
+    if (fileResource == null) {
+      logger.warning("file not found, return error (404)");
+      return ResponseEntity.notFound().build();
+    }
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileResource.getFilename() + "\"")
+        .contentType(MediaType.parseMediaType("application/octet-stream"))
+        .body(fileResource.getResource());
+  }
+
+  @PostMapping(path = "/reload")
+  public RedirectView reload() {
+    logger.info("reload rule file index");
+    fileStore.reload();
+    String newUrl = "/data";
+
+    return new RedirectView(newUrl);
   }
 
   @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such rule") // 404

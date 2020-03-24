@@ -3,7 +3,7 @@ package org.hl7.davinci.endpoint.database;
 import org.apache.commons.io.FilenameUtils;
 import org.hl7.davinci.endpoint.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
-import org.hl7.davinci.endpoint.cql.bundle.CqlBundleFile;
+import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +28,6 @@ public class CoverageRequirementRuleDownloaderDatabase implements CoverageRequir
   static final Logger logger =
       LoggerFactory.getLogger(CoverageRequirementRuleDownloaderDatabase.class);
 
-  @Autowired
-  DataRepository repository;
-
   YamlConfig config;
 
   @Autowired
@@ -38,10 +35,10 @@ public class CoverageRequirementRuleDownloaderDatabase implements CoverageRequir
     config = yamlConfig;
   }
 
-  public CqlBundleFile getFile(String payer, String codeSystem, String code, String name) {
-    CqlBundleFile bundleFile = null;
+  public FileResource getFile(String payer, String codeSystem, String code, String name) {
+    FileResource fileResource = null;
     // ignore the payer/codesystem/code
-    Path path = Paths.get(config.getLocalDbFhirArtifacts(), name);
+    Path path = Paths.get(config.getLocalDb().getFhirArtifacts(), name);
 
     if (FilenameUtils.getExtension(name).toUpperCase().equals("CQL")) {
       logger.info("Converting CQL to ELM");
@@ -50,47 +47,23 @@ public class CoverageRequirementRuleDownloaderDatabase implements CoverageRequir
         String elm = CqlExecution.translateToElm(cql);
         byte[] elmData = elm.getBytes();
 
-        bundleFile = new CqlBundleFile();
-        bundleFile.setFilename(name).setResource(new ByteArrayResource(elmData));
+        fileResource = new FileResource();
+        fileResource.setFilename(name).setResource(new ByteArrayResource(elmData));
 
       } catch (Exception e) {
         logger.info("Error: could not convert CQL: " + e.getMessage());
-        return bundleFile;
+        return fileResource;
       }
     } else {
       try {
-        bundleFile = new CqlBundleFile();
-        bundleFile.setResource(new InputStreamResource(new FileInputStream(path.toFile()))).setFilename(name);
+        fileResource = new FileResource();
+        fileResource.setResource(new InputStreamResource(new FileInputStream(path.toFile()))).setFilename(name);
       } catch (FileNotFoundException e) {
         logger.info("file not found: " + name);
-        bundleFile = null;
+        fileResource = null;
       }
     }
 
-    return bundleFile;
-  }
-
-  public CqlBundleFile downloadCqlBundleFile(Long id, String name) {
-    CqlBundleFile bundleFile = null;
-
-    if (!name.isEmpty()) {
-      logger.warn("named file download not supported");
-      return bundleFile;
-    }
-
-    try {
-      Optional<CoverageRequirementRule> rule = repository.findById(id);
-      CoverageRequirementRule crr = rule.get();
-      String path = crr.getCqlPackagePath();
-      String outputName = crr.getCode() + "_" + crr.getId() + ".zip";
-      File file = new File(path);
-      bundleFile = new CqlBundleFile();
-      bundleFile.setResource(new InputStreamResource(new FileInputStream(file))).setFilename(outputName);
-
-    } catch (FileNotFoundException e) {
-      logger.info("cql package file not found for id: " + String.valueOf(id));
-    }
-
-    return bundleFile;
+    return fileResource;
   }
 }

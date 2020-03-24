@@ -10,6 +10,7 @@ public class CoverageRequirementRuleCriteria {
   private String payor;
   private String code;
   private String codeSystem;
+  private String fhirVersion;
 
   public String getCode() {
     return code;
@@ -44,6 +45,13 @@ public class CoverageRequirementRuleCriteria {
     return this;
   }
 
+  public String getFhirVersion() { return fhirVersion; }
+
+  public CoverageRequirementRuleCriteria setFhirVersion(String fhirVersion) {
+    this.fhirVersion = fhirVersion;
+    return this;
+  }
+
   public CoverageRequirementRuleCriteria(){}
 
   /**
@@ -52,7 +60,7 @@ public class CoverageRequirementRuleCriteria {
    */
   public String toString() {
     return String.format(
-        "payor=%s, code=%s, codeSystem=%s", payor, code, codeSystem);
+        "payor=%s, code=%s, codeSystem=%s, fhirVersion=%s", payor, code, codeSystem, fhirVersion);
 
   }
 
@@ -64,7 +72,7 @@ public class CoverageRequirementRuleCriteria {
       for (org.hl7.fhir.dstu3.model.Organization payor : payors) {
         String payorName = payor.getName();
         CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria();
-        criteria.setPayor(payorName).setCodeSystem(codeSystem).setCode(code);
+        criteria.setPayor(payorName).setCodeSystem(codeSystem).setCode(code).setFhirVersion("STU3");
         criteriaList.add(criteria);
       }
     }
@@ -79,7 +87,7 @@ public class CoverageRequirementRuleCriteria {
       for (org.hl7.fhir.r4.model.Organization payor : payors) {
         String payorName = payor.getName();
         CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria();
-        criteria.setPayor(payorName).setCodeSystem(codeSystem).setCode(code);
+        criteria.setPayor(payorName).setCodeSystem(codeSystem).setCode(code).setFhirVersion("R4");
         criteriaList.add(criteria);
       }
     }

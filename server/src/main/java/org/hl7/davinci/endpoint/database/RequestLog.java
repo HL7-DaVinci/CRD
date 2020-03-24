@@ -18,12 +18,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleQuery;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 // import com.jayway.jsonpath.Option;
 // import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
+import com.jayway.jsonpath.Option;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 // code_system: string
 // hook_type: string
 // fhir_version: string
-// rules_found: Set<CoverageRequirementRule>
 // timeline: boolean[]
+// topics: string[]
 
 @Entity
 @Table(name = "request_log")
@@ -87,17 +87,12 @@ public class RequestLog {
   @Column(name = "timeline")
   private boolean[] timeline;
 
+  @Column(name = "topics")
+  private String[] topics;
+
   private int timelineCounter;
 
-  @ManyToMany(cascade = {
-      CascadeType.PERSIST,
-      CascadeType.MERGE
-  })
-  @JoinTable(name = "request_rule",
-      joinColumns = @JoinColumn(name = "reququest_id"),
-      inverseJoinColumns = @JoinColumn(name = "rule_id")
-  )
-  private Set<CoverageRequirementRule> rulesFound = new HashSet<>();
+  private int topicCounter;
 
   public RequestLog() {
   }
@@ -125,6 +120,7 @@ public class RequestLog {
     timeline[0] = true;
     setTimeline(timeline);
     this.timelineCounter = 1;
+    this.topicCounter = 0;
     requestService.create(this);
   }
 
@@ -139,7 +135,7 @@ public class RequestLog {
       ObjectMapper mapper = new ObjectMapper();
       ObjectWriter w = mapper.writer();
       requestStr = w.writeValueAsString(request);
-      Object reqDoc = Configuration.defaultConfiguration().jsonProvider().parse(requestStr);
+      Object reqDoc = Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS).jsonProvider().parse(requestStr);
       String jStr;
       List<String> jList;
 
@@ -148,15 +144,29 @@ public class RequestLog {
       jStr = JsonPath.read(reqDoc, "$.hook");
       this.setHookType( jStr );  // note that this is usually overridden in the constructor
 
+
       // jList = JsonPath.read(reqDoc, "$..code");  // easiest, but least robust---works only if document contains the code you want first
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='DeviceRequest')].codeCodeableConcept.coding[*].code");
+      if (jList.isEmpty()) {
+        // Assume ServiceRequest if the coding information could not be found in a DeviceRequest
+        jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='ServiceRequest')].code.coding[*].code");
+      }
       this.setCode( jList.get(0) );
 
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='DeviceRequest')].codeCodeableConcept.coding[*].system");
+      if (jList.isEmpty()) {
+        // Assume ServiceRequest if the coding information could not be found in a DeviceRequest
+        jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='ServiceRequest')].code.coding[*].system");
+      }
       this.setCodeSystem( jList.get(0) );
 
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Location')].address.state");
-      this.setProviderAddressState( jList.get(0) );
+      if (jList.isEmpty()) {
+        // Set a dummy provider state if it could not be found
+        this.setProviderAddressState("N/A");
+      } else {
+        this.setProviderAddressState(jList.get(0));
+      }
 
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].address[*].state");
       this.setPatientAddressState( jList.get(0) );
@@ -183,6 +193,24 @@ public class RequestLog {
     requestService.edit(this);
 
   }
+
+  public void addTopic(RequestService requestService, String topic) {
+    int topicMax = 10;
+    if (this.topicCounter == 0) { // first topic added
+      String[] topics = new String[topicMax]; // up to 10 topics allowed
+      topics[this.topicCounter] = topic;
+      setTopics(topics);
+      this.topicCounter++;
+      requestService.edit(this);
+    } else if (this.topicCounter < topicMax) { // topics 1-10 added
+      this.topics[this.topicCounter] = topic;
+      this.topicCounter++;
+      requestService.edit(this);
+    } else { // do not allow more than 10 topics
+      logger.warn("not storing topic, already reached maximum (10)");
+    }
+
+  }
   /**
    * Returns the name of the fields for dynamic generation of html files.
    *
@@ -197,15 +225,6 @@ public class RequestLog {
     return fieldList;
   }
 
-  public void gatherInfo(List<CoverageRequirementRuleQuery>  queries, List<String> codes, List<String> codeSystems) {
-//    this.setPatientAge(queries.get(0).getCriteria().getAge());
-//    this.setPatientGender(String.valueOf(queries.get(0).getCriteria().getGenderCode()));
-//    this.setPatientAddressState(queries.get(0).getCriteria().getPatientAddressState());
-//    this.setProviderAddressState(queries.get(0).getCriteria().getProviderAddressState());
-    this.setCode(String.join(", ", codes));
-
-    this.setCodeSystem(String.join(", ", codeSystems));
-  }
   public long getId() {
     return id;
   }
@@ -310,16 +329,12 @@ public class RequestLog {
     this.timeline = timeline;
   }
 
-  public Set<CoverageRequirementRule> getRulesFound() {
-    return this.rulesFound;
+  public String[] getTopics() {
+    return this.topics;
   }
 
-  public void addRuleFound(CoverageRequirementRule coverageRequirementRule) {
-    this.rulesFound.add(coverageRequirementRule);
-  }
-
-  public void addRulesFound(List<CoverageRequirementRule> rules) {
-    this.rulesFound.addAll(rules);
+  public void setTopics(String[] topics) {
+    this.topics = topics;
   }
 
   @Override

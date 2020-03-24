@@ -1,8 +1,8 @@
-package org.hl7.davinci.endpoint.cql.bundle;
+package org.hl7.davinci.endpoint.files;
 
 import org.springframework.core.io.Resource;
 
-public class CqlBundleFile {
+public class FileResource {
   private Resource resource;
   private String filename;
 
@@ -10,7 +10,7 @@ public class CqlBundleFile {
     return resource;
   }
 
-  public CqlBundleFile setResource(Resource resource) {
+  public FileResource setResource(Resource resource) {
     this.resource = resource;
     return this;
   }
@@ -19,7 +19,7 @@ public class CqlBundleFile {
     return filename;
   }
 
-  public CqlBundleFile setFilename(String filename) {
+  public FileResource setFilename(String filename) {
     this.filename = filename;
     return this;
   }

@@ -23,7 +23,7 @@ define RESULT_Details:
 define RESULT_InfoLink:
   'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/downloads/PAP_DocCvg_Factsheet_ICN905064.pdf'
 
-define RESULT_QuestionnaireUri:
+define RESULT_QuestionnaireOrderUri:
   'urn:hl7:davinci:crd:positive-airway-pressure-questionnaire'
 
 define RESULT_requestId:

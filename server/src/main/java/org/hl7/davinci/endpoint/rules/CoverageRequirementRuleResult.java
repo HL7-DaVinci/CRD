@@ -6,6 +6,7 @@ public class CoverageRequirementRuleResult {
 
   private Context context;
   private CoverageRequirementRuleCriteria criteria;
+  private String topic;
 
   public Context getContext() { return context; }
 
@@ -18,6 +19,13 @@ public class CoverageRequirementRuleResult {
 
   public CoverageRequirementRuleResult setCriteria(CoverageRequirementRuleCriteria criteria) {
     this.criteria = criteria;
+    return this;
+  }
+
+  public String getTopic() { return topic; }
+
+  public CoverageRequirementRuleResult setTopic(String topic) {
+    this.topic = topic;
     return this;
   }
 }
