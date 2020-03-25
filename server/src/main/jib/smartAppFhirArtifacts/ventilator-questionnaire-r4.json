@@ -32,6 +32,7 @@
     {
       "linkId": "1",
       "type": "group",
+      "text": "Patient Information",
       "item": [
         {
           "extension": [
@@ -194,35 +195,26 @@
     {
       "linkId": "3",
       "text": "Date of in-person evaluation (MM/DD/YYYY):",
-      "type": "group",
-      "item": [
-        {
-          "linkId": "3.1",
-          "type": "date"
-        }
-      ]
+      "type": "date"
     },
     {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
+          "valueExpression": {
+            "language": "text/cql",
+            "expression": "\"VentilatorDevice\".RelevantDiagnoses"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-answerRepeats",
+          "valueBoolean": true
+        }
+      ],
       "linkId": "4",
       "text": "Patient diagnosis:",
-      "type": "group",
-      "item": [
-        {
-          "extension": [
-            {
-              "url": "http://hl7.org/fhir/StructureDefinition/cqf-expression",
-              "valueExpression": {
-                "language": "text/cql",
-                "expression": "\"VentilatorDevice\".RelevantDiagnoses"
-              }
-            }
-          ],
-          "linkId": "4.1",
-          "type": "open-choice",
-          "repeats": true,
-          "answerOption": [
-          ]
-        }
+      "type": "open-choice",
+      "answerOption": [
       ]
     },
     {
@@ -289,11 +281,12 @@
     },
     {
       "linkId": "6",
+      "text": "Device Order",
       "type": "group",
       "item": [
         {
           "linkId": "6.1",
-          "text": "Device Order (description of device):",
+          "text": "Description of device",
           "type": "text"
         },
         {
@@ -307,8 +300,8 @@
             }
           ],
           "linkId": "6.2",
+          "text": "Specify appropriate device if known",
           "type": "choice",
-          "repeats": true,
           "answerOption": [
             {
               "valueCoding": {
@@ -385,6 +378,7 @@
     },
     {
       "linkId": "8",
+      "text": "Signature, name,  date ordered and NPI",
       "type": "group",
       "item": [
         {
