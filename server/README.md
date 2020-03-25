@@ -75,6 +75,19 @@ To access files directly in a GitHub repo without needing to clone or pull anyth
 				branch: master
 				rule-path: .
 		}
+		
+##### Token Generation
+To generate a GitHub token, follow these steps and place your token into the token field above along with your GitHub username.
+
+1. Log into [GitHub](http://www.github.com)
+2. Go to personal settings by choosing your avatar in the top right and choosing “Settings”
+3. Select “Developer settings” on the bottom left
+4. Choose “Personal Access Tokens” on the left
+5. Select “Generate new token”
+6. Log into GitHub with your password
+7. Select the checkboxes next to “repo” and “read:packages”
+8. Press “Geneate token”
+9. There will be a token displayed that you must copy and save for use with the application, I don’t believe there is any way to have the token shown again. If you lose it you will have to revoke the other one and create another.
 
 ## Security
 The server is protected with JSON Web Tokens (JWT), an industry standard for authentication.  Tokens are generated in the `request-generator` using SHA256 for hashing and RSA-2048 encryption.  The tokens DO NOT encrypt the data that is sent to the server, they simply provide a signature that can be verified using a public key.  The tokens are only used to verify that the request comes from a trusted source. 

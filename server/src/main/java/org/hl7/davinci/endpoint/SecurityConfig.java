@@ -1,6 +1,7 @@
 package org.hl7.davinci.endpoint;
 
 import com.google.common.collect.ImmutableList;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.PublicKeyRepository;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;

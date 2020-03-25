@@ -14,6 +14,9 @@ public interface FileStore {
 
   FileResource getFile(String topic, String fileName, String fhirVersion, boolean convert);
 
+  FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl);
+  FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl);
+
   // from RuleFinder
   List<RuleMapping> findRules(CoverageRequirementRuleCriteria criteria);
   List<RuleMapping> findAll();

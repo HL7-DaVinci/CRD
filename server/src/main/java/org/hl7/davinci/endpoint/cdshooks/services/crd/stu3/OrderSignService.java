@@ -43,9 +43,9 @@ public class OrderSignService extends CdsService<OrderSignRequest>  {
   }
 
   @Override
-  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore) {
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore, String baseUrl) {
 
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSignRequest.getPrefetch(), fileStore);
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSignRequest.getPrefetch(), fileStore, baseUrl);
     fhirBundleProcessor.processDeviceRequests();
     fhirBundleProcessor.processMedicationRequests();
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();

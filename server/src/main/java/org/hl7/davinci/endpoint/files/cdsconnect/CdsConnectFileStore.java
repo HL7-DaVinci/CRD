@@ -25,7 +25,15 @@ public class CdsConnectFileStore implements FileStore {
   }
 
   public void reload() {
+    long startTime = System.nanoTime();
+
     logger.info("CdsConnectFileStore::reload()");
+
+    long endTime = System.nanoTime();
+    long timeElapsed = endTime - startTime;
+    float seconds = (float)timeElapsed / (float)1000000000;
+
+    logger.info("CdsConnectFileStore::reload(): completed in " + seconds + " seconds");
   }
 
   public CqlRule getCqlRule(String topic, String fhirVersion) {
@@ -36,6 +44,27 @@ public class CdsConnectFileStore implements FileStore {
   public FileResource getFile(String topic, String fileName, String fhirVersion, boolean convert) {
     FileResource fileResource = new FileResource();
     fileResource.setFilename(fileName);
+    byte[] fileData = null;
+    fileResource.setResource(new ByteArrayResource(fileData));
+    return fileResource;
+  }
+
+  public FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl) {
+    logger.info("CdsConnectFileStore::getFhirResourceByTopic(): " + fhirVersion + "/" + resourceType + "/" + name);
+    // Library-R4-HomeOxygenTherapy-prepopulation.json
+    //String fileName = resourceType + "-" + fhirVersion + "-"
+    String filename = "";
+    FileResource fileResource = new FileResource();
+    fileResource.setFilename(filename);
+    byte[] fileData = null;
+    fileResource.setResource(new ByteArrayResource(fileData));
+    return fileResource;
+  }
+  public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl) {
+    logger.info("CdsConnectFileStore::getFhirResourceById(): " + fhirVersion + "/" + resourceType + "/" + id);
+    String filename = "";
+    FileResource fileResource = new FileResource();
+    fileResource.setFilename(filename);
     byte[] fileData = null;
     fileResource.setResource(new ByteArrayResource(fileData));
     return fileResource;
