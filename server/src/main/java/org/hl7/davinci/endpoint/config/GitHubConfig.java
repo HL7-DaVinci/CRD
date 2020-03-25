@@ -5,8 +5,8 @@ public class GitHubConfig {
   private String token;
   private String repository;
   private String branch;
-  private String artifactPath;
   private String rulePath;
+  private Boolean useZipForReload;
 
   public String getUsername() {return username; }
 
@@ -24,11 +24,11 @@ public class GitHubConfig {
 
   public void setBranch(String branch) { this.branch = branch; }
 
-  public String getArtifactPath() { return artifactPath; }
-
-  public void setArtifactPath(String artifactPath) { this.artifactPath = artifactPath; }
-
   public String getRulePath() { return rulePath; }
 
   public void setRulePath(String rulePath) { this.rulePath = rulePath; }
+
+  public boolean getUseZipForReload() { return useZipForReload; }
+
+  public void setUseZipForReload(boolean useZipForReload) { this.useZipForReload = useZipForReload; }
 }

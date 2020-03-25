@@ -15,7 +15,7 @@ import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.endpoint.YamlConfig;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
@@ -145,7 +145,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
     try {
-      lookupResults = this.createCqlExecutionContexts(request, fileStore);
+      lookupResults = this.createCqlExecutionContexts(request, fileStore, applicationBaseUrl.toString() + "/");
       requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage() + "; summary card sent to client");
@@ -311,11 +311,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       }
     }
 
-    if (myConfig.getIncludeFilepathInAppContext()) {
-      appContext = appContext + filepath;
-    } else {
-      appContext = appContext + "_";
-    }
+    appContext = appContext + "_";
     logger.info("smarLinkBuilder: appContext: " + appContext);
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
@@ -338,6 +334,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   // Implement this in child class
   public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request,
-      FileStore fileStore) throws RequestIncompleteException;
+      FileStore fileStore, String baseUrl) throws RequestIncompleteException;
 
 }

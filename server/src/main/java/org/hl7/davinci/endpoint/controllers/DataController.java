@@ -1,12 +1,11 @@
 package org.hl7.davinci.endpoint.controllers;
 
 import org.hl7.davinci.endpoint.Application;
-import org.hl7.davinci.endpoint.YamlConfig;
-import org.hl7.davinci.endpoint.components.FhirUriFetcher;
+import org.hl7.davinci.endpoint.Utils;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleDownloader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -16,15 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.logging.Logger;
+
+
+import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * Provides the REST interface that can be interacted with at [base]/api/data.
@@ -41,13 +39,10 @@ public class DataController {
   private YamlConfig myConfig;
 
   @Autowired
-  private CoverageRequirementRuleDownloader downloader;
-
-  @Autowired
-  private FhirUriFetcher fhirUriFetcher;
-
-  @Autowired
   private FileStore fileStore;
+
+  org.hl7.davinci.endpoint.fhir.r4.Metadata r4Metadata = new org.hl7.davinci.endpoint.fhir.r4.Metadata();
+  org.hl7.davinci.endpoint.fhir.stu3.Metadata stu3Metadata = new org.hl7.davinci.endpoint.fhir.stu3.Metadata();
 
   /**
    * Basic constructor to initialize both data repositories.
@@ -80,81 +75,97 @@ public class DataController {
     return fileStore.findAll();
   }
 
-  @GetMapping(path = "/getfile/{payer}/{codeSystem}/{code}/{name}")
-  public ResponseEntity<Resource> getFile(@PathVariable String payer, @PathVariable String codeSystem, @PathVariable String code, @PathVariable String name) {
-    logger.info("getfile: GET /getfile/" + payer + "/" + codeSystem + "/" + code + "/" + name);
-
-    FileResource bundleFile = downloader.getFile(payer, codeSystem, code, name);
-
-    if (bundleFile == null) {
-      logger.warning("file not found, return error (404)");
-      return ResponseEntity.notFound().build();
-    }
-
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + bundleFile.getFilename() + "\"")
-        .contentType(MediaType.parseMediaType("application/octet-stream"))
-        .body(bundleFile.getResource());
-  }
-
-  @GetMapping(path = "/fetchFhirUri/{fhirUri}")
-  public ResponseEntity<Resource> fetchFhirUri(@PathVariable String fhirUri) throws IOException {
-    logger.info("download: GET /fetchFhirUri/" + fhirUri);
-
-    Resource resource = fhirUriFetcher.fetch(fhirUri);
-
-    if (resource == null) {
-      return ResponseEntity.notFound().build();
-    }
-
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fhirUri + "\"")
-        .contentType(MediaType.parseMediaType("application/octet-stream"))
-        .body(resource);
-  }
-
-
   @GetMapping(path = "/fhir/{fhirVersion}/metadata")
-  public ResponseEntity<Resource> getFhirResourceById(@PathVariable String fhirVersion) throws IOException {
+  public ResponseEntity<String> getConformanceStatement(HttpServletRequest request, @PathVariable String fhirVersion) throws IOException {
     fhirVersion = fhirVersion.toUpperCase();
     logger.info("GET /fhir/" + fhirVersion + "/metadata");
-    //TODO
-    return ResponseEntity.ok().build();
-  }
+    String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 
-  @GetMapping(path = "/fhir/{fhirVersion}/{resource}/{id}")
-  public ResponseEntity<Resource> getFhirResourceById(@PathVariable String fhirVersion, @PathVariable String resource, @PathVariable String id) throws IOException {
-    fhirVersion = fhirVersion.toUpperCase();
-    logger.info("GET /fhir/" + fhirVersion + "/" + resource + "/" + id);
-    //TODO
-    return ResponseEntity.ok().build();
-  }
-
-  @GetMapping(path = "/fhir/{fhirVersion}/{resource}") //?name={topic}
-  public ResponseEntity<Resource> getFhirResourceByTopic(@PathVariable String fhirVersion, @PathVariable String resource, @RequestParam String name) throws IOException {
-    fhirVersion = fhirVersion.toUpperCase();
-    logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?name=" + name);
-    //TODO
-    return ResponseEntity.ok().build();
-  }
-
-  @GetMapping(path = "/files/{topic}/{fhirVersion}/{fileName}")
-  public ResponseEntity<Resource> getFile(@PathVariable String topic, @PathVariable String fhirVersion, @PathVariable String fileName, @RequestParam(required = false) boolean noconvert) throws IOException {
-    logger.info("GET /files/" + topic + "/" + fhirVersion + "/" + fileName);
-
-    FileResource fileResource = fileStore.getFile(topic, fileName, fhirVersion, !noconvert);
-
-    if (fileResource == null) {
-      logger.warning("file not found, return error (404)");
-      return ResponseEntity.notFound().build();
+    String json = "";
+    if (fhirVersion.equalsIgnoreCase("R4")) {
+      json = r4Metadata.getMetadata(baseUrl);
+    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
+      json = stu3Metadata.getMetadata(baseUrl);
+    } else {
+      logger.warning("Unsupported FHIR version: " + fhirVersion);
     }
 
+    return new ResponseEntity<String>(json, HttpStatus.OK);
+  }
+
+  private ResponseEntity<Resource> processFileResource(FileResource fileResource) {
+    if (fileResource == null) {
+      logger.warning("file / fhir resource not found, return error (404)");
+      return ResponseEntity.notFound().build();
+    }
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileResource.getFilename() + "\"")
         .contentType(MediaType.parseMediaType("application/octet-stream"))
         .body(fileResource.getResource());
   }
 
+  /**
+   * Retrieve a FHIR resource by id
+   * @param fhirVersion (converted to uppercase)
+   * @param resource (converted to lowercase)
+   * @param id (converted to lowercase)
+   * @return
+   * @throws IOException
+   */
+  @GetMapping(path = "/fhir/{fhirVersion}/{resource}/{id}")
+  public ResponseEntity<Resource> getFhirResourceById(HttpServletRequest request, @PathVariable String fhirVersion, @PathVariable String resource, @PathVariable String id) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
+    resource = resource.toLowerCase();
+    id = id.toLowerCase();
+    logger.info("GET /fhir/" + fhirVersion + "/" + resource + "/" + id);
+    String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+
+    FileResource fileResource = fileStore.getFhirResourceById(fhirVersion, resource, resource + "/" + id, baseUrl);
+    return processFileResource(fileResource);
+  }
+
+  /**
+   * Retrieve a FHIR resource by name.
+   * @param fhirVersion (converted to uppercase)
+   * @param resource (converted to lowercase)
+   * @param name (converted to lowercase)
+   * @return
+   * @throws IOException
+   */
+  @GetMapping(path = "/fhir/{fhirVersion}/{resource}") //?name={topic}
+  public ResponseEntity<Resource> getFhirResourceByTopic(HttpServletRequest request, @PathVariable String fhirVersion, @PathVariable String resource, @RequestParam String name) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
+    resource = resource.toLowerCase();
+    name = name.toLowerCase();
+    logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?name=" + name);
+    String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+
+    FileResource fileResource = fileStore.getFhirResourceByTopic(fhirVersion, resource, name, baseUrl);
+    return processFileResource(fileResource);
+  }
+
+  /**
+   * Retrieve a file from the File Store.
+   * @param topic (case sensitive)
+   * @param fhirVersion (converted to uppercase)
+   * @param fileName (case sensitive)
+   * @param noconvert
+   * @return
+   * @throws IOException
+   */
+  @GetMapping(path = "/files/{topic}/{fhirVersion}/{fileName}")
+  public ResponseEntity<Resource> getFile(@PathVariable String topic, @PathVariable String fhirVersion, @PathVariable String fileName, @RequestParam(required = false) boolean noconvert) throws IOException {
+    fhirVersion = fhirVersion.toUpperCase();
+    logger.info("GET /files/" + topic + "/" + fhirVersion + "/" + fileName);
+
+    FileResource fileResource = fileStore.getFile(topic, fileName, fhirVersion, !noconvert);
+    return processFileResource(fileResource);
+  }
+
+  /**
+   * Reload the entire File Store.
+   * @return
+   */
   @PostMapping(path = "/reload")
   public RedirectView reload() {
     logger.info("reload rule file index");
@@ -163,10 +174,5 @@ public class DataController {
 
     return new RedirectView(newUrl);
   }
-
-  @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No such rule") // 404
-  public class RuleNotFoundException extends RuntimeException {
-  }
-
 
 }

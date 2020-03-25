@@ -1,6 +1,5 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.cdshooks.Hook;
@@ -10,7 +9,6 @@ import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
-import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 import org.slf4j.Logger;
@@ -38,9 +36,9 @@ public class OrderReviewService extends CdsService<OrderReviewRequest> {
   public OrderReviewService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS); }
 
   @Override
-  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderReviewRequest orderReviewRequest, FileStore fileStore) {
+  public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderReviewRequest orderReviewRequest, FileStore fileStore, String baseUrl) {
 
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderReviewRequest.getPrefetch(), fileStore);
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderReviewRequest.getPrefetch(), fileStore, baseUrl);
     fhirBundleProcessor.processDeviceRequests();
     fhirBundleProcessor.processMedicationRequests();
     fhirBundleProcessor.processServiceRequests();
