@@ -3,6 +3,8 @@ package org.hl7.davinci.endpoint.vsac;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.hl7.davinci.endpoint.vsac.errors.VSACException;
+
 public class VSACLoadingTask {
 
   public static void main(String[] args) {
@@ -19,10 +21,15 @@ public class VSACLoadingTask {
       System.exit(1);
     }
 
-    System.out.println("U: " + username);
-    System.out.println("P: " + password);
-    VSACLoader vsacLoader = new VSACLoader(username, password);
-    System.out.println(vsacLoader.getTGT());
+    try {
+      VSACLoader vsacLoader = new VSACLoader(username, password);
+      System.out.println(vsacLoader.getTGT());
+      System.out.println(vsacLoader.getTicket());
+      System.out.println(vsacLoader.getValueSet("2.16.840.1.113762.1.4.1114.7"));
+    } catch(VSACException ve) {
+      ve.printStackTrace();
+      System.exit(1);
+    }
   }
 }
 
