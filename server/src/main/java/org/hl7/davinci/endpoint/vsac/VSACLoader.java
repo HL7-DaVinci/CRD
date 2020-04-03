@@ -1,14 +1,15 @@
 package org.hl7.davinci.endpoint.vsac;
 
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -16,16 +17,16 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
-import org.eclipse.jetty.util.IO;
 import org.hl7.davinci.endpoint.vsac.errors.VSACException;
 import org.hl7.davinci.endpoint.vsac.errors.VSACInvalidCredentialsException;
+import org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException;
+import org.hl7.fhir.r4.model.ValueSet;
+import org.xml.sax.SAXException;
 
 public class VSACLoader {
 
@@ -115,6 +116,25 @@ public class VSACLoader {
     return ticket;
   }
 
+  public String parseValueSetResponse(InputStream response) throws VSACException {
+    try {
+      SAXParserFactory factory = SAXParserFactory.newInstance();
+      SAXParser saxParser = factory.newSAXParser();
+      VSACSVSHandler svsHandler = new VSACSVSHandler();
+      saxParser.parse(response, svsHandler);
+      List<ValueSet> valueSets = svsHandler.getParsedValueSets();
+      //int numberOfCodes = valueSets.get(0).getExpansion().getContains().size();
+      return ca.uhn.fhir.context.FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToString(valueSets.get(0));
+      //return "Parsed " + valueSets.get(0).getId() + " with " + numberOfCodes + " codes.";
+    } catch(ParserConfigurationException pce) {
+      throw new VSACException("Error setting up XML parser.", pce);
+    } catch(SAXException saxe) {
+      throw new VSACException("Error parsing value set response.", saxe);
+    } catch(IOException ioe) {
+      throw new VSACException("Error parsing value set response.", ioe);
+    }
+  }
+
   public String getValueSet(String oid) throws VSACException {
     HttpGet vsRequest;
     try {
@@ -140,9 +160,10 @@ public class VSACLoader {
           // TODO: expired ticket
           throw new VSACInvalidCredentialsException();
         } else if (statusCode == 200) {
-          valueSet = EntityUtils.toString(responseEntity);
-        } else {      
-          // TODO: Handle 404s 
+          valueSet = this.parseValueSetResponse(responseEntity.getContent());
+        } else if (statusCode == 404) {
+          throw new VSACValueSetNotFoundException(oid);
+        } else {
           throw new VSACException("Unexpected response in getting value set. Status code: " + statusCode);
         }
       } finally {

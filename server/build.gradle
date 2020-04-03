@@ -162,9 +162,9 @@ void checkoutCdsLibraryScript(branch) {
 task loadValueSets(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.hl7.davinci.endpoint.vsac.VSACLoadingTask'
-    systemProperties = [
-        'java.util.logging.config.file': './server/src/main/java/org/hl7/davinci/endpoint/vsac/logging.properties'
-    ]
+    //systemProperties = [
+    //    'java.util.logging.config.file': './server/src/main/java/org/hl7/davinci/endpoint/vsac/logging.properties'
+    //]
     //     'org.apache.commons.logging.Log': 'org.apache.commons.logging.impl.SimpleLog',
     //     'org.apache.commons.logging.simplelog.log.org.apache.http.wire': 'WARN',
     //     'org.apache.commons.logging.simplelog.log.org.apache.http.headers': 'WARN',
