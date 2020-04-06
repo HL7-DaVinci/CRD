@@ -17,12 +17,12 @@ There are 2 approaches to do this, based on how you use the CDS Library:
 |-----------------|----------------------|----------------------|
 | Most suited for | Production           | Local Development    |
 | Description | [Default] This approach embeds the master branch of the CDS Libary into the CRD. _This is the easiest approach._ | This approach clones the CDS Library as a separate project. _This is the more flexible approach for developers._ |
-| When to use | This is useful when you need only the latest version of the CDS Library or when you are developing CRD and not the CDS Library. Note that with this approach, _you will always be using the master branch of the CDS Library._ | This is useful when you want to control which branch of the CDS Library you are using (e. g., if you need to test a pull request, or if you are actively developing rules for the CDS Library). |
+| When to use | This is useful when you need only the latest version of the CDS Library or when you are developing CRD and not the CDS Library. | This is useful when you want to control which branch of the CDS Library you are using (e. g., if you need to test a pull request, or if you are actively developing rules for the CDS Library). |
 | Directions  | Follow the directions in the section [Setup Directions for **Embedded** CDS Library](#Setup-Directions-for-Embedded-CDS-Library) | Follow the directions in the section [Setup Directions for **Separate** CDS Library](#Setup-Directions-for-Separate-CDS-Library) |
 
 ### Setup Directions for **Embedded** CDS Library
 
-This is the easiest way to get started, but note that you will only be able to use the `master` branch of CDS Library
+This is the easiest way to get started. You can optionally specify the branch otherwise it will default to use the `master` branch of CDS Library
 
 1. go to `/server` subdirectory of CRD
 
@@ -30,7 +30,13 @@ This is the easiest way to get started, but note that you will only be able to u
 
 2. embed CDS Library:
 
+	a. Default `master` branch:
+
    `gradle embedCdsLibrary`
+   
+   b. Specify `other` branch:
+   
+   `gradle embedCdsLibrary -Pbranch=other`
 
 3. start the server:
 
