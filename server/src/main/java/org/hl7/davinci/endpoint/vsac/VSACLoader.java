@@ -116,7 +116,7 @@ public class VSACLoader {
     return ticket;
   }
 
-  public String parseValueSetResponse(InputStream response) throws VSACException {
+  public ValueSet parseValueSetResponse(InputStream response) throws VSACException {
     try {
       SAXParserFactory factory = SAXParserFactory.newInstance();
       SAXParser saxParser = factory.newSAXParser();
@@ -124,7 +124,7 @@ public class VSACLoader {
       saxParser.parse(response, svsHandler);
       List<ValueSet> valueSets = svsHandler.getParsedValueSets();
       //int numberOfCodes = valueSets.get(0).getExpansion().getContains().size();
-      return ca.uhn.fhir.context.FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToString(valueSets.get(0));
+      return valueSets.get(0);
       //return "Parsed " + valueSets.get(0).getId() + " with " + numberOfCodes + " codes.";
     } catch(ParserConfigurationException pce) {
       throw new VSACException("Error setting up XML parser.", pce);
@@ -135,7 +135,12 @@ public class VSACLoader {
     }
   }
 
-  public String getValueSet(String oid) throws VSACException {
+  public String getValueSetJSON(String oid) throws VSACException {
+    ValueSet valueSet = this.getValueSet(oid);
+    return ca.uhn.fhir.context.FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToString(valueSet);
+  } 
+
+  public ValueSet getValueSet(String oid) throws VSACException {
     HttpGet vsRequest;
     try {
       URIBuilder vsUriBuilder;
@@ -150,7 +155,7 @@ public class VSACLoader {
       throw new VSACException("Unable to build URI for fetching valueset.", e);
     }
     
-    String valueSet = "";
+    ValueSet valueSet = null;
     try {
       CloseableHttpResponse response = this.client.execute(vsRequest);
       try {

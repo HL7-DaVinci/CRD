@@ -46,8 +46,8 @@ public class VSACLoadingTask {
       VSACLoader vsacLoader = new VSACLoader(username, password);
       System.out.println(vsacLoader.getTGT());
       //System.out.println(vsacLoader.getTicket());
-      System.out.println(vsacLoader.getValueSet("2.16.840.1.113762.1.4.1114.7"));
-      System.out.println(vsacLoader.getValueSet("2.16.840.1.113762.1.4.1219.1"));
+      System.out.println(vsacLoader.getValueSetJSON("2.16.840.1.113762.1.4.1114.7"));
+      System.out.println(vsacLoader.getValueSetJSON("2.16.840.1.113762.1.4.1219.3"));
     } catch(VSACException ve) {
       ve.printStackTrace();
       System.exit(1);
