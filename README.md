@@ -7,7 +7,6 @@ The CRD RI project is software that can simulate all of the systems involved in 
 This software lets EHR vendors and payer organizations examine how the proposed standard will work and test their own implementations of the standard.
 
 ## Project Structure
-This is a Java based project that requires at least Java 8 (untested with later versions) and is built with [Gradle](https://gradle.org/) 4.9.
 
 Folders within this project make up subprojects. This section provides a brief description of each. More detailed information can be found in the subproject folders.
 
