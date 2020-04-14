@@ -44,8 +44,8 @@ On the left side of the diagram, we have two components that simulate functional
 `server` is an implementation of a CDS Service. It handles CDS Hooks requests and returns results. The service performs some basic parsing of the request to extract basic demographic information and the code of the requested item. Based on that information, the service will consult a simple database and then return information from the database in CDS Hook cards. The simplistic documentation requirements rules can be modified via an administrative web interface.
 
 ## Prerequisites
-* Java - At least JDK 8 - [Oracle JDK Downloads](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-* Gradle 4.9 - [Gradle Installation Instructions](https://gradle.org/install/)
+* Java - JDK 8 - [Oracle JDK Downloads](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* Gradle 6.3 - [Gradle Installation Instructions](https://gradle.org/install/)
 * (server only) - PostgreSQL 9.3 - [PostgreSQL Downloads](https://www.postgresql.org/download/)
 * (optional) Keycloak - [Keycloak](https://www.keycloak.org/downloads.html)
 * (request-generator only) - node.js - [node.js Downloads](https://nodejs.org/en/download/)
