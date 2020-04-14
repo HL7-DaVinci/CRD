@@ -45,7 +45,6 @@ On the left side of the diagram, we have two components that simulate functional
 ## Prerequisites
 * Java - JDK 8 - [Oracle JDK Downloads](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * Gradle 6.3 - [Gradle Installation Instructions](https://gradle.org/install/)
-* (server only) - PostgreSQL 9.3 - [PostgreSQL Downloads](https://www.postgresql.org/download/)
 * (optional) Keycloak - [Keycloak](https://www.keycloak.org/downloads.html)
 * (request-generator only) - node.js - [node.js Downloads](https://nodejs.org/en/download/)
 
