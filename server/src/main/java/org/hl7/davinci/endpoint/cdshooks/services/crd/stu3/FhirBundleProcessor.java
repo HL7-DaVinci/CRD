@@ -92,12 +92,18 @@ public class FhirBundleProcessor {
         Organization org = new Organization().setName("Centers for Medicare and Medicaid Services");
         org.setId("75f39025-65db-43c8-9127-693cdf75e712");
         payors.add(org);
+        // remove the exception to use CMS if no payer is provided
+        throw new RequestIncompleteException("No Payer found in coverage resource, cannot find documentation.");
       }
 
       List<CoverageRequirementRuleCriteria> criteriaList = CoverageRequirementRuleCriteria
           .createQueriesFromStu3(codings, payors);
       return criteriaList;
+    } catch (RequestIncompleteException e) {
+      // rethrow incomplete request exceptions
+      throw e;
     } catch (Exception e) {
+      // catch all remaining exceptions
       System.out.println(e);
       throw new RequestIncompleteException("Unable to parse list of codes, codesystems, and payors from a device request.");
     }
