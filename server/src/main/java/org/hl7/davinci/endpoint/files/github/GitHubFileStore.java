@@ -93,7 +93,12 @@ public class GitHubFileStore extends CommonFileStore {
       String path = location.getPath() + "/" + rulePath;
 
       // load the folder
-      reloadFromFolder(path + "/");
+      try {
+        reloadFromFolder(path + "/");
+      } catch (IOException e) {
+        logger.error("FATAL ERROR: Failed to reload from folder: " + e.getMessage());
+        System.exit(1);
+      }
 
       // clean up the zip file
       try {
