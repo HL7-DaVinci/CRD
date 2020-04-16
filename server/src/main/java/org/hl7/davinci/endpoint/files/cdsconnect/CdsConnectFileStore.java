@@ -79,4 +79,16 @@ public class CdsConnectFileStore implements FileStore {
     logger.info("CdsConnectFileStore::findAll()");
     return new ArrayList<>();
   }
+
+  @Override
+  public void reinitializeVSACLoader() {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void reinitializeVSACLoader(String username, String password) {
+    // TODO Auto-generated method stub
+
+  }
 }

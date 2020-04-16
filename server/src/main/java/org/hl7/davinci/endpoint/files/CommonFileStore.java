@@ -288,6 +288,14 @@ public abstract class CommonFileStore implements FileStore {
     }
   }
 
+  public void reinitializeVSACLoader() {
+    this.getValueSetCache().reinitializeLoader();
+  }
+
+  public void reinitializeVSACLoader(String username, String password) {
+    this.getValueSetCache().reinitializeLoaderWithCreds(username, password);
+  }
+
   private ValueSetCache getValueSetCache() {
     if (this.valueSetCache == null) {
       this.valueSetCache = new ValueSetCache(this.config.getValueSetCachePath());

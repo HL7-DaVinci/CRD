@@ -169,6 +169,8 @@ public class DataController {
   @PostMapping(path = "/reload")
   public RedirectView reload() {
     logger.info("reload rule file index");
+
+    fileStore.reinitializeVSACLoader();
     fileStore.reload();
     String newUrl = "/data";
 

@@ -1,17 +1,20 @@
 package org.hl7.davinci.endpoint.vsac;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.FhirResource;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.vsac.errors.VSACException;
 import org.hl7.fhir.r4.model.ValueSet;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.LoggerFactory;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
 
 public class ValueSetCache {
 
@@ -25,32 +28,41 @@ public class ValueSetCache {
 
   private VSACLoader vsacLoader;
 
+  private FhirContext fhirContext;
+
   public ValueSetCache(String cacheDir) {
+    this.fhirContext = ca.uhn.fhir.context.FhirContext.forR4();
+    this.initializeLoader();
+    this.initializeCacheDir(cacheDir);
+  }
+
+  public ValueSetCache(String cacheDir, String username, String password) {
+    this.fhirContext = ca.uhn.fhir.context.FhirContext.forR4();
+    this.initializeLoader(username, password);
+    this.initializeCacheDir(cacheDir);
+  }
+
+  private void initializeLoader() {
     String username = System.getenv("VSAC_USERNAME");
     String password = System.getenv("VSAC_PASSWORD");
     if (username == null || password == null) {
       logger.error(
           "VSAC_USERNAME and/or VSAC_PASSWORD not found in environment variables. ValueSetCache will not be able to fetch valuesets.");
     } else {
-      initalizeLoader(username, password);
+      initializeLoader(username, password);
     }
-    this.initalizeCacheDir(cacheDir);
   }
 
-  public ValueSetCache(String cacheDir, String username, String password) {
-    this.initalizeLoader(username, password);
-    this.initalizeCacheDir(cacheDir);
-  }
-
-  private void initalizeLoader(String username, String password) {
+  private void initializeLoader(String username, String password) {
     try {
       this.vsacLoader = new VSACLoader(username, password);
+      logger.info("VSACLoader sucessfully initialized.");
     } catch (VSACException e) {
       logger.error("Exception setting up VSACLoader. ValueSetCache will not be able to fetch valuesets.", e);
     }
   }
 
-  private void initalizeCacheDir(String cachePath) {
+  private void initializeCacheDir(String cachePath) {
     this.cacheDir = new File(cachePath);
     if (cacheDir.exists() && cacheDir.isDirectory()) {
       logger.info("ValueSetCache directory already exists at " + this.cacheDir.getAbsolutePath());
@@ -63,6 +75,28 @@ public class ValueSetCache {
     }
   }
 
+  private void clearLoader() {
+    if (this.vsacLoader != null) {
+      try {
+        this.vsacLoader.close();
+      } catch (VSACException ve) {
+        logger.warn(ve.getMessage(), ve);
+      }
+      logger.info("Cleared VSACLoader");
+      this.vsacLoader = null;
+    }
+  }
+
+  public void reinitializeLoader() {
+    this.clearLoader();
+    this.initializeLoader();
+  }
+
+  public void reinitializeLoaderWithCreds(String username, String password) {
+    this.clearLoader();
+    this.initializeLoader(username, password);
+  }
+
   public boolean fetchValueSet(String oid) {
     if (this.vsacLoader == null) {
       return this.fetchValueSetFromCache(oid);
@@ -73,12 +107,20 @@ public class ValueSetCache {
 
   private boolean fetchValueSetFromCache(String oid) {
     logger.warn("VSACLoader was not setup, possibly due to lack of credentials. ValueSets already in directory will be considered.");
-    File valueSetPath = new File(this.cacheDir, oid + ".json");
-    if (valueSetPath.exists()) {
-      // todo add to repository
+    File valueSetPath = new File(this.cacheDir, "ValueSet-R4-" + oid + ".json");
+
+    try {
+      ValueSet valueSet = (ValueSet) this.fhirContext.newJsonParser().parseResource(new FileInputStream(valueSetPath));
+      // fix id, for some reason the parser adds 'ValueSet' on it
+      valueSet.setId(oid);
+      logger.info("ValueSet (" + oid + ") found in cache dir, will use.");
+      this.addValueSetToFhirResources(valueSet, valueSetPath);
       return true;
-    } else {
-      logger.error("ValueSet (" + oid + ") not found in cache dir.");
+    } catch (FileNotFoundException e) {
+      logger.error("ValueSet (" + oid + ") not found in cache dir. It will NOT be available!");
+      return false;
+    } catch (DataFormatException e) {
+      logger.error("ValueSet (" + oid + ") in cache dir is malformed. It will NOT be available!");
       return false;
     }
   }
