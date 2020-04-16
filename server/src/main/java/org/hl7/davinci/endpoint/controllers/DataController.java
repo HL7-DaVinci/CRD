@@ -167,10 +167,15 @@ public class DataController {
    * @return
    */
   @PostMapping(path = "/reload")
-  public RedirectView reload() {
+  public RedirectView reload(@RequestParam String vsac_username, @RequestParam String vsac_password) {
     logger.info("reload rule file index");
 
-    fileStore.reinitializeVSACLoader();
+    if (vsac_username != null && vsac_password != null) {
+      fileStore.reinitializeVSACLoader(vsac_username, vsac_password);
+    } else {
+      fileStore.reinitializeVSACLoader();
+    }
+
     fileStore.reload();
     String newUrl = "/data";
 

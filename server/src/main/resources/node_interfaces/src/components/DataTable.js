@@ -39,7 +39,11 @@ export default class DataTable extends Component {
             <div className="dataTable">
                 <form action="/reload" method="post">
                     <div class="spacer"></div>
-                    <input class="reload" type="submit" value="Reload Data"/>
+                    <span class="reload">
+                        <input name="vsac_username" type="text" placeholder="VSAC Username"/>
+                        <input name="vsac_password" type="password" placeholder="VSAC Password"/>
+                        <input type="submit" value="Reload Data"/>
+                    </span>
                 </form>
                 <div>
                     <table className="table-responsive table-striped table">
