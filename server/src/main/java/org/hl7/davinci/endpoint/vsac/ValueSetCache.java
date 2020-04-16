@@ -5,8 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 import org.hl7.davinci.endpoint.database.FhirResource;
+import org.hl7.davinci.endpoint.database.FhirResourceCriteria;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.vsac.errors.VSACException;
 import org.hl7.fhir.r4.model.ValueSet;
@@ -98,6 +100,19 @@ public class ValueSetCache {
   }
 
   public boolean fetchValueSet(String oid) {
+    // check if the valueset has already been loaded
+    FhirResourceCriteria criteria = new FhirResourceCriteria();
+    criteria.setFhirVersion("R4")
+        .setResourceType("valueset")
+        .setId("valueset/" + oid);
+    List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
+
+    // Skip fetching if it already has been loaded
+    if (!fhirResourceList.isEmpty()) {
+      logger.info("ValueSet (" + oid + ") already loaded.");
+      return true;
+    }
+
     if (this.vsacLoader == null) {
       return this.fetchValueSetFromCache(oid);
     } else {
@@ -137,7 +152,7 @@ public class ValueSetCache {
 
       try {
         FileWriter jsonWriter = new FileWriter(valueSetPath);
-        ca.uhn.fhir.context.FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToWriter(valueSet, jsonWriter);
+        this.fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToWriter(valueSet, jsonWriter);
         jsonWriter.close();
         this.addValueSetToFhirResources(valueSet, valueSetPath);
         return true;
