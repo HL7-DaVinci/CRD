@@ -31,7 +31,6 @@ import org.zeroturnaround.zip.ZipUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 
 @Component
 @Profile("gitHub")
@@ -133,8 +132,7 @@ public class GitHubFileStore extends CommonFileStore {
           }
 
         } else if (topicName.startsWith(".")) {
-          // logger.info(" GitHubFileStore::reloadFromGitHub() skipping all folders
-          // starting with .: " + topicName);
+          // logger.info(" GitHubFileStore::reloadFromGitHub() skipping all folders starting with .: " + topicName);
         } else {
           logger.info("  GitHubFileStore::reloadFromGitHub() found topic: " + topicName);
 
@@ -159,11 +157,9 @@ public class GitHubFileStore extends CommonFileStore {
                       for (String fhirVersion : metadata.getFhirVersions()) {
 
                         String mainCqlLibraryName = metadata.getTopic() + "Rule";
-                        String mainCqlFile = findGitHubFile(metadata.getTopic(), fhirVersion, mainCqlLibraryName,
-                            ".cql");
+                        String mainCqlFile = findGitHubFile(metadata.getTopic(), fhirVersion, mainCqlLibraryName, ".cql");
                         if (mainCqlFile == null) {
-                          logger.warn("GitHubFileStore::reloadFromGitHub(): failed to find main CQL file for topic: "
-                              + metadata.getTopic());
+                          logger.warn("GitHubFileStore::reloadFromGitHub(): failed to find main CQL file for topic: " + metadata.getTopic());
                         } else {
                           logger.info("    Added: " + metadata.getTopic() + ": " + payer + ", "
                               + mapping.getCodeSystem() + ", " + code + " (" + fhirVersion + ")");
@@ -171,9 +167,10 @@ public class GitHubFileStore extends CommonFileStore {
                           // create table entry and store it back to the table
                           RuleMapping ruleMappingEntry = new RuleMapping();
                           ruleMappingEntry.setPayer(ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payer))
-                              .setCodeSystem(
-                                  ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(mapping.getCodeSystem()))
-                              .setCode(code).setFhirVersion(fhirVersion).setTopic(metadata.getTopic())
+                              .setCodeSystem(ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(mapping.getCodeSystem()))
+                              .setCode(code)
+                              .setFhirVersion(fhirVersion)
+                              .setTopic(metadata.getTopic())
                               .setRuleFile(mainCqlFile);
                           lookupTable.save(ruleMappingEntry);
                         }
@@ -285,8 +282,7 @@ public class GitHubFileStore extends CommonFileStore {
 
             if (resourceName == null) {
               resourceName = stripNameFromResourceFilename(filename, fhirVersion);
-              logger
-                  .info("Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
+              logger.info("Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
             }
 
             resourceId = resourceId.toLowerCase();
@@ -294,8 +290,12 @@ public class GitHubFileStore extends CommonFileStore {
 
             // create a FhirResource and save it back to the table
             FhirResource fhirResource = new FhirResource();
-            fhirResource.setId(resourceId).setFhirVersion(fhirVersion).setResourceType(resourceType).setTopic(topic)
-                .setFilename(filename).setName(resourceName);
+            fhirResource.setId(resourceId)
+                .setFhirVersion(fhirVersion)
+                .setResourceType(resourceType)
+                .setTopic(topic)
+                .setFilename(filename)
+                .setName(resourceName);
             fhirResources.save(fhirResource);
           }
         }
@@ -388,6 +388,8 @@ public class GitHubFileStore extends CommonFileStore {
 
       String filePath;
       InputStream inputStream;
+
+      // If the topic indicates it's actually from the ValueSet cache. Grab file input stream from there.
       if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
         filePath = config.getValueSetCachePath() + fhirResource.getFilename();
         try {

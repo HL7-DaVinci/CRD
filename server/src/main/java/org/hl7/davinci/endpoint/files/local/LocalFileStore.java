@@ -133,6 +133,8 @@ public class LocalFileStore extends CommonFileStore {
       String localPath = config.getLocalDb().getPath();
 
       String filePath;
+
+      // If the topic indicates it's actually from the ValueSet cache. Grab file path from there.
       if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
         filePath = config.getValueSetCachePath() + fhirResource.getFilename();
         logger.warn("Atempting to serve valueset from cache at: " + filePath);

@@ -288,14 +288,29 @@ public abstract class CommonFileStore implements FileStore {
     }
   }
 
+  /**
+   * Called by the DataController to ensure we have a fresh VSACLoader for getting value sets before starting the reloading process.
+   */
   public void reinitializeVSACLoader() {
     this.getValueSetCache().reinitializeLoader();
   }
 
+  /**
+   * Called by the DataController to ensure we have a fresh VSACLoader for getting value sets before starting the reloading process.
+   * 
+   * @param username VSAC/UMLS Username
+   * @param password VSAC/UMLS Password
+   */
   public void reinitializeVSACLoader(String username, String password) {
     this.getValueSetCache().reinitializeLoaderWithCreds(username, password);
   }
 
+  /**
+   * Gets or sets up and returns the ValueSetCache. The setup code provides the FhirResourceRepository to the ValueSetCache so it
+   * is able add the fetched value sets to the repository.
+   * 
+   * @return The ValueSetCache to use for getting ValueSets.
+   */
   private ValueSetCache getValueSetCache() {
     if (this.valueSetCache == null) {
       this.valueSetCache = new ValueSetCache(this.config.getValueSetCachePath());
@@ -304,11 +319,18 @@ public abstract class CommonFileStore implements FileStore {
     return this.valueSetCache;
   }
 
+  /**
+   * Looks for ValueSet references in Library.dataRequirement.codeFilter entries that point to a VSAC ValueSet by OID and have the cache fetch the
+   * ValueSet.
+   * 
+   * @param library The FHIR Library resource to look for ValueSet references in.
+   */
   private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Library library) {
     for (org.hl7.fhir.r4.model.DataRequirement dataReq : library.getDataRequirement()) {
       for (org.hl7.fhir.r4.model.DataRequirement.DataRequirementCodeFilterComponent codeFilter : dataReq.getCodeFilter()) {
         String valueSetRef = codeFilter.getValueSet();
         String valueSetId = valueSetRef.split("ValueSet/")[1];
+        // If this ID looks like a VSAC OID. Fetch it, otherwise ignore.
         if (valueSetId.matches("((\\d+)\\.)+(\\d)+")) {
           logger.info("          VSAC ValueSet reference found: " + valueSetId);
           this.getValueSetCache().fetchValueSet(valueSetId);
