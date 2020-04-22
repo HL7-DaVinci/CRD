@@ -3,6 +3,9 @@ package org.hl7.davinci.endpoint.vsac;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Translates VSAC CodeSystem OIDs to FHIR CodeSystem URLs.
+ */
 public class CodeSystemTranslator {
   public static Map<String, String> oidToUriMap = new HashMap<String, String>();
 

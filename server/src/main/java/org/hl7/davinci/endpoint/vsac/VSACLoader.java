@@ -28,25 +28,53 @@ import org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException;
 import org.hl7.fhir.r4.model.ValueSet;
 import org.xml.sax.SAXException;
 
+/**
+ * Class that handles interaction with the VSAC SVS API.
+ */
 public class VSACLoader {
 
   public static final String AUTH_URL = "https://vsac.nlm.nih.gov/vsac/ws/Ticket";
   public static final String SVS_URL = "https://vsac.nlm.nih.gov/vsac/svs/RetrieveMultipleValueSets";
   public static final String DEFAULT_PROFILE = "Most Recent Code System Versions in VSAC";
 
+  /** 
+   * The Ticket Granting Ticket that allows us to get service Tickets.
+   */
   private String ticketGrantingTicket;
+
+  /**
+   * The Http client we will attempt to reuse for all requests.
+   */
   private CloseableHttpClient client;
 
+  /**
+   * Initializes a VSACLoader. This attmepts to get a VSAC TGT.
+   * 
+   * @param username UMLS/VSAC Username
+   * @param password UMLS/VSAC Password
+   * @throws VSACException If there was an inability to get a TGT with these credentials.
+   */
   public VSACLoader(String username, String password) throws VSACException {
     this.client = HttpClients.createDefault();
     this.ticketGrantingTicket = getTicketGrantingTicket(username, password);
   }
 
+  /**
+   * Grabs a Ticket Granting Ticket. This is the first step in using the API. This ticket is used to get service tickets which are
+   * needed for each request. This ticket /should/ last 8 hours. But in practice it does not.
+   * 
+   * @param username UMLS/VSAC Username
+   * @param password UMLS/VSAC Password
+   * @return The Ticket Granting Ticket
+   * @throws VSACException If there was an issue getting the TGT.
+   */
   private String getTicketGrantingTicket(String username, String password) throws VSACException {
+    // Build parameter pair for form urlencoded data that will be posted.
     List<NameValuePair> credentials = new ArrayList<NameValuePair>();
     credentials.add(new BasicNameValuePair("username", username));
     credentials.add(new BasicNameValuePair("password", password));
 
+    // Build request to authorization url.
     HttpPost tgtRequest = new HttpPost(AUTH_URL);
     tgtRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
     try {
@@ -55,6 +83,7 @@ public class VSACLoader {
       // This shouldn't happen.
     }
 
+    // Handle request and parsing into string.
     String tgt = "";
     try {
       CloseableHttpResponse response = this.client.execute(tgtRequest);
@@ -78,6 +107,12 @@ public class VSACLoader {
     return tgt;
   }
 
+  /**
+   * Get a one time use service ticket. The result of this will be used for a single value set fetch call.
+   * 
+   * @return The service ticket.
+   * @throws VSACException If there was an issue getting the service ticket.
+   */
   public String getTicket() throws VSACException {
     // Service info that needs to be passed when getting a ticket.
     List<NameValuePair> serviceInfo = new ArrayList<NameValuePair>();
@@ -99,7 +134,7 @@ public class VSACLoader {
         HttpEntity responseEntity = response.getEntity();
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode == 401) {
-          // TODO: expired ticket
+          // This usually means the ticket granting ticket has expired.
           throw new VSACInvalidCredentialsException();
         } else if (statusCode == 200) {
           ticket = EntityUtils.toString(responseEntity);
@@ -116,16 +151,25 @@ public class VSACLoader {
     return ticket;
   }
 
+  /**
+   * Parse the ValueSet response using a SAXParser.
+   * 
+   * @param response The InputStream of the response.
+   * @return The parsed FHIR R4 ValueSet.
+   * @throws VSACException If there were any issues parsing.
+   */
   public ValueSet parseValueSetResponse(InputStream response) throws VSACException {
     try {
       SAXParserFactory factory = SAXParserFactory.newInstance();
       SAXParser saxParser = factory.newSAXParser();
       VSACSVSHandler svsHandler = new VSACSVSHandler();
       saxParser.parse(response, svsHandler);
+
+      // The parser and requests have the ability to contain and parse multiple valuesets. But this will not happen in practice.
       List<ValueSet> valueSets = svsHandler.getParsedValueSets();
-      //int numberOfCodes = valueSets.get(0).getExpansion().getContains().size();
+
+      // Grab the single value set.
       return valueSets.get(0);
-      //return "Parsed " + valueSets.get(0).getId() + " with " + numberOfCodes + " codes.";
     } catch(ParserConfigurationException pce) {
       throw new VSACException("Error setting up XML parser.", pce);
     } catch(SAXException saxe) {
@@ -135,12 +179,27 @@ public class VSACLoader {
     }
   }
 
+  /**
+   * Fetch a ValueSet and return it as a FHIR JSON string.
+   * 
+   * @param oid The ValueSet OID to fetch.
+   * @return String with JSON content.
+   * @throws VSACException If there was an error with any of the process.
+   */
   public String getValueSetJSON(String oid) throws VSACException {
     ValueSet valueSet = this.getValueSet(oid);
     return ca.uhn.fhir.context.FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToString(valueSet);
   } 
 
+  /**
+   * Fetch a ValueSet from the VSAC API and return it as a FHIR R4 ValueSet.
+   * 
+   * @param oid The ValueSet OID to fetch.
+   * @return FHIR R4 ValueSet resource.
+   * @throws VSACException If there was an error with any of the process.
+   */
   public ValueSet getValueSet(String oid) throws VSACException {
+    // Build up request.
     HttpGet vsRequest;
     try {
       URIBuilder vsUriBuilder;
@@ -155,6 +214,7 @@ public class VSACLoader {
       throw new VSACException("Unable to build URI for fetching valueset.", e);
     }
     
+    // Handle response.
     ValueSet valueSet = null;
     try {
       CloseableHttpResponse response = this.client.execute(vsRequest);
@@ -162,7 +222,7 @@ public class VSACLoader {
         HttpEntity responseEntity = response.getEntity();
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode == 401) {
-          // TODO: expired ticket
+          // Service tickets only last 5 minutes. This is unlikely to happen.
           throw new VSACInvalidCredentialsException();
         } else if (statusCode == 200) {
           valueSet = this.parseValueSetResponse(responseEntity.getContent());
@@ -181,10 +241,20 @@ public class VSACLoader {
     return valueSet;
   }
 
+  /**
+   * Getter for the loader's current Ticket Granting Ticket.
+   * 
+   * @return VSAC Ticket Granting Ticket
+   */
   public String getTGT() {
     return this.ticketGrantingTicket;
   }
 
+  /**
+   * Closes the HttpClient if it decided to keep alive a connection. Should be done before discarding this loader.
+   * 
+   * @throws VSACException If there was an issue closing the connection.
+   */
   public void close() throws VSACException {
     try {
       this.client.close();

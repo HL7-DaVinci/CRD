@@ -13,32 +13,66 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * SAX Parser handler for parsing VSAC SVS responses into FHIR R4 ValueSets.
+ */
 public class VSACSVSHandler extends DefaultHandler {
 
+  /**
+   * Current ValueSet being parsed.
+   */
   private ValueSet currentValueSet;
+
+  /**
+   * Current ValueSet expansion being parsed.
+   */
   private ValueSetExpansionComponent currentExpansion;
+
+  /**
+   * List of parsed ValueSets. The SVS response have the ability to contain multiple value sets. But this wont be used in practice.
+   */
   private List<ValueSet> parsedValueSets;
+
+  /**
+   * If we are currently in a <Status> element.
+   */
   private boolean isInStatus;
+
+  /**
+   * String builder used to buffer content of the <Status> element.
+   */
   private StringBuilder statusStringBuilder;
+
+  /**
+   * If we are currently in a <Source> element.
+   */
   private boolean isInSource;
+
+  /**
+   * String builder used to buffer content of the <Source> element.
+   */
   private StringBuilder sourceStringBuilder;
 
+  /**
+   * Constructs a VSACVSHandler.
+   */
   public VSACSVSHandler() {
     this.parsedValueSets = new ArrayList<ValueSet>();
   }
 
   @Override
   public void endDocument() throws SAXException {
-    // TODO Auto-generated method stub
     super.endDocument();
   }
 
   @Override
   public void startDocument() throws SAXException {
-    // TODO Auto-generated method stub
     super.startDocument();
   }
 
+  /**
+   * Handles the start of an element. Called by the SAX Parser.
+   */
   @Override
   public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
     switch (qName) {
@@ -80,6 +114,9 @@ public class VSACSVSHandler extends DefaultHandler {
     }
   }
 
+  /**
+   * Handles the end of an element. Called by the SAX Parser.
+   */
   @Override
   public void endElement(String uri, String localName, String qName) throws SAXException {
     switch (qName) {
@@ -115,10 +152,9 @@ public class VSACSVSHandler extends DefaultHandler {
     }
   }
 
-  public List<ValueSet> getParsedValueSets() {
-    return this.parsedValueSets;
-  }
-
+  /**
+   * Handles characters being read. This is used for the content of some elements. Called by the SAX Parser.
+   */
   @Override
   public void characters(char[] ch, int start, int length) throws SAXException {
     if (this.isInStatus) {
@@ -126,5 +162,14 @@ public class VSACSVSHandler extends DefaultHandler {
     } else if (this.isInSource) {
       this.sourceStringBuilder.append(new String(ch, start, length));
     }
+  }
+
+  /**
+   * Getter for the list of parsed valuesets.
+   * 
+   * @return List of parsed ValueSets.
+   */
+  public List<ValueSet> getParsedValueSets() {
+    return this.parsedValueSets;
   }
 }

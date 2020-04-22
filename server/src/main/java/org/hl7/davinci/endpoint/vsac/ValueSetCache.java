@@ -18,8 +18,15 @@ import org.slf4j.LoggerFactory;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 
+/**
+ * Manages the ValueSetCache folder. This is used by the FileStore classes. Forwards requests to an instance of VSACLoader to fetch valuesets
+ * when they are requested. If the VSACLoader could not be set up it will look for ValueSets in the cache folder.
+ */
 public class ValueSetCache {
 
+  /**
+   * Topic to use when storing information about valuesets to the FhirResourceRepository.
+   */
   public static final String VSAC_TOPIC = "VSACValueSets";
 
   static final Logger logger = LoggerFactory.getLogger(ValueSetCache.class);
@@ -28,22 +35,43 @@ public class ValueSetCache {
 
   private File cacheDir;
 
+  /**
+   * Currently initialized VSACLoader. This may be null if there are no credentials found.
+   */
   private VSACLoader vsacLoader;
 
+  /**
+   * Used for parsing and writing JSON FHIR ValueSets.
+   */
   private FhirContext fhirContext;
 
+  /**
+   * Initializes the cache with no credentials passed in. Note. initializeLoader function may find credentials in the environement variables.
+   * 
+   * @param cacheDir Location of the ValueSet cache folder.
+   */
   public ValueSetCache(String cacheDir) {
     this.fhirContext = ca.uhn.fhir.context.FhirContext.forR4();
     this.initializeLoader();
     this.initializeCacheDir(cacheDir);
   }
 
+  /**
+   * Initializes the cache with credentials passed in.
+   * 
+   * @param cacheDir Location of the ValueSet cache folder.
+   * @param username UMLS/VSAC Username
+   * @param password UMLS/VSAC Password
+   */
   public ValueSetCache(String cacheDir, String username, String password) {
     this.fhirContext = ca.uhn.fhir.context.FhirContext.forR4();
     this.initializeLoader(username, password);
     this.initializeCacheDir(cacheDir);
   }
 
+  /**
+   * Initalizes the VSACLoader if it finds credentials on the evironment variables at VSAC_USERNAME and VSAC_PASSWORD.
+   */
   private void initializeLoader() {
     String username = System.getenv("VSAC_USERNAME");
     String password = System.getenv("VSAC_PASSWORD");
@@ -55,6 +83,12 @@ public class ValueSetCache {
     }
   }
 
+  /**
+   * Initializes the VSACLoader with provided credentials.
+   * 
+   * @param username UMLS/VSAC Username
+   * @param password UMLS/VSAC Password
+   */
   private void initializeLoader(String username, String password) {
     try {
       this.vsacLoader = new VSACLoader(username, password);
@@ -64,6 +98,11 @@ public class ValueSetCache {
     }
   }
 
+  /**
+   * Creates the cache folder if it doesn't exist.
+   * 
+   * @param cachePath Path to the ValueSet cache folder.
+   */
   private void initializeCacheDir(String cachePath) {
     this.cacheDir = new File(cachePath);
     if (cacheDir.exists() && cacheDir.isDirectory()) {
@@ -77,6 +116,9 @@ public class ValueSetCache {
     }
   }
 
+  /**
+   * Wipe out the VSACLoader. This should be done before each reload of rulesets because the Ticket Granting Tickets are not eternal.
+   */
   private void clearLoader() {
     if (this.vsacLoader != null) {
       try {
@@ -89,16 +131,30 @@ public class ValueSetCache {
     }
   }
 
+  /**
+   * Reinitializes the loader if possible using environment variables.
+   */
   public void reinitializeLoader() {
     this.clearLoader();
     this.initializeLoader();
   }
 
+  /**
+   * Reinitializes the VSACLoader with provided credentials.
+   * 
+   * @param username UMLS/VSAC Username
+   * @param password UMLS/VSAC Password
+   */
   public void reinitializeLoaderWithCreds(String username, String password) {
     this.clearLoader();
     this.initializeLoader(username, password);
   }
 
+  /**
+   * Fetch a ValueSet from VSAC or cache and add it to the FhirResourceRepository.
+   * @param oid The VSAC OID of the ValueSet to fetch.
+   * @return true if sucessful, false if failed to fetch ValueSet.
+   */
   public boolean fetchValueSet(String oid) {
     // check if the valueset has already been loaded
     FhirResourceCriteria criteria = new FhirResourceCriteria();
@@ -113,6 +169,7 @@ public class ValueSetCache {
       return true;
     }
 
+    // If the VSACLoader is initialized, attempt to fetch from VSAC. Otherwise fall back to cache dir.
     if (this.vsacLoader == null) {
       return this.fetchValueSetFromCache(oid);
     } else {
@@ -120,6 +177,12 @@ public class ValueSetCache {
     }
   }
 
+  /**
+   * Fetches a ValueSet already in the cache dir and adds it to the FhirResourceRepository.
+   * 
+   * @param oid The VSAC OID of the ValueSet to fetch.
+   * @return true if sucessfuly found in cache dir. Otherwise, false.
+   */
   private boolean fetchValueSetFromCache(String oid) {
     logger.warn("VSACLoader was not setup, possibly due to lack of credentials. ValueSets already in directory will be considered.");
     File valueSetPath = new File(this.cacheDir, "ValueSet-R4-" + oid + ".json");
@@ -140,6 +203,12 @@ public class ValueSetCache {
     }
   }
 
+  /**
+   * Fetches a ValueSet from VSAC and adds it to the FhirResourceRepository. 
+   * 
+   * @param oid The VSAC OID of the ValueSet to fetch.
+   * @return true if sucessfully fetched. Otherwise, false.
+   */
   private boolean fetchValueSetFromVSAC(String oid) {
     try {
       ValueSet valueSet = vsacLoader.getValueSet(oid);
@@ -166,10 +235,22 @@ public class ValueSetCache {
     }
   }
 
+  /**
+   * Helper function to turn a ValueSet oid into to the expected path of the ValueSet in the cache dir.
+   * 
+   * @param oid The VSAC OID of the ValueSet.
+   * @return Path to the expected location.
+   */
   private File pathForOID(String oid) {
     return new File(this.cacheDir, "ValueSet-R4-" + oid + ".json");
   }
 
+  /**
+   * Add a ValueSet to the FhirResourcesRepository.
+   * 
+   * @param valueSet The ValueSet to add.
+   * @param valueSetPath The path to the JSON file for this value set in the cache folder.
+   */
   private void addValueSetToFhirResources(ValueSet valueSet, File valueSetPath) {
     if (this.fhirResources != null) {
       // create a FhirResource and save it back to the table
@@ -187,6 +268,11 @@ public class ValueSetCache {
     }
   }
 
+  /**
+   * Used to set the FhirResourceRepository before reloading rulesets.
+   * 
+   * @param fhirResources
+   */
   public void setFhirResources(FhirResourceRepository fhirResources) {
     this.fhirResources = fhirResources;
   }
