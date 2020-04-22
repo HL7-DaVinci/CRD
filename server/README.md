@@ -80,6 +80,21 @@ This is the more flexible approach for developers.
 
     This will start the server running on http://localhost:8090 with the CDS-Library at `~/CDS-Library`.
 
+### Using ValueSets from VSAC
+
+ValueSets from VSAC may be used by DTR rules. CRD will attempt to fetch these ValueSets from the VSAC SVS API and convert them to FHIR R4
+ValueSets so they will be available for the DTR SMART App. While rulesets are being loaded from the CDS-Library, CRD will look for VSAC ValueSets referenced by OID and attempt to load them. (NOTE: It will not error out if fails to fetch ValueSets.) To load valuesets CRD needs NLM/VSAC credentials. These can be provided in two ways.
+
+1.  Setting environment variables `VSAC_USERNAME` and `VSAC_PASSWORD`. Example in bash:
+
+        $ export VSAC_USERNAME=username
+        $ export VSAC_PASSWORD='p@55word!'
+    _Note: Single quotes means ignore special characters_
+
+2.  Providing credentials when reloading rules from the rule listing UI at http://localhost:8090/data. The credentials can optionally be provided before hitting "Reload Data".
+
+If the credentials are not provided, CRD will look for ValueSets in the `server/ValueSetCache` folder. This folder will be created if it doesn't exist when CRD is started. Its location can also be changed by modifying the `valueSetCachePath` in `application.yml`. When the server is able to retrieve ValueSets, it will fill the cache folder. This means that if you know your cache folder has all the valuesets that your rules need, you do not need to provide VSAC credentials at all.
+
 ## Server endpoints
 
 <!-- prettier-ignore -->
