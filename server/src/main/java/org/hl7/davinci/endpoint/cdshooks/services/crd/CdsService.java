@@ -164,7 +164,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         if ((results.getDocumentationRequired() || results.getPriorAuthRequired())
             && (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())
                 || StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())
-                || StringUtils.isNotEmpty(results.getQuestionnaireLabUri()))) {
+                || StringUtils.isNotEmpty(results.getQuestionnaireLabUri())
+                || StringUtils.isNotEmpty(results.getQuestionnaireProgressNoteUri()))) {
           List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
           response.addCard(CardBuilder.transform(results, smartAppLinks));
         } else {
@@ -206,6 +207,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           results.getQuestionnaireLabUri(), results.getRequestId(), lookupResult.getCriteria(),
           results.getPriorAuthRequired(), "Lab Form"));
     }
+    if (StringUtils.isNotEmpty(results.getQuestionnaireProgressNoteUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          results.getQuestionnaireProgressNoteUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getPriorAuthRequired(), "Progress Note"));
+    }
     return listOfLinks;
   }
 
@@ -245,6 +251,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     try {
       if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null) {
         results.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString())
+            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      }
+    } catch (Exception e) {
+      logger.info("-- No Lab questionnaire defined");
+    }
+
+    try {
+      if (evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context) != null) {
+        results.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString())
             .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
                 .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
       }
