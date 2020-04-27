@@ -77,7 +77,13 @@ public abstract class CommonFileStore implements FileStore {
     return ruleFinder.findAll();
   }
 
-  protected void reloadFromFolder(String path) {
+  protected void reloadFromFolder(String path) throws IOException {
+
+    File filePath = new File(path);
+    if (!filePath.exists()) {
+      String error = "file path " + path + " does not exist";
+      throw new IOException(error);
+    }
 
     File[] topics = new File(path).listFiles();
     for (File topic: topics) {
@@ -157,6 +163,15 @@ public abstract class CommonFileStore implements FileStore {
         }
       }
     }
+
+    /* uncomment to print contents of FhirResource table on reload
+    // loop through the fhir resources table and print it out
+    logger.info("FhirResource: " + FhirResource.getColumnsString());
+    for (FhirResource resource : fhirResources.findAll()) {
+      logger.info(resource.toString());
+    }
+    */
+
   }
 
   private void processFhirFolder(String topic, String fhirVersion, File fhirPath) {

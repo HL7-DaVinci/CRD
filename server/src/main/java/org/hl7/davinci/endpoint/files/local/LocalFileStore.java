@@ -41,7 +41,12 @@ public class LocalFileStore extends CommonFileStore {
     String path = config.getLocalDb().getPath();
     logger.info("LocalFileStore::reload(): " + path);
 
-    reloadFromFolder(path);
+    try {
+      reloadFromFolder(path);
+    } catch (IOException e) {
+      logger.error("FATAL ERROR: Failed to reload from folder: " + e.getMessage());
+      System.exit(1);
+    }
 
     long endTime = System.nanoTime();
     long timeElapsed = endTime - startTime;
