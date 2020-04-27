@@ -29,6 +29,8 @@ public class ValueSetCache {
    */
   public static final String VSAC_TOPIC = "VSACValueSets";
 
+  public static final String VSAC_CANONICAL_BASE = "http://cts.nlm.nih.gov/fhir/ValueSet/";
+
   static final Logger logger = LoggerFactory.getLogger(ValueSetCache.class);
 
   private FhirResourceRepository fhirResources;

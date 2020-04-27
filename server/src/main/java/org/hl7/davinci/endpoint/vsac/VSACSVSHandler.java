@@ -81,6 +81,7 @@ public class VSACSVSHandler extends DefaultHandler {
         // create value set
         this.currentValueSet = new ValueSet();
         this.currentValueSet.setId(attributes.getValue("ID"));
+        this.currentValueSet.setUrl(ValueSetCache.VSAC_CANONICAL_BASE + attributes.getValue("ID"));
         this.currentValueSet.setName(attributes.getValue("displayName"));
         this.currentExpansion = new ValueSetExpansionComponent();
         this.currentExpansion.setTimestamp(new Date());
