@@ -63,6 +63,10 @@ public class CodeSystemTranslator {
     oidToUriMap.put("2.16.840.1.113883.6.86", "http://www.nlm.nih.gov/research/umls"); //UMLS
     oidToUriMap.put("2.16.840.1.113883.4.9", "http://fdasis.nlm.nih.gov"); //UNII
     oidToUriMap.put("2.16.840.1.113883.5.79", "http://hl7.org/fhir/v3/MediaType"); //mediaType
+
+    // Extra oid mappings not yet defined by VSAC FHIR API
+    // HCPCS is still in decision on HL7 JIRA https://jira.hl7.org/browse/FHIR-13129?jql=project%20%3D%20fhir%20and%20text%20~%20hcpcs
+    oidToUriMap.put("2.16.840.1.113883.6.285", "https://bluebutton.cms.gov/resources/codesystem/hcpcs"); //HCPCS
   }
 
   public static String convertOidToUri(String oid) {

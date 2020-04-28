@@ -50,7 +50,7 @@ gitHubConfig:
   username: user
   token: token
   repository: HL7-DaVinci/CDS-Library
-  branch: vsac_home_oxygen_order
+  branch: master
   rule-path: .
   useZipForReload: true
 
