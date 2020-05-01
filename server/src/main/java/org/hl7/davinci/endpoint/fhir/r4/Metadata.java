@@ -10,6 +10,7 @@ import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementImplementati
 import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementKind;
 import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementRestComponent;
 import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementRestResourceComponent;
+import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementRestResourceOperationComponent;
 import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementRestSecurityComponent;
 import org.hl7.fhir.r4.model.CapabilityStatement.CapabilityStatementSoftwareComponent;
 import org.hl7.fhir.r4.model.CapabilityStatement.RestfulCapabilityMode;
@@ -90,6 +91,12 @@ public class Metadata {
     valueset.setType("ValueSet");
     valueset.addInteraction().setCode(TypeRestfulInteraction.READ);
     valueset.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
+    // ValueSet $expand Operator
+    CapabilityStatementRestResourceOperationComponent expandOperator = new CapabilityStatementRestResourceOperationComponent();
+    expandOperator.setName("expand");
+    expandOperator.setDefinition("http://hl7.org/fhir/OperationDefinition/ValueSet-expand");
+    expandOperator.setDocumentation("Only works at the ValueSet type level with a 'url' query parameter. Will only return expansions that are pre-cached on this server.");
+    valueset.addOperation(expandOperator);
     rest.addResource(valueset);
 
     metadata.addRest(rest);
