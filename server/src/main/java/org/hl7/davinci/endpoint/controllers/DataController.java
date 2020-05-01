@@ -138,7 +138,7 @@ public class DataController {
     resource = resource.toLowerCase();
     name = name.toLowerCase();
     logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?name=" + name);
-    String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+    String baseUrl = Utils.getApplicationBaseUrlTest(request).toString() + "/";
 
     FileResource fileResource = fileStore.getFhirResourceByTopic(fhirVersion, resource, name, baseUrl);
     return processFileResource(fileResource);

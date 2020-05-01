@@ -28,6 +28,12 @@ public class Utils {
       String scheme = ((request.getHeader(HttpHeaders.X_FORWARDED_PROTO) != null) ? request.getHeader(HttpHeaders.X_FORWARDED_PROTO) : request.getScheme());
       int port = request.getServerPort();
       URL url = null;
+
+      // grab the last forwarded url
+      String[] serverParts = serverName.split(", ");
+      logger.info("test: num parts: " + serverParts.length + " full: " + serverName);
+      serverName = serverParts[serverParts.length - 1];
+
       if (port != 80) {
         url = new URL(scheme, serverName, port, request.getContextPath());
       } else {
