@@ -5,6 +5,7 @@ import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.files.*;
+import org.hl7.davinci.endpoint.vsac.ValueSetCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,7 +131,18 @@ public class LocalFileStore extends CommonFileStore {
       FhirResource fhirResource = fhirResourceList.get(0);
 
       String localPath = config.getLocalDb().getPath();
-      String filePath = localPath + fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+
+      String filePath;
+
+      // If the topic indicates it's actually from the ValueSet cache. Grab file path from there.
+      if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
+        filePath = config.getValueSetCachePath() + fhirResource.getFilename();
+        logger.warn("Atempting to serve valueset from cache at: " + filePath);
+      } else {
+        filePath = localPath + fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+        logger.warn("Attemping to serve file from: " + filePath);
+      }
+
       File file = new File(filePath);
       try {
         fileData = Files.readAllBytes(file.toPath());

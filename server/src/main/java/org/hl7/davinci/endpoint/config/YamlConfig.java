@@ -32,6 +32,8 @@ public class YamlConfig {
 
   private LocalDb localDb;
 
+  private String valueSetCachePath;
+
   private boolean urlEncodeAppContext;
 
   public boolean getCheckJwt() {
@@ -84,4 +86,8 @@ public class YamlConfig {
   public void setLocalDb(LocalDb localDb) { this.localDb = localDb; }
 
   public void setUrlEncodeAppContext(boolean urlEncodeAppContext) { this.urlEncodeAppContext = urlEncodeAppContext; }
+
+  public String getValueSetCachePath() { return valueSetCachePath; }
+
+  public void setValueSetCachePath(String valueSetCachePath) { this.valueSetCachePath = valueSetCachePath; }
 }

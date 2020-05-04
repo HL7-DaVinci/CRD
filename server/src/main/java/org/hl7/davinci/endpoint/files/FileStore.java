@@ -9,6 +9,8 @@ import org.hl7.davinci.endpoint.database.RuleMapping;
 public interface FileStore {
 
   void reload();
+  void reinitializeVSACLoader();
+  void reinitializeVSACLoader(String username, String password);
 
   CqlRule getCqlRule(String topic, String fhirVersion);
 

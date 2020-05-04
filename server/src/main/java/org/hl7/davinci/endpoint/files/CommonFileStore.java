@@ -9,6 +9,7 @@ import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
+import org.hl7.davinci.endpoint.vsac.ValueSetCache;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ public abstract class CommonFileStore implements FileStore {
   @Autowired
   protected YamlConfig config;
 
+  private ValueSetCache valueSetCache;
 
   // must define in child class
   public abstract void reload();
@@ -229,6 +231,8 @@ public abstract class CommonFileStore implements FileStore {
                     org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
                     resourceId = library.getId();
                     resourceName = library.getName();
+                    // Look at data requirements for value sets
+                    findAndFetchRequiredVSACValueSets(library);
                   } else if (resourceType.equalsIgnoreCase("ValueSet")) {
                     org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
                     resourceId = valueSet.getId();
@@ -279,6 +283,56 @@ public abstract class CommonFileStore implements FileStore {
               fhirResources.save(fhirResource);
             }
           }
+        }
+      }
+    }
+  }
+
+  /**
+   * Called by the DataController to ensure we have a fresh VSACLoader for getting value sets before starting the reloading process.
+   */
+  public void reinitializeVSACLoader() {
+    this.getValueSetCache().reinitializeLoader();
+  }
+
+  /**
+   * Called by the DataController to ensure we have a fresh VSACLoader for getting value sets before starting the reloading process.
+   * 
+   * @param username VSAC/UMLS Username
+   * @param password VSAC/UMLS Password
+   */
+  public void reinitializeVSACLoader(String username, String password) {
+    this.getValueSetCache().reinitializeLoaderWithCreds(username, password);
+  }
+
+  /**
+   * Gets or sets up and returns the ValueSetCache. The setup code provides the FhirResourceRepository to the ValueSetCache so it
+   * is able add the fetched value sets to the repository.
+   * 
+   * @return The ValueSetCache to use for getting ValueSets.
+   */
+  private ValueSetCache getValueSetCache() {
+    if (this.valueSetCache == null) {
+      this.valueSetCache = new ValueSetCache(this.config.getValueSetCachePath());
+      this.valueSetCache.setFhirResources(this.fhirResources);
+    }
+    return this.valueSetCache;
+  }
+
+  /**
+   * Looks for ValueSet references in Library.dataRequirement.codeFilter entries that point to a VSAC ValueSet by OID and have the cache fetch the
+   * ValueSet.
+   * 
+   * @param library The FHIR Library resource to look for ValueSet references in.
+   */
+  private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Library library) {
+    for (org.hl7.fhir.r4.model.DataRequirement dataReq : library.getDataRequirement()) {
+      for (org.hl7.fhir.r4.model.DataRequirement.DataRequirementCodeFilterComponent codeFilter : dataReq.getCodeFilter()) {
+        String valueSetRef = codeFilter.getValueSet();
+        if (valueSetRef.startsWith(ValueSetCache.VSAC_CANONICAL_BASE)) {
+          String valueSetId = valueSetRef.split("ValueSet/")[1];
+          logger.info("          VSAC ValueSet reference found: " + valueSetId);
+          this.getValueSetCache().fetchValueSet(valueSetId);
         }
       }
     }

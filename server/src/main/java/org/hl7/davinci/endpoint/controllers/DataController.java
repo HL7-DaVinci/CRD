@@ -6,6 +6,7 @@ import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
+import org.hl7.davinci.endpoint.vsac.ValueSetCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -105,6 +106,35 @@ public class DataController {
   }
 
   /**
+   * Get a FHIR ValueSet expansion by canonical URL. This pretends to be a ValueSet/$expand operator.
+   * 
+   * @param url The Canonical URL of the ValueSet.
+   * @return
+   */
+  @GetMapping(path = "fhir/r4/ValueSet/$expand")
+  public ResponseEntity<Resource> getFhirValueSetExpansion(HttpServletRequest request, @RequestParam String url){
+    String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+    logger.info("GET /fhir/R4/ValueSet/$expand");
+
+    if (url != null) {
+      // If URL appears to be a canonical VSAC url or starts with this server's base url
+      if (url.startsWith(ValueSetCache.VSAC_CANONICAL_BASE) || url.startsWith(baseUrl)) {
+        String valueSetId = url.split("ValueSet/")[1];
+        FileResource fileResource = fileStore.getFhirResourceById("R4", "valueset", "valueset/" + valueSetId, baseUrl);
+        return processFileResource(fileResource);
+
+      // If the URL is pointing to a valueset of unknown origin, return 404 not found
+      } else {
+        return ResponseEntity.notFound().build();
+      }
+
+    // if the URL was not provided, we cannot provide an expansion. return 401 bad request
+    } else {
+      return ResponseEntity.badRequest().build();
+    }
+  }
+
+  /**
    * Retrieve a FHIR resource by id
    * @param fhirVersion (converted to uppercase)
    * @param resource (converted to lowercase)
@@ -144,6 +174,8 @@ public class DataController {
     return processFileResource(fileResource);
   }
 
+
+
   /**
    * Retrieve a file from the File Store.
    * @param topic (case sensitive)
@@ -167,8 +199,15 @@ public class DataController {
    * @return
    */
   @PostMapping(path = "/reload")
-  public RedirectView reload() {
+  public RedirectView reload(@RequestParam String vsac_username, @RequestParam String vsac_password) {
     logger.info("reload rule file index");
+
+    if (vsac_username != null && vsac_password != null) {
+      fileStore.reinitializeVSACLoader(vsac_username, vsac_password);
+    } else {
+      fileStore.reinitializeVSACLoader();
+    }
+
     fileStore.reload();
     String newUrl = "/data";
 

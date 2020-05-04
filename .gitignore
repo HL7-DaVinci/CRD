@@ -153,3 +153,5 @@ bin/
 # ignore the embeded CDS Library
 CDS-Library
 
+# ignore the value set cache
+server/ValueSetCache

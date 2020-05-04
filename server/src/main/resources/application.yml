@@ -50,11 +50,13 @@ gitHubConfig:
   username: user
   token: token
   repository: HL7-DaVinci/CDS-Library
-  branch: file_store
+  branch: master
   rule-path: .
   useZipForReload: true
 
 localDb:
   path: CDS-Library/
+
+valueSetCachePath: ValueSetCache/
 
 hostOrg: default
