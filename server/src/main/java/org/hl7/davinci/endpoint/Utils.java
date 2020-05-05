@@ -7,9 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.common.net.HttpHeaders;
 
 public class Utils {
+  private static Logger logger = Logger.getLogger(Application.class.getName());
 
   public static URL getApplicationBaseUrl(HttpServletRequest request) {
-    private static Logger logger = Logger.getLogger(Application.class.getName());
     try {
       // grab the forwarded values if they are not null
       String serverName = ((request.getHeader(HttpHeaders.X_FORWARDED_HOST) != null) ? request.getHeader(HttpHeaders.X_FORWARDED_HOST) : request.getServerName());
