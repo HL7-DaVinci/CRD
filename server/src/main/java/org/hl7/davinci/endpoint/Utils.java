@@ -19,10 +19,13 @@ public class Utils {
         String[] serverParts = serverName.split(", ");
         serverName = serverParts[serverParts.length - 1];
 
+        // default protocol to http if not set
+        String proto = (request.getHeader(HttpHeaders.X_FORWARDED_PROTO) != null) ? request.getHeader(HttpHeaders.X_FORWARDED_PROTO) : "http";
+
         if (request.getHeader(HttpHeaders.X_FORWARDED_PORT) != null) {
-          url = new URL(request.getHeader(HttpHeaders.X_FORWARDED_PROTO), serverName, Integer.parseInt(request.getHeader(HttpHeaders.X_FORWARDED_PORT)), request.getContextPath());
+          url = new URL(proto, serverName, Integer.parseInt(request.getHeader(HttpHeaders.X_FORWARDED_PORT)), request.getContextPath());
         } else {
-          url = new URL(request.getHeader(HttpHeaders.X_FORWARDED_PROTO), serverName, request.getContextPath());
+          url = new URL(proto, serverName, request.getContextPath());
         }
 
       } else {
