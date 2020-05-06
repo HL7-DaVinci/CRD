@@ -2,12 +2,10 @@ package org.hl7.davinci.endpoint;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import com.google.common.net.HttpHeaders;
 
 public class Utils {
-  private static Logger logger = Logger.getLogger(Application.class.getName());
 
   public static URL getApplicationBaseUrl(HttpServletRequest request) {
     try {
@@ -15,8 +13,6 @@ public class Utils {
       String serverName = ((request.getHeader(HttpHeaders.X_FORWARDED_HOST) != null) ? request.getHeader(HttpHeaders.X_FORWARDED_HOST) : request.getServerName());
       String scheme = ((request.getHeader(HttpHeaders.X_FORWARDED_PROTO) != null) ? request.getHeader(HttpHeaders.X_FORWARDED_PROTO) : request.getScheme());
       int port = ((request.getHeader(HttpHeaders.X_FORWARDED_PORT) != null) ? Integer.parseInt(request.getHeader(HttpHeaders.X_FORWARDED_PORT)) : request.getServerPort());
-      // int port = request.getServerPort();
-      logger.info("----> TEST: port: " + port + ", " + request.getHeader(HttpHeaders.X_FORWARDED_PORT) + ", " + request.getServerPort());
       URL url = null;
 
       // grab the last forwarded url
