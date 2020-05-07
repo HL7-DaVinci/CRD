@@ -48,6 +48,8 @@ public class CdsHooksController {
     CdsServiceInformation serviceInformation = new CdsServiceInformation();
     serviceInformation.addServicesItem(orderReviewService);
     serviceInformation.addServicesItem(medicationPrescribeService);
+    serviceInformation.addServicesItem(orderSignService);
+    serviceInformation.addServicesItem(orderSelectService);
     return serviceInformation;
   }
 
