@@ -104,7 +104,7 @@ The core CRD team develops with [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 1. Choose CRD --> :server --> Tasks --> application --> bootRun
 
 ## Questions and Contributions
-Questions about the project can be asked in the [DaVinci stream on the FHIR Zulip Chat](https://chat.fhir.org/#narrow/stream/128-DaVinci).
+Questions about the project can be asked in the [Da Vinci CRD stream on the FHIR Zulip Chat](https://chat.fhir.org/#narrow/stream/180803-Da-Vinci.20CRD).
 
 This project welcomes Pull Requests. Any issues identified with the RI should be submitted via the [GitHub issue tracker](https://github.com/HL7-DaVinci/CRD/issues).
 
