@@ -45,7 +45,7 @@ On the left side of the diagram, we have two components that simulate functional
 * Java - JDK 8 - [Oracle JDK Downloads](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * Gradle 6.3 - [Gradle Installation Instructions](https://gradle.org/install/)
 * (optional) Keycloak - [Keycloak](https://www.keycloak.org/downloads.html)
-* (crd-request-generator only) - node.js - [node.js Downloads](https://nodejs.org/en/download/), [React](https://reactjs.org/)
+* (crd-request-generator only) - [node.js](https://nodejs.org/en/download/), [React](https://reactjs.org/)
 
 ## Building, testing and running
 1. Clone the repo
