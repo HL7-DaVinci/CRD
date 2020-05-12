@@ -20,7 +20,7 @@ Subprojects:
 
 Standalone or supporting apps for this project are contained in other repositories.  These include:
 
-* [request-generator](https://github.com/HL7-DaVinci/crd-request-generator) - [React](https://reactjs.org/) based web UI that can generate basic CRD requests and display the returned CDS Hooks cards.
+* [crd-request-generator](https://github.com/HL7-DaVinci/crd-request-generator) - React/node.js based web UI that can generate basic CRD requests and display the returned CDS Hooks cards.
 * [test-ehr](https://github.com/HL7-DaVinci/test-ehr) - A HAPI FHIR server with additional support for the data needed to be forwarded to the dtr SMART on FHIR application.
 * [smart-app](https://github.com/HL7-DaVinci/dtr) - A SMART of FHIR application for Documentation Templates and Rules (DTR).
 
@@ -45,7 +45,7 @@ On the left side of the diagram, we have two components that simulate functional
 * Java - JDK 8 - [Oracle JDK Downloads](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * Gradle 6.3 - [Gradle Installation Instructions](https://gradle.org/install/)
 * (optional) Keycloak - [Keycloak](https://www.keycloak.org/downloads.html)
-* (request-generator only) - node.js - [node.js Downloads](https://nodejs.org/en/download/)
+* (crd-request-generator only) - node.js - [node.js Downloads](https://nodejs.org/en/download/), [React](https://reactjs.org/)
 
 ## Building, testing and running
 1. Clone the repo
