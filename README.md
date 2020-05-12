@@ -55,7 +55,7 @@ On the left side of the diagram, we have two components that simulate functional
 1. Build the code
   * `gradle build`
 
-Visit the [server README](server/README.md) to see how to run the server or the [request-generator README](request-generator/README.md) for information on running these subprojects.
+Visit the [server README](server/README.md) to see how to run the server or the [crd-request-generator README](https://github.com/HL7-DaVinci/crd-request-generator/README.md) for information on running these subprojects.
 
 ## Setting up a KeyCloak instance
 
