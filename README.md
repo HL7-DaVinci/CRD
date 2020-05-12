@@ -39,7 +39,7 @@ On the left side of the diagram, we have two components that simulate functional
 `test-ehr` provides a basic FHIR server that is intended to satisfy any requests from the CDS Service that have not been populated via prefetch. If the system generating the request completely populates the prefetch, or the CDS Service processing the request is simplistic, this component is not necessary. Though the `request-generator` can be run by itself, it is recommended to run the embedded version that is hosted by the `test-ehr` at the `/reqgen` endpoint.
 
 ### Healthcare Payer Components
-`server` is an implementation of a CDS Service. It handles CDS Hooks requests and returns results. The service performs some basic parsing of the request to extract basic demographic information and the code of the requested item. Based on that information, the service will consult a simple database and then return information from the database in CDS Hook cards. The simplistic documentation requirements rules can be modified via an administrative web interface.
+`server` is an implementation of a CDS Service. It handles CDS Hooks requests and returns results. The service performs some basic parsing of the request to extract basic demographic information and the code of the requested item. Based on that information, the service will consult a repository and return information from the repository in CDS Hook cards. The  documentation requirements rules can be found here [CDS-Repository]().
 
 ## Prerequisites
 * Java - JDK 8 - [Oracle JDK Downloads](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
