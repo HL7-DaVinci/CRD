@@ -92,7 +92,7 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 NOTE: As of right now, the security feature will protect the EHR server in its entirety.  There is no way to choose which endpoints to protect and to what degree.  The security feature will hopefully be able to identify different types of users (e.g `admin` vs `user`) in the future.   
 
 ## Preferred Development Environment
-The core CRD team develops with [IntelliJ IDEA](https://www.jetbrains.com/idea/). There are no requirements on using this as a Java IDE for working on the project and any other Java IDE should work fine.
+The core CRD team develops with [IntelliJ IDEA](https://www.jetbrains.com/idea/) and/or Visual Code. There are no requirements to use Java IDE for working on the project and any other Java IDE should work fine.
 
 ### IntelliJ IDEA Setup
 1. Create new project from existing sources
