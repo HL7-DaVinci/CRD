@@ -14,8 +14,7 @@ Subprojects:
 
 * [CRD RI Server](https://github.com/HL7-DaVinci/CRD/tree/master/server) - java application that implements the CDS service in CRD
 
-* creator - small java application that writes out a CDS Hook request for `order-review` to a JSON file
-* examples - JSON examples of service requests and responses
+* examples - JSON examples of requests and responses
 * resources - java objects to represent the data structures involved in CRD requests and responses
 * testingClient - small java application that makes a CRD request and logs the response
 
