@@ -11,21 +11,14 @@ import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.vsac.ValueSetCache;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.CanonicalType;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
+
 
 public abstract class CommonFileStore implements FileStore {
 
@@ -47,19 +40,19 @@ public abstract class CommonFileStore implements FileStore {
 
   // must define in child class
   public abstract void reload();
-
   public abstract CqlRule getCqlRule(String topic, String fhirVersion);
-
   public abstract FileResource getFile(String topic, String fileName, String fhirVersion, boolean convert);
 
-  protected abstract FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion,
-      String baseUrl);
+  protected abstract FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl);
+
 
   public FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl) {
     logger.info("CommonFileStore::getFhirResourceByTopic(): " + fhirVersion + "/" + resourceType + "/" + name);
 
     FhirResourceCriteria criteria = new FhirResourceCriteria();
-    criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setName(name);
+    criteria.setFhirVersion(fhirVersion)
+        .setResourceType(resourceType)
+        .setName(name);
     List<FhirResource> fhirResourceList = fhirResources.findByName(criteria);
     return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
   }
@@ -68,108 +61,11 @@ public abstract class CommonFileStore implements FileStore {
     logger.info("CommonFileStore::getFhirResourceById(): " + fhirVersion + "/" + resourceType + "/" + id);
 
     FhirResourceCriteria criteria = new FhirResourceCriteria();
-    criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setId(id);
+    criteria.setFhirVersion(fhirVersion)
+        .setResourceType(resourceType)
+        .setId(id);
     List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
-    FileResource fileResource = readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
-
-    if (resourceType.equalsIgnoreCase("Questionnaire")) {
-      String output = assemblyQuestionnaire(fileResource, baseUrl);
-
-      if (output != null) {
-        byte[] fileData = output.getBytes(Charset.defaultCharset());
-        fileResource.setResource(new ByteArrayResource(fileData));
-      }
-    }
-
-    return fileResource;
-  }
-
-  protected String assemblyQuestionnaire(FileResource fileResource, String baseUrl) {
-    logger.info("CommonFileStore::assemblyQuestionnaire(): " + fileResource.getFilename());
-    FhirContext ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
-    IParser parser = ctx.newJsonParser();
-    parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
-
-    try {
-      InputStream stream = fileResource.getResource().getInputStream();
-
-      if (stream == null)
-        return null;
-
-      IBaseResource baseResource = parser.parseResource(stream);
-
-      if (baseResource == null)
-        return null;
-
-      Questionnaire q = (Questionnaire) baseResource;
-
-      List<QuestionnaireItemComponent> newItemList = new ArrayList<QuestionnaireItemComponent>();
-      Hashtable<String, Extension> extensionList = new Hashtable<String, Extension>();
-      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList = new Hashtable<String, org.hl7.fhir.r4.model.Resource>();
-
-      for(Extension e : q.getExtension()){
-        extensionList.put(e.getUrl(), e);
-      }
-
-      for(org.hl7.fhir.r4.model.Resource r : q.getContained()){
-        containedList.put(r.getId(), r);
-      }
-
-      for (QuestionnaireItemComponent item : q.getItem()) {
-        // find if item has an extension is sub-questionnaire
-        Extension e = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire");
-
-        if (e != null) {
-          // read sub questionnaire from file
-          CanonicalType value = e.castToCanonical(e.getValue());
-          FileResource subFileResource = getFhirResourceById("R4", "questionnaire", value.asStringValue(), baseUrl);
-
-          try {
-            stream = subFileResource.getResource().getInputStream();
-
-            if (stream == null)
-              return null;
-
-            baseResource = parser.parseResource(stream);
-
-            if (baseResource == null)
-              return null;
-
-            Questionnaire subQuestionnaire = (Questionnaire) baseResource;
-
-            // merge extensions
-            for (Extension subExtension : subQuestionnaire.getExtension()) {
-              if (!extensionList.containsKey(subExtension.getUrl())) {
-                extensionList.put(subExtension.getUrl(), subExtension);
-              }
-            }
-
-            // merge contained resources
-            for (org.hl7.fhir.r4.model.Resource r : subQuestionnaire.getContained()) {
-              if (!containedList.containsKey(r.getId())) {
-                containedList.put(r.getId(), r);
-              }
-            }
-
-            // replace item with root item from sub questionnaire
-            newItemList.add(subQuestionnaire.getItem().get(0));
-          } catch (IOException ex) {
-            // handle if subQuestionniare does not exist
-          }
-        } else {
-          newItemList.add(item);
-        }
-      }
-
-      q.setExtension(new ArrayList<Extension>(extensionList.values()));
-      q.setContained(new ArrayList<org.hl7.fhir.r4.model.Resource>(containedList.values()));
-      q.setItem(newItemList);
-
-      String output = parser.encodeResourceToString(q);
-      return output;
-    } catch (IOException ex) {
-      return null;
-    }
+    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
   }
 
   // from RuleFinder
@@ -192,7 +88,7 @@ public abstract class CommonFileStore implements FileStore {
     }
 
     File[] topics = new File(path).listFiles();
-    for (File topic : topics) {
+    for (File topic: topics) {
       if (topic.isDirectory()) {
 
         String topicName = topic.getName();
@@ -202,7 +98,7 @@ public abstract class CommonFileStore implements FileStore {
           logger.info("  CommonFileStore::reloadFromFolder() found Shared files");
 
           File[] fhirFolders = topic.listFiles();
-          for (File fhirFolder : fhirFolders) {
+          for (File fhirFolder: fhirFolders) {
             if (fhirFolder.isDirectory()) {
               String fhirVersion = fhirFolder.getName();
               processFhirFolder(topicName, fhirVersion, fhirFolder);
@@ -210,14 +106,13 @@ public abstract class CommonFileStore implements FileStore {
           }
 
         } else if (topicName.startsWith(".")) {
-          // logger.info(" CommonFileStore::reloadFromFolder() skipping all folders
-          // starting with .: " + topicName);
+          //logger.info("  CommonFileStore::reloadFromFolder() skipping all folders starting with .: " + topicName);
         } else {
           logger.info("  CommonFileStore::reloadFromFolder() found topic: " + topicName);
 
           // process the metadata file
           File[] fhirFolders = topic.listFiles();
-          for (File file : fhirFolders) {
+          for (File file: fhirFolders) {
             String fileName = file.getName();
             if (fileName.equalsIgnoreCase("TopicMetadata.json")) {
               ObjectMapper objectMapper = new ObjectMapper();
@@ -229,16 +124,15 @@ public abstract class CommonFileStore implements FileStore {
                 // convert to object
                 TopicMetadata metadata = objectMapper.readValue(content, TopicMetadata.class);
 
-                for (Mapping mapping : metadata.getMappings()) {
-                  for (String code : mapping.getCodes()) {
-                    for (String payer : metadata.getPayers()) {
-                      for (String fhirVersion : metadata.getFhirVersions()) {
+                for (Mapping mapping: metadata.getMappings()) {
+                  for (String code: mapping.getCodes()) {
+                    for (String payer: metadata.getPayers()) {
+                      for (String fhirVersion: metadata.getFhirVersions()) {
 
                         String mainCqlLibraryName = metadata.getTopic() + "Rule";
                         File mainCqlFile = findFile(path, metadata.getTopic(), fhirVersion, mainCqlLibraryName, ".cql");
                         if (mainCqlFile == null) {
-                          logger.warn("CommonFileStore::reloadFromFolder(): failed to find main CQL file for topic: "
-                              + metadata.getTopic());
+                          logger.warn("CommonFileStore::reloadFromFolder(): failed to find main CQL file for topic: " + metadata.getTopic());
                         } else {
                           logger.info("    Added: " + metadata.getTopic() + ": " + payer + ", "
                               + mapping.getCodeSystem() + ", " + code + " (" + fhirVersion + ")");
@@ -246,9 +140,10 @@ public abstract class CommonFileStore implements FileStore {
                           // create table entry and store it back to the table
                           RuleMapping ruleMappingEntry = new RuleMapping();
                           ruleMappingEntry.setPayer(ShortNameMaps.PAYOR_SHORT_NAME_TO_FULL_NAME.get(payer))
-                              .setCodeSystem(
-                                  ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(mapping.getCodeSystem()))
-                              .setCode(code).setFhirVersion(fhirVersion).setTopic(metadata.getTopic())
+                              .setCodeSystem(ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(mapping.getCodeSystem()))
+                              .setCode(code)
+                              .setFhirVersion(fhirVersion)
+                              .setTopic(metadata.getTopic())
                               .setRuleFile(mainCqlFile.getName());
                           lookupTable.save(ruleMappingEntry);
                         }
@@ -271,12 +166,13 @@ public abstract class CommonFileStore implements FileStore {
       }
     }
 
-    /*
-     * uncomment to print contents of FhirResource table on reload // loop through
-     * the fhir resources table and print it out logger.info("FhirResource: " +
-     * FhirResource.getColumnsString()); for (FhirResource resource :
-     * fhirResources.findAll()) { logger.info(resource.toString()); }
-     */
+    /* uncomment to print contents of FhirResource table on reload
+    // loop through the fhir resources table and print it out
+    logger.info("FhirResource: " + FhirResource.getColumnsString());
+    for (FhirResource resource : fhirResources.findAll()) {
+      logger.info(resource.toString());
+    }
+    */
 
   }
 
@@ -297,6 +193,7 @@ public abstract class CommonFileStore implements FileStore {
     IParser parser = ctx.newJsonParser();
     parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
 
+
     File[] directories = fhirPath.listFiles();
     for (File folder : directories) {
       if (folder.getName().equalsIgnoreCase("resources") && folder.isDirectory()) {
@@ -315,6 +212,7 @@ public abstract class CommonFileStore implements FileStore {
                 logger.warn("CommonFileStore::processFhirFolder() warning: FhirVersion doesn't match!");
                 continue;
               }
+
 
               // parse the the resource file into the correct FHIR resource
               String resourceId = "";
@@ -368,8 +266,7 @@ public abstract class CommonFileStore implements FileStore {
 
               if (resourceName == null) {
                 resourceName = stripNameFromResourceFilename(filename, fhirVersion);
-                logger.info(
-                    "Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
+                logger.info("Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
               }
 
               resourceId = resourceId.toLowerCase();
@@ -377,8 +274,12 @@ public abstract class CommonFileStore implements FileStore {
 
               // create a FhirResource and save it back to the table
               FhirResource fhirResource = new FhirResource();
-              fhirResource.setId(resourceId).setFhirVersion(fhirVersion).setResourceType(resourceType).setTopic(topic)
-                  .setFilename(filename).setName(resourceName);
+              fhirResource.setId(resourceId)
+                  .setFhirVersion(fhirVersion)
+                  .setResourceType(resourceType)
+                  .setTopic(topic)
+                  .setFilename(filename)
+                  .setName(resourceName);
               fhirResources.save(fhirResource);
             }
           }
@@ -388,16 +289,14 @@ public abstract class CommonFileStore implements FileStore {
   }
 
   /**
-   * Called by the DataController to ensure we have a fresh VSACLoader for getting
-   * value sets before starting the reloading process.
+   * Called by the DataController to ensure we have a fresh VSACLoader for getting value sets before starting the reloading process.
    */
   public void reinitializeVSACLoader() {
     this.getValueSetCache().reinitializeLoader();
   }
 
   /**
-   * Called by the DataController to ensure we have a fresh VSACLoader for getting
-   * value sets before starting the reloading process.
+   * Called by the DataController to ensure we have a fresh VSACLoader for getting value sets before starting the reloading process.
    * 
    * @param username VSAC/UMLS Username
    * @param password VSAC/UMLS Password
@@ -407,9 +306,8 @@ public abstract class CommonFileStore implements FileStore {
   }
 
   /**
-   * Gets or sets up and returns the ValueSetCache. The setup code provides the
-   * FhirResourceRepository to the ValueSetCache so it is able add the fetched
-   * value sets to the repository.
+   * Gets or sets up and returns the ValueSetCache. The setup code provides the FhirResourceRepository to the ValueSetCache so it
+   * is able add the fetched value sets to the repository.
    * 
    * @return The ValueSetCache to use for getting ValueSets.
    */
@@ -422,15 +320,14 @@ public abstract class CommonFileStore implements FileStore {
   }
 
   /**
-   * Looks for ValueSet references in Library.dataRequirement.codeFilter entries
-   * that point to a VSAC ValueSet by OID and have the cache fetch the ValueSet.
+   * Looks for ValueSet references in Library.dataRequirement.codeFilter entries that point to a VSAC ValueSet by OID and have the cache fetch the
+   * ValueSet.
    * 
    * @param library The FHIR Library resource to look for ValueSet references in.
    */
   private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Library library) {
     for (org.hl7.fhir.r4.model.DataRequirement dataReq : library.getDataRequirement()) {
-      for (org.hl7.fhir.r4.model.DataRequirement.DataRequirementCodeFilterComponent codeFilter : dataReq
-          .getCodeFilter()) {
+      for (org.hl7.fhir.r4.model.DataRequirement.DataRequirementCodeFilterComponent codeFilter : dataReq.getCodeFilter()) {
         String valueSetRef = codeFilter.getValueSet();
         if (valueSetRef.startsWith(ValueSetCache.VSAC_CANONICAL_BASE)) {
           String valueSetId = valueSetRef.split("ValueSet/")[1];
