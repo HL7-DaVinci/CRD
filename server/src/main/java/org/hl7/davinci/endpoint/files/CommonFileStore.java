@@ -73,7 +73,7 @@ public abstract class CommonFileStore implements FileStore {
     FileResource fileResource = readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
 
     if (resourceType.equalsIgnoreCase("Questionnaire")) {
-      String output = assemblyQuestionnaire(fileResource, baseUrl);
+      String output = assemblyQuestionnaire(fileResource, fhirVersion, baseUrl);
 
       if (output != null) {
         byte[] fileData = output.getBytes(Charset.defaultCharset());
@@ -84,7 +84,7 @@ public abstract class CommonFileStore implements FileStore {
     return fileResource;
   }
 
-  protected String assemblyQuestionnaire(FileResource fileResource, String baseUrl) {
+  protected String assemblyQuestionnaire(FileResource fileResource, String fhirVersion, String baseUrl) {
     logger.info("CommonFileStore::assemblyQuestionnaire(): " + fileResource.getFilename());
     FhirContext ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
     IParser parser = ctx.newJsonParser();
@@ -104,16 +104,14 @@ public abstract class CommonFileStore implements FileStore {
       Questionnaire q = (Questionnaire) baseResource;
 
       List<QuestionnaireItemComponent> newItemList = new ArrayList<QuestionnaireItemComponent>();
-      Hashtable<String, Extension> extensionList = new Hashtable<String, Extension>();
       Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList = new Hashtable<String, org.hl7.fhir.r4.model.Resource>();
 
-      for(Extension e : q.getExtension()){
-        extensionList.put(e.getUrl(), e);
-      }
-
-      for(org.hl7.fhir.r4.model.Resource r : q.getContained()){
+      for (org.hl7.fhir.r4.model.Resource r : q.getContained()) {
         containedList.put(r.getId(), r);
       }
+
+      Boolean hasNewContained = false;
+      Boolean hasNewItem = false;
 
       for (QuestionnaireItemComponent item : q.getItem()) {
         // find if item has an extension is sub-questionnaire
@@ -122,36 +120,40 @@ public abstract class CommonFileStore implements FileStore {
         if (e != null) {
           // read sub questionnaire from file
           CanonicalType value = e.castToCanonical(e.getValue());
-          FileResource subFileResource = getFhirResourceById("R4", "questionnaire", value.asStringValue(), baseUrl);
+          FileResource subFileResource = getFhirResourceById(fhirVersion, "questionnaire", value.asStringValue(),
+              baseUrl);
 
           try {
             stream = subFileResource.getResource().getInputStream();
 
             if (stream == null)
-              return null;
+              continue;
 
             baseResource = parser.parseResource(stream);
 
             if (baseResource == null)
-              return null;
+              continue;
 
             Questionnaire subQuestionnaire = (Questionnaire) baseResource;
 
             // merge extensions
             for (Extension subExtension : subQuestionnaire.getExtension()) {
-              if (!extensionList.containsKey(subExtension.getUrl())) {
-                extensionList.put(subExtension.getUrl(), subExtension);
-              }
+              if (q.getExtension().stream()
+                  .noneMatch(ext -> ext.getUrl() == subExtension.getUrl() && ext.castToReference(ext.getValue())
+                      .getReference() == subExtension.castToReference(subExtension.getValue()).getReference()))
+                q.addExtension(subExtension);
             }
 
             // merge contained resources
             for (org.hl7.fhir.r4.model.Resource r : subQuestionnaire.getContained()) {
               if (!containedList.containsKey(r.getId())) {
+                hasNewContained = true;
                 containedList.put(r.getId(), r);
               }
             }
 
             // replace item with root item from sub questionnaire
+            hasNewItem = true;
             newItemList.add(subQuestionnaire.getItem().get(0));
           } catch (IOException ex) {
             // handle if subQuestionniare does not exist
@@ -161,9 +163,11 @@ public abstract class CommonFileStore implements FileStore {
         }
       }
 
-      q.setExtension(new ArrayList<Extension>(extensionList.values()));
-      q.setContained(new ArrayList<org.hl7.fhir.r4.model.Resource>(containedList.values()));
-      q.setItem(newItemList);
+      if (hasNewContained)
+        q.setContained(new ArrayList<org.hl7.fhir.r4.model.Resource>(containedList.values()));
+
+      if (hasNewItem)
+        q.setItem(newItemList);
 
       String output = parser.encodeResourceToString(q);
       return output;
