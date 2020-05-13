@@ -68,6 +68,17 @@ public abstract class CommonFileStore implements FileStore {
     return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
   }
 
+  public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
+    logger.info("CommonFileStore::getFhirResourceByUrl(): " + fhirVersion + "/" + resourceType + "/" + url);
+
+    FhirResourceCriteria criteria = new FhirResourceCriteria();
+    criteria.setFhirVersion(fhirVersion)
+        .setResourceType(resourceType)
+        .setUrl(url);
+    List<FhirResource> fhirResourceList = fhirResources.findByUrl(criteria);
+    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
+  }
+
   // from RuleFinder
   public List<RuleMapping> findRules(CoverageRequirementRuleCriteria criteria) {
     logger.info("CommonFileStore::findRules(): " + criteria.toString());
@@ -217,6 +228,7 @@ public abstract class CommonFileStore implements FileStore {
               // parse the the resource file into the correct FHIR resource
               String resourceId = "";
               String resourceName = "";
+              String resourceUrl = null;
               try {
                 IBaseResource baseResource = parser.parseResource(new FileInputStream(resource));
                 resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
@@ -235,8 +247,9 @@ public abstract class CommonFileStore implements FileStore {
                     findAndFetchRequiredVSACValueSets(library);
                   } else if (resourceType.equalsIgnoreCase("ValueSet")) {
                     org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-                    resourceId = valueSet.getId();
+                    resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
                     resourceName = valueSet.getName();
+                    resourceUrl = valueSet.getUrl();
                   }
                 } else if (fhirVersion.equalsIgnoreCase("STU3")) {
                   if (resourceType.equalsIgnoreCase("Questionnaire")) {
@@ -249,8 +262,9 @@ public abstract class CommonFileStore implements FileStore {
                     resourceName = library.getName();
                   } else if (resourceType.equalsIgnoreCase("ValueSet")) {
                     org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
-                    resourceId = valueSet.getId();
+                    resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
                     resourceName = valueSet.getName();
+                    resourceUrl = valueSet.getUrl();
                   }
                 }
               } catch (FileNotFoundException e) {
@@ -280,6 +294,9 @@ public abstract class CommonFileStore implements FileStore {
                   .setTopic(topic)
                   .setFilename(filename)
                   .setName(resourceName);
+              if (resourceUrl != null) {
+                fhirResource.setUrl(resourceUrl);
+              }
               fhirResources.save(fhirResource);
             }
           }

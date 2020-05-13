@@ -262,7 +262,8 @@ public class ValueSetCache {
           .setResourceType("valueset")
           .setTopic(VSAC_TOPIC)
           .setFilename(valueSetPath.getName())
-          .setName(valueSet.getName());
+          .setName(valueSet.getName())
+          .setUrl(valueSet.getUrl());
       fhirResources.save(fhirResource);
       logger.info("Added ValueSet (" + valueSet.getId() + ") to FhirResourceRepository");
     } else {
