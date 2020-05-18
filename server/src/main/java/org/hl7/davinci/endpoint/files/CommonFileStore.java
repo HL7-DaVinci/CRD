@@ -38,6 +38,12 @@ public abstract class CommonFileStore implements FileStore {
 
   private ValueSetCache valueSetCache;
 
+  private QuestionnaireValueSetProcessor questionnaireValueSetProcessor;
+
+  public CommonFileStore() {
+    this.questionnaireValueSetProcessor = new QuestionnaireValueSetProcessor();
+  }
+
   // must define in child class
   public abstract void reload();
   public abstract CqlRule getCqlRule(String topic, String fhirVersion);
@@ -65,7 +71,14 @@ public abstract class CommonFileStore implements FileStore {
         .setResourceType(resourceType)
         .setId(id);
     List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
-    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
+    FileResource resource = readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
+
+    // If this is a questionnaire, run it through the processor to modify it before returning.
+    if (fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
+      return this.questionnaireValueSetProcessor.processResource(resource, this, baseUrl);
+    } else {
+      return resource;
+    }
   }
 
   public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
