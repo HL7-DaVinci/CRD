@@ -252,6 +252,7 @@ public abstract class CommonFileStore implements FileStore {
                     org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
                     resourceId = questionnaire.getId();
                     resourceName = questionnaire.getName();
+                    findAndFetchRequiredVSACValueSets(questionnaire);
                   } else if (resourceType.equalsIgnoreCase("Library")) {
                     org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
                     resourceId = library.getId();
@@ -364,6 +365,41 @@ public abstract class CommonFileStore implements FileStore {
           logger.info("          VSAC ValueSet reference found: " + valueSetId);
           this.getValueSetCache().fetchValueSet(valueSetId);
         }
+      }
+    }
+  }
+
+  /**
+   * Looks for ValueSet references in Questionnaire.item**.answerValueSet entries that point to a VSAC ValueSet by OID and have the cache fetch the
+   * ValueSet.
+   * 
+   * @param questionnaire The FHIR Questionnaire resource to look for ValueSet references in.
+   */
+  private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Questionnaire questionnaire) {
+    findAndFetchRequiredVSACValueSets(questionnaire.getItem());
+  }
+
+  /**
+   * Looks for ValueSet references in a list of Questionnaire item components in the answerValueSet entries that
+   * point to a VSAC ValueSet by OID and have the cache fetch the ValueSet. Also recurses into children item elements.
+   * 
+   * @param itemComponents The FHIR Questionnaire Item components to look for ValueSet references in.
+   */
+  private void findAndFetchRequiredVSACValueSets(List<org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent> itemComponents) {
+    for (org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent itemComponent : itemComponents) {
+      // If there is an answerValueSet field we should see if it is a VSAC reference
+      if (itemComponent.hasAnswerValueSet()) {
+        String valueSetRef = itemComponent.getAnswerValueSet();
+        if (valueSetRef.startsWith(ValueSetCache.VSAC_CANONICAL_BASE)) {
+          String valueSetId = valueSetRef.split("ValueSet/")[1];
+          logger.info("          VSAC ValueSet reference found: " + valueSetId);
+          this.getValueSetCache().fetchValueSet(valueSetId);
+        }
+      }
+
+      // Recurse down into child items.
+      if (itemComponent.hasItem()) {
+        findAndFetchRequiredVSACValueSets(itemComponent.getItem());
       }
     }
   }
