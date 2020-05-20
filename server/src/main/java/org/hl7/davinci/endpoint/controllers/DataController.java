@@ -117,15 +117,16 @@ public class DataController {
     logger.info("GET /fhir/R4/ValueSet/$expand");
 
     if (url != null) {
-      // If URL appears to be a canonical VSAC url or starts with this server's base url
-      if (url.startsWith(ValueSetCache.VSAC_CANONICAL_BASE) || url.startsWith(baseUrl)) {
+      // If URL starts with this server's base url, pull out id and search by id
+      if (url.startsWith(baseUrl)) {
         String valueSetId = url.split("ValueSet/")[1];
         FileResource fileResource = fileStore.getFhirResourceById("R4", "valueset", "valueset/" + valueSetId, baseUrl);
         return processFileResource(fileResource);
 
-      // If the URL is pointing to a valueset of unknown origin, return 404 not found
+      // If the URL is from elsewhere, look by URL
       } else {
-        return ResponseEntity.notFound().build();
+        FileResource fileResource = fileStore.getFhirResourceByUrl("R4", "valueset", url, baseUrl);
+        return processFileResource(fileResource);
       }
 
     // if the URL was not provided, we cannot provide an expansion. return 401 bad request

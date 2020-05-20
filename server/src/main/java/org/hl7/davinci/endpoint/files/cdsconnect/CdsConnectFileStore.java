@@ -70,6 +70,16 @@ public class CdsConnectFileStore implements FileStore {
     return fileResource;
   }
 
+  public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
+    logger.info("CdsConnectFileStore::getFhirResourceById(): " + fhirVersion + "/" + resourceType + "/" + url);
+    String filename = "";
+    FileResource fileResource = new FileResource();
+    fileResource.setFilename(filename);
+    byte[] fileData = null;
+    fileResource.setResource(new ByteArrayResource(fileData));
+    return fileResource;
+  }
+
   public List<RuleMapping> findRules(CoverageRequirementRuleCriteria criteria) {
     logger.info("CdsConnectFileStore::findRules(): " + criteria.toString());
     return new ArrayList<>();

@@ -45,6 +45,17 @@ public abstract class CommonFileStore implements FileStore {
 
   private ValueSetCache valueSetCache;
 
+  private QuestionnaireValueSetProcessor questionnaireValueSetProcessor;
+
+  private FhirContext ctx;
+  private IParser parser;
+
+  public CommonFileStore() {
+    this.questionnaireValueSetProcessor = new QuestionnaireValueSetProcessor();
+    this.ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
+    this.parser = ctx.newJsonParser().setPrettyPrint(true);
+  }
+
   // must define in child class
   public abstract void reload();
 
@@ -65,30 +76,39 @@ public abstract class CommonFileStore implements FileStore {
   }
 
   public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl) {
+    return getFhirResourceById(fhirVersion, resourceType, id, baseUrl, true);
+  }
+
+  public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl,
+      boolean isRoot) {
     logger.info("CommonFileStore::getFhirResourceById(): " + fhirVersion + "/" + resourceType + "/" + id);
 
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setId(id);
     List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
-    FileResource fileResource = readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
+    FileResource resource = readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
 
-    if (resourceType.equalsIgnoreCase("Questionnaire")) {
-      String output = assemblyQuestionnaire(fileResource, fhirVersion, baseUrl);
+    // If this is a questionnaire, run it through the processor to modify it before
+    // returning.
+    // We do not handle nested sub-questionnaire at this time.
+    if (isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
+      String output = assemblyQuestionnaire(resource, fhirVersion, baseUrl, isRoot);
 
       if (output != null) {
         byte[] fileData = output.getBytes(Charset.defaultCharset());
-        fileResource.setResource(new ByteArrayResource(fileData));
+        resource.setResource(new ByteArrayResource(fileData));
       }
+
+      return this.questionnaireValueSetProcessor.processResource(resource, this, baseUrl);
     }
 
-    return fileResource;
+    return resource;
   }
 
-  protected String assemblyQuestionnaire(FileResource fileResource, String fhirVersion, String baseUrl) {
+  protected String assemblyQuestionnaire(FileResource fileResource, String fhirVersion, String baseUrl, boolean isRoot) {
     logger.info("CommonFileStore::assemblyQuestionnaire(): " + fileResource.getFilename());
-    FhirContext ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
-    IParser parser = ctx.newJsonParser();
-    parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
+
+    this.parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
 
     try {
       InputStream stream = fileResource.getResource().getInputStream();
@@ -103,77 +123,97 @@ public abstract class CommonFileStore implements FileStore {
 
       Questionnaire q = (Questionnaire) baseResource;
 
-      List<QuestionnaireItemComponent> newItemList = new ArrayList<QuestionnaireItemComponent>();
+      List<Extension> extensionList = q.getExtension();
       Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList = new Hashtable<String, org.hl7.fhir.r4.model.Resource>();
 
       for (org.hl7.fhir.r4.model.Resource r : q.getContained()) {
         containedList.put(r.getId(), r);
       }
 
-      Boolean hasNewContained = false;
-      Boolean hasNewItem = false;
+      int containedSize = containedList.size();
 
-      for (QuestionnaireItemComponent item : q.getItem()) {
-        // find if item has an extension is sub-questionnaire
-        Extension e = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire");
-
-        if (e != null) {
-          // read sub questionnaire from file
-          CanonicalType value = e.castToCanonical(e.getValue());
-          FileResource subFileResource = getFhirResourceById(fhirVersion, "questionnaire", value.asStringValue(),
-              baseUrl);
-
-          try {
-            stream = subFileResource.getResource().getInputStream();
-
-            if (stream == null)
-              continue;
-
-            baseResource = parser.parseResource(stream);
-
-            if (baseResource == null)
-              continue;
-
-            Questionnaire subQuestionnaire = (Questionnaire) baseResource;
-
-            // merge extensions
-            for (Extension subExtension : subQuestionnaire.getExtension()) {
-              if (q.getExtension().stream()
-                  .noneMatch(ext -> ext.getUrl() == subExtension.getUrl() && ext.castToReference(ext.getValue())
-                      .getReference() == subExtension.castToReference(subExtension.getValue()).getReference()))
-                q.addExtension(subExtension);
-            }
-
-            // merge contained resources
-            for (org.hl7.fhir.r4.model.Resource r : subQuestionnaire.getContained()) {
-              if (!containedList.containsKey(r.getId())) {
-                hasNewContained = true;
-                containedList.put(r.getId(), r);
-              }
-            }
-
-            // replace item with root item from sub questionnaire
-            hasNewItem = true;
-            newItemList.add(subQuestionnaire.getItem().get(0));
-          } catch (IOException ex) {
-            // handle if subQuestionniare does not exist
-          }
-        } else {
-          newItemList.add(item);
-        }
-      }
-
-      if (hasNewContained)
+      parseItemList(q.getItem(), fhirVersion, baseUrl, containedList, extensionList);
+      
+      if (containedSize != containedList.size())
         q.setContained(new ArrayList<org.hl7.fhir.r4.model.Resource>(containedList.values()));
 
-      if (hasNewItem)
-        q.setItem(newItemList);
-
-      String output = parser.encodeResourceToString(q);
+      String output = this.parser.encodeResourceToString(q);
       return output;
     } catch (IOException ex) {
       return null;
     }
+  }
+
+  private void parseItemList(List<QuestionnaireItemComponent> itemList, String fhirVersion, String baseUrl,
+      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extnesionList) {
+    if (itemList == null || itemList.size() == 0)
+      return;
+
+    for (int i = 0; i < itemList.size(); i++) {
+      QuestionnaireItemComponent item = parseItem(itemList.get(i), fhirVersion, baseUrl, containedList, extnesionList);
+      itemList.set(i, item);
+    }
+  }
+
+  private QuestionnaireItemComponent parseItem(QuestionnaireItemComponent item, String fhirVersion, String baseUrl,
+      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extnesionList) {
+    // find if item has an extension is sub-questionnaire
+    Extension e = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire");
+
+    if (e != null) {
+      // read sub questionnaire from file
+      CanonicalType value = e.castToCanonical(e.getValue());
+      FileResource subFileResource = getFhirResourceById(fhirVersion, "questionnaire", value.asStringValue(), baseUrl,
+          false);
+
+      try {
+        InputStream stream = subFileResource.getResource().getInputStream();
+
+        if (stream == null)
+          return item;
+
+        IBaseResource baseResource = parser.parseResource(stream);
+
+        if (baseResource == null)
+          return item;
+
+        Questionnaire subQuestionnaire = (Questionnaire) baseResource;
+
+        // merge extensions
+        for (Extension subExtension : subQuestionnaire.getExtension()) {
+          if (extnesionList.stream()
+              .noneMatch(ext -> ext.getUrl() == subExtension.getUrl() && ext.castToReference(ext.getValue())
+                  .getReference() == subExtension.castToReference(subExtension.getValue()).getReference()))
+            extnesionList.add(subExtension);
+        }
+
+
+
+        // merge contained resources
+        for (org.hl7.fhir.r4.model.Resource r : subQuestionnaire.getContained()) {
+          containedList.put(r.getId(), r);
+        }
+
+        return subQuestionnaire.getItem().get(0);
+      } catch (IOException ex) {
+        // handle if subQuestionniare does not exist
+        return item;
+      }
+    }
+     
+    // parser sub-items
+    this.parseItemList(item.getItem(), fhirVersion, baseUrl, containedList, extnesionList);
+
+    return item;
+  }
+
+  public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
+    logger.info("CommonFileStore::getFhirResourceByUrl(): " + fhirVersion + "/" + resourceType + "/" + url);
+
+    FhirResourceCriteria criteria = new FhirResourceCriteria();
+    criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setUrl(url);
+    List<FhirResource> fhirResourceList = fhirResources.findByUrl(criteria);
+    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
   }
 
   // from RuleFinder
@@ -323,6 +363,7 @@ public abstract class CommonFileStore implements FileStore {
               // parse the the resource file into the correct FHIR resource
               String resourceId = "";
               String resourceName = "";
+              String resourceUrl = null;
               try {
                 IBaseResource baseResource = parser.parseResource(new FileInputStream(resource));
                 resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
@@ -341,8 +382,9 @@ public abstract class CommonFileStore implements FileStore {
                     findAndFetchRequiredVSACValueSets(library);
                   } else if (resourceType.equalsIgnoreCase("ValueSet")) {
                     org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-                    resourceId = valueSet.getId();
+                    resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
                     resourceName = valueSet.getName();
+                    resourceUrl = valueSet.getUrl();
                   }
                 } else if (fhirVersion.equalsIgnoreCase("STU3")) {
                   if (resourceType.equalsIgnoreCase("Questionnaire")) {
@@ -355,8 +397,9 @@ public abstract class CommonFileStore implements FileStore {
                     resourceName = library.getName();
                   } else if (resourceType.equalsIgnoreCase("ValueSet")) {
                     org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
-                    resourceId = valueSet.getId();
+                    resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
                     resourceName = valueSet.getName();
+                    resourceUrl = valueSet.getUrl();
                   }
                 }
               } catch (FileNotFoundException e) {
@@ -383,6 +426,9 @@ public abstract class CommonFileStore implements FileStore {
               FhirResource fhirResource = new FhirResource();
               fhirResource.setId(resourceId).setFhirVersion(fhirVersion).setResourceType(resourceType).setTopic(topic)
                   .setFilename(filename).setName(resourceName);
+              if (resourceUrl != null) {
+                fhirResource.setUrl(resourceUrl);
+              }
               fhirResources.save(fhirResource);
             }
           }
