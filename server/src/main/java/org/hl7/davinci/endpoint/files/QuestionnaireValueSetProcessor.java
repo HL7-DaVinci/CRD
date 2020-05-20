@@ -53,19 +53,40 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
     for (QuestionnaireItemComponent itemComponent : itemComponents) {
       // If there is an answerValueSet field we need to do some work on this item
       if (itemComponent.hasAnswerValueSet()) {
-        
+
+        // Only look for a valueset to embed if it does not appear to be a hash reference
         if (!itemComponent.getAnswerValueSet().startsWith("#")) {
           logger.info("answerValueSet found with url - " + itemComponent.getAnswerValueSet());
           String valueSetId = findAndLoadValueSet(itemComponent.getAnswerValueSet(), valueSetMap, fileStore, baseUrl);
-          itemComponent.setAnswerValueSet("#" + valueSetId);
-          logger.info("answerValueSet replaced with  - " + itemComponent.getAnswerValueSet());
+          if (valueSetId != null) {
+            itemComponent.getAnswerValueSet();
+            itemComponent.setAnswerValueSet("#" + valueSetId);
+            logger.info("answerValueSet replaced with  - " + itemComponent.getAnswerValueSet());
+          } else {
+            logger.warn("Referenced ValueSet: " + itemComponent.getAnswerValueSet() + " was not found.");
+          }
         }
 
+        // START WORKAROUNDS for HAPI Issue: https://github.com/jamesagnew/hapi-fhir/issues/1184
         // Add initial reference to any item with an answerValueSet due to HAPI encoder error.
         // This is needed to make sure the referenced ValueSets in contains are included.
-        QuestionnaireItemInitialComponent initial = new QuestionnaireItemInitialComponent(
-          new Reference(itemComponent.getAnswerValueSet()));
-        itemComponent.addInitial(initial);
+
+        // See if we need to add a reference or if the workaround was already done in the input
+        boolean initialItemNeeded = true;
+        for (QuestionnaireItemInitialComponent initialComponent : itemComponent.getInitial()) {
+          if (initialComponent.hasValueReference() 
+            && initialComponent.getValueReference().getReference().equals(itemComponent.getAnswerValueSet())) {
+              initialItemNeeded = false;
+            }
+        }
+
+        // Only add the reference if it is needed.
+        if (initialItemNeeded) {
+          QuestionnaireItemInitialComponent initial = new QuestionnaireItemInitialComponent(
+            new Reference(itemComponent.getAnswerValueSet()));
+          itemComponent.addInitial(initial);
+        }
+        // END WORKAROUNDS
       }
 
       // Recurse down into child items.
@@ -80,7 +101,7 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
    * 
    * @param url The canonical url of the valueset to look for.
    * @param valueSetMap The map of valuesets that have been loaded already.
-   * @return The local ID to use for the valueset.
+   * @return The local ID to use for the valueset. null if valueset wasn't found.
    */
   private String findAndLoadValueSet(String url, Map<String, ValueSet> valueSetMap, FileStore fileStore, String baseUrl) {
     if (valueSetMap.containsKey(url)) {
@@ -97,14 +118,18 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
       valueSetFileResource = fileStore.getFhirResourceByUrl("R4", "valueset", url, baseUrl);
     }
 
-    // parse value set and modify ID and #URL to match.
-    valueSet = (ValueSet) this.parseFhirFileResource(valueSetFileResource);
-    String valueSetId = valueSet.getIdElement().getIdPart();
-    valueSet.setId(valueSetId);
-    valueSet.setUrl("#" + valueSetId);
+    if (valueSetFileResource != null) {
+      // parse value set and modify ID and #URL to match.
+      valueSet = (ValueSet) this.parseFhirFileResource(valueSetFileResource);
+      String valueSetId = valueSet.getIdElement().getIdPart();
+      valueSet.setId(valueSetId);
+      valueSet.setUrl("#" + valueSetId);
 
-    // add it to the value set map so it can be reused
-    valueSetMap.put(url, valueSet);
-    return valueSetId;
+      // add it to the value set map so it can be reused
+      valueSetMap.put(url, valueSet);
+      return valueSetId;
+    } else {
+      return null;
+    }
   }
 }
