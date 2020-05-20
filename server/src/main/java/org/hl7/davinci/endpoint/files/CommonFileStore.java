@@ -38,6 +38,12 @@ public abstract class CommonFileStore implements FileStore {
 
   private ValueSetCache valueSetCache;
 
+  private QuestionnaireValueSetProcessor questionnaireValueSetProcessor;
+
+  public CommonFileStore() {
+    this.questionnaireValueSetProcessor = new QuestionnaireValueSetProcessor();
+  }
+
   // must define in child class
   public abstract void reload();
   public abstract CqlRule getCqlRule(String topic, String fhirVersion);
@@ -65,6 +71,24 @@ public abstract class CommonFileStore implements FileStore {
         .setResourceType(resourceType)
         .setId(id);
     List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
+    FileResource resource = readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
+
+    // If this is a questionnaire, run it through the processor to modify it before returning.
+    if (fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
+      return this.questionnaireValueSetProcessor.processResource(resource, this, baseUrl);
+    } else {
+      return resource;
+    }
+  }
+
+  public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
+    logger.info("CommonFileStore::getFhirResourceByUrl(): " + fhirVersion + "/" + resourceType + "/" + url);
+
+    FhirResourceCriteria criteria = new FhirResourceCriteria();
+    criteria.setFhirVersion(fhirVersion)
+        .setResourceType(resourceType)
+        .setUrl(url);
+    List<FhirResource> fhirResourceList = fhirResources.findByUrl(criteria);
     return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
   }
 
@@ -217,6 +241,7 @@ public abstract class CommonFileStore implements FileStore {
               // parse the the resource file into the correct FHIR resource
               String resourceId = "";
               String resourceName = "";
+              String resourceUrl = null;
               try {
                 IBaseResource baseResource = parser.parseResource(new FileInputStream(resource));
                 resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
@@ -227,6 +252,7 @@ public abstract class CommonFileStore implements FileStore {
                     org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
                     resourceId = questionnaire.getId();
                     resourceName = questionnaire.getName();
+                    findAndFetchRequiredVSACValueSets(questionnaire);
                   } else if (resourceType.equalsIgnoreCase("Library")) {
                     org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
                     resourceId = library.getId();
@@ -235,8 +261,9 @@ public abstract class CommonFileStore implements FileStore {
                     findAndFetchRequiredVSACValueSets(library);
                   } else if (resourceType.equalsIgnoreCase("ValueSet")) {
                     org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-                    resourceId = valueSet.getId();
+                    resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
                     resourceName = valueSet.getName();
+                    resourceUrl = valueSet.getUrl();
                   }
                 } else if (fhirVersion.equalsIgnoreCase("STU3")) {
                   if (resourceType.equalsIgnoreCase("Questionnaire")) {
@@ -249,8 +276,9 @@ public abstract class CommonFileStore implements FileStore {
                     resourceName = library.getName();
                   } else if (resourceType.equalsIgnoreCase("ValueSet")) {
                     org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
-                    resourceId = valueSet.getId();
+                    resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
                     resourceName = valueSet.getName();
+                    resourceUrl = valueSet.getUrl();
                   }
                 }
               } catch (FileNotFoundException e) {
@@ -280,6 +308,9 @@ public abstract class CommonFileStore implements FileStore {
                   .setTopic(topic)
                   .setFilename(filename)
                   .setName(resourceName);
+              if (resourceUrl != null) {
+                fhirResource.setUrl(resourceUrl);
+              }
               fhirResources.save(fhirResource);
             }
           }
@@ -334,6 +365,41 @@ public abstract class CommonFileStore implements FileStore {
           logger.info("          VSAC ValueSet reference found: " + valueSetId);
           this.getValueSetCache().fetchValueSet(valueSetId);
         }
+      }
+    }
+  }
+
+  /**
+   * Looks for ValueSet references in Questionnaire.item**.answerValueSet entries that point to a VSAC ValueSet by OID and have the cache fetch the
+   * ValueSet.
+   * 
+   * @param questionnaire The FHIR Questionnaire resource to look for ValueSet references in.
+   */
+  private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Questionnaire questionnaire) {
+    findAndFetchRequiredVSACValueSets(questionnaire.getItem());
+  }
+
+  /**
+   * Looks for ValueSet references in a list of Questionnaire item components in the answerValueSet entries that
+   * point to a VSAC ValueSet by OID and have the cache fetch the ValueSet. Also recurses into children item elements.
+   * 
+   * @param itemComponents The FHIR Questionnaire Item components to look for ValueSet references in.
+   */
+  private void findAndFetchRequiredVSACValueSets(List<org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent> itemComponents) {
+    for (org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent itemComponent : itemComponents) {
+      // If there is an answerValueSet field we should see if it is a VSAC reference
+      if (itemComponent.hasAnswerValueSet()) {
+        String valueSetRef = itemComponent.getAnswerValueSet();
+        if (valueSetRef.startsWith(ValueSetCache.VSAC_CANONICAL_BASE)) {
+          String valueSetId = valueSetRef.split("ValueSet/")[1];
+          logger.info("          VSAC ValueSet reference found: " + valueSetId);
+          this.getValueSetCache().fetchValueSet(valueSetId);
+        }
+      }
+
+      // Recurse down into child items.
+      if (itemComponent.hasItem()) {
+        findAndFetchRequiredVSACValueSets(itemComponent.getItem());
       }
     }
   }

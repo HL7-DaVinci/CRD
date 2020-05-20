@@ -31,4 +31,13 @@ public interface FhirResourceRepository extends CrudRepository<FhirResource, Lon
   List<FhirResource> findByName(
       @Param("criteria") FhirResourceCriteria criteria
   );
+
+  @Query(
+      "SELECT r FROM FhirResource r WHERE "
+          + "r.fhirVersion = :#{#criteria.fhirVersion} "
+          + "and r.resourceType = :#{#criteria.resourceType} "
+          + "and r.url = :#{#criteria.url}")
+  List<FhirResource> findByUrl(
+      @Param("criteria") FhirResourceCriteria criteria
+  );
 }

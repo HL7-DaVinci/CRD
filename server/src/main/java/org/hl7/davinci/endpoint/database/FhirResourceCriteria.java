@@ -6,6 +6,7 @@ public class FhirResourceCriteria {
   private String resourceType;
   private String name;
   private String id;
+  private String url;
 
   public String getFhirVersion() { return fhirVersion; }
 
@@ -32,6 +33,13 @@ public class FhirResourceCriteria {
 
   public FhirResourceCriteria setId(String id) {
     this.id = id;
+    return this;
+  }
+
+  public String getUrl() { return url; }
+
+  public FhirResourceCriteria setUrl(String url) {
+    this.url = url;
     return this;
   }
 

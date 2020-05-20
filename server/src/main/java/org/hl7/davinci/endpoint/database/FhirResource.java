@@ -11,6 +11,9 @@ public class FhirResource {
   @Column(name = "id", updatable = false, nullable = false)
   private String id;
 
+  @Column(name = "url", updatable = false, nullable = true)
+  private String url;
+
   @Id
   @Column(name = "resource_type", nullable = false)
   private String resourceType;
@@ -34,6 +37,15 @@ public class FhirResource {
 
   public FhirResource setId(String id) {
     this.id = id;
+    return this;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public FhirResource setUrl(String url) {
+    this.url = url;
     return this;
   }
 
@@ -79,10 +91,10 @@ public class FhirResource {
   }
 
   public static String getColumnsString() {
-    return "id / resourceType / fhirVersin / topic / filename / name";
+    return "id / resourceType / fhirVersion / topic / filename / name / url";
   }
 
   public String toString() {
-    return id + " / " + resourceType + " / " + fhirVersion + " / " + topic + " / " + filename + " / " + name;
+    return id + " / " + resourceType + " / " + fhirVersion + " / " + topic + " / " + filename + " / " + name + " / " + ((url != null) ? url : "null");
   }
 }
