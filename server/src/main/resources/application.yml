@@ -55,7 +55,7 @@ gitHubConfig:
   useZipForReload: true
 
 localDb:
-  path: ../../CDS-Library/
+  path: CDS-Library/
 
 valueSetCachePath: ValueSetCache/
 
