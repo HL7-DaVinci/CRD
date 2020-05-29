@@ -374,11 +374,13 @@ public abstract class CommonFileStore implements FileStore {
                     org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
                     resourceId = questionnaire.getId();
                     resourceName = questionnaire.getName();
+                    resourceUrl = questionnaire.getUrl();
                     findAndFetchRequiredVSACValueSets(questionnaire);
                   } else if (resourceType.equalsIgnoreCase("Library")) {
                     org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
                     resourceId = library.getId();
                     resourceName = library.getName();
+                    resourceUrl = library.getUrl();
                     // Look at data requirements for value sets
                     findAndFetchRequiredVSACValueSets(library);
                   } else if (resourceType.equalsIgnoreCase("ValueSet")) {

@@ -160,18 +160,30 @@ public class DataController {
    * @param fhirVersion (converted to uppercase)
    * @param resource (converted to lowercase)
    * @param name (converted to lowercase)
+   * @param url The Canonical URL of the resource.
    * @return
    * @throws IOException
    */
   @GetMapping(path = "/fhir/{fhirVersion}/{resource}") //?name={topic}
-  public ResponseEntity<Resource> getFhirResourceByTopic(HttpServletRequest request, @PathVariable String fhirVersion, @PathVariable String resource, @RequestParam String name) throws IOException {
+  public ResponseEntity<Resource> getFhirResourceByTopic(HttpServletRequest request, @PathVariable String fhirVersion, 
+  @PathVariable String resource, @RequestParam(required = false) String name, @RequestParam(required = false) String url) throws IOException {
+
     fhirVersion = fhirVersion.toUpperCase();
     resource = resource.toLowerCase();
-    name = name.toLowerCase();
-    logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?name=" + name);
     String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 
-    FileResource fileResource = fileStore.getFhirResourceByTopic(fhirVersion, resource, name, baseUrl);
+    FileResource fileResource = null;
+
+    if (name != null) {
+      name = name.toLowerCase();
+      logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?name=" + name);
+      fileResource = fileStore.getFhirResourceByTopic(fhirVersion, resource, name, baseUrl);
+    }
+    else if (url != null) {
+      logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?url=" + url);
+      fileResource = fileStore.getFhirResourceByUrl(fhirVersion, resource, url, baseUrl);  
+    }
+
     return processFileResource(fileResource);
   }
 
