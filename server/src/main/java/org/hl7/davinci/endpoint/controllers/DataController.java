@@ -165,8 +165,8 @@ public class DataController {
    * @throws IOException
    */
   @GetMapping(path = "/fhir/{fhirVersion}/{resource}") //?name={topic}
-  public ResponseEntity<Resource> getFhirResourceByTopic(HttpServletRequest request, @PathVariable String fhirVersion, 
-  @PathVariable String resource, @RequestParam(required = false) String name, @RequestParam(required = false) String url) throws IOException {
+  public ResponseEntity<Resource> searchFhirResource(HttpServletRequest request, @PathVariable String fhirVersion, 
+    @PathVariable String resource, @RequestParam(required = false) String name, @RequestParam(required = false) String url) throws IOException {
 
     fhirVersion = fhirVersion.toUpperCase();
     resource = resource.toLowerCase();
