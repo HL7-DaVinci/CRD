@@ -19,11 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.hateoas.alps.Ext;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -145,18 +147,32 @@ public abstract class CommonFileStore implements FileStore {
   }
 
   private void parseItemList(List<QuestionnaireItemComponent> itemList, String fhirVersion, String baseUrl,
-      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extnesionList) {
+      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
     if (itemList == null || itemList.size() == 0)
       return;
 
-    for (int i = 0; i < itemList.size(); i++) {
-      QuestionnaireItemComponent item = parseItem(itemList.get(i), fhirVersion, baseUrl, containedList, extnesionList);
-      itemList.set(i, item);
+    for (int i = 0; i < itemList.size();) {
+      List<QuestionnaireItemComponent> returnedItemList = 
+        parseItem(itemList.get(i), fhirVersion, baseUrl, containedList, extensionList);
+      
+      if (returnedItemList.size() == 0) {
+        continue;
+      }
+
+      if (returnedItemList.size() == 1) {
+        itemList.set(i, returnedItemList.get(0));
+      }
+      else {
+        itemList.remove(i);
+        itemList.addAll(i, returnedItemList);
+      }
+
+      i += returnedItemList.size();
     }
   }
 
-  private QuestionnaireItemComponent parseItem(QuestionnaireItemComponent item, String fhirVersion, String baseUrl,
-      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extnesionList) {
+  private List<QuestionnaireItemComponent> parseItem(QuestionnaireItemComponent item, String fhirVersion, String baseUrl,
+      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
     // find if item has an extension is sub-questionnaire
     Extension e = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire");
 
@@ -170,21 +186,40 @@ public abstract class CommonFileStore implements FileStore {
         InputStream stream = subFileResource.getResource().getInputStream();
 
         if (stream == null)
-          return item;
+          return Arrays.asList(item);
 
         IBaseResource baseResource = parser.parseResource(stream);
 
         if (baseResource == null)
-          return item;
+          return Arrays.asList(item);
 
         Questionnaire subQuestionnaire = (Questionnaire) baseResource;
 
         // merge extensions
         for (Extension subExtension : subQuestionnaire.getExtension()) {
-          if (extnesionList.stream()
-              .noneMatch(ext -> ext.getUrl() == subExtension.getUrl() && ext.castToReference(ext.getValue())
-                  .getReference() == subExtension.castToReference(subExtension.getValue()).getReference()))
-            extnesionList.add(subExtension);
+          boolean matchFound = false;
+          for (Extension ext : extensionList) {
+            if (!ext.getUrl().equalsIgnoreCase(subExtension.getUrl())) {
+              continue;
+            }
+
+            switch(ext.getValue().getClass().getName()) {
+              case "org.hl7.fhir.r4.model.CanonicalType":
+                if (!ext.castToCanonical(ext.getValue()).getValue().equalsIgnoreCase(subExtension.castToCanonical(subExtension.getValue()).getValue())) {
+                  continue;
+                }
+              break;
+            }
+
+            matchFound = true;
+            break;
+          }
+          // if (extensionList.stream()
+          //     .noneMatch(ext -> ext.getUrl() == subExtension.getUrl() && ext.getv() == subExtension.getValue()))
+
+          if (!matchFound) {
+            extensionList.add(subExtension);
+          }
         }
 
 
@@ -194,17 +229,17 @@ public abstract class CommonFileStore implements FileStore {
           containedList.put(r.getId(), r);
         }
 
-        return subQuestionnaire.getItem().get(0);
+        return subQuestionnaire.getItem();
       } catch (IOException ex) {
         // handle if subQuestionniare does not exist
-        return item;
+        return Arrays.asList(item);
       }
     }
      
     // parser sub-items
-    this.parseItemList(item.getItem(), fhirVersion, baseUrl, containedList, extnesionList);
+    this.parseItemList(item.getItem(), fhirVersion, baseUrl, containedList, extensionList);
 
-    return item;
+    return Arrays.asList(item);
   }
 
   public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
