@@ -197,27 +197,7 @@ public abstract class CommonFileStore implements FileStore {
 
         // merge extensions
         for (Extension subExtension : subQuestionnaire.getExtension()) {
-          boolean matchFound = false;
-          for (Extension ext : extensionList) {
-            if (!ext.getUrl().equalsIgnoreCase(subExtension.getUrl())) {
-              continue;
-            }
-
-            switch(ext.getValue().getClass().getName()) {
-              case "org.hl7.fhir.r4.model.CanonicalType":
-                if (!ext.castToCanonical(ext.getValue()).getValue().equalsIgnoreCase(subExtension.castToCanonical(subExtension.getValue()).getValue())) {
-                  continue;
-                }
-              break;
-            }
-
-            matchFound = true;
-            break;
-          }
-          // if (extensionList.stream()
-          //     .noneMatch(ext -> ext.getUrl() == subExtension.getUrl() && ext.getv() == subExtension.getValue()))
-
-          if (!matchFound) {
+          if (extensionList.stream().noneMatch(ext -> ext.equalsDeep(subExtension))) {
             extensionList.add(subExtension);
           }
         }
