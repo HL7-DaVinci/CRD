@@ -165,7 +165,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
             && (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())
                 || StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(results.getQuestionnaireLabUri())
-                || StringUtils.isNotEmpty(results.getQuestionnaireProgressNoteUri()))) {
+                || StringUtils.isNotEmpty(results.getQuestionnaireProgressNoteUri())
+                || StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri()))) {
           List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
           response.addCard(CardBuilder.transform(results, smartAppLinks));
         } else {
@@ -211,6 +212,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           results.getQuestionnaireProgressNoteUri(), results.getRequestId(), lookupResult.getCriteria(),
           results.getPriorAuthRequired(), "Progress Note"));
+    }
+
+    if (StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          results.getQuestionnairePlanOfCareUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getPriorAuthRequired(), "Plan of Care/Certification"));
     }
     return listOfLinks;
   }
@@ -265,7 +272,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
       }
     } catch (Exception e) {
-      logger.info("-- No Lab questionnaire defined");
+      logger.info("-- No Progress note questionnaire defined");
+    }
+
+    try {
+      if (evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context) != null) {
+        results.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString())
+            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      }
+    } catch (Exception e) {
+      logger.info("-- No plan of care questionnaire defined");
     }
 
     return results;
