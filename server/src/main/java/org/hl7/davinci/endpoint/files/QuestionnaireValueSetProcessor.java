@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Questionnaire;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.ValueSet;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
-import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemInitialComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questionnaire> {
 
   static final Logger logger = LoggerFactory.getLogger(QuestionnaireValueSetProcessor.class);
+  static final String ValueSetReferenceExtensionUrl = "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/valueset-reference";
 
   /**
    * Processes the Questionnaire to have referenced ValueSets included in the contains field.
@@ -29,7 +30,7 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
     Map<String, ValueSet> valueSetMap = new HashMap<String, ValueSet>();
 
     // Iterate through items recursively and replace answerValueSet appropiately
-    findAndReplaceValueSetReferences(inputResource.getItem(), valueSetMap, fileStore, baseUrl);
+    findAndReplaceValueSetReferences(inputResource.getItem(), inputResource.getExtension(), valueSetMap, fileStore, baseUrl);
 
     // Add all loaded valuesets to the contains field
     for (ValueSet valueSet : valueSetMap.values()) {
@@ -44,12 +45,15 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
    * Recursively visits every questionnaire item and replaces every `answerValueSet` that isn't a local
    * hash (#) reference into a local reference. This fills the valueSetMap with the loaded valuesets.
    * 
+   * @param questionnaire The questionnaire itself
    * @param itemComponents The item components to visit.
    * @param valueSetMap A mapping of ValueSet urls to loaded valuesets that should be filled as references are found.
    * @param fileStore The file store that is used to load valuesets from.
    * @param baseUrl The base url of the server from the request. Used to identify local valuesets.
    */
-  private void findAndReplaceValueSetReferences(List<QuestionnaireItemComponent> itemComponents, Map<String, ValueSet> valueSetMap, FileStore fileStore, String baseUrl) {
+  private void findAndReplaceValueSetReferences(List<QuestionnaireItemComponent> itemComponents, List<Extension> extensionList,
+    Map<String, ValueSet> valueSetMap, FileStore fileStore, String baseUrl) {
+
     for (QuestionnaireItemComponent itemComponent : itemComponents) {
       // If there is an answerValueSet field we need to do some work on this item
       if (itemComponent.hasAnswerValueSet()) {
@@ -70,28 +74,19 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
         // START WORKAROUNDS for HAPI Issue: https://github.com/jamesagnew/hapi-fhir/issues/1184
         // Add initial reference to any item with an answerValueSet due to HAPI encoder error.
         // This is needed to make sure the referenced ValueSets in contains are included.
+        Extension newExt = new Extension(ValueSetReferenceExtensionUrl, new Reference(itemComponent.getAnswerValueSet()));
 
         // See if we need to add a reference or if the workaround was already done in the input
-        boolean initialItemNeeded = true;
-        for (QuestionnaireItemInitialComponent initialComponent : itemComponent.getInitial()) {
-          if (initialComponent.hasValueReference() 
-            && initialComponent.getValueReference().getReference().equals(itemComponent.getAnswerValueSet())) {
-              initialItemNeeded = false;
-            }
+        if (extensionList.stream().noneMatch(ext -> ext.equalsDeep(newExt))) {
+          extensionList.add(newExt);
         }
 
-        // Only add the reference if it is needed.
-        if (initialItemNeeded) {
-          QuestionnaireItemInitialComponent initial = new QuestionnaireItemInitialComponent(
-            new Reference(itemComponent.getAnswerValueSet()));
-          itemComponent.addInitial(initial);
-        }
         // END WORKAROUNDS
       }
 
       // Recurse down into child items.
       if (itemComponent.hasItem()) {
-        findAndReplaceValueSetReferences(itemComponent.getItem(), valueSetMap, fileStore, baseUrl);
+        findAndReplaceValueSetReferences(itemComponent.getItem(), extensionList, valueSetMap, fileStore, baseUrl);
       }
     }
   }
