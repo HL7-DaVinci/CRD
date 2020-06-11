@@ -30,11 +30,18 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
     Map<String, ValueSet> valueSetMap = new HashMap<String, ValueSet>();
 
     // Iterate through items recursively and replace answerValueSet appropiately
-    findAndReplaceValueSetReferences(inputResource.getItem(), inputResource.getExtension(), valueSetMap, fileStore, baseUrl);
+    findAndReplaceValueSetReferences(inputResource.getItem(), valueSetMap, fileStore, baseUrl);
 
     // Add all loaded valuesets to the contains field
     for (ValueSet valueSet : valueSetMap.values()) {
       inputResource.addContained(valueSet);
+
+      // START WORKAROUNDS for HAPI Issue: https://github.com/jamesagnew/hapi-fhir/issues/1184
+      // Add initial reference to any item with an answerValueSet due to HAPI encoder error.
+      // This is needed to make sure the referenced ValueSets in contains are included.
+      inputResource.addExtension(new Extension(ValueSetReferenceExtensionUrl, new Reference(valueSet.getUrl())));
+      // END WORKAROUNDS
+
       logger.info("Embedding " + valueSet.getId() + " in contained.");
     }
 
@@ -45,13 +52,12 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
    * Recursively visits every questionnaire item and replaces every `answerValueSet` that isn't a local
    * hash (#) reference into a local reference. This fills the valueSetMap with the loaded valuesets.
    * 
-   * @param questionnaire The questionnaire itself
    * @param itemComponents The item components to visit.
    * @param valueSetMap A mapping of ValueSet urls to loaded valuesets that should be filled as references are found.
    * @param fileStore The file store that is used to load valuesets from.
    * @param baseUrl The base url of the server from the request. Used to identify local valuesets.
    */
-  private void findAndReplaceValueSetReferences(List<QuestionnaireItemComponent> itemComponents, List<Extension> extensionList,
+  private void findAndReplaceValueSetReferences(List<QuestionnaireItemComponent> itemComponents,
     Map<String, ValueSet> valueSetMap, FileStore fileStore, String baseUrl) {
 
     for (QuestionnaireItemComponent itemComponent : itemComponents) {
@@ -70,23 +76,11 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
             logger.warn("Referenced ValueSet: " + itemComponent.getAnswerValueSet() + " was not found.");
           }
         }
-
-        // START WORKAROUNDS for HAPI Issue: https://github.com/jamesagnew/hapi-fhir/issues/1184
-        // Add initial reference to any item with an answerValueSet due to HAPI encoder error.
-        // This is needed to make sure the referenced ValueSets in contains are included.
-        Extension newExt = new Extension(ValueSetReferenceExtensionUrl, new Reference(itemComponent.getAnswerValueSet()));
-
-        // See if we need to add a reference or if the workaround was already done in the input
-        if (extensionList.stream().noneMatch(ext -> ext.equalsDeep(newExt))) {
-          extensionList.add(newExt);
-        }
-
-        // END WORKAROUNDS
       }
 
       // Recurse down into child items.
       if (itemComponent.hasItem()) {
-        findAndReplaceValueSetReferences(itemComponent.getItem(), extensionList, valueSetMap, fileStore, baseUrl);
+        findAndReplaceValueSetReferences(itemComponent.getItem(), valueSetMap, fileStore, baseUrl);
       }
     }
   }
