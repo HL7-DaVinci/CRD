@@ -46,6 +46,22 @@ public class RuleFinder {
     return ruleList;
   }
 
+  public List<RuleMapping> findRules(String topic, String fhirVersion) {
+    logger.info("RuleFinder::findRules(" + topic + ", " + fhirVersion + ")");
+    List<RuleMapping> ruleList = new ArrayList<>();
+    if (ruleMappingRepository == null) {
+      logger.warn("RuleFinder::findRules: the ruleMappingRepository is null");
+      return ruleList;
+    }
+    for (RuleMapping rule : ruleMappingRepository.findRules(topic, fhirVersion)) {
+      ruleList.add(rule);
+    }
+    if (ruleList.size() == 0) {
+      logger.info("RuleFinder::findRules() returned no results for topic: " + topic + "(" + fhirVersion + ")");
+    }
+    return ruleList;
+  }
+
   /**
    * Find all of the lookup table rules in the database.
    * @return List of all RuleMapping entries

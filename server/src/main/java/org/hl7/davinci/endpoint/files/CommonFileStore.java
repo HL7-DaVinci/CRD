@@ -92,7 +92,7 @@ public abstract class CommonFileStore implements FileStore {
     // returning.
     // We do not handle nested sub-questionnaire at this time.
     if (isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
-      String output = assemblyQuestionnaire(resource, fhirVersion, baseUrl, isRoot);
+      String output = assembleQuestionnaire(resource, fhirVersion, baseUrl, isRoot);
 
       if (output != null) {
         byte[] fileData = output.getBytes(Charset.defaultCharset());
@@ -105,8 +105,8 @@ public abstract class CommonFileStore implements FileStore {
     return resource;
   }
 
-  protected String assemblyQuestionnaire(FileResource fileResource, String fhirVersion, String baseUrl, boolean isRoot) {
-    logger.info("CommonFileStore::assemblyQuestionnaire(): " + fileResource.getFilename());
+  protected String assembleQuestionnaire(FileResource fileResource, String fhirVersion, String baseUrl, boolean isRoot) {
+    logger.info("CommonFileStore::assembleQuestionnaire(): " + fileResource.getFilename());
 
     this.parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
 
@@ -242,7 +242,7 @@ public abstract class CommonFileStore implements FileStore {
         String topicName = topic.getName();
 
         // skip the shared folder for now...
-        if (topicName.equalsIgnoreCase("Shared")) {
+        if (topicName.equalsIgnoreCase(FileStore.SHARED_TOPIC)) {
           logger.info("  CommonFileStore::reloadFromFolder() found Shared files");
 
           File[] fhirFolders = topic.listFiles();
@@ -279,7 +279,7 @@ public abstract class CommonFileStore implements FileStore {
                       for (String fhirVersion : metadata.getFhirVersions()) {
 
                         String mainCqlLibraryName = metadata.getTopic() + "Rule";
-                        File mainCqlFile = findFile(path, metadata.getTopic(), fhirVersion, mainCqlLibraryName, ".cql");
+                        File mainCqlFile = findFile(path, metadata.getTopic(), fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
                         if (mainCqlFile == null) {
                           logger.warn("CommonFileStore::reloadFromFolder(): failed to find main CQL file for topic: "
                               + metadata.getTopic());

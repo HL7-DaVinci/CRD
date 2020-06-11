@@ -8,6 +8,10 @@ import org.hl7.davinci.endpoint.database.RuleMapping;
 
 public interface FileStore {
 
+  String SHARED_TOPIC = "Shared";
+  String FHIR_HELPERS_FILENAME = "FHIRHelpers";
+  String CQL_EXTENSION = ".cql";
+
   void reload();
   void reinitializeVSACLoader();
   void reinitializeVSACLoader(String username, String password);

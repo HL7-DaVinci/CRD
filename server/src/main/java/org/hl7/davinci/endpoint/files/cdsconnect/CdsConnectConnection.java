@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.cdsconnect;
+package org.hl7.davinci.endpoint.files.cdsconnect;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -39,11 +39,10 @@ import java.util.Base64;
 @Profile("cdsConnect")
 public class CdsConnectConnection {
 
+  static final Logger logger = LoggerFactory.getLogger(CdsConnectConnection.class);
+
   String cookie;
   Date cookieExpiration;
-
-  static final Logger logger =
-      LoggerFactory.getLogger(CdsConnectConnection.class);
 
   private String baseUrl;
   private String username;
@@ -180,6 +179,7 @@ public class CdsConnectConnection {
     if (isRetry) {
       logger.info("restExchange retry: " + url);
     }
+    //logger.info("CdsConnectConnection::restExchange(): url: " + url);
 
     // login if necessary
     login();
@@ -210,13 +210,13 @@ public class CdsConnectConnection {
     }
   }
 
-  public CdsConnectRuleList queryForRulesList(String query) {
-    logger.info("queryForRulesList( " + query + " )");
-    return new CdsConnectRuleList(this, queryForRules(query));
+  public CdsConnectArtifactList queryForArtifactList() {
+    logger.info("queryForArtifactList()");
+    return new CdsConnectArtifactList(this, queryForArtifacts(""));
   }
 
-  private String queryForRules(String query) {
-    logger.info("queryForRules( " + query + " )");
+  private String queryForArtifacts(String query) {
+    logger.info("queryForArtifacts( " + query + " )");
     String fullUrl = baseUrl + "/erx_rules/" + query + "?_format=json";
     return restExchange(fullUrl, false, String.class);
   }

@@ -64,7 +64,7 @@ public class LocalFileStore extends CommonFileStore {
     String localPath = config.getLocalDb().getPath();
 
     String mainCqlLibraryName = topic + "Rule";
-    File mainCqlFile = findFile(localPath, topic, fhirVersion, mainCqlLibraryName, ".cql");
+    File mainCqlFile = findFile(localPath, topic, fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
     if (mainCqlFile == null) {
       logger.warn("LocalFileStore::getCqlRule(): failed to find main CQL file");
     } else {
@@ -76,7 +76,7 @@ public class LocalFileStore extends CommonFileStore {
       }
     }
 
-    File helperCqlFile = findFile(localPath, "Shared", fhirVersion, "FHIRHelpers", ".cql");
+    File helperCqlFile = findFile(localPath, FileStore.SHARED_TOPIC, fhirVersion, FileStore.FHIR_HELPERS_FILENAME, FileStore.CQL_EXTENSION);
     if (helperCqlFile == null) {
       logger.warn("LocalFileStore::getCqlRule(): failed to find FHIR helper CQL file");
     } else {
