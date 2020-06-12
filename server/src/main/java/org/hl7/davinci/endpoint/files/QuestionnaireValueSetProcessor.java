@@ -37,7 +37,7 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
       inputResource.addContained(valueSet);
 
       // START WORKAROUNDS for HAPI Issue: https://github.com/jamesagnew/hapi-fhir/issues/1184
-      // Add initial reference to any item with an answerValueSet due to HAPI encoder error.
+      // Add extension that references the contained ValueSet due to HAPI encoder error.
       // This is needed to make sure the referenced ValueSets in contains are included.
       inputResource.addExtension(new Extension(ValueSetReferenceExtensionUrl, new Reference(valueSet.getUrl())));
       // END WORKAROUNDS
