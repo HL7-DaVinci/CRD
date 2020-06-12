@@ -17,6 +17,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Questionnaire;
+import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.hl7.fhir.r4.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -524,19 +525,33 @@ public class CdsConnectFileStore implements FileStore {
     }
   }
 
-  private void parseItemList(List<Questionnaire.QuestionnaireItemComponent> itemList, String fhirVersion, String baseUrl,
-                             Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extnesionList) {
+  private void parseItemList(List<QuestionnaireItemComponent> itemList, String fhirVersion, String baseUrl,
+                             Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
     if (itemList == null || itemList.size() == 0)
       return;
 
-    for (int i = 0; i < itemList.size(); i++) {
-      Questionnaire.QuestionnaireItemComponent item = parseItem(itemList.get(i), fhirVersion, baseUrl, containedList, extnesionList);
-      itemList.set(i, item);
+    for (int i = 0; i < itemList.size();) {
+      List<Questionnaire.QuestionnaireItemComponent> returnedItemList =
+          parseItem(itemList.get(i), fhirVersion, baseUrl, containedList, extensionList);
+
+      if (returnedItemList.size() == 0) {
+        continue;
+      }
+
+      if (returnedItemList.size() == 1) {
+        itemList.set(i, returnedItemList.get(0));
+      }
+      else {
+        itemList.remove(i);
+        itemList.addAll(i, returnedItemList);
+      }
+
+      i += returnedItemList.size();
     }
   }
 
-  private Questionnaire.QuestionnaireItemComponent parseItem(Questionnaire.QuestionnaireItemComponent item, String fhirVersion, String baseUrl,
-                                                             Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extnesionList) {
+  private List<QuestionnaireItemComponent> parseItem(QuestionnaireItemComponent item, String fhirVersion, String baseUrl,
+                                                     Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
     // find if item has an extension is sub-questionnaire
     Extension e = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire");
 
@@ -550,21 +565,20 @@ public class CdsConnectFileStore implements FileStore {
         InputStream stream = subFileResource.getResource().getInputStream();
 
         if (stream == null)
-          return item;
+          return Arrays.asList(item);
 
         IBaseResource baseResource = parser.parseResource(stream);
 
         if (baseResource == null)
-          return item;
+          return Arrays.asList(item);
 
         Questionnaire subQuestionnaire = (Questionnaire) baseResource;
 
         // merge extensions
         for (Extension subExtension : subQuestionnaire.getExtension()) {
-          if (extnesionList.stream()
-              .noneMatch(ext -> ext.getUrl() == subExtension.getUrl() && ext.castToReference(ext.getValue())
-                  .getReference() == subExtension.castToReference(subExtension.getValue()).getReference()))
-            extnesionList.add(subExtension);
+          if (extensionList.stream().noneMatch(ext -> ext.equalsDeep(subExtension))) {
+            extensionList.add(subExtension);
+          }
         }
 
 
@@ -574,17 +588,17 @@ public class CdsConnectFileStore implements FileStore {
           containedList.put(r.getId(), r);
         }
 
-        return subQuestionnaire.getItem().get(0);
+        return subQuestionnaire.getItem();
       } catch (IOException ex) {
         // handle if subQuestionniare does not exist
-        return item;
+        return Arrays.asList(item);
       }
     }
 
     // parser sub-items
-    this.parseItemList(item.getItem(), fhirVersion, baseUrl, containedList, extnesionList);
+    this.parseItemList(item.getItem(), fhirVersion, baseUrl, containedList, extensionList);
 
-    return item;
+    return Arrays.asList(item);
   }
 
   public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
