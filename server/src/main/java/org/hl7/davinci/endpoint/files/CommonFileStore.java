@@ -34,7 +34,7 @@ public abstract class CommonFileStore implements FileStore {
   static final Logger logger = LoggerFactory.getLogger(CommonFileStore.class);
 
   @Autowired
-  private RuleFinder ruleFinder;
+  protected RuleFinder ruleFinder;
 
   @Autowired
   protected RuleMappingRepository lookupTable;
@@ -481,7 +481,7 @@ public abstract class CommonFileStore implements FileStore {
    * 
    * @return The ValueSetCache to use for getting ValueSets.
    */
-  private ValueSetCache getValueSetCache() {
+  protected ValueSetCache getValueSetCache() {
     if (this.valueSetCache == null) {
       this.valueSetCache = new ValueSetCache(this.config.getValueSetCachePath());
       this.valueSetCache.setFhirResources(this.fhirResources);
@@ -495,7 +495,7 @@ public abstract class CommonFileStore implements FileStore {
    * 
    * @param library The FHIR Library resource to look for ValueSet references in.
    */
-  private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Library library) {
+  protected void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Library library) {
     for (org.hl7.fhir.r4.model.DataRequirement dataReq : library.getDataRequirement()) {
       for (org.hl7.fhir.r4.model.DataRequirement.DataRequirementCodeFilterComponent codeFilter : dataReq
           .getCodeFilter()) {
@@ -515,7 +515,7 @@ public abstract class CommonFileStore implements FileStore {
    * 
    * @param questionnaire The FHIR Questionnaire resource to look for ValueSet references in.
    */
-  private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Questionnaire questionnaire) {
+  protected void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Questionnaire questionnaire) {
     findAndFetchRequiredVSACValueSets(questionnaire.getItem());
   }
 
@@ -525,7 +525,7 @@ public abstract class CommonFileStore implements FileStore {
    * 
    * @param itemComponents The FHIR Questionnaire Item components to look for ValueSet references in.
    */
-  private void findAndFetchRequiredVSACValueSets(List<org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent> itemComponents) {
+  protected void findAndFetchRequiredVSACValueSets(List<org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent> itemComponents) {
     for (org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent itemComponent : itemComponents) {
       // If there is an answerValueSet field we should see if it is a VSAC reference
       if (itemComponent.hasAnswerValueSet()) {

@@ -7,18 +7,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
-import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.files.*;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.vsac.ValueSetCache;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.CanonicalType;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
-import org.hl7.fhir.r4.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,43 +23,18 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
 @Profile("cdsConnect")
-public class CdsConnectFileStore implements FileStore {
+public class CdsConnectFileStore extends CommonFileStore {
 
   static final Logger logger = LoggerFactory.getLogger(CdsConnectFileStore.class);
 
   @Autowired
   private CdsConnectConnection connection;
 
-  @Autowired
-  private RuleFinder ruleFinder;
-
-  @Autowired
-  protected RuleMappingRepository lookupTable;
-
-  @Autowired
-  protected FhirResourceRepository fhirResources;
-
-  @Autowired
-  protected YamlConfig config;
-
-  private ValueSetCache valueSetCache;
-
-  private QuestionnaireValueSetProcessor questionnaireValueSetProcessor;
-
-
-  //TODO: reorganize the parser to maybe support STU3
-  private FhirContext ctx;
-  private IParser parser;
-
   public CdsConnectFileStore() {
     logger.info("Using CdsConnectFileStore");
-    this.questionnaireValueSetProcessor = new QuestionnaireValueSetProcessor();
-    this.ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
-    this.parser = ctx.newJsonParser().setPrettyPrint(true);
   }
 
   public void reload() {
@@ -85,6 +53,7 @@ public class CdsConnectFileStore implements FileStore {
 
     // add all of the files from the artifacts found to a single list
     for (CdsConnectArtifact artifact : artifacts) {
+
       String topic = artifact.getCode();
 
       ObjectMapper objectMapper = new ObjectMapper();
@@ -169,8 +138,8 @@ public class CdsConnectFileStore implements FileStore {
         }
       } catch (IOException e) {
         logger.info("failed to process topic metadata");
+        continue;
       }
-
 
       // process the fhir resource files
       // setup the proper FHIR Context for the version of FHIR we are dealing with
@@ -279,14 +248,14 @@ public class CdsConnectFileStore implements FileStore {
       }
     }
 
-
+    /*
     //uncomment to print contents of FhirResource table on reload
     // loop through the fhir resources table and print it out
     logger.info("FhirResource: " + FhirResource.getColumnsString());
     for (FhirResource resource : fhirResources.findAll()) {
       logger.info(resource.toString());
     }
-
+    */
 
     long endTime = System.nanoTime();
     long timeElapsed = endTime - startTime;
@@ -357,8 +326,15 @@ public class CdsConnectFileStore implements FileStore {
     CdsConnectArtifact artifact = new CdsConnectArtifact(connection, connection.retrieveArtifact(rule.getNode()));
     List<CdsConnectFile> files = artifact.getFiles();
 
-    Optional<CdsConnectFile> foundFile = files.stream()
-        .filter(f -> f.getFilename().equalsIgnoreCase(fileName))
+    // regex pattern will ignore the versioning that CDS Connect may add to the filename
+    String extension = FilenameUtils.getExtension(fileName);
+    String baseName = FilenameUtils.getBaseName(fileName);
+    String regex = baseName + "(_\\d*)*." + extension;
+    Pattern pattern = Pattern.compile(regex);
+
+    Optional<String> foundFile = files.stream()
+        .map(s-> s.getPath())
+        .filter(pattern.asPredicate())
         .findFirst();
 
     if (!foundFile.isPresent()) {
@@ -367,7 +343,8 @@ public class CdsConnectFileStore implements FileStore {
     } else {
 
       // read the file
-      byte[] fileData = foundFile.get().getCqlBundle();
+      CdsConnectFile file = new CdsConnectFile(connection, foundFile.get());
+      byte[] fileData = file.getCqlBundle();
 
       // convert to ELM
       if (convert && FilenameUtils.getExtension(fileName).toUpperCase().equals("CQL")) {
@@ -388,7 +365,6 @@ public class CdsConnectFileStore implements FileStore {
       } else {
         fileResource.setResource(new ByteArrayResource(fileData));
       }
-
     }
 
     return fileResource;
@@ -426,7 +402,6 @@ public class CdsConnectFileStore implements FileStore {
         CdsConnectFile file = new CdsConnectFile(connection, fhirResource.getFilename());
         fileData = file.getCqlBundle();
         fileString = new String(fileData);
-
       }
 
       // replace <server-path> with the proper path
@@ -445,276 +420,9 @@ public class CdsConnectFileStore implements FileStore {
     }
   }
 
-  public FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl) {
-    logger.info("CdsConnectFileStore::getFhirResourceByTopic(): " + fhirVersion + "/" + resourceType + "/" + name);
-    FhirResourceCriteria criteria = new FhirResourceCriteria();
-    criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setName(name);
-    List<FhirResource> fhirResourceList = fhirResources.findByName(criteria);
-    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
-  }
-
-  public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl) {
-    return getFhirResourceById(fhirVersion, resourceType, id, baseUrl, true);
-  }
-
-  public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl,
-      boolean isRoot) {
-    logger.info("CdsConnectFileStore::getFhirResourceById(): " + fhirVersion + "/" + resourceType + "/" + id);
-
-    FhirResourceCriteria criteria = new FhirResourceCriteria();
-    criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setId(id);
-    List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
-    FileResource resource = readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
-
-    //TODO: need to reorganize the sub questionnaire assembly
-
-    // If this is a questionnaire, run it through the processor to modify it before
-    // returning.
-    // We do not handle nested sub-questionnaire at this time.
-    if (isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
-      String output = assembleQuestionnaire(resource, fhirVersion, baseUrl, isRoot);
-
-      if (output != null) {
-        byte[] fileData = output.getBytes(Charset.defaultCharset());
-        resource.setResource(new ByteArrayResource(fileData));
-      }
-
-      return this.questionnaireValueSetProcessor.processResource(resource, this, baseUrl);
-    }
-
-    return resource;
-  }
-  //TODO: need to move the sub questionnaire stuff into a common place with CommonFileStore
-
-  protected String assembleQuestionnaire(FileResource fileResource, String fhirVersion, String baseUrl, boolean isRoot) {
-    logger.info("CommonFileStore::assembleQuestionnaire(): " + fileResource.getFilename());
-
-    this.parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
-
-    try {
-      InputStream stream = fileResource.getResource().getInputStream();
-
-      if (stream == null)
-        return null;
-
-      IBaseResource baseResource = parser.parseResource(stream);
-
-      if (baseResource == null)
-        return null;
-
-      Questionnaire q = (Questionnaire) baseResource;
-
-      List<Extension> extensionList = q.getExtension();
-      Hashtable<String, Resource> containedList = new Hashtable<String, org.hl7.fhir.r4.model.Resource>();
-
-      for (org.hl7.fhir.r4.model.Resource r : q.getContained()) {
-        containedList.put(r.getId(), r);
-      }
-
-      int containedSize = containedList.size();
-
-      parseItemList(q.getItem(), fhirVersion, baseUrl, containedList, extensionList);
-
-      if (containedSize != containedList.size())
-        q.setContained(new ArrayList<Resource>(containedList.values()));
-
-      String output = this.parser.encodeResourceToString(q);
-      return output;
-    } catch (IOException ex) {
-      return null;
-    }
-  }
-
-  private void parseItemList(List<QuestionnaireItemComponent> itemList, String fhirVersion, String baseUrl,
-                             Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
-    if (itemList == null || itemList.size() == 0)
-      return;
-
-    for (int i = 0; i < itemList.size();) {
-      List<Questionnaire.QuestionnaireItemComponent> returnedItemList =
-          parseItem(itemList.get(i), fhirVersion, baseUrl, containedList, extensionList);
-
-      if (returnedItemList.size() == 0) {
-        continue;
-      }
-
-      if (returnedItemList.size() == 1) {
-        itemList.set(i, returnedItemList.get(0));
-      }
-      else {
-        itemList.remove(i);
-        itemList.addAll(i, returnedItemList);
-      }
-
-      i += returnedItemList.size();
-    }
-  }
-
-  private List<QuestionnaireItemComponent> parseItem(QuestionnaireItemComponent item, String fhirVersion, String baseUrl,
-                                                     Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
-    // find if item has an extension is sub-questionnaire
-    Extension e = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire");
-
-    if (e != null) {
-      // read sub questionnaire from file
-      CanonicalType value = e.castToCanonical(e.getValue());
-      FileResource subFileResource = getFhirResourceById(fhirVersion, "questionnaire", value.asStringValue(), baseUrl,
-          false);
-
-      try {
-        InputStream stream = subFileResource.getResource().getInputStream();
-
-        if (stream == null)
-          return Arrays.asList(item);
-
-        IBaseResource baseResource = parser.parseResource(stream);
-
-        if (baseResource == null)
-          return Arrays.asList(item);
-
-        Questionnaire subQuestionnaire = (Questionnaire) baseResource;
-
-        // merge extensions
-        for (Extension subExtension : subQuestionnaire.getExtension()) {
-          if (extensionList.stream().noneMatch(ext -> ext.equalsDeep(subExtension))) {
-            extensionList.add(subExtension);
-          }
-        }
-
-
-
-        // merge contained resources
-        for (org.hl7.fhir.r4.model.Resource r : subQuestionnaire.getContained()) {
-          containedList.put(r.getId(), r);
-        }
-
-        return subQuestionnaire.getItem();
-      } catch (IOException ex) {
-        // handle if subQuestionniare does not exist
-        return Arrays.asList(item);
-      }
-    }
-
-    // parser sub-items
-    this.parseItemList(item.getItem(), fhirVersion, baseUrl, containedList, extensionList);
-
-    return Arrays.asList(item);
-  }
-
-  public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
-    logger.info("CdsConnectFileStore::getFhirResourceByUrl(): " + fhirVersion + "/" + resourceType + "/" + url);
-    FhirResourceCriteria criteria = new FhirResourceCriteria();
-    criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setUrl(url);
-    List<FhirResource> fhirResourceList = fhirResources.findByUrl(criteria);
-    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
-  }
-
-  // from RuleFinder
-  //TODO: these are the same as common, should they be called from there somehow?
-  public List<RuleMapping> findRules(CoverageRequirementRuleCriteria criteria) {
-    logger.info("CdsConnectFileStore::findRules(): " + criteria.toString());
-    return ruleFinder.findRules(criteria);
-  }
-
-  public List<RuleMapping> findAll() {
-    logger.info("CdsConnectFileStore::findAll()");
-    return ruleFinder.findAll();
-  }
-
-  //TODO: need to move the VSAC stuff into a common place with CommonFileStore
-
-  /**
-   * Called by the DataController to ensure we have a fresh VSACLoader for getting
-   * value sets before starting the reloading process.
-   */
-  public void reinitializeVSACLoader() {
-    this.getValueSetCache().reinitializeLoader();
-  }
-
-  /**
-   * Called by the DataController to ensure we have a fresh VSACLoader for getting
-   * value sets before starting the reloading process.
-   *
-   * @param username VSAC/UMLS Username
-   * @param password VSAC/UMLS Password
-   */
-  public void reinitializeVSACLoader(String username, String password) {
-    this.getValueSetCache().reinitializeLoaderWithCreds(username, password);
-  }
-
-  /**
-   * Gets or sets up and returns the ValueSetCache. The setup code provides the
-   * FhirResourceRepository to the ValueSetCache so it is able add the fetched
-   * value sets to the repository.
-   *
-   * @return The ValueSetCache to use for getting ValueSets.
-   */
-  private ValueSetCache getValueSetCache() {
-    if (this.valueSetCache == null) {
-      this.valueSetCache = new ValueSetCache(this.config.getValueSetCachePath());
-      this.valueSetCache.setFhirResources(this.fhirResources);
-    }
-    return this.valueSetCache;
-  }
-
-  /**
-   * Looks for ValueSet references in Library.dataRequirement.codeFilter entries
-   * that point to a VSAC ValueSet by OID and have the cache fetch the ValueSet.
-   *
-   * @param library The FHIR Library resource to look for ValueSet references in.
-   */
-  private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Library library) {
-    for (org.hl7.fhir.r4.model.DataRequirement dataReq : library.getDataRequirement()) {
-      for (org.hl7.fhir.r4.model.DataRequirement.DataRequirementCodeFilterComponent codeFilter : dataReq
-          .getCodeFilter()) {
-        String valueSetRef = codeFilter.getValueSet();
-        if (valueSetRef.startsWith(ValueSetCache.VSAC_CANONICAL_BASE)) {
-          String valueSetId = valueSetRef.split("ValueSet/")[1];
-          logger.info("          VSAC ValueSet reference found: " + valueSetId);
-          this.getValueSetCache().fetchValueSet(valueSetId);
-        }
-      }
-    }
-  }
-
-  /**
-   * Looks for ValueSet references in Questionnaire.item**.answerValueSet entries that point to a VSAC ValueSet by OID and have the cache fetch the
-   * ValueSet.
-   *
-   * @param questionnaire The FHIR Questionnaire resource to look for ValueSet references in.
-   */
-  private void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Questionnaire questionnaire) {
-    findAndFetchRequiredVSACValueSets(questionnaire.getItem());
-  }
-
-  /**
-   * Looks for ValueSet references in a list of Questionnaire item components in the answerValueSet entries that
-   * point to a VSAC ValueSet by OID and have the cache fetch the ValueSet. Also recurses into children item elements.
-   *
-   * @param itemComponents The FHIR Questionnaire Item components to look for ValueSet references in.
-   */
-  private void findAndFetchRequiredVSACValueSets(List<org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent> itemComponents) {
-    for (org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent itemComponent : itemComponents) {
-      // If there is an answerValueSet field we should see if it is a VSAC reference
-      if (itemComponent.hasAnswerValueSet()) {
-        String valueSetRef = itemComponent.getAnswerValueSet();
-        if (valueSetRef.startsWith(ValueSetCache.VSAC_CANONICAL_BASE)) {
-          String valueSetId = valueSetRef.split("ValueSet/")[1];
-          logger.info("          VSAC ValueSet reference found: " + valueSetId);
-          this.getValueSetCache().fetchValueSet(valueSetId);
-        }
-      }
-
-      // Recurse down into child items.
-      if (itemComponent.hasItem()) {
-        findAndFetchRequiredVSACValueSets(itemComponent.getItem());
-      }
-    }
-  }
-
   protected String findFile(List<CdsConnectFile> files, String name, String extension) {
-
-    String regex = name + "-\\d.\\d.\\d" + extension;
+    // regex pattern will ignore the versioning that CDS Connect may add to the filename
+    String regex = name + "-\\d.\\d.\\d(_\\d*)*" + extension;
     Pattern pattern = Pattern.compile(regex);
 
     Optional<String> match = files.stream()
@@ -729,14 +437,4 @@ public class CdsConnectFileStore implements FileStore {
     logger.info("CdsConnectFileStore::findFile(): no files match: " + regex);
     return null;
   }
-
-  //TODO: duplicated from CommonFileStore, should be put in a shared place
-  protected String stripNameFromResourceFilename(String filename, String fhirVersion) {
-    // example filename: Library-R4-HomeOxygenTherapy-prepopulation.json
-    int fhirIndex = filename.toUpperCase().indexOf(fhirVersion.toUpperCase());
-    int startIndex = fhirIndex + fhirVersion.length() + 1;
-    int extensionIndex = filename.toUpperCase().indexOf(".json".toUpperCase());
-    return filename.substring(startIndex, extensionIndex);
-  }
-
 }
