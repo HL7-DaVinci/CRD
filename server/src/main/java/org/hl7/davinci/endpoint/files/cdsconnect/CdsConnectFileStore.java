@@ -141,6 +141,8 @@ public class CdsConnectFileStore extends CommonFileStore {
         continue;
       }
 
+      processFhirFiles(files, topic);
+      /*
       // process the fhir resource files
       // setup the proper FHIR Context for the version of FHIR we are dealing with
       FhirContext r4ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
@@ -151,7 +153,7 @@ public class CdsConnectFileStore extends CommonFileStore {
       IParser stu3parser = stu3ctx.newJsonParser();
       stu3parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
 
-
+      // process all of the files found within the topic/artifact
       for (CdsConnectFile file : files) {
         String path = file.getPath();
         String filename = file.getFilename();
@@ -160,102 +162,35 @@ public class CdsConnectFileStore extends CommonFileStore {
           logger.info("        process: FHIR Resource: " + filename);
 
           String[] parts = filename.split("-");
+          if (parts.length > 2) {
 
-          String resourceType = parts[0];
-          String fhirVersion = parts[1];
-          String name = parts[2];
+            //String resourceType = parts[0];
+            String fhirVersion = parts[1];
+            String name = parts[2];
 
-          byte[] fileContents = file.getCqlBundle();
-          String resourceId = "";
-          String resourceName = "";
-          String resourceUrl = null;
-
-          // parse the the resource file into the correct FHIR resource
-          if (fhirVersion.equalsIgnoreCase("R4")) {
-            IBaseResource baseResource = r4parser.parseResource(new ByteArrayInputStream(fileContents));
-            resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
-            resourceType = resourceType.toLowerCase();
-
-            if (resourceType.equalsIgnoreCase("Questionnaire")) {
-              org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
-              resourceId = questionnaire.getId();
-              resourceName = questionnaire.getName();
-              resourceUrl = questionnaire.getUrl();
-              findAndFetchRequiredVSACValueSets(questionnaire);
-            } else if (resourceType.equalsIgnoreCase("Library")) {
-              org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
-              resourceId = library.getId();
-              resourceName = library.getName();
-              resourceUrl = library.getUrl();
-              // Look at data requirements for value sets
-              findAndFetchRequiredVSACValueSets(library);
-            } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-              org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-              resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
-              resourceName = valueSet.getName();
-              resourceUrl = valueSet.getUrl();
+            IBaseResource baseResource = null;
+            byte[] fileContents = file.getCqlBundle();
+            if (fhirVersion.equalsIgnoreCase("R4")) {
+              baseResource = r4parser.parseResource(new ByteArrayInputStream(fileContents));
+            } else if (fhirVersion.equalsIgnoreCase("STU3")) {
+              baseResource = stu3parser.parseResource(new ByteArrayInputStream(fileContents));
             }
-          } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-            IBaseResource baseResource = stu3parser.parseResource(new ByteArrayInputStream(fileContents));
-            resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
-            resourceType = resourceType.toLowerCase();
 
-            if (resourceType.equalsIgnoreCase("Questionnaire")) {
-              org.hl7.fhir.dstu3.model.Questionnaire questionnaire = (org.hl7.fhir.dstu3.model.Questionnaire) baseResource;
-              resourceId = questionnaire.getId();
-              resourceName = questionnaire.getName();
-            } else if (resourceType.equalsIgnoreCase("Library")) {
-              org.hl7.fhir.dstu3.model.Library library = (org.hl7.fhir.dstu3.model.Library) baseResource;
-              resourceId = library.getId();
-              resourceName = library.getName();
-            } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-              org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
-              resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
-              resourceName = valueSet.getName();
-              resourceUrl = valueSet.getUrl();
-            }
+            processFhirResource(baseResource, path, filename, fhirVersion, topic);
           }
-
-          if (resourceId == null) {
-            // this should never happen, there should always be an ID
-            logger.error("Could not find ID for: " + filename + ", defaulting to '" + filename + "' as the ID");
-            resourceId = filename;
-          }
-
-          if (resourceName == null) {
-            resourceName = stripNameFromResourceFilename(filename, fhirVersion);
-            logger.info(
-                "Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
-          }
-
-          resourceId = resourceId.toLowerCase();
-          resourceName = resourceName.toLowerCase();
-
-          // create a FhirResource and save it back to the table
-          FhirResource fhirResource = new FhirResource();
-          fhirResource.setId(resourceId)
-              .setFhirVersion(fhirVersion)
-              .setResourceType(resourceType)
-              .setTopic(topic)
-              .setFilename(path)
-              .setName(resourceName);
-          if (resourceUrl != null) {
-            fhirResource.setUrl(resourceUrl);
-          }
-          fhirResources.save(fhirResource);
-
         }
       }
+      */
     }
 
-    /*
+    ///*
     //uncomment to print contents of FhirResource table on reload
     // loop through the fhir resources table and print it out
     logger.info("FhirResource: " + FhirResource.getColumnsString());
     for (FhirResource resource : fhirResources.findAll()) {
       logger.info(resource.toString());
     }
-    */
+    //*/
 
     long endTime = System.nanoTime();
     long timeElapsed = endTime - startTime;
@@ -265,6 +200,47 @@ public class CdsConnectFileStore extends CommonFileStore {
       logger.info("CdsConnectFileStore::reload(): completed in " + seconds + " seconds");
     } else {
       logger.warn("CdsConnectFileStore::reload(): failed in " + seconds + " seconds");
+    }
+  }
+
+  private void processFhirFiles(List<CdsConnectFile> files, String topic) {
+
+    // process the fhir resource files
+    // setup the proper FHIR Context for the version of FHIR we are dealing with
+    FhirContext r4ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
+    IParser r4parser = r4ctx.newJsonParser();
+    r4parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
+
+    FhirContext stu3ctx = new org.hl7.davinci.stu3.FhirComponents().getFhirContext();
+    IParser stu3parser = stu3ctx.newJsonParser();
+    stu3parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
+
+    // process all of the files found within the topic/artifact
+    for (CdsConnectFile file : files) {
+      String path = file.getPath();
+      String filename = file.getFilename();
+
+      if (filename.endsWith(".json")) {
+        logger.info("        process: FHIR Resource: " + filename);
+
+        String[] parts = filename.split("-");
+        if (parts.length > 2) {
+
+          //String resourceType = parts[0];
+          String fhirVersion = parts[1];
+          String name = parts[2];
+
+          IBaseResource baseResource = null;
+          byte[] fileContents = file.getCqlBundle();
+          if (fhirVersion.equalsIgnoreCase("R4")) {
+            baseResource = r4parser.parseResource(new ByteArrayInputStream(fileContents));
+          } else if (fhirVersion.equalsIgnoreCase("STU3")) {
+            baseResource = stu3parser.parseResource(new ByteArrayInputStream(fileContents));
+          }
+
+          processFhirResource(baseResource, path, filename, fhirVersion, topic);
+        }
+      }
     }
   }
 

@@ -368,91 +368,102 @@ public abstract class CommonFileStore implements FileStore {
 
             String[] parts = filename.split("-");
             if (parts.length > 2) {
-              String resourceType;// = parts[0];
 
               if (!parts[1].equalsIgnoreCase(fhirVersion)) {
                 logger.warn("CommonFileStore::processFhirFolder() warning: FhirVersion doesn't match!");
                 continue;
               }
 
-              // parse the the resource file into the correct FHIR resource
-              String resourceId = "";
-              String resourceName = "";
-              String resourceUrl = null;
+              // parse the the resource file into the correct FHIR
+              IBaseResource baseResource = null;
               try {
-                IBaseResource baseResource = parser.parseResource(new FileInputStream(resource));
-                resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
-                resourceType = resourceType.toLowerCase();
-
-                if (fhirVersion.equalsIgnoreCase("R4")) {
-                  if (resourceType.equalsIgnoreCase("Questionnaire")) {
-                    org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
-                    resourceId = questionnaire.getId();
-                    resourceName = questionnaire.getName();
-                    resourceUrl = questionnaire.getUrl();
-                    findAndFetchRequiredVSACValueSets(questionnaire);
-                  } else if (resourceType.equalsIgnoreCase("Library")) {
-                    org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
-                    resourceId = library.getId();
-                    resourceName = library.getName();
-                    resourceUrl = library.getUrl();
-                    // Look at data requirements for value sets
-                    findAndFetchRequiredVSACValueSets(library);
-                  } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-                    org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-                    resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
-                    resourceName = valueSet.getName();
-                    resourceUrl = valueSet.getUrl();
-                  }
-                } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-                  if (resourceType.equalsIgnoreCase("Questionnaire")) {
-                    org.hl7.fhir.dstu3.model.Questionnaire questionnaire = (org.hl7.fhir.dstu3.model.Questionnaire) baseResource;
-                    resourceId = questionnaire.getId();
-                    resourceName = questionnaire.getName();
-                  } else if (resourceType.equalsIgnoreCase("Library")) {
-                    org.hl7.fhir.dstu3.model.Library library = (org.hl7.fhir.dstu3.model.Library) baseResource;
-                    resourceId = library.getId();
-                    resourceName = library.getName();
-                  } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-                    org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
-                    resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
-                    resourceName = valueSet.getName();
-                    resourceUrl = valueSet.getUrl();
-                  }
-                }
+                baseResource = parser.parseResource(new FileInputStream(resource));
               } catch (FileNotFoundException e) {
                 logger.warn("could not find file: " + resource.getPath());
                 continue;
               }
 
-              if (resourceId == null) {
-                // this should never happen, there should always be an ID
-                logger.error("Could not find ID for: " + filename + ", defaulting to '" + filename + "' as the ID");
-                resourceId = filename;
-              }
-
-              if (resourceName == null) {
-                resourceName = stripNameFromResourceFilename(filename, fhirVersion);
-                logger.info(
-                    "Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
-              }
-
-              resourceId = resourceId.toLowerCase();
-              resourceName = resourceName.toLowerCase();
-
-              // create a FhirResource and save it back to the table
-              FhirResource fhirResource = new FhirResource();
-              fhirResource.setId(resourceId).setFhirVersion(fhirVersion).setResourceType(resourceType).setTopic(topic)
-                  .setFilename(filename).setName(resourceName);
-              if (resourceUrl != null) {
-                fhirResource.setUrl(resourceUrl);
-              }
-              fhirResources.save(fhirResource);
+              processFhirResource(baseResource, filename, filename, fhirVersion, topic);
             }
           }
         }
       }
     }
+  }
+
+  protected void processFhirResource(IBaseResource baseResource, String path, String filename, String fhirVersion, String topic) {
+    String resourceType;
+    String resourceId = "";
+    String resourceName = "";
+    String resourceUrl = null;
+
+    resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
+    resourceType = resourceType.toLowerCase();
+
+    if (fhirVersion.equalsIgnoreCase("R4")) {
+      if (resourceType.equalsIgnoreCase("Questionnaire")) {
+        org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
+        resourceId = questionnaire.getId();
+        resourceName = questionnaire.getName();
+        resourceUrl = questionnaire.getUrl();
+        findAndFetchRequiredVSACValueSets(questionnaire);
+      } else if (resourceType.equalsIgnoreCase("Library")) {
+        org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
+        resourceId = library.getId();
+        resourceName = library.getName();
+        resourceUrl = library.getUrl();
+        // Look at data requirements for value sets
+        findAndFetchRequiredVSACValueSets(library);
+      } else if (resourceType.equalsIgnoreCase("ValueSet")) {
+        org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
+        resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
+        resourceName = valueSet.getName();
+        resourceUrl = valueSet.getUrl();
+      }
+    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
+      if (resourceType.equalsIgnoreCase("Questionnaire")) {
+        org.hl7.fhir.dstu3.model.Questionnaire questionnaire = (org.hl7.fhir.dstu3.model.Questionnaire) baseResource;
+        resourceId = questionnaire.getId();
+        resourceName = questionnaire.getName();
+      } else if (resourceType.equalsIgnoreCase("Library")) {
+        org.hl7.fhir.dstu3.model.Library library = (org.hl7.fhir.dstu3.model.Library) baseResource;
+        resourceId = library.getId();
+        resourceName = library.getName();
+      } else if (resourceType.equalsIgnoreCase("ValueSet")) {
+        org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
+        resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
+        resourceName = valueSet.getName();
+        resourceUrl = valueSet.getUrl();
+      }
+    }
+
+    if (resourceId == null) {
+      // this should never happen, there should always be an ID
+      logger.error("Could not find ID for: " + filename + ", defaulting to '" + filename + "' as the ID");
+      resourceId = filename;
+    }
+
+    if (resourceName == null) {
+      resourceName = stripNameFromResourceFilename(filename, fhirVersion);
+      logger.info(
+          "Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
+    }
+
+    resourceId = resourceId.toLowerCase();
+    resourceName = resourceName.toLowerCase();
+
+    // create a FhirResource and save it back to the table
+    FhirResource fhirResource = new FhirResource();
+    fhirResource.setId(resourceId)
+        .setFhirVersion(fhirVersion)
+        .setResourceType(resourceType)
+        .setTopic(topic)
+        .setFilename(path)
+        .setName(resourceName);
+    if (resourceUrl != null) {
+      fhirResource.setUrl(resourceUrl);
+    }
+    fhirResources.save(fhirResource);
   }
 
   /**
