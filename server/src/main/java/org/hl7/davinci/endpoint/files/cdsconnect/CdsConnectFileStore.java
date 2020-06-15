@@ -142,55 +142,16 @@ public class CdsConnectFileStore extends CommonFileStore {
       }
 
       processFhirFiles(files, topic);
-      /*
-      // process the fhir resource files
-      // setup the proper FHIR Context for the version of FHIR we are dealing with
-      FhirContext r4ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
-      IParser r4parser = r4ctx.newJsonParser();
-      r4parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
-
-      FhirContext stu3ctx = new org.hl7.davinci.stu3.FhirComponents().getFhirContext();
-      IParser stu3parser = stu3ctx.newJsonParser();
-      stu3parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
-
-      // process all of the files found within the topic/artifact
-      for (CdsConnectFile file : files) {
-        String path = file.getPath();
-        String filename = file.getFilename();
-
-        if (filename.endsWith(".json")) {
-          logger.info("        process: FHIR Resource: " + filename);
-
-          String[] parts = filename.split("-");
-          if (parts.length > 2) {
-
-            //String resourceType = parts[0];
-            String fhirVersion = parts[1];
-            String name = parts[2];
-
-            IBaseResource baseResource = null;
-            byte[] fileContents = file.getCqlBundle();
-            if (fhirVersion.equalsIgnoreCase("R4")) {
-              baseResource = r4parser.parseResource(new ByteArrayInputStream(fileContents));
-            } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-              baseResource = stu3parser.parseResource(new ByteArrayInputStream(fileContents));
-            }
-
-            processFhirResource(baseResource, path, filename, fhirVersion, topic);
-          }
-        }
-      }
-      */
     }
 
-    ///*
+    /*
     //uncomment to print contents of FhirResource table on reload
     // loop through the fhir resources table and print it out
     logger.info("FhirResource: " + FhirResource.getColumnsString());
     for (FhirResource resource : fhirResources.findAll()) {
       logger.info(resource.toString());
     }
-    //*/
+    */
 
     long endTime = System.nanoTime();
     long timeElapsed = endTime - startTime;
@@ -204,7 +165,6 @@ public class CdsConnectFileStore extends CommonFileStore {
   }
 
   private void processFhirFiles(List<CdsConnectFile> files, String topic) {
-
     // process the fhir resource files
     // setup the proper FHIR Context for the version of FHIR we are dealing with
     FhirContext r4ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
