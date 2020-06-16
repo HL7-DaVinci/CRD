@@ -5,6 +5,7 @@ import java.util.List;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.database.RuleMapping;
+import org.hl7.davinci.endpoint.database.FhirResource;
 
 public interface FileStore {
 
@@ -26,5 +27,7 @@ public interface FileStore {
 
   // from RuleFinder
   List<RuleMapping> findRules(CoverageRequirementRuleCriteria criteria);
-  List<RuleMapping> findAll();
+  List<RuleMapping> findAllRules();
+
+  List<FhirResource> findAllFhirResources();
 }

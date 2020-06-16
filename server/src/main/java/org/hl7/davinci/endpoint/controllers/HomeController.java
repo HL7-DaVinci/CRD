@@ -41,6 +41,13 @@ public class HomeController {
     return "index";
   }
 
+  @GetMapping("/fhirview")
+  public String fhirview(Model model, final HttpServletRequest request) {
+    logger.info("HomeController::fhirview(): /fhirview");
+    model.addAttribute("contextPath", request.getContextPath());
+    return "index";
+  }
+
   @GetMapping("/public")
   public String public_key(Model model, final HttpServletRequest request) {
     model.addAttribute("contextPath", request.getContextPath());

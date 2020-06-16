@@ -34,6 +34,9 @@ public class RuleMapping {
   @Column(name = "rule_file", nullable = false)
   private String ruleFile;
 
+  @Column(name = "rule_file_path", nullable = true)
+  private String ruleFilePath;
+
   @Column(name = "node", nullable = true)
   private Integer node;
 
@@ -101,6 +104,15 @@ public class RuleMapping {
 
   public RuleMapping setRuleFile(String ruleFile) {
     this.ruleFile = ruleFile;
+    return this;
+  }
+
+  public String getRuleFilePath() {
+    return ruleFilePath;
+  }
+
+  public RuleMapping setRuleFilePath(String ruleFilePath) {
+    this.ruleFilePath = ruleFilePath;
     return this;
   }
 

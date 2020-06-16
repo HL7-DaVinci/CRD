@@ -237,9 +237,14 @@ public abstract class CommonFileStore implements FileStore {
     return ruleFinder.findRules(criteria);
   }
 
-  public List<RuleMapping> findAll() {
-    logger.info("CommonFileStore::findAll()");
+  public List<RuleMapping> findAllRules() {
+    logger.info("CommonFileStore::findAllRules()");
     return ruleFinder.findAll();
+  }
+
+  public List<FhirResource> findAllFhirResources() {
+    logger.info("CommonFileStore::findAllFhirResources()");
+    return fhirResources.findAll();
   }
 
   protected void reloadFromFolder(String path) throws IOException {
@@ -458,7 +463,8 @@ public abstract class CommonFileStore implements FileStore {
         .setFhirVersion(fhirVersion)
         .setResourceType(resourceType)
         .setTopic(topic)
-        .setFilename(path)
+        .setFilename(filename)
+        .setPath(path)
         .setName(resourceName);
     if (resourceUrl != null) {
       fhirResource.setUrl(resourceUrl);

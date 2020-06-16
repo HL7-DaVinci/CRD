@@ -83,6 +83,7 @@ public class CdsConnectFileStore extends CommonFileStore {
 
           String mainCqlLibraryName = FileStore.FHIR_HELPERS_FILENAME;
           String mainCqlFile = findFile(files, mainCqlLibraryName, FileStore.CQL_EXTENSION);
+          String mainCqlFilename = FilenameUtils.getName(mainCqlFile);
 
           for (String fhirVersion : metadata.getFhirVersions()) {
 
@@ -95,7 +96,8 @@ public class CdsConnectFileStore extends CommonFileStore {
                 .setCode("")
                 .setFhirVersion(fhirVersion)
                 .setTopic(metadata.getTopic())
-                .setRuleFile(mainCqlFile)
+                .setRuleFile(mainCqlFilename)
+                .setRuleFilePath(mainCqlFile)
                 .setNode(artifact.getId());
             lookupTable.save(ruleMappingEntry);
           }
@@ -105,6 +107,7 @@ public class CdsConnectFileStore extends CommonFileStore {
 
           String mainCqlLibraryName = metadata.getTopic() + "Rule";
           String mainCqlFile = findFile(files, mainCqlLibraryName, FileStore.CQL_EXTENSION);
+          String mainCqlFilename = FilenameUtils.getName(mainCqlFile);
 
           if (mainCqlFile == null) {
             logger.warn("CdsConnectFileStore::reloadFromFolder(): failed to find main CQL file for topic: "
@@ -127,7 +130,8 @@ public class CdsConnectFileStore extends CommonFileStore {
                         .setCode(code)
                         .setFhirVersion(fhirVersion)
                         .setTopic(metadata.getTopic())
-                        .setRuleFile(mainCqlFile)
+                        .setRuleFile(mainCqlFilename)
+                        .setRuleFilePath(mainCqlFile)
                         .setNode(artifact.getId());
                     lookupTable.save(ruleMappingEntry);
                   }
@@ -221,7 +225,7 @@ public class CdsConnectFileStore extends CommonFileStore {
     RuleMapping rule = rules.get(0);
 
     // find the main CQL file
-    CdsConnectFile file = new CdsConnectFile(connection, rule.getRuleFile());
+    CdsConnectFile file = new CdsConnectFile(connection, rule.getRuleFilePath());
     cqlFiles.put(file.getFilename(), file.getCqlBundle());
     logger.info("CdsConnectFileStore::getCqlRule(): added mainCqlFile: " + file.getFilename());
 
@@ -236,7 +240,7 @@ public class CdsConnectFileStore extends CommonFileStore {
 
     // get the matching artifact for the node
     // find the CQL helper file
-    CdsConnectFile sharedFile = new CdsConnectFile(connection, sharedRule.getRuleFile());
+    CdsConnectFile sharedFile = new CdsConnectFile(connection, sharedRule.getRuleFilePath());
     cqlFiles.put(sharedFile.getFilename(), sharedFile.getCqlBundle());
     logger.info("CdsConnectFileStore::getCqlRule(): added FHIRHelpers: " + sharedFile.getFilename());
 
@@ -335,7 +339,7 @@ public class CdsConnectFileStore extends CommonFileStore {
         }
       } else {
 
-        CdsConnectFile file = new CdsConnectFile(connection, fhirResource.getFilename());
+        CdsConnectFile file = new CdsConnectFile(connection, fhirResource.getPath());
         fileData = file.getCqlBundle();
         fileString = new String(fileData);
       }

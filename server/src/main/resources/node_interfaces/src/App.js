@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import RequestLog from './containers/RequestLog';
 import KeyInterface from './containers/KeyInterface';
 import DataTable from './components/DataTable';
+import FhirTable from './components/FhirTable';
 import HomePage from './components/HomePage';
 import {withRouter} from 'react-router-dom';
 import {getBaseUrl} from './Utils';
@@ -30,6 +31,7 @@ class App extends Component {
       const publicUrl = baseUrl + 'public';
       const requestUrl = baseUrl + 'requests';
       const dataUrl = baseUrl + 'data';
+      const fhirUrl = baseUrl + 'fhirview';
     return (
       <div>
       <nav className="navbar navbar-fixed-top headerEntry">
@@ -43,6 +45,8 @@ class App extends Component {
           <a className={"navbar-brand headerLink " +
             (this.props.location.pathname==dataUrl?"active":"")} href={dataUrl}>Rules</a>
           <a className={"navbar-brand headerLink " +
+            (this.props.location.pathname==fhirUrl?"active":"")} href={fhirUrl}>FHIR</a>
+          <a className={"navbar-brand headerLink " +
             (this.props.location.pathname==requestUrl?"active":"")} href={requestUrl}>Log</a>
       </div>
       </nav>
@@ -50,6 +54,7 @@ class App extends Component {
         <Route path={publicUrl} component={publicKey}/>
         <Route path={requestUrl} component={RequestLog}/>
         <Route path={dataUrl} component={DataTable}/>
+        <Route path={fhirUrl} component={FhirTable}/>
 
       </div>
     );
