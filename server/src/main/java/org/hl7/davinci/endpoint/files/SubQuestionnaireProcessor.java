@@ -114,26 +114,32 @@ public class SubQuestionnaireProcessor extends FhirResourceProcessor<Questionnai
       CanonicalType value = e.castToCanonical(e.getValue());
       logger.info("SubQuestionnaireProcessor::parseItem(): Looking for SubQuestionnaire " + value);
       FileResource subFileResource = fileStore.getFhirResourceById("R4", "questionnaire", value.asStringValue(), baseUrl, false);
-      Questionnaire subQuestionnaire = (Questionnaire) this.parseFhirFileResource(subFileResource);
+      if (subFileResource != null) {
+        Questionnaire subQuestionnaire = (Questionnaire) this.parseFhirFileResource(subFileResource);
 
-      if (subQuestionnaire != null) {
-        // merge extensions
-        for (Extension subExtension : subQuestionnaire.getExtension()) {
-          if (extensionList.stream().noneMatch(ext -> ext.equalsDeep(subExtension))) {
-            extensionList.add(subExtension);
+        if (subQuestionnaire != null) {
+          // merge extensions
+          for (Extension subExtension : subQuestionnaire.getExtension()) {
+            if (extensionList.stream().noneMatch(ext -> ext.equalsDeep(subExtension))) {
+              extensionList.add(subExtension);
+            }
           }
+
+          // merge contained resources
+          for (org.hl7.fhir.r4.model.Resource r : subQuestionnaire.getContained()) {
+            containedList.put(r.getId(), r);
+          }
+
+          return subQuestionnaire.getItem();
+
+        } else {
+          // SubQuestionnaire could not be loaded
+          logger.warn("SubQuestionnaireProcessor::parseItem(): Could not load SubQuestionnaire " + value.asStringValue());
+          return Arrays.asList(item);
         }
-
-        // merge contained resources
-        for (org.hl7.fhir.r4.model.Resource r : subQuestionnaire.getContained()) {
-          containedList.put(r.getId(), r);
-        }
-
-        return subQuestionnaire.getItem();
-
       } else {
-        // SubQuestionnaire was not found
-        logger.warn("SubQuestionnaireProcessor::parseItem(): Could not find " + value);
+        // SubQuestionnaire could not be found
+        logger.warn("SubQuestionnaireProcessor::parseItem(): Could not find SubQuestionnaire " + value.asStringValue());
         return Arrays.asList(item);
       }
     }
