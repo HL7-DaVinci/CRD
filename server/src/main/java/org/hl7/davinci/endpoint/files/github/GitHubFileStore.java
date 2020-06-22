@@ -122,7 +122,7 @@ public class GitHubFileStore extends CommonFileStore {
       if (!topicName.contains(".")) {
 
         // skip the shared folder for now...
-        if (topicName.equalsIgnoreCase("Shared")) {
+        if (topicName.equalsIgnoreCase(FileStore.SHARED_TOPIC)) {
           logger.info("  GitHubFileStore::reloadFromGitHub() found Shared files");
 
           for (String fhirFolder : connection.getDirectory(topicName)) {
@@ -157,7 +157,7 @@ public class GitHubFileStore extends CommonFileStore {
                       for (String fhirVersion : metadata.getFhirVersions()) {
 
                         String mainCqlLibraryName = metadata.getTopic() + "Rule";
-                        String mainCqlFile = findGitHubFile(metadata.getTopic(), fhirVersion, mainCqlLibraryName, ".cql");
+                        String mainCqlFile = findGitHubFile(metadata.getTopic(), fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
                         if (mainCqlFile == null) {
                           logger.warn("GitHubFileStore::reloadFromGitHub(): failed to find main CQL file for topic: " + metadata.getTopic());
                         } else {
@@ -310,7 +310,7 @@ public class GitHubFileStore extends CommonFileStore {
     HashMap<String, byte[]> cqlFiles = new HashMap<>();
 
     String mainCqlLibraryName = topic + "Rule";
-    String mainCqlFile = findGitHubFile(topic, fhirVersion, mainCqlLibraryName, ".cql");
+    String mainCqlFile = findGitHubFile(topic, fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
     if (mainCqlFile == null) {
       logger.warn("GitHubFileStore::getCqlRule(): failed to find main CQL file");
     } else {
@@ -323,7 +323,7 @@ public class GitHubFileStore extends CommonFileStore {
       }
     }
 
-    String helperCqlFile = findGitHubFile("Shared", fhirVersion, "FHIRHelpers", ".cql");
+    String helperCqlFile = findGitHubFile(FileStore.SHARED_TOPIC, fhirVersion, FileStore.FHIR_HELPERS_FILENAME, FileStore.CQL_EXTENSION);
     if (helperCqlFile == null) {
       logger.warn("GitHubFileStore::getCqlRule(): failed to find FHIR helper CQL file");
     } else {

@@ -1,6 +1,6 @@
-package org.hl7.davinci.endpoint.cdsconnect;
+package org.hl7.davinci.endpoint.files.cdsconnect;
 
-import org.hl7.ShortNameMaps;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,16 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-public class CdsConnectRuleList {
+public class CdsConnectArtifactList {
 
   static final Logger logger =
-      LoggerFactory.getLogger(CdsConnectRuleList.class);
+      LoggerFactory.getLogger(CdsConnectArtifactList.class);
 
   CdsConnectConnection connection;
   JsonArray jsonArray;
 
-  public CdsConnectRuleList(CdsConnectConnection connection, String data) {
+  public CdsConnectArtifactList(CdsConnectConnection connection, String data) {
     this.connection = connection;
     this.jsonArray = new JsonParser().parse(data).getAsJsonArray();
 

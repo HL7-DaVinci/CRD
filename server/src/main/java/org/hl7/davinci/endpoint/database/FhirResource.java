@@ -1,5 +1,7 @@
 package org.hl7.davinci.endpoint.database;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.persistence.*;
 
 @Entity
@@ -28,8 +30,15 @@ public class FhirResource {
   @Column(name = "filename", nullable = false)
   private String filename;
 
+  @Column(name = "path", nullable = true)
+  private String path;
+
   @Column(name = "name", nullable = false)
   private String name;
+
+  private String link = "";
+
+  private String readableTopic = "";
 
   public String getId() {
     return id;
@@ -83,6 +92,13 @@ public class FhirResource {
     return this;
   }
 
+  public String getPath() { return path; }
+
+  public FhirResource setPath(String path) {
+    this.path = path;
+    return this;
+  }
+
   public String getName() { return name; }
 
   public FhirResource setName(String name) {
@@ -96,5 +112,32 @@ public class FhirResource {
 
   public String toString() {
     return id + " / " + resourceType + " / " + fhirVersion + " / " + topic + " / " + filename + " / " + name + " / " + ((url != null) ? url : "null");
+  }
+
+  public String getLink() {
+    if (link.isEmpty()) {
+      return "/fhir/" + fhirVersion + "/" + id;
+    } else {
+      return link;
+    }
+  }
+
+  public FhirResource setLink(String link) {
+    this.link = link;
+    return this;
+  }
+
+  public String getReadableTopic() {
+    if (readableTopic.isEmpty()) {
+      // add a space between the pieces of the CamelCase topic (Camel Case)
+      return StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(topic), ' ');
+    } else {
+      return readableTopic;
+    }
+  }
+
+  public FhirResource setReadableTopic(String readableTopic) {
+    this.readableTopic = readableTopic;
+    return this;
   }
 }

@@ -164,6 +164,30 @@ To generate a GitHub token, follow these steps and place your token into the tok
 8. Press “Geneate token”
 9. There will be a token displayed that you must copy and save for use with the application, I don’t believe there is any way to have the token shown again. If you lose it you will have to revoke the other one and create another.
 
+
+#### CDS Connect
+
+To access files directly on CDS Connect, the application.yml configuration file must be configured with the proper credentials.
+
+    application.yml:
+    	{
+    		spring:
+    			profiles:
+    				active: cdsConnect
+    		cdsConnect:
+	    		url: https://cds.ahrq.gov
+    			username: user
+    			password: pass
+    	}
+
+##### Topic / Artifact Configuration
+
+Each of the Rules must be stored in their own topic. The name of the artifact shall be the name of the topic. The payer must be configured with the code and codesystem within the CRD section must also be configured with the topic name. The TopicMetadata must be pasted into the "Artifact Representation" Inclusions box. First set the editor to "source" so most formatting will be removed. The files and resources will be attached to the "Logic Files" within the "Artifact Representation". All common, shared files must be attached to another artifact named "Shared". It shall have simple TopicMetadata in the Inclusions field as simply as:
+
+	{ "topic": shared", "fhirVersions": [ "R4" ] }
+	
+Files must be named as described in the documentation for the [CDS-Library](https://github.com/HL7-DaVinci/CDS-Library).
+
 ## Security
 
 The server is protected with JSON Web Tokens (JWT), an industry standard for authentication. Tokens are generated in the `request-generator` using SHA256 for hashing and RSA-2048 encryption. The tokens DO NOT encrypt the data that is sent to the server, they simply provide a signature that can be verified using a public key. The tokens are only used to verify that the request comes from a trusted source.

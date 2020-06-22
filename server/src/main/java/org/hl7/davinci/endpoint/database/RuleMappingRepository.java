@@ -24,4 +24,12 @@ public interface RuleMappingRepository extends CrudRepository<RuleMapping, Long>
   List<RuleMapping> findRules(
       @Param("criteria") CoverageRequirementRuleCriteria criteria
   );
+
+  @Query(
+      "SELECT r FROM RuleMapping r WHERE "
+          + "r.topic = :#{#topic} "
+          + "and r.fhirVersion = :#{#fhirVersion}")
+  List<RuleMapping> findRules(
+      @Param("topic") String topic, @Param("fhirVersion") String fhirVersion
+  );
 }

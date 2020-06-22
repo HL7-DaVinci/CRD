@@ -1,15 +1,20 @@
-package org.hl7.davinci.endpoint.cdsconnect;
+package org.hl7.davinci.endpoint.files.cdsconnect;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 
 public class CdsConnectArtifact {
+
+  static final Logger logger = LoggerFactory.getLogger(CdsConnectArtifact.class);
 
   private CdsConnectConnection connection;
   private JsonObject jsonArtifactObject;
@@ -60,5 +65,22 @@ public class CdsConnectArtifact {
 
   public Integer getId() {
     return meta.get("node_id").getAsInt();
+  }
+
+  public String getTopicMetadata() {
+    try {
+      String topicMetadata = jsonArtifactObject.get("artifact_representation").getAsJsonObject().get("inclusions").getAsString();
+
+      // remove the <p> and </p> tags
+      topicMetadata = topicMetadata.replaceAll("<p>", "");
+      topicMetadata = topicMetadata.replaceAll("</p>", "");
+
+      return topicMetadata;
+
+    } catch (Exception e) {
+      logger.warn("failed to find TopicMetadata");
+      return "";
+    }
+
   }
 }

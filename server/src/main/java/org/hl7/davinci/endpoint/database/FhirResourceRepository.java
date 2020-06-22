@@ -40,4 +40,9 @@ public interface FhirResourceRepository extends CrudRepository<FhirResource, Lon
   List<FhirResource> findByUrl(
       @Param("criteria") FhirResourceCriteria criteria
   );
+
+  @Query(
+      "SELECT r FROM FhirResource r "
+          + "order by r.topic, r.id")
+  List<FhirResource> findAll();
 }
