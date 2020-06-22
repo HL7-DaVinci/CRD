@@ -48,12 +48,14 @@ public abstract class CommonFileStore implements FileStore {
   private ValueSetCache valueSetCache;
 
   private QuestionnaireValueSetProcessor questionnaireValueSetProcessor;
+  private SubQuestionnaireProcessor subQuestionnaireProcessor;
 
   private FhirContext ctx;
   private IParser parser;
 
   public CommonFileStore() {
     this.questionnaireValueSetProcessor = new QuestionnaireValueSetProcessor();
+    this.subQuestionnaireProcessor = new SubQuestionnaireProcessor();
     this.ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
     this.parser = ctx.newJsonParser().setPrettyPrint(true);
   }
@@ -94,132 +96,12 @@ public abstract class CommonFileStore implements FileStore {
     // returning.
     // We do not handle nested sub-questionnaire at this time.
     if (isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
-      String output = assembleQuestionnaire(resource, fhirVersion, baseUrl, isRoot);
-
-      if (output != null) {
-        byte[] fileData = output.getBytes(Charset.defaultCharset());
-        resource.setResource(new ByteArrayResource(fileData));
-      }
-
-      return this.questionnaireValueSetProcessor.processResource(resource, this, baseUrl);
+      FileResource processedResource = this.subQuestionnaireProcessor.processResource(resource, this, baseUrl);
+      processedResource = this.questionnaireValueSetProcessor.processResource(processedResource, this, baseUrl);
+      return processedResource;
     }
 
     return resource;
-  }
-
-  protected String assembleQuestionnaire(FileResource fileResource, String fhirVersion, String baseUrl, boolean isRoot) {
-    logger.info("CommonFileStore::assembleQuestionnaire(): " + fileResource.getFilename());
-
-    this.parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
-
-    try {
-      InputStream stream = fileResource.getResource().getInputStream();
-
-      if (stream == null)
-        return null;
-
-      IBaseResource baseResource = parser.parseResource(stream);
-
-      if (baseResource == null)
-        return null;
-
-      Questionnaire q = (Questionnaire) baseResource;
-
-      List<Extension> extensionList = q.getExtension();
-      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList = new Hashtable<String, org.hl7.fhir.r4.model.Resource>();
-
-      for (org.hl7.fhir.r4.model.Resource r : q.getContained()) {
-        containedList.put(r.getId(), r);
-      }
-
-      int containedSize = containedList.size();
-
-      parseItemList(q.getItem(), fhirVersion, baseUrl, containedList, extensionList);
-      
-      if (containedSize != containedList.size())
-        q.setContained(new ArrayList<org.hl7.fhir.r4.model.Resource>(containedList.values()));
-
-      String output = this.parser.encodeResourceToString(q);
-      return output;
-    } catch (IOException ex) {
-      return null;
-    }
-  }
-
-  private void parseItemList(List<QuestionnaireItemComponent> itemList, String fhirVersion, String baseUrl,
-      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
-    if (itemList == null || itemList.size() == 0)
-      return;
-
-    for (int i = 0; i < itemList.size();) {
-      List<QuestionnaireItemComponent> returnedItemList = 
-        parseItem(itemList.get(i), fhirVersion, baseUrl, containedList, extensionList);
-      
-      if (returnedItemList.size() == 0) {
-        continue;
-      }
-
-      if (returnedItemList.size() == 1) {
-        itemList.set(i, returnedItemList.get(0));
-      }
-      else {
-        itemList.remove(i);
-        itemList.addAll(i, returnedItemList);
-      }
-
-      i += returnedItemList.size();
-    }
-  }
-
-  private List<QuestionnaireItemComponent> parseItem(QuestionnaireItemComponent item, String fhirVersion, String baseUrl,
-      Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
-    // find if item has an extension is sub-questionnaire
-    Extension e = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire");
-
-    if (e != null) {
-      // read sub questionnaire from file
-      CanonicalType value = e.castToCanonical(e.getValue());
-      FileResource subFileResource = getFhirResourceById(fhirVersion, "questionnaire", value.asStringValue(), baseUrl,
-          false);
-
-      try {
-        InputStream stream = subFileResource.getResource().getInputStream();
-
-        if (stream == null)
-          return Arrays.asList(item);
-
-        IBaseResource baseResource = parser.parseResource(stream);
-
-        if (baseResource == null)
-          return Arrays.asList(item);
-
-        Questionnaire subQuestionnaire = (Questionnaire) baseResource;
-
-        // merge extensions
-        for (Extension subExtension : subQuestionnaire.getExtension()) {
-          if (extensionList.stream().noneMatch(ext -> ext.equalsDeep(subExtension))) {
-            extensionList.add(subExtension);
-          }
-        }
-
-
-
-        // merge contained resources
-        for (org.hl7.fhir.r4.model.Resource r : subQuestionnaire.getContained()) {
-          containedList.put(r.getId(), r);
-        }
-
-        return subQuestionnaire.getItem();
-      } catch (IOException ex) {
-        // handle if subQuestionniare does not exist
-        return Arrays.asList(item);
-      }
-    }
-     
-    // parser sub-items
-    this.parseItemList(item.getItem(), fhirVersion, baseUrl, containedList, extensionList);
-
-    return Arrays.asList(item);
   }
 
   public FileResource getFhirResourceByUrl(String fhirVersion, String resourceType, String url, String baseUrl) {
