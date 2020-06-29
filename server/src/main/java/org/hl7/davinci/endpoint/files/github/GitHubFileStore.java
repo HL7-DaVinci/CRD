@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.ShortNameMaps;
+import org.hl7.davinci.SuppressParserErrorHandler;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
@@ -379,56 +380,38 @@ public class GitHubFileStore extends CommonFileStore {
   }
 
 
-  protected FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl) {
-    byte[] fileData = null;
+  protected String readFhirResourceFromFile(FhirResource fhirResource, String fhirVersion) {
+    String fileString = null;
+    String filePath;
+    InputStream inputStream;
 
-    if (fhirResourceList.size() > 0) {
-      // just return the first matched resource
-      FhirResource fhirResource = fhirResourceList.get(0);
-
-      String filePath;
-      InputStream inputStream;
-
-      // If the topic indicates it's actually from the ValueSet cache. Grab file input stream from there.
-      if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
-        filePath = config.getValueSetCachePath() + fhirResource.getFilename();
-        try {
-          inputStream = new FileInputStream(filePath);
-        } catch (FileNotFoundException e) {
-          logger.warn("GitHubFileStore::readFhirResourceFromFile() Could not find ValueSet in cache folder.");
-          return null;
-        }
-      } else {
-        filePath = fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
-        inputStream = connection.getFile(filePath);
-      }
-
-      if (inputStream == null) {
-        logger.warn("GitHubFileStore::readFhirResourceFromFile() Error getting file");
-        return null;
-      }
-
+    // If the topic indicates it's actually from the ValueSet cache. Grab file input stream from there.
+    if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
+      filePath = config.getValueSetCachePath() + fhirResource.getFilename();
       try {
-        // replace <server-path> with the proper path
-        String partialUrl = baseUrl + "fhir/" + fhirVersion + "/";
-
-        String fileString = IOUtils.toString(inputStream, Charset.defaultCharset());
-        fileString = fileString.replace("<server-path>", partialUrl);
-        fileData = fileString.getBytes(Charset.defaultCharset());
-
-        FileResource fileResource = new FileResource();
-        fileResource.setFilename(fhirResource.getFilename());
-        fileResource.setResource(new ByteArrayResource(fileData));
-        return fileResource;
-
-      } catch (IOException e) {
-        logger.warn("GitHubFileStore::getFhirResourceByTopic() failed to get file: " + e.getMessage());
+        inputStream = new FileInputStream(filePath);
+      } catch (FileNotFoundException e) {
+        logger.warn("GitHubFileStore::readFhirResourceFromFile() Could not find ValueSet in cache folder.");
         return null;
       }
-
     } else {
+      filePath = fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+      inputStream = connection.getFile(filePath);
+    }
+
+    if (inputStream == null) {
+      logger.warn("GitHubFileStore::readFhirResourceFromFile() Error getting file");
       return null;
     }
+
+    try {
+      fileString = IOUtils.toString(inputStream, Charset.defaultCharset());
+    } catch (IOException e) {
+      logger.warn("GitHubFileStore::getFhirResourceByTopic() failed to get file: " + e.getMessage());
+      return null;
+    }
+
+    return fileString;
   }
 
   private String findGitHubFile(String topic, String fhirVersion, String name, String extension) {

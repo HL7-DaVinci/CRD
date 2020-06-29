@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.hl7.davinci.PatientInfo;
-import org.hl7.davinci.PractitionerRoleInfo;
-import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.SharedUtilities;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import org.hl7.davinci.*;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Address.AddressUse;
@@ -15,12 +15,16 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.DomainResource;
+import org.hl7.fhir.r4.model.Library;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.PractitionerRole;
+import org.hl7.fhir.r4.model.Questionnaire;
+import org.hl7.fhir.r4.model.QuestionnaireResponse;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ValueSet;
 
 public class Utilities {
   /**
@@ -185,6 +189,49 @@ public class Utilities {
       }
     }
     return payors;
+  }
+
+  public static IBaseResource parseFhirData(String resourceString) {
+    FhirContext ctx = new FhirComponents().getFhirContext();
+    IParser parser = ctx.newJsonParser();
+    parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
+    return parser.parseResource(resourceString);
+  }
+
+  public static FhirResourceInfo getFhirResourceInfo(IBaseResource baseResource) {
+    String resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
+    resourceType = resourceType.toLowerCase();
+    String resourceId = null;
+    String resourceName = null;
+    String resourceUrl = null;
+
+    if (resourceType.equalsIgnoreCase("Questionnaire")) {
+      Questionnaire questionnaire = (Questionnaire) baseResource;
+      resourceId = questionnaire.getId();
+      resourceName = questionnaire.getName();
+      resourceUrl = questionnaire.getUrl();
+    } else if (resourceType.equalsIgnoreCase("Library")) {
+      Library library = (Library) baseResource;
+      resourceId = library.getId();
+      resourceName = library.getName();
+      resourceUrl = library.getUrl();
+    } else if (resourceType.equalsIgnoreCase("ValueSet")) {
+      ValueSet valueSet = (ValueSet) baseResource;
+      resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
+      resourceName = valueSet.getName();
+      resourceUrl = valueSet.getUrl();
+    } else if (resourceType.equalsIgnoreCase("QuestionnaireResponse")) {
+      QuestionnaireResponse questionnaireResponse = (QuestionnaireResponse) baseResource;
+      resourceId = questionnaireResponse.getId();
+    }
+
+    FhirResourceInfo fhirResourceInfo = new FhirResourceInfo();
+    fhirResourceInfo.setType(resourceType).setId(resourceId).setName(resourceName).setUrl(resourceUrl);
+    return fhirResourceInfo;
+  }
+
+  public static FhirResourceInfo getFhirResourceInfo(String resourceString) {
+    return getFhirResourceInfo(parseFhirData(resourceString));
   }
 
 }

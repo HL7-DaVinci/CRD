@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.files;
+package org.hl7.davinci;
 
 import ca.uhn.fhir.parser.LenientErrorHandler;
 

@@ -4,29 +4,35 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.hl7.davinci.PatientInfo;
-import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.SharedUtilities;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import org.hl7.davinci.*;
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Coverage;
+import org.hl7.fhir.dstu3.model.Library;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.dstu3.model.Questionnaire;
+import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
+import org.hl7.fhir.dstu3.model.ValueSet;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 
 public class Utilities {
   /**
    * Change a fhir bundle into a hashmap keyed by resources type, where the value is a list of
    * resources of that type.
+   *
    * @return a hashmap of a ResourceType as key, and a List of Resources of that type
    */
   public static HashMap<String, List<Resource>> bundleAsHashmap(Bundle bundle) {
     HashMap<String, List<Resource>> bundleMap = new HashMap<>();
-    for (BundleEntryComponent bec: bundle.getEntry()) {
+    for (BundleEntryComponent bec : bundle.getEntry()) {
       if (!bec.hasResource()) {
         continue;
       }
@@ -44,9 +50,10 @@ public class Utilities {
   /**
    * Gets a list of the specified type of resources from a bundle. For example, since multiple
    * device requests could be in a bundle along with other elements, this can provide a list of them.
-   * @param type The class of the resources you want.
+   *
+   * @param type   The class of the resources you want.
    * @param bundle The bundle that might have some the resources you want.
-   * @param <T> The class of the resource you want.
+   * @param <T>    The class of the resource you want.
    * @return A list of resources of desired type extracted from the bundle.
    */
   public static <T extends Resource> List<T> getResourcesOfTypeFromBundle(
@@ -55,7 +62,7 @@ public class Utilities {
     if (bundle == null || bundle.getEntry() == null) {
       return retList;
     }
-    for (BundleEntryComponent bec: bundle.getEntry()) {
+    for (BundleEntryComponent bec : bundle.getEntry()) {
       if (!bec.hasResource()) {
         continue;
       }
@@ -70,6 +77,7 @@ public class Utilities {
   /**
    * Returns the first match for an address in a list of addresses that is a
    * physical home.
+   *
    * @param addresses the list of addresses.
    * @return the first physical home in the list
    */
@@ -86,6 +94,7 @@ public class Utilities {
 
   /**
    * Acquires all the needed information from the patient resource.
+   *
    * @param patient the patient to get info from
    * @return a PatientInfo object containing the age/gender/address of the patient
    * @throws RequestIncompleteException thrown if information is missing.
@@ -125,13 +134,56 @@ public class Utilities {
 
   public static List<Organization> getPayors(List<Coverage> coverages) {
     List<Organization> payors = new ArrayList<>();
-    for (Coverage coverage: coverages){
-      for (Reference ref: coverage.getPayor()){
+    for (Coverage coverage : coverages) {
+      for (Reference ref : coverage.getPayor()) {
         Organization organization = (Organization) ref.getResource();
         payors.add(organization);
       }
     }
     return payors;
+  }
+
+  public static IBaseResource parseFhirData(String resourceString) {
+    FhirContext ctx = new FhirComponents().getFhirContext();
+    IParser parser = ctx.newJsonParser();
+    parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
+    return parser.parseResource(resourceString);
+  }
+
+  public static FhirResourceInfo getFhirResourceInfo(IBaseResource baseResource) {
+    String resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
+    resourceType = resourceType.toLowerCase();
+    String resourceId = null;
+    String resourceName = null;
+    String resourceUrl = null;
+
+    if (resourceType.equalsIgnoreCase("Questionnaire")) {
+      Questionnaire questionnaire = (Questionnaire) baseResource;
+      resourceId = questionnaire.getId();
+      resourceName = questionnaire.getName();
+      resourceUrl = questionnaire.getUrl();
+    } else if (resourceType.equalsIgnoreCase("Library")) {
+      Library library = (Library) baseResource;
+      resourceId = library.getId();
+      resourceName = library.getName();
+      resourceUrl = library.getUrl();
+    } else if (resourceType.equalsIgnoreCase("ValueSet")) {
+      ValueSet valueSet = (ValueSet) baseResource;
+      resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
+      resourceName = valueSet.getName();
+      resourceUrl = valueSet.getUrl();
+    } else if (resourceType.equalsIgnoreCase("QuestionnaireResponse")) {
+      QuestionnaireResponse questionnaireResponse = (QuestionnaireResponse) baseResource;
+      resourceId = questionnaireResponse.getId();
+    }
+
+    FhirResourceInfo fhirResourceInfo = new FhirResourceInfo();
+    fhirResourceInfo.setType(resourceType).setId(resourceId).setName(resourceName).setUrl(resourceUrl);
+    return fhirResourceInfo;
+  }
+
+  public static FhirResourceInfo getFhirResourceInfo(String resourceString) {
+    return getFhirResourceInfo(parseFhirData(resourceString));
   }
 
 }

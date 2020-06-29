@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.ShortNameMaps;
+import org.hl7.davinci.SuppressParserErrorHandler;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
@@ -310,54 +311,34 @@ public class CdsConnectFileStore extends CommonFileStore {
     return fileResource;
   }
 
-  protected FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl) {
-    byte[] fileData = null;
+  protected String readFhirResourceFromFile(FhirResource fhirResource, String fhirVersion) {
+    String fileString = null;
+    String filePath;
+    InputStream inputStream;
 
-    if (fhirResourceList.size() > 0) {
-      // just return the first matched resource
-      FhirResource fhirResource = fhirResourceList.get(0);
+    // If the topic indicates it's actually from the ValueSet cache. Grab file input stream from there.
+    if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
+      filePath = config.getValueSetCachePath() + fhirResource.getFilename();
+      try {
+        inputStream = new FileInputStream(filePath);
 
-      String filePath;
-      InputStream inputStream;
-      String fileString;
-
-      // If the topic indicates it's actually from the ValueSet cache. Grab file input stream from there.
-      if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
-        filePath = config.getValueSetCachePath() + fhirResource.getFilename();
         try {
-          inputStream = new FileInputStream(filePath);
-
-          try {
-            fileString = IOUtils.toString(inputStream, Charset.defaultCharset());
-          } catch (IOException e) {
-            logger.warn("CdsConnectFileStore::getFhirResourceByTopic() failed to get file: " + e.getMessage());
-            return null;
-          }
-        } catch (FileNotFoundException e) {
-          logger.warn("CdsConnectFileStore::readFhirResourceFromFile() Could not find ValueSet in cache folder.");
+          fileString = IOUtils.toString(inputStream, Charset.defaultCharset());
+        } catch (IOException e) {
+          logger.warn("CdsConnectFileStore::getFhirResourceByTopic() failed to get file: " + e.getMessage());
           return null;
         }
-      } else {
-
-        CdsConnectFile file = new CdsConnectFile(connection, fhirResource.getPath());
-        fileData = file.getCqlBundle();
-        fileString = new String(fileData);
+      } catch (FileNotFoundException e) {
+        logger.warn("CdsConnectFileStore::readFhirResourceFromFile() Could not find ValueSet in cache folder.");
+        return null;
       }
-
-      // replace <server-path> with the proper path
-      String partialUrl = baseUrl + "fhir/" + fhirVersion + "/";
-
-      fileString = fileString.replace("<server-path>", partialUrl);
-      fileData = fileString.getBytes(Charset.defaultCharset());
-
-      FileResource fileResource = new FileResource();
-      fileResource.setFilename(fhirResource.getFilename());
-      fileResource.setResource(new ByteArrayResource(fileData));
-      return fileResource;
-
     } else {
-      return null;
+      CdsConnectFile file = new CdsConnectFile(connection, fhirResource.getPath());
+      byte[] fileData = file.getCqlBundle();
+      fileString = new String(fileData);
     }
+
+    return fileString;
   }
 
   protected String findFile(List<CdsConnectFile> files, String name, String extension) {
