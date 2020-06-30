@@ -281,7 +281,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
       }
     } catch (Exception e) {
-      logger.info("-- No Lab questionnaire defined");
+      logger.info("-- No PA Request questionnaire defined");
     }
 
     return results;
