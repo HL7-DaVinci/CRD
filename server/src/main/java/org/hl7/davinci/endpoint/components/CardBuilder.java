@@ -25,6 +25,7 @@ public class CardBuilder {
     private String questionnaireFaceToFaceUri;
     private String questionnaireLabUri;
     private String questionnaireProgressNoteUri;
+    private String questionnairePARequestUri;
     private String requestId;
     private Boolean priorAuthRequired;
     private Boolean documentationRequired;
@@ -133,6 +134,15 @@ public class CardBuilder {
 
     public CqlResultsForCard setQuestionnaireProgressNoteUri(String questionnaireProgressNoteUri) {
       this.questionnaireProgressNoteUri = questionnaireProgressNoteUri;
+      return this;
+    }
+
+    public String getQuestionnairePARequestUri() {
+      return questionnairePARequestUri;
+    }
+
+    public CqlResultsForCard setQuestionnairePARequestUri(String questionnairePARequestUri) {
+      this.questionnairePARequestUri = questionnairePARequestUri;
       return this;
     }
   }
