@@ -6,7 +6,12 @@ import java.util.List;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import org.hl7.davinci.*;
+import org.hl7.davinci.FhirResourceInfo;
+import org.hl7.davinci.PatientInfo;
+import org.hl7.davinci.PractitionerRoleInfo;
+import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.SharedUtilities;
+import org.hl7.davinci.SuppressParserErrorHandler;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Address.AddressType;
@@ -201,32 +206,29 @@ public class Utilities {
   public static FhirResourceInfo getFhirResourceInfo(IBaseResource baseResource) {
     String resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
     resourceType = resourceType.toLowerCase();
-    String resourceId = null;
-    String resourceName = null;
-    String resourceUrl = null;
+    FhirResourceInfo fhirResourceInfo = new FhirResourceInfo();
+    fhirResourceInfo.setType(resourceType);
 
     if (resourceType.equalsIgnoreCase("Questionnaire")) {
       Questionnaire questionnaire = (Questionnaire) baseResource;
-      resourceId = questionnaire.getId();
-      resourceName = questionnaire.getName();
-      resourceUrl = questionnaire.getUrl();
+      fhirResourceInfo.setId(questionnaire.getId())
+          .setName(questionnaire.getName())
+          .setUrl(questionnaire.getUrl());
     } else if (resourceType.equalsIgnoreCase("Library")) {
       Library library = (Library) baseResource;
-      resourceId = library.getId();
-      resourceName = library.getName();
-      resourceUrl = library.getUrl();
+      fhirResourceInfo.setId(library.getId())
+          .setName(library.getName())
+          .setUrl(library.getUrl());
     } else if (resourceType.equalsIgnoreCase("ValueSet")) {
       ValueSet valueSet = (ValueSet) baseResource;
-      resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
-      resourceName = valueSet.getName();
-      resourceUrl = valueSet.getUrl();
+      fhirResourceInfo.setId("ValueSet/" + valueSet.getIdElement().getIdPart())
+          .setName(valueSet.getName())
+          .setUrl(valueSet.getUrl());
     } else if (resourceType.equalsIgnoreCase("QuestionnaireResponse")) {
       QuestionnaireResponse questionnaireResponse = (QuestionnaireResponse) baseResource;
-      resourceId = questionnaireResponse.getId();
+      fhirResourceInfo.setId(questionnaireResponse.getId());
     }
 
-    FhirResourceInfo fhirResourceInfo = new FhirResourceInfo();
-    fhirResourceInfo.setType(resourceType).setId(resourceId).setName(resourceName).setUrl(resourceUrl);
     return fhirResourceInfo;
   }
 

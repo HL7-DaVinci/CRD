@@ -6,7 +6,11 @@ import java.util.List;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import org.hl7.davinci.*;
+import org.hl7.davinci.FhirResourceInfo;
+import org.hl7.davinci.PatientInfo;
+import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.SharedUtilities;
+import org.hl7.davinci.SuppressParserErrorHandler;
 import org.hl7.fhir.dstu3.model.Address;
 import org.hl7.fhir.dstu3.model.Address.AddressType;
 import org.hl7.fhir.dstu3.model.Address.AddressUse;

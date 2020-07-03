@@ -158,8 +158,8 @@ public class FhirController {
    * Store a FHIR resource.
    */
   @PostMapping(path = "/fhir/{fhirVersion}/{resource}", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
-  public ResponseEntity<String> submitFhirResourc(HttpServletRequest request, HttpEntity<String> entity,
-      @PathVariable String fhirVersion, @PathVariable String resource) {
+  public ResponseEntity<String> submitFhirResource(HttpServletRequest request, HttpEntity<String> entity,
+                                                   @PathVariable String fhirVersion, @PathVariable String resource) {
 
     fhirVersion = fhirVersion.toUpperCase();
     resource = resource.toLowerCase();
@@ -174,7 +174,17 @@ public class FhirController {
     } else if (fhirVersion.equalsIgnoreCase("STU3")) {
       fhirResourceInfo = org.hl7.davinci.stu3.Utilities.getFhirResourceInfo(entity.getBody());
     } else {
-      logger.warning("unsupported FHIR version: " + fhirVersion + ", skipping folder");
+      logger.warning("unsupported FHIR version: " + fhirVersion + ", not storing");
+      HttpStatus status = HttpStatus.BAD_REQUEST;
+      MediaType contentType = MediaType.TEXT_PLAIN;
+      String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+
+      return ResponseEntity.status(status).contentType(contentType)
+          .body("Bad Request");
+    }
+
+    if (!fhirResourceInfo.valid()) {
+      logger.warning("submitFhirResource: unsupported FHIR Resource of type: " + fhirResourceInfo.getType() + " (" + fhirVersion + "), not storing");
       HttpStatus status = HttpStatus.BAD_REQUEST;
       MediaType contentType = MediaType.TEXT_PLAIN;
       String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";

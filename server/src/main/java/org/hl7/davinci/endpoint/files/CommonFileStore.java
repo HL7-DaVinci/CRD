@@ -335,9 +335,16 @@ public abstract class CommonFileStore implements FileStore {
         resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
         resourceName = valueSet.getName();
         resourceUrl = valueSet.getUrl();
+      } else {
+        logger.warn("processFhirResource: Ignoring unsupported FHIR R4 Resource of type " + resourceType);
+        return;
       }
     } else if (fhirVersion.equalsIgnoreCase("STU3")) {
       FhirResourceInfo fhirResourceInfo = org.hl7.davinci.stu3.Utilities.getFhirResourceInfo(baseResource);
+      if (!fhirResourceInfo.valid()) {
+        logger.warn("processFhirResource: Ignoring unsupported FHIR STU3 Resource of type " + resourceType);
+        return;
+      }
       resourceId = fhirResourceInfo.getId();
       resourceName = fhirResourceInfo.getName();
       resourceUrl = fhirResourceInfo.getUrl();
