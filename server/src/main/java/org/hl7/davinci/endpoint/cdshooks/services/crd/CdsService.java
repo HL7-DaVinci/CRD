@@ -166,6 +166,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 || StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(results.getQuestionnaireLabUri())
                 || StringUtils.isNotEmpty(results.getQuestionnaireProgressNoteUri())
+                || StringUtils.isNotEmpty(results.getQuestionnairePARequestUri())
                 || StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri()))) {
           List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
           response.addCard(CardBuilder.transform(results, smartAppLinks));
@@ -214,6 +215,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           results.getPriorAuthRequired(), "Progress Note"));
     }
 
+    if (StringUtils.isNotEmpty(results.getQuestionnairePARequestUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          results.getQuestionnairePARequestUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getPriorAuthRequired(), "PA Request"));
+    }
+    
     if (StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           results.getQuestionnairePlanOfCareUri(), results.getRequestId(), lookupResult.getCriteria(),
@@ -283,6 +290,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       }
     } catch (Exception e) {
       logger.info("-- No plan of care questionnaire defined");
+    }
+
+    try {
+      if (evaluateStatement("RESULT_QuestionnairePARequestUri", context) != null) {
+        results.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString())
+            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      }
+    } catch (Exception e) {
+      logger.info("-- No PA Request questionnaire defined");
     }
 
     return results;
