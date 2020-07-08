@@ -319,20 +319,20 @@ public abstract class CommonFileStore implements FileStore {
     if (fhirVersion.equalsIgnoreCase("R4")) {
       if (resourceType.equalsIgnoreCase("Questionnaire")) {
         org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
-        resourceId = questionnaire.getId();
+        resourceId = questionnaire.getIdElement().getIdPart();
         resourceName = questionnaire.getName();
         resourceUrl = questionnaire.getUrl();
         findAndFetchRequiredVSACValueSets(questionnaire);
       } else if (resourceType.equalsIgnoreCase("Library")) {
         org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
-        resourceId = library.getId();
+        resourceId = library.getIdElement().getIdPart();
         resourceName = library.getName();
         resourceUrl = library.getUrl();
         // Look at data requirements for value sets
         findAndFetchRequiredVSACValueSets(library);
       } else if (resourceType.equalsIgnoreCase("ValueSet")) {
         org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-        resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
+        resourceId = valueSet.getIdElement().getIdPart();
         resourceName = valueSet.getName();
         resourceUrl = valueSet.getUrl();
       } else {
@@ -361,9 +361,6 @@ public abstract class CommonFileStore implements FileStore {
       logger.info(
           "Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
     }
-
-    resourceId = resourceId.toLowerCase();
-    resourceName = resourceName.toLowerCase();
 
     // create a FhirResource and save it back to the table
     FhirResource fhirResource = new FhirResource();

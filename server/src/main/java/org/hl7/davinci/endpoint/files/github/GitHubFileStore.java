@@ -231,73 +231,16 @@ public class GitHubFileStore extends CommonFileStore {
               continue;
             }
 
-            // parse the the resource file into the correct FHIR resource
-            String resourceId = "";
-            String resourceName = "";
             InputStream inputStream = connection.getFile(fullFilePath);
             if (inputStream != null) {
               IBaseResource baseResource = parser.parseResource(inputStream);
-              resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
-              resourceType = resourceType.toLowerCase();
 
-              if (fhirVersion.equalsIgnoreCase("R4")) {
-                if (resourceType.equalsIgnoreCase("Questionnaire")) {
-                  org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
-                  resourceId = questionnaire.getId();
-                  resourceName = questionnaire.getName();
-                } else if (resourceType.equalsIgnoreCase("Library")) {
-                  org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
-                  resourceId = library.getId();
-                  resourceName = library.getName();
-                } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-                  org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-                  resourceId = valueSet.getId();
-                  resourceName = valueSet.getName();
-                }
-              } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-                if (resourceType.equalsIgnoreCase("Questionnaire")) {
-                  org.hl7.fhir.dstu3.model.Questionnaire questionnaire = (org.hl7.fhir.dstu3.model.Questionnaire) baseResource;
-                  resourceId = questionnaire.getId();
-                  resourceName = questionnaire.getName();
-                } else if (resourceType.equalsIgnoreCase("Library")) {
-                  org.hl7.fhir.dstu3.model.Library library = (org.hl7.fhir.dstu3.model.Library) baseResource;
-                  resourceId = library.getId();
-                  resourceName = library.getName();
-                } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-                  org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
-                  resourceId = valueSet.getId();
-                  resourceName = valueSet.getName();
-                }
-              }
+              processFhirResource(baseResource, filename, filename, fhirVersion, topic);
 
             } else {
               logger.warn("could not find file: " + fullFilePath);
               continue;
             }
-
-            if (resourceId == null) {
-              // this should never happen, there should always be an ID
-              logger.error("Could not find ID for: " + filename + ", defaulting to '" + filename + "' as the ID");
-              resourceId = filename;
-            }
-
-            if (resourceName == null) {
-              resourceName = stripNameFromResourceFilename(filename, fhirVersion);
-              logger.info("Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
-            }
-
-            resourceId = resourceId.toLowerCase();
-            resourceName = resourceName.toLowerCase();
-
-            // create a FhirResource and save it back to the table
-            FhirResource fhirResource = new FhirResource();
-            fhirResource.setId(resourceId)
-                .setFhirVersion(fhirVersion)
-                .setResourceType(resourceType)
-                .setTopic(topic)
-                .setFilename(filename)
-                .setName(resourceName);
-            fhirResources.save(fhirResource);
           }
         }
       }

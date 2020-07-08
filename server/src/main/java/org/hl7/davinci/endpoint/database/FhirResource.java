@@ -146,7 +146,7 @@ public class FhirResource {
 
   public String getLink() {
     if (link.isEmpty()) {
-      return "/fhir/" + fhirVersion + "/" + id;
+      return "/fhir/" + fhirVersion + "/" + resourceType + "/" + id;
     } else {
       return link;
     }
