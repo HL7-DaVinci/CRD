@@ -157,32 +157,41 @@ public class Utilities {
   public static FhirResourceInfo getFhirResourceInfo(IBaseResource baseResource) {
     String resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
     resourceType = resourceType.toLowerCase();
-    String resourceId = null;
-    String resourceName = null;
-    String resourceUrl = null;
+    FhirResourceInfo fhirResourceInfo = new FhirResourceInfo();
+    fhirResourceInfo.setType(resourceType);
 
     if (resourceType.equalsIgnoreCase("Questionnaire")) {
       Questionnaire questionnaire = (Questionnaire) baseResource;
-      resourceId = questionnaire.getId();
-      resourceName = questionnaire.getName();
-      resourceUrl = questionnaire.getUrl();
+      fhirResourceInfo.setId(questionnaire.getId())
+          .setName(questionnaire.getName())
+          .setUrl(questionnaire.getUrl());
+      if (questionnaire.getId() != null) {
+        fhirResourceInfo.setId(resourceType + "/" + questionnaire.getIdElement().getIdPart());
+      }
     } else if (resourceType.equalsIgnoreCase("Library")) {
       Library library = (Library) baseResource;
-      resourceId = library.getId();
-      resourceName = library.getName();
-      resourceUrl = library.getUrl();
+      fhirResourceInfo.setId(library.getId())
+          .setName(library.getName())
+          .setUrl(library.getUrl());
+      if (library.getId() != null) {
+        fhirResourceInfo.setId(resourceType + "/" + library.getIdElement().getIdPart());
+      }
     } else if (resourceType.equalsIgnoreCase("ValueSet")) {
       ValueSet valueSet = (ValueSet) baseResource;
-      resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
-      resourceName = valueSet.getName();
-      resourceUrl = valueSet.getUrl();
+      fhirResourceInfo.setId(valueSet.getId())
+          .setName(valueSet.getName())
+          .setUrl(valueSet.getUrl());
+      if (valueSet.getId() != null) {
+        fhirResourceInfo.setId(resourceType + "/" + valueSet.getIdElement().getIdPart());
+      }
     } else if (resourceType.equalsIgnoreCase("QuestionnaireResponse")) {
       QuestionnaireResponse questionnaireResponse = (QuestionnaireResponse) baseResource;
-      resourceId = questionnaireResponse.getId();
+      fhirResourceInfo.setId(questionnaireResponse.getId());
+      if (questionnaireResponse.getId() != null) {
+        fhirResourceInfo.setId(resourceType + "/" + questionnaireResponse.getIdElement().getIdPart());
+      }
     }
 
-    FhirResourceInfo fhirResourceInfo = new FhirResourceInfo();
-    fhirResourceInfo.setType(resourceType).setId(resourceId).setName(resourceName).setUrl(resourceUrl);
     return fhirResourceInfo;
   }
 

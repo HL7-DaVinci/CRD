@@ -214,19 +214,31 @@ public class Utilities {
       fhirResourceInfo.setId(questionnaire.getId())
           .setName(questionnaire.getName())
           .setUrl(questionnaire.getUrl());
+      if (questionnaire.getId() != null) {
+        fhirResourceInfo.setId(resourceType + "/" + questionnaire.getIdElement().getIdPart());
+      }
     } else if (resourceType.equalsIgnoreCase("Library")) {
       Library library = (Library) baseResource;
       fhirResourceInfo.setId(library.getId())
           .setName(library.getName())
           .setUrl(library.getUrl());
+      if (library.getId() != null) {
+        fhirResourceInfo.setId(resourceType + "/" + library.getIdElement().getIdPart());
+      }
     } else if (resourceType.equalsIgnoreCase("ValueSet")) {
       ValueSet valueSet = (ValueSet) baseResource;
-      fhirResourceInfo.setId("ValueSet/" + valueSet.getIdElement().getIdPart())
+      fhirResourceInfo.setId(valueSet.getId())
           .setName(valueSet.getName())
           .setUrl(valueSet.getUrl());
+      if (valueSet.getId() != null) {
+        fhirResourceInfo.setId(resourceType + "/" + valueSet.getIdElement().getIdPart());
+      }
     } else if (resourceType.equalsIgnoreCase("QuestionnaireResponse")) {
       QuestionnaireResponse questionnaireResponse = (QuestionnaireResponse) baseResource;
       fhirResourceInfo.setId(questionnaireResponse.getId());
+      if (questionnaireResponse.getId() != null) {
+        fhirResourceInfo.setId(resourceType + "/" + questionnaireResponse.getIdElement().getIdPart());
+      }
     }
 
     return fhirResourceInfo;

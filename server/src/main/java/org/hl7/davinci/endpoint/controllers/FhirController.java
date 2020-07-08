@@ -103,7 +103,6 @@ public class FhirController {
   public ResponseEntity<Resource> getFhirResourceById(HttpServletRequest request, @PathVariable String fhirVersion, @PathVariable String resource, @PathVariable String id) throws IOException {
     fhirVersion = fhirVersion.toUpperCase();
     resource = resource.toLowerCase();
-    id = id.toLowerCase();
     logger.info("GET /fhir/" + fhirVersion + "/" + resource + "/" + id);
     String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 

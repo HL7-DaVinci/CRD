@@ -124,7 +124,7 @@ public abstract class CommonFileStore implements FileStore {
     // If this is a questionnaire, run it through the processor to modify it before
     // returning.
     // We do not handle nested sub-questionnaire at this time.
-    if (isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
+    if ((resource != null) && isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
       FileResource processedResource = this.subQuestionnaireProcessor.processResource(resource, this, baseUrl);
       processedResource = this.questionnaireValueSetProcessor.processResource(processedResource, this, baseUrl);
       return processedResource;
