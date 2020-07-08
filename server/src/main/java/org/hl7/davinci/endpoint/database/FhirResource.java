@@ -58,7 +58,7 @@ public class FhirResource {
     // set a unique ID if the ID is left blank
     String uuid = UUID.randomUUID().toString();
     if (this.getId() == null) {
-      this.setId(this.getResourceType() + "/" + uuid);
+      this.setId(uuid);
     }
     // set the name if unset
     if (this.getName() == null) {
