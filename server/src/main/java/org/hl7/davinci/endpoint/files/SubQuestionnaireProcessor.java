@@ -113,7 +113,15 @@ public class SubQuestionnaireProcessor extends FhirResourceProcessor<Questionnai
       // read sub questionnaire from file store
       CanonicalType value = e.castToCanonical(e.getValue());
       logger.info("SubQuestionnaireProcessor::parseItem(): Looking for SubQuestionnaire " + value);
-      FileResource subFileResource = fileStore.getFhirResourceById("R4", "questionnaire", value.asStringValue(), baseUrl, false);
+
+      // strip the type off of the id if it is there
+      String id = value.asStringValue();
+      String[] parts = id.split("/");
+      if (parts.length > 1) {
+        id = parts[1];
+      }
+
+      FileResource subFileResource = fileStore.getFhirResourceById("R4", "questionnaire", id, baseUrl, false);
       if (subFileResource != null) {
         Questionnaire subQuestionnaire = (Questionnaire) this.parseFhirFileResource(subFileResource);
 

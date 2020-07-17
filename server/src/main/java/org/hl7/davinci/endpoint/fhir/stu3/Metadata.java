@@ -69,6 +69,7 @@ public class Metadata {
     library.setType("Library");
     library.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.READ);
     library.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.SEARCHTYPE);
+    library.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.CREATE);
     rest.addResource(library);
 
     // Questionnaire Resource
@@ -76,13 +77,23 @@ public class Metadata {
     questionnaire.setType("Questionnaire");
     questionnaire.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.READ);
     questionnaire.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.SEARCHTYPE);
+    questionnaire.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.CREATE);
     rest.addResource(questionnaire);
+
+    // QuestionnaireResponse Resource
+    CapabilityStatement.CapabilityStatementRestResourceComponent questionnaireResponse = new CapabilityStatement.CapabilityStatementRestResourceComponent();
+    questionnaireResponse.setType("QuestionnaireResponse");
+    questionnaireResponse.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.READ);
+    questionnaireResponse.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.SEARCHTYPE);
+    questionnaireResponse.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.CREATE);
+    rest.addResource(questionnaireResponse);
 
     // ValueSet Resource
     CapabilityStatement.CapabilityStatementRestResourceComponent valueset = new CapabilityStatement.CapabilityStatementRestResourceComponent();
     valueset.setType("ValueSet");
     valueset.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.READ);
     valueset.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.SEARCHTYPE);
+    valueset.addInteraction().setCode(CapabilityStatement.TypeRestfulInteraction.CREATE);
     rest.addResource(valueset);
 
     metadata.addRest(rest);

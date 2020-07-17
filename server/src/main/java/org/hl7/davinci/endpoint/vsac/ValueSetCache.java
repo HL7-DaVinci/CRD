@@ -257,7 +257,7 @@ public class ValueSetCache {
     if (this.fhirResources != null) {
       // create a FhirResource and save it back to the table
       FhirResource fhirResource = new FhirResource();
-      fhirResource.setId("valueset/" + valueSet.getId())
+      fhirResource.setId(valueSet.getId())
           .setFhirVersion("R4")
           .setResourceType("valueset")
           .setTopic(VSAC_TOPIC)

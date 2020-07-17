@@ -123,52 +123,30 @@ public class LocalFileStore extends CommonFileStore {
     return fileResource;
   }
 
-  protected FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl) {
-    byte[] fileData = null;
+  protected String readFhirResourceFromFile(FhirResource fhirResource, String fhirVersion) {
+    String fileString = null;
+    String filePath;
+    String localPath = config.getLocalDb().getPath();
 
-    if (fhirResourceList.size() > 0) {
-      // just return the first matched resource
-      FhirResource fhirResource = fhirResourceList.get(0);
-
-      String localPath = config.getLocalDb().getPath();
-
-      String filePath;
-
-      // If the topic indicates it's actually from the ValueSet cache. Grab file path from there.
-      if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
-        filePath = config.getValueSetCachePath() + fhirResource.getFilename();
-        logger.warn("Atempting to serve valueset from cache at: " + filePath);
-      } else {
-        filePath = localPath + fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
-        logger.warn("Attemping to serve file from: " + filePath);
-      }
-
-      File file = new File(filePath);
-      try {
-        fileData = Files.readAllBytes(file.toPath());
-
-        // replace <server-path> with the proper path
-        //String fullLaunchUrl = config.getLaunchUrl().toString();
-        //String baseUrl = fullLaunchUrl.substring(0, fullLaunchUrl.indexOf(config.getLaunchUrl().getPath())+1);
-        String partialUrl = baseUrl + "fhir/" + fhirVersion + "/";
-
-        String fileString = new String(fileData, Charset.defaultCharset());
-        fileString = fileString.replace("<server-path>", partialUrl);
-        fileData = fileString.getBytes(Charset.defaultCharset());
-
-        FileResource fileResource = new FileResource();
-        fileResource.setFilename(fhirResource.getFilename());
-        fileResource.setResource(new ByteArrayResource(fileData));
-        return fileResource;
-
-      } catch (IOException e) {
-        logger.warn("LocalFileStore::getFhirResourceByTopic() failed to get file: " + e.getMessage());
-        return null;
-      }
-
+    // If the topic indicates it's actually from the ValueSet cache. Grab file path from there.
+    if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
+      filePath = config.getValueSetCachePath() + fhirResource.getFilename();
+      logger.warn("Atempting to serve valueset from cache at: " + filePath);
     } else {
+      filePath = localPath + fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+      logger.warn("Attemping to serve file from: " + filePath);
+    }
+
+    try {
+      File file = new File(filePath);
+      byte[] fileData = Files.readAllBytes(file.toPath());
+      fileString = new String(fileData, Charset.defaultCharset());
+    } catch (IOException e) {
+      logger.warn("LocalFileStore::readFhirResourceFromFile() failed to get file: " + e.getMessage());
       return null;
     }
+
+    return fileString;
   }
 }
 

@@ -77,6 +77,7 @@ public class Metadata {
     library.setType("Library");
     library.addInteraction().setCode(TypeRestfulInteraction.READ);
     library.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
+    library.addInteraction().setCode(TypeRestfulInteraction.CREATE);
     rest.addResource(library);
 
     // Questionnaire Resource
@@ -84,13 +85,23 @@ public class Metadata {
     questionnaire.setType("Questionnaire");
     questionnaire.addInteraction().setCode(TypeRestfulInteraction.READ);
     questionnaire.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
+    questionnaire.addInteraction().setCode(TypeRestfulInteraction.CREATE);
     rest.addResource(questionnaire);
+
+    // QuestionnaireResponse REsource
+    CapabilityStatementRestResourceComponent questionnaireResponse = new CapabilityStatementRestResourceComponent();
+    questionnaireResponse.setType("QuestionnaireResponse");
+    questionnaireResponse.addInteraction().setCode(TypeRestfulInteraction.READ);
+    questionnaireResponse.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
+    questionnaireResponse.addInteraction().setCode(TypeRestfulInteraction.CREATE);
+    rest.addResource(questionnaireResponse);
 
     // ValueSet Resource
     CapabilityStatementRestResourceComponent valueset = new CapabilityStatementRestResourceComponent();
     valueset.setType("ValueSet");
     valueset.addInteraction().setCode(TypeRestfulInteraction.READ);
     valueset.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
+    valueset.addInteraction().setCode(TypeRestfulInteraction.CREATE);
     // ValueSet $expand Operator
     CapabilityStatementRestResourceOperationComponent expandOperator = new CapabilityStatementRestResourceOperationComponent();
     expandOperator.setName("expand");

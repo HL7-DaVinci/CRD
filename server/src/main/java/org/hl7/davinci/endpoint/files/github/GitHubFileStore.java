@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.hl7.ShortNameMaps;
+import org.hl7.davinci.SuppressParserErrorHandler;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
@@ -230,73 +231,16 @@ public class GitHubFileStore extends CommonFileStore {
               continue;
             }
 
-            // parse the the resource file into the correct FHIR resource
-            String resourceId = "";
-            String resourceName = "";
             InputStream inputStream = connection.getFile(fullFilePath);
             if (inputStream != null) {
               IBaseResource baseResource = parser.parseResource(inputStream);
-              resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
-              resourceType = resourceType.toLowerCase();
 
-              if (fhirVersion.equalsIgnoreCase("R4")) {
-                if (resourceType.equalsIgnoreCase("Questionnaire")) {
-                  org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
-                  resourceId = questionnaire.getId();
-                  resourceName = questionnaire.getName();
-                } else if (resourceType.equalsIgnoreCase("Library")) {
-                  org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
-                  resourceId = library.getId();
-                  resourceName = library.getName();
-                } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-                  org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-                  resourceId = valueSet.getId();
-                  resourceName = valueSet.getName();
-                }
-              } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-                if (resourceType.equalsIgnoreCase("Questionnaire")) {
-                  org.hl7.fhir.dstu3.model.Questionnaire questionnaire = (org.hl7.fhir.dstu3.model.Questionnaire) baseResource;
-                  resourceId = questionnaire.getId();
-                  resourceName = questionnaire.getName();
-                } else if (resourceType.equalsIgnoreCase("Library")) {
-                  org.hl7.fhir.dstu3.model.Library library = (org.hl7.fhir.dstu3.model.Library) baseResource;
-                  resourceId = library.getId();
-                  resourceName = library.getName();
-                } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-                  org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
-                  resourceId = valueSet.getId();
-                  resourceName = valueSet.getName();
-                }
-              }
+              processFhirResource(baseResource, filename, filename, fhirVersion, topic);
 
             } else {
               logger.warn("could not find file: " + fullFilePath);
               continue;
             }
-
-            if (resourceId == null) {
-              // this should never happen, there should always be an ID
-              logger.error("Could not find ID for: " + filename + ", defaulting to '" + filename + "' as the ID");
-              resourceId = filename;
-            }
-
-            if (resourceName == null) {
-              resourceName = stripNameFromResourceFilename(filename, fhirVersion);
-              logger.info("Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
-            }
-
-            resourceId = resourceId.toLowerCase();
-            resourceName = resourceName.toLowerCase();
-
-            // create a FhirResource and save it back to the table
-            FhirResource fhirResource = new FhirResource();
-            fhirResource.setId(resourceId)
-                .setFhirVersion(fhirVersion)
-                .setResourceType(resourceType)
-                .setTopic(topic)
-                .setFilename(filename)
-                .setName(resourceName);
-            fhirResources.save(fhirResource);
           }
         }
       }
@@ -379,56 +323,38 @@ public class GitHubFileStore extends CommonFileStore {
   }
 
 
-  protected FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl) {
-    byte[] fileData = null;
+  protected String readFhirResourceFromFile(FhirResource fhirResource, String fhirVersion) {
+    String fileString = null;
+    String filePath;
+    InputStream inputStream;
 
-    if (fhirResourceList.size() > 0) {
-      // just return the first matched resource
-      FhirResource fhirResource = fhirResourceList.get(0);
-
-      String filePath;
-      InputStream inputStream;
-
-      // If the topic indicates it's actually from the ValueSet cache. Grab file input stream from there.
-      if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
-        filePath = config.getValueSetCachePath() + fhirResource.getFilename();
-        try {
-          inputStream = new FileInputStream(filePath);
-        } catch (FileNotFoundException e) {
-          logger.warn("GitHubFileStore::readFhirResourceFromFile() Could not find ValueSet in cache folder.");
-          return null;
-        }
-      } else {
-        filePath = fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
-        inputStream = connection.getFile(filePath);
-      }
-
-      if (inputStream == null) {
-        logger.warn("GitHubFileStore::readFhirResourceFromFile() Error getting file");
-        return null;
-      }
-
+    // If the topic indicates it's actually from the ValueSet cache. Grab file input stream from there.
+    if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
+      filePath = config.getValueSetCachePath() + fhirResource.getFilename();
       try {
-        // replace <server-path> with the proper path
-        String partialUrl = baseUrl + "fhir/" + fhirVersion + "/";
-
-        String fileString = IOUtils.toString(inputStream, Charset.defaultCharset());
-        fileString = fileString.replace("<server-path>", partialUrl);
-        fileData = fileString.getBytes(Charset.defaultCharset());
-
-        FileResource fileResource = new FileResource();
-        fileResource.setFilename(fhirResource.getFilename());
-        fileResource.setResource(new ByteArrayResource(fileData));
-        return fileResource;
-
-      } catch (IOException e) {
-        logger.warn("GitHubFileStore::getFhirResourceByTopic() failed to get file: " + e.getMessage());
+        inputStream = new FileInputStream(filePath);
+      } catch (FileNotFoundException e) {
+        logger.warn("GitHubFileStore::readFhirResourceFromFile() Could not find ValueSet in cache folder.");
         return null;
       }
-
     } else {
+      filePath = fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+      inputStream = connection.getFile(filePath);
+    }
+
+    if (inputStream == null) {
+      logger.warn("GitHubFileStore::readFhirResourceFromFile() Error getting file");
       return null;
     }
+
+    try {
+      fileString = IOUtils.toString(inputStream, Charset.defaultCharset());
+    } catch (IOException e) {
+      logger.warn("GitHubFileStore::getFhirResourceByTopic() failed to get file: " + e.getMessage());
+      return null;
+    }
+
+    return fileString;
   }
 
   private String findGitHubFile(String topic, String fhirVersion, String name, String extension) {

@@ -5,28 +5,22 @@ import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.hl7.ShortNameMaps;
+import org.hl7.davinci.FhirResourceInfo;
+import org.hl7.davinci.SuppressParserErrorHandler;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.vsac.ValueSetCache;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.CanonicalType;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.hateoas.alps.Ext;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.List;
 
 public abstract class CommonFileStore implements FileStore {
@@ -67,8 +61,43 @@ public abstract class CommonFileStore implements FileStore {
 
   public abstract FileResource getFile(String topic, String fileName, String fhirVersion, boolean convert);
 
-  protected abstract FileResource readFhirResourceFromFile(List<FhirResource> fhirResourceList, String fhirVersion,
-      String baseUrl);
+  protected abstract String readFhirResourceFromFile(FhirResource fhirResource, String fhirVersion);
+
+  protected FileResource readFhirResourceFromFiles(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl) {
+    if (!fhirResourceList.isEmpty()) {
+      // just return the first matched resource
+      FhirResource fhirResource = fhirResourceList.get(0);
+      String fileString = null;
+
+      // grab the data from the database directly if it is there
+      String data = fhirResource.getData();
+      if (data != null) {
+        fileString = data;
+      } else {
+        fileString = readFhirResourceFromFile(fhirResource, fhirVersion);
+      }
+
+      if (fileString != null) {
+        String partialUrl = baseUrl + "fhir/" + fhirVersion + "/";
+
+        // replace <server-path> with the proper path
+        fileString = fileString.replace("<server-path>", partialUrl);
+        byte[] fileData = fileString.getBytes(Charset.defaultCharset());
+
+        FileResource fileResource = new FileResource();
+        fileResource.setFilename(fhirResource.getFilename());
+        fileResource.setResource(new ByteArrayResource(fileData));
+        return fileResource;
+      } else {
+        logger.warn("GitHubFileStore::getFhirResourceByTopic() empty fileString");
+        return null;
+      }
+
+    } else {
+      logger.warn("GitHubFileStore::getFhirResourceByTopic() empty file resource list");
+      return null;
+    }
+  }
 
   public FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl) {
     logger.info("CommonFileStore::getFhirResourceByTopic(): " + fhirVersion + "/" + resourceType + "/" + name);
@@ -76,7 +105,7 @@ public abstract class CommonFileStore implements FileStore {
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setName(name);
     List<FhirResource> fhirResourceList = fhirResources.findByName(criteria);
-    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
+    return readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
   }
 
   public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl) {
@@ -90,12 +119,12 @@ public abstract class CommonFileStore implements FileStore {
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setId(id);
     List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
-    FileResource resource = readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
+    FileResource resource = readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
 
     // If this is a questionnaire, run it through the processor to modify it before
     // returning.
     // We do not handle nested sub-questionnaire at this time.
-    if (isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
+    if ((resource != null) && isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
       FileResource processedResource = this.subQuestionnaireProcessor.processResource(resource, this, baseUrl);
       processedResource = this.questionnaireValueSetProcessor.processResource(processedResource, this, baseUrl);
       return processedResource;
@@ -110,7 +139,7 @@ public abstract class CommonFileStore implements FileStore {
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setUrl(url);
     List<FhirResource> fhirResourceList = fhirResources.findByUrl(criteria);
-    return readFhirResourceFromFile(fhirResourceList, fhirVersion, baseUrl);
+    return readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
   }
 
   // from RuleFinder
@@ -290,38 +319,35 @@ public abstract class CommonFileStore implements FileStore {
     if (fhirVersion.equalsIgnoreCase("R4")) {
       if (resourceType.equalsIgnoreCase("Questionnaire")) {
         org.hl7.fhir.r4.model.Questionnaire questionnaire = (org.hl7.fhir.r4.model.Questionnaire) baseResource;
-        resourceId = questionnaire.getId();
+        resourceId = questionnaire.getIdElement().getIdPart();
         resourceName = questionnaire.getName();
         resourceUrl = questionnaire.getUrl();
         findAndFetchRequiredVSACValueSets(questionnaire);
       } else if (resourceType.equalsIgnoreCase("Library")) {
         org.hl7.fhir.r4.model.Library library = (org.hl7.fhir.r4.model.Library) baseResource;
-        resourceId = library.getId();
+        resourceId = library.getIdElement().getIdPart();
         resourceName = library.getName();
         resourceUrl = library.getUrl();
         // Look at data requirements for value sets
         findAndFetchRequiredVSACValueSets(library);
       } else if (resourceType.equalsIgnoreCase("ValueSet")) {
         org.hl7.fhir.r4.model.ValueSet valueSet = (org.hl7.fhir.r4.model.ValueSet) baseResource;
-        resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
+        resourceId = valueSet.getIdElement().getIdPart();
         resourceName = valueSet.getName();
         resourceUrl = valueSet.getUrl();
+      } else {
+        logger.warn("processFhirResource: Ignoring unsupported FHIR R4 Resource of type " + resourceType);
+        return;
       }
     } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-      if (resourceType.equalsIgnoreCase("Questionnaire")) {
-        org.hl7.fhir.dstu3.model.Questionnaire questionnaire = (org.hl7.fhir.dstu3.model.Questionnaire) baseResource;
-        resourceId = questionnaire.getId();
-        resourceName = questionnaire.getName();
-      } else if (resourceType.equalsIgnoreCase("Library")) {
-        org.hl7.fhir.dstu3.model.Library library = (org.hl7.fhir.dstu3.model.Library) baseResource;
-        resourceId = library.getId();
-        resourceName = library.getName();
-      } else if (resourceType.equalsIgnoreCase("ValueSet")) {
-        org.hl7.fhir.dstu3.model.ValueSet valueSet = (org.hl7.fhir.dstu3.model.ValueSet) baseResource;
-        resourceId = "ValueSet/" + valueSet.getIdElement().getIdPart();
-        resourceName = valueSet.getName();
-        resourceUrl = valueSet.getUrl();
+      FhirResourceInfo fhirResourceInfo = org.hl7.davinci.stu3.Utilities.getFhirResourceInfo(baseResource);
+      if (!fhirResourceInfo.valid()) {
+        logger.warn("processFhirResource: Ignoring unsupported FHIR STU3 Resource of type " + resourceType);
+        return;
       }
+      resourceId = fhirResourceInfo.getId();
+      resourceName = fhirResourceInfo.getName();
+      resourceUrl = fhirResourceInfo.getUrl();
     }
 
     if (resourceId == null) {
@@ -335,9 +361,6 @@ public abstract class CommonFileStore implements FileStore {
       logger.info(
           "Could not find name for: " + filename + ", defaulting to '" + resourceName + "' as the name");
     }
-
-    resourceId = resourceId.toLowerCase();
-    resourceName = resourceName.toLowerCase();
 
     // create a FhirResource and save it back to the table
     FhirResource fhirResource = new FhirResource();

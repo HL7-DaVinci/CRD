@@ -3,6 +3,7 @@ package org.hl7.davinci.endpoint.database;
 import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @IdClass(CompositeFhirResourceTaskId.class)
@@ -24,10 +25,10 @@ public class FhirResource {
   @Column(name = "fhir_version", nullable = false)
   private String fhirVersion;
 
-  @Column(name = "topic", nullable = false)
+  @Column(name = "topic", nullable = true)
   private String topic;
 
-  @Column(name = "filename", nullable = false)
+  @Column(name = "filename", nullable = true)
   private String filename;
 
   @Column(name = "path", nullable = true)
@@ -35,6 +36,9 @@ public class FhirResource {
 
   @Column(name = "name", nullable = false)
   private String name;
+
+  @Column(name = "data", nullable = true, length = 100000)
+  private String data;
 
   private String link = "";
 
@@ -47,6 +51,23 @@ public class FhirResource {
   public FhirResource setId(String id) {
     this.id = id;
     return this;
+  }
+
+  @PrePersist
+  private void ensureId(){
+    // set a unique ID if the ID is left blank
+    String uuid = UUID.randomUUID().toString();
+    if (this.getId() == null) {
+      this.setId(uuid);
+    }
+    // set the name if unset
+    if (this.getName() == null) {
+      this.setName(uuid);
+    }
+    // set the filename if unset
+    if (this.getFilename() == null) {
+      this.setFilename(this.getResourceType() + "-" + this.getFhirVersion() + "-" + this.getName() + ".json");
+    }
   }
 
   public String getUrl() {
@@ -106,6 +127,15 @@ public class FhirResource {
     return this;
   }
 
+  public String getData() {
+    return data;
+  }
+
+  public FhirResource setData(String data) {
+    this.data = data;
+    return this;
+  }
+
   public static String getColumnsString() {
     return "id / resourceType / fhirVersion / topic / filename / name / url";
   }
@@ -116,7 +146,7 @@ public class FhirResource {
 
   public String getLink() {
     if (link.isEmpty()) {
-      return "/fhir/" + fhirVersion + "/" + id;
+      return "/fhir/" + fhirVersion + "/" + resourceType + "/" + id;
     } else {
       return link;
     }

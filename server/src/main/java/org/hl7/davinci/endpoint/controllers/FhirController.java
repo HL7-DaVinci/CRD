@@ -1,12 +1,15 @@
 package org.hl7.davinci.endpoint.controllers;
 
+import org.hl7.davinci.FhirResourceInfo;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.database.FhirResource;
+import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +20,6 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * Provides the REST interface that can be interacted with at [base]/api/fhir and [base]/fhir.
  */
@@ -27,6 +29,9 @@ public class FhirController {
 
   @Autowired
   private FileStore fileStore;
+
+  @Autowired
+  private FhirResourceRepository fhirResourceRepository;
 
   org.hl7.davinci.endpoint.fhir.r4.Metadata r4Metadata = new org.hl7.davinci.endpoint.fhir.r4.Metadata();
   org.hl7.davinci.endpoint.fhir.stu3.Metadata stu3Metadata = new org.hl7.davinci.endpoint.fhir.stu3.Metadata();
@@ -98,11 +103,10 @@ public class FhirController {
   public ResponseEntity<Resource> getFhirResourceById(HttpServletRequest request, @PathVariable String fhirVersion, @PathVariable String resource, @PathVariable String id) throws IOException {
     fhirVersion = fhirVersion.toUpperCase();
     resource = resource.toLowerCase();
-    id = id.toLowerCase();
     logger.info("GET /fhir/" + fhirVersion + "/" + resource + "/" + id);
     String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 
-    FileResource fileResource = fileStore.getFhirResourceById(fhirVersion, resource, resource + "/" + id, baseUrl);
+    FileResource fileResource = fileStore.getFhirResourceById(fhirVersion, resource, id, baseUrl);
     return processFileResource(fileResource);
   }
 
@@ -149,4 +153,69 @@ public class FhirController {
         .body(fileResource.getResource());
   }
 
+  /**
+   * Store a FHIR resource.
+   */
+  @PostMapping(path = "/fhir/{fhirVersion}/{resource}", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
+  public ResponseEntity<String> submitFhirResource(HttpServletRequest request, HttpEntity<String> entity,
+                                                   @PathVariable String fhirVersion, @PathVariable String resource) {
+
+    fhirVersion = fhirVersion.toUpperCase();
+    resource = resource.toLowerCase();
+
+    logger.info("POST /fhir/" + fhirVersion + "/" + resource);
+
+    FhirResourceInfo fhirResourceInfo = new FhirResourceInfo();
+
+    // pull out the ID and name
+    if (fhirVersion.equalsIgnoreCase("R4")) {
+      fhirResourceInfo = org.hl7.davinci.r4.Utilities.getFhirResourceInfo(entity.getBody());
+    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
+      fhirResourceInfo = org.hl7.davinci.stu3.Utilities.getFhirResourceInfo(entity.getBody());
+    } else {
+      logger.warning("unsupported FHIR version: " + fhirVersion + ", not storing");
+      HttpStatus status = HttpStatus.BAD_REQUEST;
+      MediaType contentType = MediaType.TEXT_PLAIN;
+      String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+
+      return ResponseEntity.status(status).contentType(contentType)
+          .body("Bad Request");
+    }
+
+    if (!fhirResourceInfo.valid()) {
+      logger.warning("submitFhirResource: unsupported FHIR Resource of type: " + fhirResourceInfo.getType() + " (" + fhirVersion + "), not storing");
+      HttpStatus status = HttpStatus.BAD_REQUEST;
+      MediaType contentType = MediaType.TEXT_PLAIN;
+      String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+
+      return ResponseEntity.status(status).contentType(contentType)
+          .body("Bad Request");
+    }
+
+    // build the FhirResource and save to the database
+    FhirResource fhirResource = new FhirResource();
+    fhirResource.setFhirVersion(fhirVersion)
+        .setResourceType(fhirResourceInfo.getType())
+        .setData((entity.getBody()));
+    if (fhirResourceInfo.getId() != null) {
+      fhirResource.setId(fhirResourceInfo.getId());
+    }
+    if (fhirResourceInfo.getName() != null) {
+      fhirResource.setName(fhirResourceInfo.getName());
+    }
+    FhirResource newFhirResource = fhirResourceRepository.save(fhirResource);
+
+    String newId = newFhirResource.getId();
+    String statusMsg = "successfully stored " + fhirResourceInfo.getType() + ": " + newId;
+    logger.info(statusMsg);
+
+    // build the response
+    HttpStatus status = HttpStatus.CREATED;
+    MediaType contentType = MediaType.TEXT_PLAIN;
+    String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+
+    return ResponseEntity.status(status).contentType(contentType)
+        .header(HttpHeaders.LOCATION, baseUrl + "/fhir/" + fhirVersion + "/" + resource + "?identifier=" + newId)
+        .body(statusMsg);
+  }
 }
