@@ -121,6 +121,13 @@ public class SubQuestionnaireProcessor extends FhirResourceProcessor<Questionnai
         id = parts[1];
       }
 
+      boolean expandRootItem = false;
+      Extension expand = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand");
+
+      if (expand != null) {
+        expandRootItem = expand.castToBoolean(expand.getValue()).booleanValue();
+      }
+
       FileResource subFileResource = fileStore.getFhirResourceById("R4", "questionnaire", id, baseUrl, false);
       if (subFileResource != null) {
         Questionnaire subQuestionnaire = (Questionnaire) this.parseFhirFileResource(subFileResource);
@@ -138,8 +145,14 @@ public class SubQuestionnaireProcessor extends FhirResourceProcessor<Questionnai
             containedList.put(r.getId(), r);
           }
 
-          return subQuestionnaire.getItem();
+          List<QuestionnaireItemComponent> rootItems = subQuestionnaire.getItem();
 
+          // there are more than one root items in sub questionnaire, don't expand
+          if (!expandRootItem || rootItems.size() > 1) {
+            return rootItems;
+          } else {
+            return rootItems.get(0).getItem();
+          }
         } else {
           // SubQuestionnaire could not be loaded
           logger.warn("SubQuestionnaireProcessor::parseItem(): Could not load SubQuestionnaire " + value.asStringValue());
