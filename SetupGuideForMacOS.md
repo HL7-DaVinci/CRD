@@ -41,7 +41,7 @@ Your computer must have these minimum requirements:
 - Running MacOS
     > A DRLS setup guide for Windows 10 is currently in progress and will be added to this page when complete. That said, we **highly recommend** that you run DRLS on MacOS, as this was the primary platform on which DRLS was developed.
 - x86_64 (64-bit) or equivalent processor
-    * Follow these instructions to verify compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/ 
+    * Follow these instructions to verify your machine's compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/ 
 - At least 8 GB of RAM
 - At least 256 GB of storage
 - Internet access
@@ -56,7 +56,7 @@ Additionally, you must have credentials (username and password) access to the **
 
 #### Install AdoptOpenJDK8
 
-> Important note: **Do not skip** these steps, even if you already have AdoptOpenJDK8 installed on your Mac, as these steps will also make your life a lot easier when you need to update and/or switch your Mac's default Java version down the line.
+> Important note: **Do not skip** these steps, **even if you already have AdoptOpenJDK8 installed on your Mac**, as they will make your life easier when you need to update and/or switch your Mac's default Java version down the line.
 
 1. Install [sdkman](https://sdkman.io/), a MacOS-native tool for package management.
 2. Using sdkman, install **AdoptOpenJDK (version 8)** for MacOS. We **do not recommend** using the Oracle JDK as Oracle's license for its JDK is more restrictive.
