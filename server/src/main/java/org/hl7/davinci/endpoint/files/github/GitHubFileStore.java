@@ -304,7 +304,7 @@ public class GitHubFileStore extends CommonFileStore {
         String cql = IOUtils.toString(inputStream, Charset.defaultCharset());
         byte[] fileData = null;
         try {
-          String elm = CqlExecution.translateToElm(cql);
+          String elm = CqlExecution.translateToElm(cql, new CDSLibrarySourceProvider(this));
           fileData = elm.getBytes();
         } catch (Exception e) {
           logger.warn("GitHubFileStore::getFile() Error: could not convert CQL: " + e.getMessage());
