@@ -422,7 +422,7 @@ public abstract class CommonFileStore implements FileStore {
       for (org.hl7.fhir.r4.model.DataRequirement.DataRequirementCodeFilterComponent codeFilter : dataReq
           .getCodeFilter()) {
         String valueSetRef = codeFilter.getValueSet();
-        if (valueSetRef.startsWith(ValueSetCache.VSAC_CANONICAL_BASE)) {
+        if (valueSetRef != null && valueSetRef.startsWith(ValueSetCache.VSAC_CANONICAL_BASE)) {
           String valueSetId = valueSetRef.split("ValueSet/")[1];
           logger.info("          VSAC ValueSet reference found: " + valueSetId);
           this.getValueSetCache().fetchValueSet(valueSetId);
