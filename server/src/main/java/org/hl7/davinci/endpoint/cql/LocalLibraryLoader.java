@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+
+import org.cqframework.cql.cql2elm.CqlTranslatorOptions;
 import org.cqframework.cql.cql2elm.CqlTranslatorException;
 import org.cqframework.cql.cql2elm.LibraryManager;
 import org.cqframework.cql.elm.execution.Library;
@@ -64,7 +66,8 @@ public class LocalLibraryLoader implements org.opencds.cqf.cql.execution.Library
         .withSystem(libraryIdentifier.getSystem())
         .withVersion(libraryIdentifier.getVersion());
 
-    org.cqframework.cql.cql2elm.model.TranslatedLibrary translatedLibrary = libraryManager.resolveLibrary(identifier, errors);
+    CqlTranslatorOptions options = new CqlTranslatorOptions();
+    org.cqframework.cql.cql2elm.model.TranslatedLibrary translatedLibrary = libraryManager.resolveLibrary(identifier, options, errors);
 
     String xml;
     try {

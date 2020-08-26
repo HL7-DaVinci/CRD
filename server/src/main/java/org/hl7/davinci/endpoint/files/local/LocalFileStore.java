@@ -1,6 +1,8 @@
 package org.hl7.davinci.endpoint.files.local;
 
 import org.apache.commons.io.FilenameUtils;
+import org.cqframework.cql.cql2elm.LibrarySourceProvider;
+import org.cqframework.cql.elm.execution.VersionedIdentifier;
 import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.davinci.endpoint.database.*;
@@ -107,7 +109,7 @@ public class LocalFileStore extends CommonFileStore {
         logger.info("LocalFileStore::getFile() converting CQL to JSON ELM");
         String cql = new String(fileData);
         try {
-          String elm = CqlExecution.translateToElm(cql);
+          String elm = CqlExecution.translateToElm(cql, new CDSLibrarySourceProvider(this));
           fileData = elm.getBytes();
         } catch (Exception e) {
           logger.warn("LocalFileStore::getFile() Error: could not convert CQL: " + e.getMessage());
@@ -147,6 +149,16 @@ public class LocalFileStore extends CommonFileStore {
     }
 
     return fileString;
+  }
+
+  private class CqlLibrarySourceProvider implements LibrarySourceProvider {
+
+    @Override
+    public InputStream getLibrarySource(org.hl7.elm.r1.VersionedIdentifier libraryIdentifier) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
   }
 }
 

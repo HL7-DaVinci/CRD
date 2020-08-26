@@ -60,7 +60,7 @@ dependencies {
 
     //Use locally compiled cql libs (engine and fhir)
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile group: 'info.cqframework', name: 'cql-to-elm', version: '1.4.6'
+    compile group: 'info.cqframework', name: 'cql-to-elm', version: '1.4.9'
 
     compile 'org.zeroturnaround:zt-zip:1.13'
 

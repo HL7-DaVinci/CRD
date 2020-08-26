@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBException;
 import org.cqframework.cql.cql2elm.CqlTranslator;
 import org.cqframework.cql.cql2elm.CqlTranslatorException;
 import org.cqframework.cql.cql2elm.LibraryManager;
+import org.cqframework.cql.cql2elm.LibrarySourceProvider;
 import org.cqframework.cql.cql2elm.ModelManager;
 import org.cqframework.cql.cql2elm.FhirLibrarySourceProvider;
 import org.cqframework.cql.elm.execution.Library;
@@ -18,10 +19,13 @@ import org.opencds.cqf.cql.execution.CqlLibraryReader;
 
 public class CqlExecution {
 
-  public static String translateToElm(String cql) throws Exception {
+  public static String translateToElm(String cql, LibrarySourceProvider librarySourceProvider) throws Exception {
     ModelManager modelManager = new ModelManager();
     LibraryManager libraryManager = new LibraryManager(modelManager);
     libraryManager.getLibrarySourceLoader().registerProvider(new FhirLibrarySourceProvider());
+    if (librarySourceProvider != null) {
+      libraryManager.getLibrarySourceLoader().registerProvider(librarySourceProvider);
+    }
 
     ArrayList<CqlTranslator.Options> options = new ArrayList<>();
     options.add(CqlTranslator.Options.EnableDateRangeOptimization);
@@ -42,6 +46,10 @@ public class CqlExecution {
     }
 
     return translator.toJson();
+  }
+
+  public static String translateToElm(String cql) throws Exception {
+    return translateToElm(cql, null);
   }
 
   public static Library translate(String cql, LibraryManager libraryManager, ModelManager modelManager) throws Exception {

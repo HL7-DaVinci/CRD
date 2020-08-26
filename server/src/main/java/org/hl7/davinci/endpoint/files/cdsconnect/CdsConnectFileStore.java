@@ -295,7 +295,7 @@ public class CdsConnectFileStore extends CommonFileStore {
         String cql = new String(fileData);
         byte[] elmFileData = null;
         try {
-          String elm = CqlExecution.translateToElm(cql);
+          String elm = CqlExecution.translateToElm(cql, new CDSLibrarySourceProvider(this));
           elmFileData = elm.getBytes();
         } catch (Exception e) {
           logger.warn("CdsConnectFileStore::getFile() Error: could not convert CQL: " + e.getMessage());
