@@ -6,6 +6,10 @@ The CRD RI project is software that can simulate all of the systems involved in 
 
 This software lets EHR vendors and payer organizations examine how the proposed standard will work and allows them to test their own implementation of the standard.
 
+## Running CRD
+
+You can find a complete end-to-end set up guide for DRLS, including CRD, [here](SetupGuideForMacOS.md).
+
 ## Project Structure
 
 Folders within this project make up subprojects. This section provides a brief description of each. More detailed information can be found in the subproject folders.
