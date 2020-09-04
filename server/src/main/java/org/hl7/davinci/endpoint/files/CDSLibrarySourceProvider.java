@@ -24,7 +24,7 @@ public class CDSLibrarySourceProvider implements LibrarySourceProvider {
 	public InputStream getLibrarySource(VersionedIdentifier libraryIdentifier) {
     String filename = libraryIdentifier.getId() + "-" + libraryIdentifier.getVersion() + ".cql";
 
-    FileResource file = fileStore.getFile(LIBRARY_TOPIC, filename, "r4", false);
+    FileResource file = fileStore.getFile(LIBRARY_TOPIC, filename, "R4", false);
 
     if (file != null) {
       try {
