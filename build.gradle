@@ -9,7 +9,7 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter{ url "http://jcenter.bintray.com/" }
+        jcenter{ url "https://jcenter.bintray.com/" }
         maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
         maven { url "https://jitpack.io" }
         jcenter()
