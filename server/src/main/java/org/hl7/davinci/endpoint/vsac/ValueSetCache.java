@@ -186,21 +186,21 @@ public class ValueSetCache {
    * @return true if sucessfuly found in cache dir. Otherwise, false.
    */
   private boolean fetchValueSetFromCache(String oid) {
-    logger.warn("VSACLoader was not setup, possibly due to lack of credentials. ValueSets already in directory will be considered.");
+    logger.warn("            VSACLoader was not setup, possibly due to lack of credentials. ValueSets already in directory will be considered.");
     File valueSetPath = new File(this.cacheDir, "ValueSet-R4-" + oid + ".json");
 
     try {
       ValueSet valueSet = (ValueSet) this.fhirContext.newJsonParser().parseResource(new FileInputStream(valueSetPath));
       // fix id, for some reason the parser adds 'ValueSet' on it
       valueSet.setId(oid);
-      logger.info("ValueSet (" + oid + ") found in cache dir, will use.");
+      logger.info("            ValueSet (" + oid + ") found in cache dir, will use.");
       this.addValueSetToFhirResources(valueSet, valueSetPath);
       return true;
     } catch (FileNotFoundException e) {
-      logger.error("ValueSet (" + oid + ") not found in cache dir. It will NOT be available!");
+      logger.error("            ValueSet (" + oid + ") not found in cache dir. It will NOT be available!");
       return false;
     } catch (DataFormatException e) {
-      logger.error("ValueSet (" + oid + ") in cache dir is malformed. It will NOT be available!");
+      logger.error("            ValueSet (" + oid + ") in cache dir is malformed. It will NOT be available!");
       return false;
     }
   }
@@ -218,7 +218,7 @@ public class ValueSetCache {
 
       if (valueSetPath.exists()) {
         valueSetPath.delete();
-        logger.info("Replacing ValueSet (" + oid + ") in cache dir.");
+        logger.info("            Replacing ValueSet (" + oid + ") in cache dir.");
       }
 
       try {
@@ -265,9 +265,9 @@ public class ValueSetCache {
           .setName(valueSet.getName())
           .setUrl(valueSet.getUrl());
       fhirResources.save(fhirResource);
-      logger.info("Added ValueSet (" + valueSet.getId() + ") to FhirResourceRepository");
+      logger.info("            Added ValueSet (" + valueSet.getId() + ") to FhirResourceRepository");
     } else {
-      logger.info("Cannot add to FhirResourceRepository, it wasn't provided");
+      logger.info("            Cannot add to FhirResourceRepository, it wasn't provided");
     }
   }
 

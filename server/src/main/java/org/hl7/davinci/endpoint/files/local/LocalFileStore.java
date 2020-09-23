@@ -51,6 +51,17 @@ public class LocalFileStore extends CommonFileStore {
       System.exit(1);
     }
 
+    // Load the examples folder
+    String examplesPath = config.getLocalDb().getExamplesPath();
+    logger.info("LocalFileStore::reload(): (examples) " + examplesPath);
+
+    try {
+      reloadFromFolder(examplesPath);
+    } catch (IOException e) {
+      logger.error("FATAL ERROR: Failed to reload examples from folder: " + e.getMessage());
+      System.exit(1);
+    }
+
     long endTime = System.nanoTime();
     long timeElapsed = endTime - startTime;
     float seconds = (float)timeElapsed / (float)1000000000;
@@ -64,9 +75,15 @@ public class LocalFileStore extends CommonFileStore {
     // load CQL files needed for the CRD Rule
     HashMap<String, byte[]> cqlFiles = new HashMap<>();
     String localPath = config.getLocalDb().getPath();
+    String examplesPath = config.getLocalDb().getExamplesPath();
 
     String mainCqlLibraryName = topic + "Rule";
     File mainCqlFile = findFile(localPath, topic, fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
+
+    // look for the main cql file in the examples path as well
+    if (mainCqlFile == null) {
+      mainCqlFile = findFile(examplesPath, topic, fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
+    }
     if (mainCqlFile == null) {
       logger.warn("LocalFileStore::getCqlRule(): failed to find main CQL file");
     } else {
@@ -79,6 +96,11 @@ public class LocalFileStore extends CommonFileStore {
     }
 
     File helperCqlFile = findFile(localPath, FileStore.SHARED_TOPIC, fhirVersion, FileStore.FHIR_HELPERS_FILENAME, FileStore.CQL_EXTENSION);
+
+    // look for the helper cql file in the examples path as well
+    if (helperCqlFile == null) {
+      helperCqlFile = findFile(examplesPath, FileStore.SHARED_TOPIC, fhirVersion, FileStore.FHIR_HELPERS_FILENAME, FileStore.CQL_EXTENSION);
+    }
     if (helperCqlFile == null) {
       logger.warn("LocalFileStore::getCqlRule(): failed to find FHIR helper CQL file");
     } else {
@@ -98,8 +120,21 @@ public class LocalFileStore extends CommonFileStore {
     fileResource.setFilename(fileName);
 
     String localPath = config.getLocalDb().getPath();
-    String filePath = localPath + topic + "/" + fhirVersion + "/files/" + fileName;
+    String partialFilePath = topic + "/" + fhirVersion + "/files/" + fileName;
+    String filePath = localPath + partialFilePath;
     File file = new File(filePath);
+
+    if (!Files.exists(file.toPath())) {
+      logger.info("LocalFileStore::getFile(): could not find file: " + file.toString() + " will try examples folder");
+      String examplesPath = config.getLocalDb().getExamplesPath();
+      filePath = examplesPath + partialFilePath;
+      file = new File(filePath);
+      if (!Files.exists(file.toPath())) {
+        logger.warn("LocalFileStore::getFile(): could not find file: " + file.toString());
+        return null;
+      }
+    }
+
     byte[] fileData = null;
     try {
       fileData = Files.readAllBytes(file.toPath());
@@ -129,18 +164,33 @@ public class LocalFileStore extends CommonFileStore {
     String fileString = null;
     String filePath;
     String localPath = config.getLocalDb().getPath();
+    File file = null;
 
     // If the topic indicates it's actually from the ValueSet cache. Grab file path from there.
     if (fhirResource.getTopic().equals(ValueSetCache.VSAC_TOPIC)) {
       filePath = config.getValueSetCachePath() + fhirResource.getFilename();
+      file = new File(filePath);
       logger.warn("Atempting to serve valueset from cache at: " + filePath);
     } else {
-      filePath = localPath + fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+      String partialFilePath = fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+      filePath = localPath + partialFilePath;
+      file = new File(filePath);
+
+      if (!Files.exists(file.toPath())) {
+        logger.info("LocalFileStore::readFhirResourceFromFile(): could not find file: " + file.toString() + " will try examples folder");
+        String examplesPath = config.getLocalDb().getExamplesPath();
+        filePath = examplesPath + partialFilePath;
+        file = new File(filePath);
+        if (!Files.exists(file.toPath())) {
+          logger.warn("LocalFileStore::readFhirResourceFromFile(): could not find file: " + file.toString());
+          return null;
+        }
+      }
+
       logger.warn("Attemping to serve file from: " + filePath);
     }
 
     try {
-      File file = new File(filePath);
       byte[] fileData = Files.readAllBytes(file.toPath());
       fileString = new String(fileData, Charset.defaultCharset());
     } catch (IOException e) {

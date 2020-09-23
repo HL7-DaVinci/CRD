@@ -472,7 +472,7 @@ public abstract class CommonFileStore implements FileStore {
     String regex = name + "-\\d.\\d.\\d" + extension;
     FileFilter fileFilter = new RegexFileFilter(regex);
     File[] files = dir.listFiles(fileFilter);
-    if (files.length > 0) {
+    if ((files != null) && (files.length > 0)) {
       // just return the first one
       return files[0];
     }
