@@ -55,12 +55,18 @@ public class GitHubFileStore extends CommonFileStore {
     lookupTable.deleteAll();
     fhirResources.deleteAll();
 
-    logger.info("GitHubFileStore::reload()");
-
     if (config.getGitHubConfig().getUseZipForReload()) {
       success = reloadFromZip();
+
     } else {
-      success = reloadFromGitHub();
+      String rulePath = config.getGitHubConfig().getRulePath();
+      success = reloadFromGitHub(rulePath);
+
+      // Load the examples folder
+      if (success) {
+        String examplesPath = config.getGitHubConfig().getExamplesPath();
+        success = reloadFromGitHub(examplesPath);
+      }
     }
 
     long endTime = System.nanoTime();
@@ -75,6 +81,7 @@ public class GitHubFileStore extends CommonFileStore {
   }
 
   private boolean reloadFromZip() {
+    logger.info("GitHubFileStore::reloadFromZip()");
     // download the repo
     String zipPath = connection.downloadRepo();
     File zipFile = new File(zipPath);
@@ -91,14 +98,24 @@ public class GitHubFileStore extends CommonFileStore {
       }
     }
     if (location != null) {
-      String rulePath = config.getGitHubConfig().getRulePath();
-      String path = location.getPath() + "/" + rulePath;
 
       // load the folder
+      String rulePath = config.getGitHubConfig().getRulePath();
+      String path = location.getPath() + "/" + rulePath;
       try {
         reloadFromFolder(path + "/");
       } catch (IOException e) {
         logger.error("FATAL ERROR: Failed to reload from folder: " + e.getMessage());
+        System.exit(1);
+      }
+
+      // load the examples folder
+      String examplesPath = config.getGitHubConfig().getExamplesPath();
+      path = location.getPath() + "/" + examplesPath;
+      try {
+        reloadFromFolder(path + "/");
+      } catch (IOException e) {
+        logger.error("FATAL ERROR: Failed to reload from examples folder: " + e.getMessage());
         System.exit(1);
       }
 
@@ -115,8 +132,8 @@ public class GitHubFileStore extends CommonFileStore {
     return true;
   }
 
-  private boolean reloadFromGitHub() {
-    String rulePath = config.getGitHubConfig().getRulePath();
+  private boolean reloadFromGitHub(String rulePath) {
+    logger.info("GitHubFileStore::reloadFromGitHub(): " + rulePath);
 
     for (String topicName : connection.getDirectory(rulePath)) {
       String topicPath = rulePath + topicName;
@@ -255,6 +272,7 @@ public class GitHubFileStore extends CommonFileStore {
     HashMap<String, byte[]> cqlFiles = new HashMap<>();
 
     String rulePath = config.getGitHubConfig().getRulePath();
+    String examplesPath = config.getGitHubConfig().getExamplesPath();
 
     String mainCqlLibraryName = topic + "Rule";
     String mainCqlFile = findGitHubFile(topic, fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
@@ -263,7 +281,13 @@ public class GitHubFileStore extends CommonFileStore {
     } else {
       String mainCqlFilePath = rulePath + topic + "/" + fhirVersion + "/files/" + mainCqlFile;
       try {
-        cqlFiles.put(mainCqlFile, IOUtils.toByteArray(connection.getFile(mainCqlFilePath)));
+        InputStream inputStream = connection.getFile(mainCqlFilePath);
+        if (inputStream == null) {
+          // look for the main cql file in the examples path as well
+          mainCqlFilePath = examplesPath + topic + "/" + fhirVersion + "/files/" + mainCqlFile;
+          inputStream = connection.getFile(mainCqlFilePath);
+        }
+        cqlFiles.put(mainCqlFile, IOUtils.toByteArray(inputStream));
         logger.info("GitHubFileStore::getCqlRule(): added mainCqlFile: " + mainCqlFile);
       } catch (IOException e) {
         logger.warn("GitHubFileStore::getCqlRule(): failed to open main cql file: " + e.getMessage());
@@ -276,7 +300,13 @@ public class GitHubFileStore extends CommonFileStore {
     } else {
       String helperCqlFilePath = rulePath + "Shared/" + fhirVersion + "/files/" + helperCqlFile;
       try {
-        cqlFiles.put(helperCqlFile, IOUtils.toByteArray(connection.getFile(helperCqlFilePath)));
+        InputStream inputStream = connection.getFile(helperCqlFilePath);
+        if (inputStream == null) {
+          // look for the helper cql file in the examples path as well
+          helperCqlFilePath = examplesPath + "Shared/" + fhirVersion + "/files/" + helperCqlFile;
+          inputStream = connection.getFile(helperCqlFilePath);
+        }
+        cqlFiles.put(helperCqlFile, IOUtils.toByteArray(inputStream));
         logger.info("GitHubFileStore::getCqlRule(): added helperCqlFile: " + helperCqlFile);
       } catch (IOException e) {
         logger.warn("GitHubFileStore::getCqlRule(): failed to open file FHIR helper cql file: " + e.getMessage());
@@ -292,12 +322,19 @@ public class GitHubFileStore extends CommonFileStore {
 
     String rulePath = config.getGitHubConfig().getRulePath();
     String filePath = rulePath + topic + "/" + fhirVersion + "/files/" + fileName;
-
     InputStream inputStream = connection.getFile(filePath);
 
     if (inputStream == null) {
-      logger.warn("GitHubFileStore:getFile() Error getting file");
-      return null;
+
+      // Look in the examples folder
+      String examplesPath = config.getGitHubConfig().getExamplesPath();
+      filePath = examplesPath + topic + "/" + fhirVersion + "/files/" + fileName;
+      inputStream = connection.getFile(filePath);
+
+      if (inputStream == null) {
+        logger.warn("GitHubFileStore:getFile() Error getting file");
+        return null;
+      }
     }
 
     // convert to ELM
@@ -348,8 +385,15 @@ public class GitHubFileStore extends CommonFileStore {
     }
 
     if (inputStream == null) {
-      logger.warn("GitHubFileStore::readFhirResourceFromFile() Error getting file");
-      return null;
+      // try to get the file from the examples folder
+      String examplesPath = config.getGitHubConfig().getExamplesPath();
+      filePath = examplesPath + fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+      inputStream = connection.getFile(filePath);
+
+      if (inputStream == null) {
+        logger.warn("GitHubFileStore::readFhirResourceFromFile() Error getting file");
+        return null;
+      }
     }
 
     try {
@@ -362,15 +406,27 @@ public class GitHubFileStore extends CommonFileStore {
     return fileString;
   }
 
-  private String findGitHubFile(String topic, String fhirVersion, String name, String extension) {
-    String rulePath = config.getGitHubConfig().getRulePath();
-    String cqlFileLocation =  rulePath + topic + "/" + fhirVersion + "/files/";
+  private String findGitHubFileInPath(String rulePath, String topic, String fhirVersion, String name, String extension) {
+    String cqlFileLocation = rulePath + topic + "/" + fhirVersion + "/files/";
     for (String file : connection.getDirectory(cqlFileLocation)) {
       if (file.startsWith(name) && file.endsWith(extension)) {
         return file;
       }
     }
-    logger.info("GitHubFileStore::findGitHubFile(): no files match: " + cqlFileLocation + name + "*.*.*" + extension);
+    logger.info("GitHubFileStore::findGitHubFileInPath(): no files match: " + cqlFileLocation + name + "*.*.*" + extension);
     return null;
+  }
+
+  private String findGitHubFile(String topic, String fhirVersion, String name, String extension) {
+    String rulePath = config.getGitHubConfig().getRulePath();
+    String file = findGitHubFileInPath(rulePath, topic, fhirVersion, name, extension);
+
+    // look in the examples path
+    if (file == null) {
+      String examplesPath = config.getGitHubConfig().getExamplesPath();
+      file = findGitHubFileInPath(examplesPath, topic, fhirVersion, name, extension);
+    }
+
+    return file;
   }
 }
