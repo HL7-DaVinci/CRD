@@ -119,6 +119,7 @@ public class GitHubFileStore extends CommonFileStore {
     String rulePath = config.getGitHubConfig().getRulePath();
 
     for (String topicName : connection.getDirectory(rulePath)) {
+      String topicPath = rulePath + topicName;
       // skip files with an extension or folders that start with a '.'
       if (!topicName.contains(".")) {
 
@@ -126,9 +127,9 @@ public class GitHubFileStore extends CommonFileStore {
         if (topicName.equalsIgnoreCase(FileStore.SHARED_TOPIC)) {
           logger.info("  GitHubFileStore::reloadFromGitHub() found Shared files");
 
-          for (String fhirFolder : connection.getDirectory(topicName)) {
+          for (String fhirFolder : connection.getDirectory(topicPath)) {
             String fhirVersion = fhirFolder;
-            String fullPath = topicName + "/" + fhirFolder;
+            String fullPath = topicPath + "/" + fhirFolder;
             processFhirFolder(topicName, fhirVersion, fullPath);
           }
 
@@ -138,12 +139,12 @@ public class GitHubFileStore extends CommonFileStore {
           logger.info("  GitHubFileStore::reloadFromGitHub() found topic: " + topicName);
 
           // process the metadata file
-          for (String fileName : connection.getDirectory(topicName)) {
+          for (String fileName : connection.getDirectory(topicPath)) {
 
             if (fileName.equalsIgnoreCase("TopicMetadata.json")) {
               ObjectMapper objectMapper = new ObjectMapper();
 
-              String fullPath = topicName + "/" + fileName;
+              String fullPath = rulePath + topicName + "/" + fileName;
               try {
                 // read the file
                 InputStream inputStream = connection.getFile(fullPath);
@@ -185,7 +186,7 @@ public class GitHubFileStore extends CommonFileStore {
               }
             } else {
               String fhirVersion = fileName;
-              String fullPath = topicName + "/" + fileName;
+              String fullPath = topicPath + "/" + fileName;
               processFhirFolder(topicName, fhirVersion, fullPath);
             }
           }
@@ -253,12 +254,14 @@ public class GitHubFileStore extends CommonFileStore {
     // load CQL files needed for the CRD Rule
     HashMap<String, byte[]> cqlFiles = new HashMap<>();
 
+    String rulePath = config.getGitHubConfig().getRulePath();
+
     String mainCqlLibraryName = topic + "Rule";
     String mainCqlFile = findGitHubFile(topic, fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
     if (mainCqlFile == null) {
       logger.warn("GitHubFileStore::getCqlRule(): failed to find main CQL file");
     } else {
-      String mainCqlFilePath = topic + "/" + fhirVersion + "/files/" + mainCqlFile;
+      String mainCqlFilePath = rulePath + topic + "/" + fhirVersion + "/files/" + mainCqlFile;
       try {
         cqlFiles.put(mainCqlFile, IOUtils.toByteArray(connection.getFile(mainCqlFilePath)));
         logger.info("GitHubFileStore::getCqlRule(): added mainCqlFile: " + mainCqlFile);
@@ -271,7 +274,7 @@ public class GitHubFileStore extends CommonFileStore {
     if (helperCqlFile == null) {
       logger.warn("GitHubFileStore::getCqlRule(): failed to find FHIR helper CQL file");
     } else {
-      String helperCqlFilePath = "Shared/" + fhirVersion + "/files/" + helperCqlFile;
+      String helperCqlFilePath = rulePath + "Shared/" + fhirVersion + "/files/" + helperCqlFile;
       try {
         cqlFiles.put(helperCqlFile, IOUtils.toByteArray(connection.getFile(helperCqlFilePath)));
         logger.info("GitHubFileStore::getCqlRule(): added helperCqlFile: " + helperCqlFile);
@@ -287,7 +290,8 @@ public class GitHubFileStore extends CommonFileStore {
     FileResource fileResource = new FileResource();
     fileResource.setFilename(fileName);
 
-    String filePath = topic + "/" + fhirVersion + "/files/" + fileName;
+    String rulePath = config.getGitHubConfig().getRulePath();
+    String filePath = rulePath + topic + "/" + fhirVersion + "/files/" + fileName;
 
     InputStream inputStream = connection.getFile(filePath);
 
@@ -338,7 +342,8 @@ public class GitHubFileStore extends CommonFileStore {
         return null;
       }
     } else {
-      filePath = fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
+      String rulePath = config.getGitHubConfig().getRulePath();
+      filePath = rulePath + fhirResource.getTopic() + "/" + fhirVersion + "/resources/" + fhirResource.getFilename();
       inputStream = connection.getFile(filePath);
     }
 
@@ -350,7 +355,7 @@ public class GitHubFileStore extends CommonFileStore {
     try {
       fileString = IOUtils.toString(inputStream, Charset.defaultCharset());
     } catch (IOException e) {
-      logger.warn("GitHubFileStore::getFhirResourceByTopic() failed to get file: " + e.getMessage());
+      logger.warn("GitHubFileStore::readFhirResourceFromFile() failed to get file: " + e.getMessage());
       return null;
     }
 
@@ -358,7 +363,8 @@ public class GitHubFileStore extends CommonFileStore {
   }
 
   private String findGitHubFile(String topic, String fhirVersion, String name, String extension) {
-    String cqlFileLocation =  topic + "/" + fhirVersion + "/files/";
+    String rulePath = config.getGitHubConfig().getRulePath();
+    String cqlFileLocation =  rulePath + topic + "/" + fhirVersion + "/files/";
     for (String file : connection.getDirectory(cqlFileLocation)) {
       if (file.startsWith(name) && file.endsWith(extension)) {
         return file;

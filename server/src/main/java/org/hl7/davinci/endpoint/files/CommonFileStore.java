@@ -89,12 +89,12 @@ public abstract class CommonFileStore implements FileStore {
         fileResource.setResource(new ByteArrayResource(fileData));
         return fileResource;
       } else {
-        logger.warn("GitHubFileStore::getFhirResourceByTopic() empty fileString");
+        logger.warn("CommonFhirStore::readFhirResourceFromFiles() empty fileString");
         return null;
       }
 
     } else {
-      logger.warn("GitHubFileStore::getFhirResourceByTopic() empty file resource list");
+      logger.warn("CommonFileStore::readFhirResourceFromFiles() empty file resource list");
       return null;
     }
   }
