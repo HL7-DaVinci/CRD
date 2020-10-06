@@ -6,6 +6,7 @@ public class GitHubConfig {
   private String repository;
   private String branch;
   private String rulePath;
+  private String examplesPath;
   private Boolean useZipForReload;
 
   public String getUsername() {return username; }
@@ -27,6 +28,10 @@ public class GitHubConfig {
   public String getRulePath() { return rulePath; }
 
   public void setRulePath(String rulePath) { this.rulePath = rulePath; }
+
+  public String getExamplesPath() { return examplesPath; }
+
+  public void setExamplesPath(String examplesPath) { this.examplesPath = examplesPath; }
 
   public boolean getUseZipForReload() { return useZipForReload; }
 

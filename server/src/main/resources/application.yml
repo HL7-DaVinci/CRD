@@ -51,11 +51,13 @@ gitHubConfig:
   token: token
   repository: HL7-DaVinci/CDS-Library
   branch: master
-  rule-path: .
+  rule-path: CRD-DTR/
+  examplesPath: Examples/
   useZipForReload: true
 
 localDb:
-  path: CDS-Library/
+  path: CDS-Library/CRD-DTR/
+  examplesPath: CDS-Library/Examples/
 
 valueSetCachePath: ValueSetCache/
 

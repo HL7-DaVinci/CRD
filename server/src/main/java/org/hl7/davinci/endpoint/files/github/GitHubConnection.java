@@ -101,7 +101,8 @@ public class GitHubConnection {
       fileStream = file.read();
 
     } catch (IOException e) {
-      logger.warning("GitHubConnection::getFile(): ERROR: failed to connect to get file: " + filePath + ": " + e.getMessage());
+      logger.warning("GitHubConnection::getFile(): failed to connect to get file: " + filePath + ": " + e.getMessage());
+      fileStream = null;
     }
     return fileStream;
   }

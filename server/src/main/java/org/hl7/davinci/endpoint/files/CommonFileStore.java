@@ -89,12 +89,12 @@ public abstract class CommonFileStore implements FileStore {
         fileResource.setResource(new ByteArrayResource(fileData));
         return fileResource;
       } else {
-        logger.warn("GitHubFileStore::getFhirResourceByTopic() empty fileString");
+        logger.warn("CommonFhirStore::readFhirResourceFromFiles() empty fileString");
         return null;
       }
 
     } else {
-      logger.warn("GitHubFileStore::getFhirResourceByTopic() empty file resource list");
+      logger.warn("CommonFileStore::readFhirResourceFromFiles() empty file resource list");
       return null;
     }
   }
@@ -472,7 +472,7 @@ public abstract class CommonFileStore implements FileStore {
     String regex = name + "-\\d.\\d.\\d" + extension;
     FileFilter fileFilter = new RegexFileFilter(regex);
     File[] files = dir.listFiles(fileFilter);
-    if (files.length > 0) {
+    if ((files != null) && (files.length > 0)) {
       // just return the first one
       return files[0];
     }

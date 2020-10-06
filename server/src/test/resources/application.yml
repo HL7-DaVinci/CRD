@@ -31,6 +31,8 @@ localDb:
   rules: src/main/jib/rules/
   fhirArtifacts: src/main/jib/smartAppFhirArtifacts/
   path: src/test/resources/CDS-Library/
+  examplesPath: src/test/resources/Examples/
 
 launchUrl: /smart/launch.html
 appendParamsToSmartLaunchUrl: true
+
