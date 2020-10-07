@@ -17,6 +17,7 @@ import org.hl7.davinci.stu3.crdhook.ordersign.OrderSignRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,9 +33,6 @@ public class CdsHooksController {
   static final String URL_BASE = "/cds-services";
 
 
-  @Autowired private OrderReviewService orderReviewService;
-  @Autowired private MedicationPrescribeService medicationPrescribeService;
-  @Autowired private OrderSelectService orderSelectService;
   @Autowired private OrderSignService orderSignService;
 
   /**
@@ -46,9 +44,6 @@ public class CdsHooksController {
   public CdsServiceInformation serviceDiscovery() {
     logger.info("stu3/serviceDiscovery");
     CdsServiceInformation serviceInformation = new CdsServiceInformation();
-    serviceInformation.addServicesItem(orderReviewService);
-    serviceInformation.addServicesItem(medicationPrescribeService);
-    serviceInformation.addServicesItem(orderSelectService);
     serviceInformation.addServicesItem(orderSignService);
     return serviceInformation;
   }
@@ -62,12 +57,10 @@ public class CdsHooksController {
   @CrossOrigin
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderReviewService.ID,
       consumes = "application/json;charset=UTF-8")
-  public CdsResponse handleOrderReview(@Valid @RequestBody OrderReviewRequest request, final HttpServletRequest httpServletRequest) {
+  public ResponseEntity<String> handleOrderReview(@Valid @RequestBody OrderReviewRequest request, final HttpServletRequest httpServletRequest) {
     logger.info("stu3/handleOrderReview");
-    if (request.getPrefetch() == null) {
-      request.setPrefetch(new CrdPrefetch());
-    }
-    return orderReviewService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+    logger.warn("order-review not supported, return error (404)");
+    return ResponseEntity.notFound().build();
   }
 
 
@@ -79,12 +72,10 @@ public class CdsHooksController {
   @CrossOrigin
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + MedicationPrescribeService.ID,
       consumes = "application/json;charset=UTF-8")
-  public CdsResponse handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request, final HttpServletRequest httpServletRequest) {
-    logger.info("stu3/handleOrderReview");
-    if (request.getPrefetch() == null) {
-      request.setPrefetch(new CrdPrefetch());
-    }
-    return medicationPrescribeService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+  public ResponseEntity<String> handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request, final HttpServletRequest httpServletRequest) {
+    logger.info("stu3/handleMedicationPrescribe");
+    logger.warn("medication-prescribe not supported, return error (404)");
+    return ResponseEntity.notFound().build();
   }
 
   /**
@@ -95,12 +86,10 @@ public class CdsHooksController {
   @CrossOrigin
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderSelectService.ID,
       consumes = "application/json;charset=UTF-8")
-  public CdsResponse handleOrderSelect(@Valid @RequestBody OrderSelectRequest request, final HttpServletRequest httpServletRequest) {
-    logger.info("r4/handleOrderSelect");
-    if (request.getPrefetch() == null) {
-      request.setPrefetch(new CrdPrefetch());
-    }
-    return orderSelectService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+  public ResponseEntity<String> handleOrderSelect(@Valid @RequestBody OrderSelectRequest request, final HttpServletRequest httpServletRequest) {
+    logger.info("stu3/handleOrderSelect");
+    logger.warn("order-select not supported, return error (404)");
+    return ResponseEntity.notFound().build();
   }
 
   /**
@@ -112,7 +101,7 @@ public class CdsHooksController {
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderSignService.ID,
       consumes = "application/json;charset=UTF-8")
   public CdsResponse handleOrderSign(@Valid @RequestBody OrderSignRequest request, final HttpServletRequest httpServletRequest) {
-    logger.info("r4/handleOrderSign");
+    logger.info("stu3/handleOrderSign");
     if (request.getPrefetch() == null) {
       request.setPrefetch(new CrdPrefetch());
     }
