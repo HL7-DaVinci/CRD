@@ -5,19 +5,12 @@ import javax.validation.Valid;
 import org.cdshooks.CdsResponse;
 import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.MedicationPrescribeService;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderReviewService;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSelectService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSignService;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
-import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
-import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
-import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,48 +39,6 @@ public class CdsHooksController {
     CdsServiceInformation serviceInformation = new CdsServiceInformation();
     serviceInformation.addServicesItem(orderSignService);
     return serviceInformation;
-  }
-
-  /**
-   * The coverage requirement discovery endpoint for the order review hook.
-   * @param request An order review triggered cds request
-   * @return The card response
-   */
-  @CrossOrigin
-  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderReviewService.ID,
-      consumes = "application/json;charset=UTF-8")
-  public ResponseEntity<String> handleOrderReview(@Valid @RequestBody OrderReviewRequest request, final HttpServletRequest httpServletRequest) {
-    logger.info("r4/handleOrderReview");
-    logger.warn("order-review not supported, return error (404)");
-    return ResponseEntity.notFound().build();
-  }
-
-  /**
-   * The coverage requirement discovery endpoint for the medication prescribe hook.
-   * @param request A medication prescribe triggered cds request
-   * @return The card response
-   */
-  @CrossOrigin
-  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + MedicationPrescribeService.ID,
-      consumes = "application/json;charset=UTF-8")
-  public ResponseEntity<String> handleMedicationPrescribe(@Valid @RequestBody MedicationPrescribeRequest request, final HttpServletRequest httpServletRequest) {
-    logger.info("r4/handleMedicationPrescribe");
-    logger.warn("medication-prescribe not supported, return error (404)");
-    return ResponseEntity.notFound().build();
-  }
-
-  /**
-   * The coverage requirement discovery endpoint for the order select hook.
-   * @param request An order select triggered cds request
-   * @return The card response
-   */
-  @CrossOrigin
-  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderSelectService.ID,
-      consumes = "application/json;charset=UTF-8")
-  public ResponseEntity<String> handleOrderSelect(@Valid @RequestBody OrderSelectRequest request, final HttpServletRequest httpServletRequest) {
-    logger.info("r4/handleOrderSelect");
-    logger.warn("order-select not supported, return error (404)");
-    return ResponseEntity.notFound().build();
   }
 
   /**
