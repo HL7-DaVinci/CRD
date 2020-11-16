@@ -11,7 +11,7 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
   private Hook hook = null;
 
   @NotNull
-  private UUID hookInstance = null;
+  private String hookInstance = null;
 
   private String fhirServer = null;
 
@@ -42,11 +42,11 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
     this.hook = hook;
   }
 
-  public UUID getHookInstance() {
+  public String getHookInstance() {
     return hookInstance;
   }
 
-  public void setHookInstance(UUID hookInstance) {
+  public void setHookInstance(String hookInstance) {
     this.hookInstance = hookInstance;
   }
 
@@ -80,12 +80,6 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
 
   public void setContext(serviceContextTypeT context) {
     this.context = context;
-  }
-
-
-  @JsonGetter("hookInstance")
-  public String getHookInstanceAsString() {
-    return hookInstance.toString();
   }
 
 

@@ -55,7 +55,7 @@ public class CrdRequestCreator {
     OrderReviewRequest request = new OrderReviewRequest();
     request.setUser("Practitioner/1234");
     request.setHook(Hook.ORDER_REVIEW);
-    request.setHookInstance(UUID.randomUUID());
+    request.setHookInstance(UUID.randomUUID().toString());
     OrderReviewContext context = new OrderReviewContext();
     request.setContext(context);
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
@@ -110,7 +110,7 @@ public class CrdRequestCreator {
     MedicationPrescribeRequest request = new MedicationPrescribeRequest();
     request.setUser("Practitioner/1234");
     request.setHook(Hook.MEDICATION_PRESCRIBE);
-    request.setHookInstance(UUID.randomUUID());
+    request.setHookInstance(UUID.randomUUID().toString());
     MedicationPrescribeContext context = new MedicationPrescribeContext();
     request.setContext(context);
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
@@ -160,7 +160,7 @@ public class CrdRequestCreator {
     OrderSelectRequest request = new OrderSelectRequest();
     request.setUser("Practitioner/1234");
     request.setHook(Hook.ORDER_REVIEW);
-    request.setHookInstance(UUID.randomUUID());
+    request.setHookInstance(UUID.randomUUID().toString());
     OrderSelectContext context = new OrderSelectContext();
     request.setContext(context);
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
@@ -217,7 +217,7 @@ public class CrdRequestCreator {
     OrderSignRequest request = new OrderSignRequest();
     request.setUser("Practitioner/1234");
     request.setHook(Hook.ORDER_REVIEW);
-    request.setHookInstance(UUID.randomUUID());
+    request.setHookInstance(UUID.randomUUID().toString());
     OrderSignContext context = new OrderSignContext();
     request.setContext(context);
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
