@@ -30,6 +30,7 @@ import java.nio.charset.Charset;
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class PrefetchIntegrationTest {
 
+    /*zzzz
   private String medicationRequestPrefetch = FileUtils
       .readFileToString(new ClassPathResource("requests/medicationRequestPrefetch.json").getFile(),
           Charset.defaultCharset());
@@ -43,6 +44,7 @@ public class PrefetchIntegrationTest {
   private String medicationRequestNoPrefetchNoDoc = FileUtils
       .readFileToString(new ClassPathResource("requests/medicationRequestNoPrefetchNoDoc.json").getFile(),
           Charset.defaultCharset());
+          */
 
   private String deviceRequestPrefetch = FileUtils
       .readFileToString(new ClassPathResource("requests/deviceRequestPrefetch.json").getFile(),
@@ -106,6 +108,7 @@ public class PrefetchIntegrationTest {
     }
   }
 
+  /*
   @Test
   public void testMedicationPrescribeNoPrefetchDocReq() {
     // setup with request that has a prefetch so we know all the
@@ -117,7 +120,9 @@ public class PrefetchIntegrationTest {
             JsonNode.class);
     assert(!cards.get("cards").get(0).get("detail").isNull());
   }
+  */
 
+  /*
   @Test
   public void testMedicationPrescribeWithPrefetchDocReq() {
     HttpEntity<String> entity = new HttpEntity<String>(medicationRequestPrefetch, headers);
@@ -154,13 +159,14 @@ public class PrefetchIntegrationTest {
             JsonNode.class);
     assert(cards.get("cards").get(0).get("detail").isNull());
   }
+  */
 
   @Test
   public void testDeviceRequestNoPrefetchDocReq() {
     setup(deviceRequestPrefetch, "deviceRequestBundle");
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestNoPrefetch, headers);
     JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
+        .postForObject("http://localhost:" + port + "/r4/cds-services/order-sign-crd", entity,
             JsonNode.class);
     assert(!cards.get("cards").get(0).get("detail").isNull());
   }
@@ -169,7 +175,7 @@ public class PrefetchIntegrationTest {
   public void testDeviceRequestWithPrefetchDocReq() {
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestPrefetch, headers);
     JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
+        .postForObject("http://localhost:" + port + "/r4/cds-services/order-sign-crd", entity,
             JsonNode.class);
     System.out.println(cards);
     assert(!cards.get("cards").get(0).get("detail").isNull());
@@ -179,7 +185,7 @@ public class PrefetchIntegrationTest {
   public void testDeviceRequestPrefetchNoDocReq() {
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestPrefetchNoDoc, headers);
     JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
+        .postForObject("http://localhost:" + port + "/r4/cds-services/order-sign-crd", entity,
             JsonNode.class);
     assert(cards.get("cards").get(0).get("detail").isNull());
   }
@@ -190,7 +196,7 @@ public class PrefetchIntegrationTest {
     setup(deviceRequestPrefetchNoDoc, "deviceRequestBundle");
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestNoPrefetchNoDoc, headers);
     JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/r4/cds-services/order-review-crd", entity,
+        .postForObject("http://localhost:" + port + "/r4/cds-services/order-sign-crd", entity,
             JsonNode.class);
     assert(cards.get("cards").get(0).get("detail").isNull());
   }
