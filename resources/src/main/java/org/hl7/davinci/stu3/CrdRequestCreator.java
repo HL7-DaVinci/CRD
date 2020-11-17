@@ -53,11 +53,11 @@ public class CrdRequestCreator {
       Date patientBirthdate, String patientAddressState, String providerAddressState) {
 
     OrderReviewRequest request = new OrderReviewRequest();
-    request.setUser("Practitioner/1234");
     request.setHook(Hook.ORDER_REVIEW);
     request.setHookInstance(UUID.randomUUID().toString());
     OrderReviewContext context = new OrderReviewContext();
     request.setContext(context);
+    context.setUserId("Practitioner/1234");
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
     context.setPatientId(patient.getId());
 
@@ -108,11 +108,11 @@ public class CrdRequestCreator {
       Enumerations.AdministrativeGender patientGender,
       Date patientBirthdate, String patientAddressState, String providerAddressState) {
     MedicationPrescribeRequest request = new MedicationPrescribeRequest();
-    request.setUser("Practitioner/1234");
     request.setHook(Hook.MEDICATION_PRESCRIBE);
     request.setHookInstance(UUID.randomUUID().toString());
     MedicationPrescribeContext context = new MedicationPrescribeContext();
     request.setContext(context);
+    context.setUserId("Practitioner/1234");
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
     context.setPatientId(patient.getId());
 
@@ -158,11 +158,11 @@ public class CrdRequestCreator {
       Date patientBirthdate, String patientAddressState, String providerAddressState) {
 
     OrderSelectRequest request = new OrderSelectRequest();
-    request.setUser("Practitioner/1234");
     request.setHook(Hook.ORDER_REVIEW);
     request.setHookInstance(UUID.randomUUID().toString());
     OrderSelectContext context = new OrderSelectContext();
     request.setContext(context);
+    context.setUserId("Practitioner/1234");
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
     context.setPatientId(patient.getId());
 
@@ -215,11 +215,11 @@ public class CrdRequestCreator {
       Date patientBirthdate, String patientAddressState, String providerAddressState) {
 
     OrderSignRequest request = new OrderSignRequest();
-    request.setUser("Practitioner/1234");
     request.setHook(Hook.ORDER_REVIEW);
     request.setHookInstance(UUID.randomUUID().toString());
     OrderSignContext context = new OrderSignContext();
     request.setContext(context);
+    context.setUserId("Practitioner/1234");
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
     context.setPatientId(patient.getId());
 

@@ -18,9 +18,6 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
   private FhirAuthorization fhirAuthorization = null;
 
   @NotNull
-  private String user = null;
-
-  @NotNull
   private serviceContextTypeT context = null;
 
   private prefetchTypeT prefetch = null;
@@ -64,14 +61,6 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
 
   public void setFhirAuthorization(FhirAuthorization oauth) {
     this.fhirAuthorization = oauth;
-  }
-
-  public String getUser() {
-    return user;
-  }
-
-  public void setUser(String user) {
-    this.user = user;
   }
 
   public serviceContextTypeT getContext() {
