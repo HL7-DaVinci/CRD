@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.util.stream.Collectors;
+
 @RestController("r4_CdsHooksController")
 public class CdsHooksController {
 
@@ -93,12 +96,19 @@ public class CdsHooksController {
   @CrossOrigin
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderSelectService.ID,
       consumes = "application/json;charset=UTF-8")
-  public CdsResponse handleOrderSelect(@Valid @RequestBody OrderSelectRequest request, final HttpServletRequest httpServletRequest) {
+  public CdsResponse handleOrderSelect(@Valid @RequestBody String request, final HttpServletRequest httpServletRequest) {
     logger.info("r4/handleOrderSelect");
+
+    // test logging
+    logger.info(request);
+
+    /*
     if (request.getPrefetch() == null) {
       request.setPrefetch(new CrdPrefetch());
     }
     return orderSelectService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+    */
+    return null;
   }
 
   /**
