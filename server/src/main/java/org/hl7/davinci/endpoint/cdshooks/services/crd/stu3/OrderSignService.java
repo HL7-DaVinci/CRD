@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class OrderSignService extends CdsService<OrderSignRequest>  {
 
   public static final String ID = "order-sign-crd";
-  public static final String TITLE = "order-select Coverage Requirements Discovery";
+  public static final String TITLE = "order-sign Coverage Requirements Discovery";
   public static final Hook HOOK = Hook.ORDER_SIGN;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
