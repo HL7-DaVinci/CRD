@@ -1,5 +1,5 @@
 {
-  "hook": "order-review",
+  "hook": "order-sign",
   "hookInstance": "ff939efe-1c97-4c2a-b4e5-d34e6edc2f7b",
   "fhirServer": "http://localhost:9089/",
   "fhirAuthorization": null,
@@ -8,7 +8,7 @@
     "patientId": "c2f0f972-5f84-4518-948f-63d00a1fa5a0",
     "encounterId": null,
     "services": null,
-    "orders": {
+    "draftOrders": {
       "resourceType": "Bundle",
       "entry": [
         {

@@ -21,7 +21,6 @@ Subprojects:
 * examples - JSON examples of requests and responses
 * resources - java objects to represent the data structures involved in CRD requests and responses
 * testingClient - small java application that makes a CRD request and logs the response
-* creator - small java application that writes out a CDS Hook request for `order-review` to a JSON file (deprecated)
 
 Standalone or supporting apps for this project are contained in other repositories.  These include:
 

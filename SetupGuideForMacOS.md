@@ -155,9 +155,9 @@ Additionally, you must have credentials (username and password) access to the **
         "auth": "http://localhost:8180/auth",
         "server": "http://localhost:8090",
         "ehr_server": "http://localhost:8080/test-ehr/r4/",
-        "cds_service": "http://localhost:8090/r4/cds-services/order-review-crd",
+        "cds_service": "http://localhost:8090/r4/cds-services/order-sign-crd",
         "ehr_server_stu3": "http://localhost:8080/test-ehr/stu3/",
-        "cds_service_stu3": "http://localhost:8090/stu3/cds-services/order-review-crd",
+        "cds_service_stu3": "http://localhost:8090/stu3/cds-services/order-sign-crd",
         "true_base": "http://localhost:8080/test-ehr",
         "user": "alice",
         "password": "alice"

@@ -8,8 +8,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 
 /**
  * Class that supports the representation of prefetch information in a CDS Hook request.
- * It appears that for CRD, prefetch information will be the same, regardless of hook type (order-review,
- * medication-prescribe, or order-select).
+ * It appears that for CRD, prefetch information will be the same, regardless of hook type.
  */
 public class CrdPrefetch {
   @JsonSerialize(using = JacksonHapiSerializer.class)

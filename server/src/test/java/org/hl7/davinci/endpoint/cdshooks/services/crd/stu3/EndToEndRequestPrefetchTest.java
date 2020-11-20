@@ -69,7 +69,7 @@ public class EndToEndRequestPrefetchTest {
     headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestEmptyPrefetchJson, headers);
     JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/stu3/cds-services/order-review-crd", entity,
+        .postForObject("http://localhost:" + port + "/stu3/cds-services/order-sign-crd", entity,
             JsonNode.class);
 
     System.out.println(cards);
@@ -86,7 +86,7 @@ public class EndToEndRequestPrefetchTest {
     headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestEmptyPrefetchJson, headers);
     JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/stu3/cds-services/order-review-crd", entity,
+        .postForObject("http://localhost:" + port + "/stu3/cds-services/order-sign-crd", entity,
             JsonNode.class);
 
     System.out.println(cards);
