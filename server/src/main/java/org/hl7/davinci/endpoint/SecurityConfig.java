@@ -58,8 +58,9 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     http.csrf().disable();
     if (myConfig.getCheckJwt()) {
       http.authorizeRequests()
-          .antMatchers("/**/cds-services/**", "/**/requests/**").permitAll()
-          .anyRequest().authenticated().and()
+          .antMatchers("/**/cds-services/**", "/**/requests/**").authenticated()
+          .anyRequest().permitAll()
+          .and()
           .addFilter(new JwtAuthorizationFilter(authenticationManager(), requestService, publicKeyRepository));
     }else {
       http.headers().frameOptions().disable();
