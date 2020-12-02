@@ -46,6 +46,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
     fhirBundleProcessor.processDeviceRequests();
     fhirBundleProcessor.processMedicationRequests();
     fhirBundleProcessor.processServiceRequests();
+    fhirBundleProcessor.processMedicationDispenses();
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {

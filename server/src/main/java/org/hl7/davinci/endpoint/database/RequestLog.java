@@ -151,14 +151,18 @@ public class RequestLog {
         // Assume ServiceRequest if the coding information could not be found in a DeviceRequest
         jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='ServiceRequest')].code.coding[*].code");
       }
-      this.setCode( jList.get(0) );
+      if (!jList.isEmpty()) {
+        this.setCode( jList.get(0) );
+      }
 
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='DeviceRequest')].codeCodeableConcept.coding[*].system");
       if (jList.isEmpty()) {
         // Assume ServiceRequest if the coding information could not be found in a DeviceRequest
         jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='ServiceRequest')].code.coding[*].system");
       }
-      this.setCodeSystem( jList.get(0) );
+      if (!jList.isEmpty()) {
+        this.setCodeSystem( jList.get(0) );
+      }
 
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Location')].address.state");
       if (jList.isEmpty()) {

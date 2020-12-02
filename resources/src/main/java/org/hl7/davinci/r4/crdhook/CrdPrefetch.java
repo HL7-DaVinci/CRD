@@ -40,6 +40,10 @@ public class CrdPrefetch {
   @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle encounterBundle;
 
+  @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  private Bundle medicationDispenseBundle;
+
   public Bundle getDeviceRequestBundle() {
     return deviceRequestBundle;
   }
@@ -53,6 +57,12 @@ public class CrdPrefetch {
   }
 
   public void setMedicationRequestBundle(Bundle medicationRequestBundle) { this.medicationRequestBundle = medicationRequestBundle; }
+
+  public Bundle getMedicationDispenseBundle() {
+    return medicationDispenseBundle;
+  }
+
+  public void setMedicationDispenseBundle(Bundle medicationDispenseBundle) { this.medicationDispenseBundle = medicationDispenseBundle; }
 
   public Bundle getNutritionOrderBundle() {
     return nutritionOrderBundle;
