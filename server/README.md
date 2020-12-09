@@ -103,10 +103,7 @@ If the credentials are not provided, CRD will look for ValueSets in the `server/
 | `/`                                        | Web page with basic RI information |
 | `/data`                                    | Web-based administrative interface |
 | `/cds-services/`                           | CDS Hook Discovery endpoint |
-| ~`/cds-services/order-review-crd`~         | CDS Hook endpoint for order-review (deprecated) |
-| ~`/cds-services/medication-prescribe-crd`~ | CDS Hook endpoint for medication-prescribe (deprecated) |
 | `/cds-services/order-sign-crd`             | CDS Hook endpoint for order-sign |
-| `/cds-services/order-select-crd`           | CDS Hook endpoint for order-select |
 | `/files/`                                  | File retrieval endpoint |
 | `/fhir/`                                   | Endpoint for retrieving FHIR Resources (Quesionnaire and Library) needed by DTR |
 | `/reload`                                  | Rebuild the database of rules |

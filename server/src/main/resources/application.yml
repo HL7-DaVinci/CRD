@@ -23,7 +23,7 @@ server:
     # contextPath should start with "/" but not end with one. This is good: "/cds-hooks"
     contextPath: /
 
-checkJwt: false
+checkJwt: true
 
 checkPractitionerLocation: false
 
