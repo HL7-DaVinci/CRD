@@ -389,11 +389,10 @@ public abstract class CommonFileStore implements FileStore {
    * Called by the DataController to ensure we have a fresh VSACLoader for getting
    * value sets before starting the reloading process.
    * 
-   * @param username VSAC/UMLS Username
-   * @param password VSAC/UMLS Password
+   * @param apiKey VSAC/UMLS API KEY
    */
-  public void reinitializeVSACLoader(String username, String password) {
-    this.getValueSetCache().reinitializeLoaderWithCreds(username, password);
+  public void reinitializeVSACLoader(String apiKey) {
+    this.getValueSetCache().reinitializeLoaderWithCreds(apiKey);
   }
 
   /**
