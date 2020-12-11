@@ -253,17 +253,23 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
 
     if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null) {
-      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString())
-          .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-              .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString());
+    }
+
+    if (evaluateStatement("RESULT_requestId", context) != null) {
+      results.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+      .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+    }
+
+    if (evaluateStatement("RESULT_dispense", context) != null) {
+      results.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+      .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_dispense", context))));
     }
 
     try {
       if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null) {
         results
-            .setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+            .setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No face to face questionnaire defined");
@@ -271,9 +277,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     try {
       if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null) {
-        results.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+        results.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No Lab questionnaire defined");
@@ -281,9 +285,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     try {
       if (evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context) != null) {
-        results.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+        results.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No Progress note questionnaire defined");
@@ -291,9 +293,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     try {
       if (evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context) != null) {
-        results.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+        results.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No plan of care questionnaire defined");
@@ -301,9 +301,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     try {
       if (evaluateStatement("RESULT_QuestionnairePARequestUri", context) != null) {
-        results.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+        results.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No PA Request questionnaire defined");
@@ -311,14 +309,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     try {
       if (evaluateStatement("RESULT_QuestionnaireDispenseUri", context) != null) {
-        results.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+        results.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No Dispense questionnaire defined");
     }
-
 
     return results;
   }

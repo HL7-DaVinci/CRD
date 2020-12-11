@@ -34,7 +34,8 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
       CrdPrefetchTemplateElements.SUPPLY_REQUEST_BUNDLE,
       CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
       CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE,
-      CrdPrefetchTemplateElements.SERVICE_REQUEST_BUNDLE);
+      CrdPrefetchTemplateElements.SERVICE_REQUEST_BUNDLE,
+      CrdPrefetchTemplateElements.MEDICATION_DISPENSE_BUNDLE);
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   static final Logger logger = LoggerFactory.getLogger(OrderSignService.class);
 
