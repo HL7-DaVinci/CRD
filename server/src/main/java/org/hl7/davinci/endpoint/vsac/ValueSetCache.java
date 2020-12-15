@@ -62,12 +62,11 @@ public class ValueSetCache {
    * Initializes the cache with credentials passed in.
    * 
    * @param cacheDir Location of the ValueSet cache folder.
-   * @param username UMLS/VSAC Username
-   * @param password UMLS/VSAC Password
+   * @param apiKey UMLS/VSAC API KEY
    */
-  public ValueSetCache(String cacheDir, String username, String password) {
+  public ValueSetCache(String cacheDir, String apiKey) {
     this.fhirContext = ca.uhn.fhir.context.FhirContext.forR4();
-    this.initializeLoader(username, password);
+    this.initializeLoader(apiKey);
     this.initializeCacheDir(cacheDir);
   }
 
@@ -75,25 +74,23 @@ public class ValueSetCache {
    * Initalizes the VSACLoader if it finds credentials on the evironment variables at VSAC_USERNAME and VSAC_PASSWORD.
    */
   private void initializeLoader() {
-    String username = System.getenv("VSAC_USERNAME");
-    String password = System.getenv("VSAC_PASSWORD");
-    if (username == null || password == null) {
+    String apiKey = System.getenv("VSAC_API_KEY");
+    if (apiKey == null) {
       logger.error(
-          "VSAC_USERNAME and/or VSAC_PASSWORD not found in environment variables. ValueSetCache will not be able to fetch valuesets.");
+          "VSAC_API_KEY not found in environment variables. ValueSetCache will not be able to fetch valuesets.");
     } else {
-      initializeLoader(username, password);
+      initializeLoader(apiKey);
     }
   }
 
   /**
    * Initializes the VSACLoader with provided credentials.
    * 
-   * @param username UMLS/VSAC Username
-   * @param password UMLS/VSAC Password
+   * @param apiKey UMLS/VSAC API KEY
    */
-  private void initializeLoader(String username, String password) {
+  private void initializeLoader(String apiKey) {
     try {
-      this.vsacLoader = new VSACLoader(username, password);
+      this.vsacLoader = new VSACLoader(apiKey);
       logger.info("VSACLoader sucessfully initialized.");
     } catch (VSACException e) {
       logger.error("Exception setting up VSACLoader. ValueSetCache will not be able to fetch valuesets.", e);
@@ -144,12 +141,11 @@ public class ValueSetCache {
   /**
    * Reinitializes the VSACLoader with provided credentials.
    * 
-   * @param username UMLS/VSAC Username
-   * @param password UMLS/VSAC Password
+   * @param apiKey UMLS/VSAC API KEY
    */
-  public void reinitializeLoaderWithCreds(String username, String password) {
+  public void reinitializeLoaderWithCreds(String apiKey) {
     this.clearLoader();
-    this.initializeLoader(username, password);
+    this.initializeLoader(apiKey);
   }
 
   /**

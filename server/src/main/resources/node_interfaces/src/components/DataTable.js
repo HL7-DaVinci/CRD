@@ -40,8 +40,7 @@ export default class DataTable extends Component {
                 <form action="/reload" method="post">
                     <div class="spacer"></div>
                     <span class="reload">
-                        <input name="vsac_username" type="text" placeholder="VSAC Username"/>
-                        <input name="vsac_password" type="password" placeholder="VSAC Password"/>
+                        <input name="vsac_api_key" type="password" placeholder="VSAC API KEY"/>
                         <input type="submit" value="Reload Data"/>
                     </span>
                 </form>

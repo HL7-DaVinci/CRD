@@ -85,10 +85,9 @@ This is the more flexible approach for developers.
 ValueSets from VSAC may be used by DTR rules. CRD will attempt to fetch these ValueSets from the VSAC SVS API and convert them to FHIR R4
 ValueSets so they will be available for the DTR SMART App. While rulesets are being loaded from the CDS-Library, CRD will look for VSAC ValueSets referenced by OID and attempt to load them. (NOTE: It will not error out if fails to fetch ValueSets.) To load valuesets CRD needs NLM/VSAC credentials. These can be provided in two ways.
 
-1.  Setting environment variables `VSAC_USERNAME` and `VSAC_PASSWORD`. Example in bash:
+1.  Setting environment variable `VSAC_API_KEY`. Example in bash:
 
-        $ export VSAC_USERNAME=username
-        $ export VSAC_PASSWORD='p@55word!'
+        $ export VSAC_API_KEY=vsac_api_key
     _Note: Single quotes means ignore special characters_
 
 2.  Providing credentials when reloading rules from the rule listing UI at http://localhost:8090/data. The credentials can optionally be provided before hitting "Reload Data".

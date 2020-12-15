@@ -15,7 +15,7 @@ public interface FileStore {
 
   void reload();
   void reinitializeVSACLoader();
-  void reinitializeVSACLoader(String username, String password);
+  void reinitializeVSACLoader(String apiKey);
 
   CqlRule getCqlRule(String topic, String fhirVersion);
 
