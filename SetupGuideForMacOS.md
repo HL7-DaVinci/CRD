@@ -48,7 +48,7 @@ Your computer must have these minimum requirements:
 - [Chrome browser](https://www.google.com/chrome/)
 - [Git installed](https://www.atlassian.com/git/tutorials/install-git)
 
-Additionally, you must have credentials (username and password) access to the **[Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/)**. Later on you will add these credentials to your development environment, as they are required for allowing DRLS to pull down updates to value sets that are housed in VSAC. If you don't already have VSAC credentials, you should [create them using UMLS](https://www.nlm.nih.gov/research/umls/index.html).
+Additionally, you must have credentials (api key) access to the **[Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/)**. Later on you will add these credentials to your development environment, as they are required for allowing DRLS to pull down updates to value sets that are housed in VSAC. If you don't already have VSAC credentials, you should [create them using UMLS](https://www.nlm.nih.gov/research/umls/index.html).
 
 ## Install core tools
 
@@ -189,8 +189,7 @@ You can see a list of your pre-existing environment variables on your Mac by run
 1. `cd ~/`
 2. Open `.bash_profile` and add the following lines at the very bottom:
     ```bash
-    export VSAC_USERNAME=username
-    export VSAC_PASSWORD='p@55word!'
+    export VSAC_API_KEY=vsac_api_key
     ```
 3. Save `.bash_profile` and complete the update to `env`: 
     ```bash

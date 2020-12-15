@@ -50,29 +50,26 @@ public class VSACLoader {
   /**
    * Initializes a VSACLoader. This attmepts to get a VSAC TGT.
    * 
-   * @param username UMLS/VSAC Username
-   * @param password UMLS/VSAC Password
+   * @param apiKey UMLS/VSAC API KEY
    * @throws VSACException If there was an inability to get a TGT with these credentials.
    */
-  public VSACLoader(String username, String password) throws VSACException {
+  public VSACLoader(String apiKey) throws VSACException {
     this.client = HttpClients.createDefault();
-    this.ticketGrantingTicket = getTicketGrantingTicket(username, password);
+    this.ticketGrantingTicket = getTicketGrantingTicket(apiKey);
   }
 
   /**
    * Grabs a Ticket Granting Ticket. This is the first step in using the API. This ticket is used to get service tickets which are
    * needed for each request. This ticket /should/ last 8 hours. But in practice it does not.
-   * 
-   * @param username UMLS/VSAC Username
-   * @param password UMLS/VSAC Password
+   *
+   * @param apiKey UMLS/VSAC API KEY
    * @return The Ticket Granting Ticket
    * @throws VSACException If there was an issue getting the TGT.
    */
-  private String getTicketGrantingTicket(String username, String password) throws VSACException {
+  private String getTicketGrantingTicket(String apiKey) throws VSACException {
     // Build parameter pair for form urlencoded data that will be posted.
     List<NameValuePair> credentials = new ArrayList<NameValuePair>();
-    credentials.add(new BasicNameValuePair("username", username));
-    credentials.add(new BasicNameValuePair("password", password));
+    credentials.add(new BasicNameValuePair("apikey", apiKey));
 
     // Build request to authorization url.
     HttpPost tgtRequest = new HttpPost(AUTH_URL);
