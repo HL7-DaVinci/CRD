@@ -126,6 +126,7 @@ public class FhirBundleProcessor {
         org.setId("75f39025-65db-43c8-9127-693cdf75e712"); // how to get ID
         payors.add(org);
         // remove the exception to use CMS if no payer is provided
+        // create JIRA ticket to address handle the request without payor information
         // throw new RequestIncompleteException("No Payer found in coverage resource, cannot find documentation.");
       }
 
