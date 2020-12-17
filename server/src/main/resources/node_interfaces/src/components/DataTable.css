@@ -132,3 +132,7 @@ div.spacer {
 span.reload {
     float: right;
 }
+
+input[name=vsac_api_key] {
+  width: 280px;
+}
