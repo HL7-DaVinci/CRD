@@ -21,9 +21,9 @@ public class OrderSelectRequest extends CdsRequest<CrdPrefetch, OrderSelectConte
       return mapForPrefetchTemplates;
     }
     mapForPrefetchTemplates = new HashMap<>();
-    mapForPrefetchTemplates.put("user", this.getUser());
 
     HashMap<String, Object> contextMap = new HashMap<>();
+    contextMap.put("userId", getContext().getUserId());
     contextMap.put("patientId", getContext().getPatientId());
     contextMap.put("encounterId", getContext().getEncounterId());
     contextMap.put("selections", getContext().getSelections());
