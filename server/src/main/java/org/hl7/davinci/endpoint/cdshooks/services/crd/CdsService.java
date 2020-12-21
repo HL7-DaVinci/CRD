@@ -328,6 +328,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (IllegalArgumentException e) {
       logger.error(e.toString());
       return null;
+    } catch (Exception e) {
+      logger.error(e.toString());
+      return null;
     }
   }
 
