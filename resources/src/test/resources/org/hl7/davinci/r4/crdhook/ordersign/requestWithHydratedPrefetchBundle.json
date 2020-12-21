@@ -3,8 +3,8 @@
   "hookInstance": "a4ca4d19-ed2a-491d-87d4-408fefd56ec9",
   "fhirServer": "http://localhost:8080/",
   "fhirAuthorization": null,
-  "user": "Practitioner/1234",
   "context":{
+    "userId": "Practitioner/1234",
     "patientId":"1288992",
     "encounterId":"89284",
     "draftOrders":{
