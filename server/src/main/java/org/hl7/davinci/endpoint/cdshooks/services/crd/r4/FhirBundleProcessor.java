@@ -72,6 +72,21 @@ public class FhirBundleProcessor {
     }
   }
 
+  public void processMedicationDispenses() {
+    Bundle medicationDispenseBundle = prefetch.getMedicationDispenseBundle();
+    List<MedicationDispense> medicationDispenseList = Utilities.getResourcesOfTypeFromBundle(MedicationDispense.class, medicationDispenseBundle);
+    if (!medicationDispenseList.isEmpty()) {
+      logger.info("r4/FhirBundleProcessor::getAndProcessMedicationDispenses: MedicationDispense(s) found");
+
+      for (MedicationDispense medicationDispense : medicationDispenseList) {
+        if (idInSelectionsList(medicationDispense.getId())) {
+          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationDispense.getMedicationCodeableConcept(), null);
+          buildExecutionContexts(criteriaList, (Patient) medicationDispense.getSubject().getResource(), "medication_dispense", medicationDispense);
+        }
+      }
+    }
+  }
+
   public void processServiceRequests() {
     Bundle serviceRequestBundle = prefetch.getServiceRequestBundle();
     List<ServiceRequest> serviceRequestList = Utilities.getResourcesOfTypeFromBundle(ServiceRequest.class, serviceRequestBundle);
@@ -96,19 +111,23 @@ public class FhirBundleProcessor {
         logger.info("r4/FhirBundleProcessor::createCriteriaList: empty codes list!");
       }
 
-      List<Coverage> coverages = insurance.stream()
-          .map(reference -> (Coverage) reference.getResource()).collect(Collectors.toList());
-      List<Organization> payors = Utilities.getPayors(coverages);
+      List<Organization> payors = new ArrayList<>();
+      if (insurance != null) {
+        List<Coverage> coverages = insurance.stream()
+            .map(reference -> (Coverage) reference.getResource()).collect(Collectors.toList());
+        payors = Utilities.getPayors(coverages);
+      }
       if (payors.size() > 0) {
         logger.info("r4/FhirBundleProcessor::createCriteriaList: payer[0]: " + payors.get(0).getName());
       } else {
         // default to CMS if no payer was provided
         logger.info("r4/FhirBundleProcessor::createCriteriaList: empty payers list, working around by adding CMS!");
         Organization org = new Organization().setName("Centers for Medicare and Medicaid Services");
-        org.setId("75f39025-65db-43c8-9127-693cdf75e712");
+        org.setId("75f39025-65db-43c8-9127-693cdf75e712"); // how to get ID
         payors.add(org);
         // remove the exception to use CMS if no payer is provided
-        throw new RequestIncompleteException("No Payer found in coverage resource, cannot find documentation.");
+        // JIRA ticket https://jira.mitre.org/browse/DMEERX-894
+        // throw new RequestIncompleteException("No Payer found in coverage resource, cannot find documentation.");
       }
 
       List<CoverageRequirementRuleCriteria> criteriaList = CoverageRequirementRuleCriteria

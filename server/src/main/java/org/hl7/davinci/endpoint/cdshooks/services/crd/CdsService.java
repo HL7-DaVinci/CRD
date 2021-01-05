@@ -167,7 +167,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 || StringUtils.isNotEmpty(results.getQuestionnaireLabUri())
                 || StringUtils.isNotEmpty(results.getQuestionnaireProgressNoteUri())
                 || StringUtils.isNotEmpty(results.getQuestionnairePARequestUri())
-                || StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri()))) {
+                || StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri())
+                || StringUtils.isNotEmpty(results.getQuestionnaireDispenseUri()))) {
           List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
           response.addCard(CardBuilder.transform(results, smartAppLinks));
         } else {
@@ -226,6 +227,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           results.getQuestionnairePlanOfCareUri(), results.getRequestId(), lookupResult.getCriteria(),
           results.getPriorAuthRequired(), "Plan of Care/Certification"));
     }
+
+    if (StringUtils.isNotEmpty(results.getQuestionnaireDispenseUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          results.getQuestionnaireDispenseUri(), results.getRequestId(), lookupResult.getCriteria(),
+          results.getPriorAuthRequired(), "Dispense Form"));
+    }
     return listOfLinks;
   }
 
@@ -243,63 +250,72 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         .setDetails(evaluateStatement("RESULT_Details", context).toString())
         .setInfoLink(evaluateStatement("RESULT_InfoLink", context).toString())
         .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
-        .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
+        .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context)); 
 
-    if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null) {
-      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString())
-          .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-              .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+    if (evaluateStatement("RESULT_requestId", context) != null) {
+      results.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+      .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+    }
+
+    boolean isNotMedicationDispense = true;
+    if (evaluateStatement("RESULT_dispense", context) != null) {
+      results.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+      .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_dispense", context))));
+      isNotMedicationDispense = false;
+    }
+
+    if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null && isNotMedicationDispense) {
+      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString());
     }
 
     try {
-      if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null) {
+      if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null && isNotMedicationDispense) {
         results
-            .setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+            .setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No face to face questionnaire defined");
     }
 
     try {
-      if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null) {
-        results.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null && isNotMedicationDispense) {
+        results.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No Lab questionnaire defined");
     }
 
     try {
-      if (evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context) != null) {
-        results.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      if (evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context) != null && isNotMedicationDispense) {
+        results.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No Progress note questionnaire defined");
     }
 
     try {
-      if (evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context) != null) {
-        results.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      if (evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context) != null && isNotMedicationDispense) {
+        results.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No plan of care questionnaire defined");
     }
 
     try {
-      if (evaluateStatement("RESULT_QuestionnairePARequestUri", context) != null) {
-        results.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString())
-            .setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+      if (evaluateStatement("RESULT_QuestionnairePARequestUri", context) != null && isNotMedicationDispense) {
+        results.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString());
       }
     } catch (Exception e) {
       logger.info("-- No PA Request questionnaire defined");
+    }
+
+    // only display the dispense form for MedicationDispense request
+    try {
+      if (evaluateStatement("RESULT_QuestionnaireDispenseUri", context) != null && !isNotMedicationDispense) {
+        results.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString());
+      }
+    } catch (Exception e) {
+      logger.info("-- No Dispense questionnaire defined");
     }
 
     return results;
@@ -310,6 +326,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return context.resolveExpressionRef(statement).evaluate(context);
       // can be thrown if statement is not defined in the cql
     } catch (IllegalArgumentException e) {
+      logger.error(e.toString());
+      return null;
+    } catch (Exception e) {
       logger.error(e.toString());
       return null;
     }

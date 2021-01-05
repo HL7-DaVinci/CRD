@@ -93,4 +93,14 @@ public class CrdPrefetchTemplateElements {
           + "&_include=Encounter:insurance:Coverage",
       Bundle.class);
 
+    public static final PrefetchTemplateElement MEDICATION_DISPENSE_BUNDLE = new PrefetchTemplateElement(
+        "medicationDispenseBundle",
+        "MedicationDispense?_id={{context.draftOrders.MedicationDispense.id}}"
+            + "&_include=MedicationDispense:patient"
+            + "&_include:recurse=PractitionerRole:location"
+            + "&_include=MedicationDispense:performer:PractitionerRole"
+            + "&_include=MedicationDispense:medication"
+            + "&_include=PractitionerRole:organization"
+            + "&_include=PractitionerRole:practitioner",
+        Bundle.class);
 }
