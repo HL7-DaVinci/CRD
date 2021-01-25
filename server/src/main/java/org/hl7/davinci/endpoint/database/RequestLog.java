@@ -51,7 +51,7 @@ public class RequestLog {
   @Column(name = "id", updatable = false, nullable = false)
   private long id;
 
-  @Column(name = "request_body", length = 10000, nullable = false)
+  @Column(name = "request_body", length = 100000, nullable = false)
   private byte[] requestBody;
 
   @Column(name = "timestamp", nullable = false)
