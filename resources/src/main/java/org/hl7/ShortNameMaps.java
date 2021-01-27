@@ -16,7 +16,7 @@ public class ShortNameMaps {
   static {
     PAYOR_SHORT_NAME_TO_FULL_NAME.put("cms", "Centers for Medicare and Medicaid Services");
     PAYOR_SHORT_NAME_TO_FULL_NAME.put("uhc", "United Health Care");
-    PAYOR_SHORT_NAME_TO_FULL_NAME.put("medicare", "Medicare");
+    PAYOR_SHORT_NAME_TO_FULL_NAME.put("medicare", "MEDICARE");
   }
 
 }
