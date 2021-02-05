@@ -102,7 +102,7 @@ public class QuestionnaireValueSetProcessor extends FhirResourceProcessor<Questi
     // If URL starts with this server's base url, pull out id and search by id
     if (url.startsWith(baseUrl)) {
       String valueSetId = url.split("ValueSet/")[1];
-      valueSetFileResource = fileStore.getFhirResourceById("R4", "valueset", "valueset/" + valueSetId, baseUrl);
+      valueSetFileResource = fileStore.getFhirResourceById("R4", "valueset", valueSetId, baseUrl);
     } else {
       valueSetFileResource = fileStore.getFhirResourceByUrl("R4", "valueset", url, baseUrl);
     }
