@@ -34,16 +34,6 @@ public class ServicesDiscoveryEndpointTest {
     assertEquals(r4OrderSignCrd.get("id").textValue(), "order-sign-crd");
     assertEquals(r4OrderSignCrd.get("hook").textValue(), "order-sign");
   }
-
-  @Test
-  public void shouldReturnServiceListStu3() {
-    JsonNode stu3CdsServiceInformation = restTemplate.getForObject(
-        "http://localhost:" + port + "/stu3/cds-services/", JsonNode.class);
-    JsonNode stu3OrderSignCrd = stu3CdsServiceInformation.get("services").get(0);
-
-    assertEquals(stu3OrderSignCrd.get("id").textValue(), "order-sign-crd");
-    assertEquals(stu3OrderSignCrd.get("hook").textValue(), "order-sign");
-  }
 }
 
 

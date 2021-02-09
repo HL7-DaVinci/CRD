@@ -176,10 +176,6 @@ public class CdsConnectFileStore extends CommonFileStore {
     IParser r4parser = r4ctx.newJsonParser();
     r4parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
 
-    FhirContext stu3ctx = new org.hl7.davinci.stu3.FhirComponents().getFhirContext();
-    IParser stu3parser = stu3ctx.newJsonParser();
-    stu3parser.setParserErrorHandler(new SuppressParserErrorHandler()); // suppress the unknown element warnings
-
     // process all of the files found within the topic/artifact
     for (CdsConnectFile file : files) {
       String path = file.getPath();
@@ -199,8 +195,6 @@ public class CdsConnectFileStore extends CommonFileStore {
           byte[] fileContents = file.getCqlBundle();
           if (fhirVersion.equalsIgnoreCase("R4")) {
             baseResource = r4parser.parseResource(new ByteArrayInputStream(fileContents));
-          } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-            baseResource = stu3parser.parseResource(new ByteArrayInputStream(fileContents));
           }
 
           processFhirResource(baseResource, path, filename, fhirVersion, topic);

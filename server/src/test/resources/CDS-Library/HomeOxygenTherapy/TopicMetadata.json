@@ -12,6 +12,6 @@
         }
     ],
     "fhirVersions": [
-        "STU3", "R4"
+        "R4"
     ]
 }
