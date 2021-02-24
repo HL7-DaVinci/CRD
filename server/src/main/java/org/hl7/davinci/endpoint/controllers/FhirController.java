@@ -76,7 +76,7 @@ public class FhirController {
       // If URL starts with this server's base url, pull out id and search by id
       if (url.startsWith(baseUrl)) {
         String valueSetId = url.split("ValueSet/")[1];
-        FileResource fileResource = fileStore.getFhirResourceById("R4", "valueset", "valueset/" + valueSetId, baseUrl);
+        FileResource fileResource = fileStore.getFhirResourceById("R4", "valueset", valueSetId, baseUrl);
         return processFileResource(fileResource);
 
         // If the URL is from elsewhere, look by URL
