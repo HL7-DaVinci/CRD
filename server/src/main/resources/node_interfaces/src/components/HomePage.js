@@ -9,11 +9,6 @@ let hostOrg = getHostOrg();
 
 const links = [
     {
-        name: "FHIR STU3 endpoint",
-        link: baseUrl + "stu3/cds-services",
-        description: "The provider systems would interact with the CDS Hooks endpoints. These endpoints provide the JSON descriptions of the CDS Hooks services."
-    },
-    {
         name: "FHIR R4 endpoint",
         link: baseUrl + "r4/cds-services",
         description: "The provider systems would interact with the CDS Hooks endpoints. These endpoints provide the JSON descriptions of the CDS Hooks services."

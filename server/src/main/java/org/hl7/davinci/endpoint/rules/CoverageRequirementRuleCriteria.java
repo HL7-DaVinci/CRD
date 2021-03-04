@@ -64,21 +64,6 @@ public class CoverageRequirementRuleCriteria {
 
   }
 
-  public static List<CoverageRequirementRuleCriteria> createQueriesFromStu3(List<org.hl7.fhir.dstu3.model.Coding> codings, List<org.hl7.fhir.dstu3.model.Organization> payors) {
-    List<CoverageRequirementRuleCriteria> criteriaList = new ArrayList<>();
-    for (org.hl7.fhir.dstu3.model.Coding coding : codings) {
-      String code = coding.getCode();
-      String codeSystem = coding.getSystem();
-      for (org.hl7.fhir.dstu3.model.Organization payor : payors) {
-        String payorName = payor.getName();
-        CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria();
-        criteria.setPayor(payorName).setCodeSystem(codeSystem).setCode(code).setFhirVersion("STU3");
-        criteriaList.add(criteria);
-      }
-    }
-    return criteriaList;
-  }
-
   public static List<CoverageRequirementRuleCriteria> createQueriesFromR4(List<org.hl7.fhir.r4.model.Coding> codings, List<org.hl7.fhir.r4.model.Organization> payors) {
     List<CoverageRequirementRuleCriteria> criteriaList = new ArrayList<>();
     for (org.hl7.fhir.r4.model.Coding coding : codings) {

@@ -263,8 +263,6 @@ public abstract class CommonFileStore implements FileStore {
     FhirContext ctx = null;
     if (fhirVersion.equalsIgnoreCase("R4")) {
       ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
-    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-      ctx = new org.hl7.davinci.stu3.FhirComponents().getFhirContext();
     } else {
       logger.warn("unsupported FHIR version: " + fhirVersion + ", skipping folder");
       return;
@@ -339,15 +337,6 @@ public abstract class CommonFileStore implements FileStore {
         logger.warn("processFhirResource: Ignoring unsupported FHIR R4 Resource of type " + resourceType);
         return;
       }
-    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-      FhirResourceInfo fhirResourceInfo = org.hl7.davinci.stu3.Utilities.getFhirResourceInfo(baseResource);
-      if (!fhirResourceInfo.valid()) {
-        logger.warn("processFhirResource: Ignoring unsupported FHIR STU3 Resource of type " + resourceType);
-        return;
-      }
-      resourceId = fhirResourceInfo.getId();
-      resourceName = fhirResourceInfo.getName();
-      resourceUrl = fhirResourceInfo.getUrl();
     }
 
     if (resourceId == null) {
