@@ -1,5 +1,9 @@
 package org.hl7.davinci.endpoint.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.*;
@@ -30,6 +34,9 @@ public class DataController {
 
   @Autowired
   private RequestRepository requestRepository;
+
+  @Autowired
+  private ClientRepository clientRepository;
 
   @Autowired
   private YamlConfig myConfig;
@@ -79,6 +86,37 @@ public class DataController {
         .contentType(MediaType.parseMediaType("application/octet-stream"))
         .body(fileResource.getResource());
   }
+
+  @GetMapping(value = "/api/clients")
+  @CrossOrigin
+  public Iterable<Client> getClients() {
+    Iterable<Client>  clients = clientRepository.findAll();
+    return clients;
+  }
+
+  @PostMapping(value = "/api/clients")
+  @CrossOrigin
+  public ResponseEntity<Object> postClient(@RequestBody String jsonData) {
+    Gson gson = new GsonBuilder().create();
+    JsonParser parser = new JsonParser();
+    JsonObject clientObject = parser.parse(jsonData).getAsJsonObject();
+    String id = clientObject.get("client_id").getAsString();
+    String iss = clientObject.get("iss").getAsString();
+    Client client = new Client();
+    client.setClient_id(id);
+    client.setIss(iss);
+    clientRepository.save(client);
+    return ResponseEntity.noContent().build();
+
+  }
+
+  @CrossOrigin
+  @DeleteMapping("/api/clients/{id}")
+  public ResponseEntity<Object> deleteClient(@PathVariable String id) {
+    clientRepository.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
+
 
   /**
    * Retrieve a file from the File Store.
