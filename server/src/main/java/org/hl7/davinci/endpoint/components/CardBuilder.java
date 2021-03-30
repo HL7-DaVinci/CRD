@@ -3,10 +3,11 @@ package org.hl7.davinci.endpoint.components;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.cdshooks.Card;
-import org.cdshooks.CdsResponse;
-import org.cdshooks.Link;
-import org.cdshooks.Source;
+
+import org.cdshooks.*;
+import org.hl7.davinci.FhirComponentsT;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,8 @@ public class CardBuilder {
     private String requestId;
     private Boolean priorAuthRequired;
     private Boolean documentationRequired;
+    private AlternativeTherapy alternativeTherapy;
+    private IBaseResource request;
 
 
     public Boolean ruleApplies() {
@@ -165,6 +168,20 @@ public class CardBuilder {
       this.questionnaireDispenseUri = questionnaireDispenseUri;
       return this;
     }
+
+    public AlternativeTherapy getAlternativeTherapy() { return alternativeTherapy; }
+
+    public CqlResultsForCard setAlternativeTherapy(AlternativeTherapy alternativeTherapy) {
+      this.alternativeTherapy = alternativeTherapy;
+      return this;
+    }
+
+    public IBaseResource getRequest() { return request; }
+
+    public CqlResultsForCard setRequest(IBaseResource request) {
+      this.request = request;
+      return this;
+    }
   }
 
   /**
@@ -227,6 +244,50 @@ public class CardBuilder {
   public static Card summaryCard(String summary) {
     Card card = baseCard();
     card.setSummary(summary);
+    return card;
+  }
+
+  public static Card alternativeTherapyCard(AlternativeTherapy alternativeTherapy, IBaseResource resource,
+                                            FhirComponentsT fhirComponents) {
+    logger.info("Build Alternative Therapy Card: " + alternativeTherapy.toString());
+    Card card = baseCard();
+
+    card.setSummary("Alternative Therapy Suggested");
+    card.setDetail(alternativeTherapy.getDisplay() + " (" + alternativeTherapy.getCode() + ") should be used instead.");
+
+    List<Suggestion> suggestionList = new ArrayList<>();
+    Suggestion alternativeTherapySuggestion = new Suggestion();
+    alternativeTherapySuggestion.setLabel("Alternative Therapy Suggested");
+    alternativeTherapySuggestion.setIsRecommended(true);
+    List<Action> actionList = new ArrayList<>();
+
+    Action deleteAction = new Action(fhirComponents);
+    deleteAction.setType(Action.TypeEnum.delete);
+    deleteAction.setDescription("Remove original " + resource.fhirType());
+
+    deleteAction.setResource(resource);
+
+    Action createAction = new Action(fhirComponents);
+    createAction.setType(Action.TypeEnum.create);
+    createAction.setDescription("Add new " + resource.fhirType());
+    if (fhirComponents.getFhirVersion() == FhirComponentsT.Version.R4) {
+      try {
+        createAction.setResource(FhirRequestProcessor.swapTherapyInRequest(resource, alternativeTherapy));
+      } catch (RuntimeException e) {
+        throw e;
+      }
+    } else {
+      logger.warn("Unsupported fhir version " + fhirComponents.getFhirVersion().toString());
+      throw new RuntimeException("Unsupported fhir version " + fhirComponents.getFhirVersion().toString());
+    }
+
+    actionList.add(deleteAction);
+    actionList.add(createAction);
+
+    alternativeTherapySuggestion.setActions(actionList);
+    suggestionList.add(alternativeTherapySuggestion);
+    card.setSuggestions(suggestionList);
+
     return card;
   }
 

@@ -30,22 +30,6 @@ import java.nio.charset.Charset;
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class PrefetchIntegrationTest {
 
-    /*zzzz
-  private String medicationRequestPrefetch = FileUtils
-      .readFileToString(new ClassPathResource("requests/medicationRequestPrefetch.json").getFile(),
-          Charset.defaultCharset());
-  private String medicationRequestNoPrefetch = FileUtils
-      .readFileToString(new ClassPathResource("requests/medicationRequestNoPrefetch.json").getFile(),
-          Charset.defaultCharset());
-
-  private String medicationRequestPrefetchNoDoc = FileUtils
-      .readFileToString(new ClassPathResource("requests/medicationRequestPrefetchNoDoc.json").getFile(),
-          Charset.defaultCharset());
-  private String medicationRequestNoPrefetchNoDoc = FileUtils
-      .readFileToString(new ClassPathResource("requests/medicationRequestNoPrefetchNoDoc.json").getFile(),
-          Charset.defaultCharset());
-          */
-
   private String deviceRequestPrefetch = FileUtils
       .readFileToString(new ClassPathResource("requests/deviceRequestPrefetch.json").getFile(),
           Charset.defaultCharset());
@@ -107,59 +91,6 @@ public class PrefetchIntegrationTest {
 
     }
   }
-
-  /*
-  @Test
-  public void testMedicationPrescribeNoPrefetchDocReq() {
-    // setup with request that has a prefetch so we know all the
-    // necessary resources are in the EHR FHIR server
-    setup(medicationRequestPrefetch, "medicationRequestBundle");
-    HttpEntity<String> entity = new HttpEntity<String>(medicationRequestNoPrefetch, headers);
-    JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/r4/cds-services/medication-prescribe-crd", entity,
-            JsonNode.class);
-    assert(!cards.get("cards").get(0).get("detail").isNull());
-  }
-  */
-
-  /*
-  @Test
-  public void testMedicationPrescribeWithPrefetchDocReq() {
-    HttpEntity<String> entity = new HttpEntity<String>(medicationRequestPrefetch, headers);
-    JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/r4/cds-services/medication-prescribe-crd", entity,
-            JsonNode.class);
-    System.out.println(cards);
-    System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-    System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-    System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-    System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-    System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-    System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-    System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-    System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-    assert(!cards.get("cards").get(0).get("detail").isNull());
-  }
-
-  @Test
-  public void testMedicationPrescribeNoPrefetchNoDocReq() {
-    setup(medicationRequestPrefetchNoDoc, "medicationRequestBundle");
-    HttpEntity<String> entity = new HttpEntity<String>(medicationRequestNoPrefetchNoDoc, headers);
-    JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/r4/cds-services/medication-prescribe-crd", entity,
-            JsonNode.class);
-    assert(cards.get("cards").get(0).get("detail").isNull());
-  }
-
-  @Test
-  public void testMedicationPrescribePrefetchNoDocReq() {
-    HttpEntity<String> entity = new HttpEntity<String>(medicationRequestPrefetchNoDoc, headers);
-    JsonNode cards = restTemplate
-        .postForObject("http://localhost:" + port + "/r4/cds-services/medication-prescribe-crd", entity,
-            JsonNode.class);
-    assert(cards.get("cards").get(0).get("detail").isNull());
-  }
-  */
 
   @Test
   public void testDeviceRequestNoPrefetchDocReq() {

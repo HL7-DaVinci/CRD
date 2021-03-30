@@ -1,10 +1,22 @@
 package org.cdshooks;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hl7.davinci.FhirComponentsT;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+
+
+@JsonSerialize(using = ActionSerializer.class)
 public class Action {
+
+  public Action(FhirComponentsT fhirComponents) {
+    this.fhirComponents = fhirComponents;
+  }
 
   private TypeEnum type = null;
   private String description = null;
-  private Object resource = null;
+  private IBaseResource resource = null;
+
+  private FhirComponentsT fhirComponents;
 
   public TypeEnum getType() {
     return type;
@@ -22,12 +34,12 @@ public class Action {
     this.description = description;
   }
 
-  public Object getResource() {
-    return resource;
-  }
+  public IBaseResource getResource() { return resource; }
 
-  public void setResource(Object resource) {
-    this.resource = resource;
+  public void setResource(IBaseResource resource) { this.resource = resource; }
+
+  public FhirComponentsT getFhirComponents() {
+    return this.fhirComponents;
   }
 
   public enum TypeEnum {
@@ -35,4 +47,6 @@ public class Action {
     update,
     delete
   }
+
+
 }
