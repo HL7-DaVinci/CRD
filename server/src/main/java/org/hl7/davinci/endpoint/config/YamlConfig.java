@@ -25,6 +25,7 @@ public class YamlConfig {
   private boolean checkPractitionerLocation;
   private boolean appendParamsToSmartLaunchUrl;
   private String hostOrg;
+  private boolean embedCqlInLibrary;
 
   private CdsConnect cdsConnect;
 
@@ -70,6 +71,10 @@ public class YamlConfig {
   public String getHostOrg() {return hostOrg;}
 
   public void setHostOrg(String org) {this.hostOrg = org;}
+
+  public boolean getEmbedCqlInLibrary() { return this.embedCqlInLibrary; }
+
+  public void setEmbedCqlInLibrary(boolean embedCqlInLibrary) { this.embedCqlInLibrary = embedCqlInLibrary; }
 
   public CdsConnect getCdsConnect() { return cdsConnect; }
 

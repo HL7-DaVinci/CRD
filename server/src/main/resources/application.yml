@@ -38,6 +38,8 @@ appendParamsToSmartLaunchUrl: false
 # The appconext may need to be encoded depending on which EHR the server is running with
 urlEncodeAppContext: true
 
+embedCqlInLibrary: false
+
 cdsConnect:
   url: https://cdsconnect.ahrqstg.org
   username: admin
