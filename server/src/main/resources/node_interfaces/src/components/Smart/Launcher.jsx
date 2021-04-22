@@ -13,7 +13,7 @@ export default class Launcher extends Component {
             clientId: '',
             clients: [],
         };
-        this.baseUrl = getBackend();
+        this.baseUrl = getBaseUrl();
         this.launch = this.launch.bind(this);
         this.save = this.save.bind(this);
         this.fetchClients = this.fetchClients.bind(this);

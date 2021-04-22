@@ -34,8 +34,8 @@ class App extends Component {
       const requestUrl = baseUrl + 'requests';
       const dataUrl = baseUrl + 'data';
       const fhirUrl = baseUrl + 'fhirview';
-      const launchUrl = baseUrl + 'smart/launch';
-      const indexUrl = baseUrl + 'smart/index';
+      const launchUrl = baseUrl + 'launch';
+      const indexUrl = baseUrl + 'index';
 
     return (
       <div>
