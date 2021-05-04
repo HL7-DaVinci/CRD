@@ -16,8 +16,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { codeSystems, cptCodes, hcpcsCodes, rxNormCodes } from '../constants';
 import StateSelect from './Sections/StateSelect';
-import JSONInput from 'react-json-editor-ajrm';
-import locale from 'react-json-editor-ajrm/locale/en';
+import JsonBox from './Sections/JsonBox';
 
 
 export default function DeviceRequestInfo(props) {
@@ -117,15 +116,10 @@ export default function DeviceRequestInfo(props) {
                 />
                 {renderCode()}
             </div>
-            <div className={classes.jsonInput}>
-                <JSONInput
-                    id          = 'example1'
-                    placeholder = { deviceRequest }
-                    locale      = { locale }
-                    height      = '280px'
-                    onChange = {handleJson}
-                />
-            </div>
+            <JsonBox 
+                callback={handleJson}
+                placeholder={deviceRequest}
+            />
         </div>
     );
 }

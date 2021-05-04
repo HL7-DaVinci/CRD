@@ -17,8 +17,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { coverageCodes } from '../constants';
 import { stateOptions } from '../constants';
-import JSONInput from 'react-json-editor-ajrm';
-import locale from 'react-json-editor-ajrm/locale/en';
+import JsonBox from './Sections/JsonBox';
 
 export default function PractitionerInfo(props) {
     const classes = useStyles();
@@ -91,15 +90,10 @@ export default function PractitionerInfo(props) {
 
             </div>
             </div>
-            <div className={classes.jsonInput}>
-                <JSONInput
-                    id          = 'example1'
-                    placeholder = { {practitioner, 'practitionerRole':role, 'organization':org, 'location':location} }
-                    locale      = { locale }
-                    height      = '280px'
-                    onChange = {handleJson}
-                />
-            </div>
+            <JsonBox 
+                callback={handleJson}
+                placeholder={{practitioner, 'practitionerRole':role, 'organization':org, 'location':location}}
+            />
         </div>
     );
 }

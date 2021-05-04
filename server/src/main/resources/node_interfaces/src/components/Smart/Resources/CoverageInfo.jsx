@@ -16,18 +16,16 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
-import { coverageCodes } from '../constants';
+import { coverageCodes, organizations } from '../constants';
 import StateSelect from './Sections/StateSelect';
 import { stateOptions } from '../constants';
-import JSONInput from 'react-json-editor-ajrm';
-import locale from 'react-json-editor-ajrm/locale/en';
+import JsonBox from './Sections/JsonBox';
 
 export default function CoverageInfo(props) {
     const classes = useStyles();
     const [backdrop, setBackdrop] = useState(false);
     const { callback, coverage, organization } = props;
     const { classValue, type, orgName } = coverage;
-
     const handleChange = (element, value) => {
         callback('coverage', element, value)
     }
@@ -103,6 +101,7 @@ export default function CoverageInfo(props) {
         }
     }
 
+    console.log(getOrg());
     return (
         <div>
             <div style={{display: 'inline-block'}}>
@@ -130,38 +129,21 @@ export default function CoverageInfo(props) {
             <div className={classes.orgBox}>
                 Organization
                 <div>
-                    <TextField
-                        id="outlined-number"
-                        label="Name"
-                        type="text"
-                        style={{
-                            width: 'auto',
-                        }}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        value={getOrg() || ''}
-                        onChange={handleOrg}
+                    <StateSelect 
+                        callback={handleOrg} 
+                        state={getOrg()} 
+                        label="Name" 
+                        element="name" 
+                        options={organizations}
                     />
                 </div>
-
-                {/* <button className={`btn ${classes.loadButton}`} onClick={()=>{
-                    setBackdrop(true);
-
-                }}>Load Org</button>
-                 */}
             </div>
 
             </div>
-            <div className={classes.jsonInput}>
-                <JSONInput
-                    id          = 'ex2'
-                    placeholder = { {coverage, organization} }
-                    locale      = { locale }
-                    height      = '280px'
-                    onChange = {handleJson}
-                />
-            </div>
+            <JsonBox 
+                callback={handleJson}
+                placeholder={{coverage, organization}}
+            />
         </div>
     );
 }

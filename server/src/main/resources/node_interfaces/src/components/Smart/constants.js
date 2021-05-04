@@ -110,4 +110,8 @@ const rxNormCodes = [
     {key: '209431', value: '209431', text: '209431'},
     {key: '860195', value: '860195', text: '860195'},
 ]
-module.exports = {grant_type, stateOptions, coverageCodes, codeSystems, hcpcsCodes, cptCodes, rxNormCodes};
+
+const organizations = [
+    {key: 'medicare', value: 'Centers for Medicare and Medicaid Services', text: 'Centers for Medicare and Medicaid Services'},
+]
+module.exports = {grant_type, stateOptions, coverageCodes, codeSystems, hcpcsCodes, cptCodes, rxNormCodes, organizations};

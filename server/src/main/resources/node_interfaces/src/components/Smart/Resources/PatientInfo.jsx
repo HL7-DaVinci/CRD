@@ -12,8 +12,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import StateSelect from './Sections/StateSelect';
 import { stateOptions } from '../constants';
-import JSONInput from 'react-json-editor-ajrm';
-import locale from 'react-json-editor-ajrm/locale/en';
+import JsonBox from './Sections/JsonBox';
 
 export default function PatientInfo(props) {
     const classes = useStyles();
@@ -116,15 +115,10 @@ export default function PatientInfo(props) {
             {renderGender()}
             {renderAge()}
             <StateSelect callback={handleState} state={getState()} label="State" element="address" options={stateOptions}></StateSelect>
-            <div className={classes.jsonInput}>
-                <JSONInput
-                    id          = 'example1'
-                    placeholder = { patient }
-                    locale      = { locale }
-                    height      = '280px'
-                    onChange = {handleJson}
-                />
-            </div>
+            <JsonBox 
+                callback={handleJson}
+                placeholder={patient}
+            />
         </div>
     );
 }

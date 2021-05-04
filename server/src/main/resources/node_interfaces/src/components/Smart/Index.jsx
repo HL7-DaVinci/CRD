@@ -68,7 +68,6 @@ export default class Index extends Component {
                     "100 Good St"
                   ],
                   "city": "Bedford",
-                  "state": "MA",
                   "postalCode": "01730"
                 }
             },
@@ -120,7 +119,6 @@ export default class Index extends Component {
                 }
             }))
         }
-
       };
 
     componentDidMount() {
