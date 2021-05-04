@@ -8,6 +8,8 @@ import KeyInterface from './containers/KeyInterface';
 import DataTable from './components/DataTable';
 import FhirTable from './components/FhirTable';
 import HomePage from './components/HomePage';
+import Launcher from './components/Smart/Launcher';
+import Index from './components/Smart/Index';
 import {withRouter} from 'react-router-dom';
 import {getBaseUrl} from './Utils';
 
@@ -32,6 +34,9 @@ class App extends Component {
       const requestUrl = baseUrl + 'requests';
       const dataUrl = baseUrl + 'data';
       const fhirUrl = baseUrl + 'fhirview';
+      const launchUrl = baseUrl + 'launch';
+      const indexUrl = baseUrl + 'index';
+
     return (
       <div>
       <nav className="navbar navbar-fixed-top headerEntry">
@@ -55,6 +60,8 @@ class App extends Component {
         <Route path={requestUrl} component={RequestLog}/>
         <Route path={dataUrl} component={DataTable}/>
         <Route path={fhirUrl} component={FhirTable}/>
+        <Route path={launchUrl} component={Launcher}/>
+        <Route path={indexUrl} component={Index} />
 
       </div>
     );
