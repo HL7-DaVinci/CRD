@@ -6,7 +6,7 @@ import org.hl7.fhir.r4.model.Base64BinaryType;
 import org.hl7.fhir.r4.model.Library;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+ 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,8 @@ public class LibraryContentProcessor extends FhirResourceProcessor<Library> {
 
     Library output = inputResource.copy();
     List<Attachment> content = inputResource.getContent();
+
+    logger.info("Attempt to embed CQL (ELM) into Requested Library");
 
     // if the first value in content is application/elm+json with a url, replace it with base64 encoded data
     if (content.size() > 0) {
