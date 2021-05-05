@@ -61,6 +61,16 @@ public class HomeController {
   }
 
 
+  @GetMapping("/launch")
+  public String smartlaunch(Model model, final HttpServletRequest request) {
+    model.addAttribute("contextPath", request.getContextPath());
+    return "index";
+  }
 
+  @GetMapping("/index")
+  public String smartIndex(Model model, final HttpServletRequest request) {
+    model.addAttribute("contextPath", request.getContextPath());
+    return "index";
+  }
 
 }
