@@ -38,6 +38,11 @@ appendParamsToSmartLaunchUrl: false
 # The appconext may need to be encoded depending on which EHR the server is running with
 urlEncodeAppContext: true
 
+# When this flag is true, the server will modify a FHIR Library when retrieved.
+# It will automatically retrieve, base64 encode, and embed the referenced (from url)
+# CQL into the data field of the content.
+embedCqlInLibrary: false
+
 cdsConnect:
   url: https://cdsconnect.ahrqstg.org
   username: admin
