@@ -6,10 +6,20 @@ function getBaseUrl() {
   return baseUrl
 }
 
+function getBackend() {
+    let backend = document.querySelector("meta[name='backend']").getAttribute("content");
+    if(typeof backend !== 'string') backend = '/';
+    if(!backend.endsWith('/')) backend = backend + '/'
+    return backend;
+}
+
 function getHostOrg() {
   let hostOrg = document.querySelector("meta[name='hostorg']").getAttribute("content");
   return hostOrg
 }
 
-module.exports.getBaseUrl = getBaseUrl;
-module.exports.getHostOrg = getHostOrg;
+module.exports = {
+    getBaseUrl,
+    getBackend,
+    getHostOrg
+}

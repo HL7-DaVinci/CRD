@@ -28,6 +28,30 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired
   private PublicKeyRepository publicKeyRepository;
 
+  /**
+   * The CORS preflight must be accepted here or it will get rejected by the
+   * Auth filter.  General CORS settings can be set here.
+   * @return CORS configuration object
+   */
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    final CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(ImmutableList.of("http://localhost:8080", "http://localhost:3000", "http://localhost:3002"));
+    configuration.setAllowedMethods(ImmutableList.of("HEAD",
+        "GET", "POST", "PUT", "DELETE", "PATCH"));
+    // setAllowCredentials(true) is important, otherwise:
+    // The value of the 'Access-Control-Allow-Origin' header in the
+    // response must not be the wildcard '*' when the request's credentials
+    // mode is 'include'.
+    configuration.setAllowCredentials(true);
+    // setAllowedHeaders is important! Without it, OPTIONS preflight request
+    // will fail with 403 Invalid CORS request
+    configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type"));
+    final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
+
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.cors();
