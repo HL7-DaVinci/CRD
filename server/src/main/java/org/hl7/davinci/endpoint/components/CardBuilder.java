@@ -257,7 +257,7 @@ public class CardBuilder {
 
     List<Suggestion> suggestionList = new ArrayList<>();
     Suggestion alternativeTherapySuggestion = new Suggestion();
-    alternativeTherapySuggestion.setLabel("Alternative Therapy Suggested");
+    alternativeTherapySuggestion.setLabel("Take Suggestion");
     alternativeTherapySuggestion.setIsRecommended(true);
     List<Action> actionList = new ArrayList<>();
 
