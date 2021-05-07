@@ -11,6 +11,8 @@ public class Suggestion {
 
   private List<Action> actions = null;
 
+  private boolean isRecommended = false;
+
   public String getLabel() {
     return label;
   }
@@ -47,4 +49,8 @@ public class Suggestion {
   public void setActions(List<Action> actions) {
     this.actions = actions;
   }
+
+  public boolean getIsRecommended() { return isRecommended; }
+
+  public void setIsRecommended(boolean isRecommended) { this.isRecommended = isRecommended; }
 }

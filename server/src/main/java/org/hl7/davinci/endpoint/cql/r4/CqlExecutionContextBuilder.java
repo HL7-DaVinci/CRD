@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cql.r4;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.cqframework.cql.cql2elm.LibraryManager;
 import org.cqframework.cql.cql2elm.ModelManager;
 import org.cqframework.cql.elm.execution.Library;
@@ -7,9 +8,13 @@ import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.cql.LocalLibraryLoader;
 import org.hl7.davinci.endpoint.cql.CqlRule;
 import org.hl7.fhir.r4.model.Resource;
-import org.opencds.cqf.cql.data.fhir.BaseFhirDataProvider;
-import org.opencds.cqf.cql.execution.Context;
-import org.opencds.cqf.cql.execution.LibraryLoader;
+
+import org.opencds.cqf.cql.engine.data.CompositeDataProvider;
+import org.opencds.cqf.cql.engine.execution.Context;
+import org.opencds.cqf.cql.engine.execution.LibraryLoader;
+import org.opencds.cqf.cql.engine.fhir.model.R4FhirModelResolver;
+import org.opencds.cqf.cql.engine.fhir.retrieve.RestFhirRetrieveProvider;
+import org.opencds.cqf.cql.engine.fhir.searchparam.SearchParameterResolver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,14 +43,15 @@ public class CqlExecutionContextBuilder {
       }
     }
 
+    FhirContext fhirContext = FhirContext.forR4();
     Context context = new Context(library);
     context.registerLibraryLoader(libraryLoader);
     context.setExpressionCaching(true);
 
-    BaseFhirDataProvider provider = new DummyFhirDataProvider();
+    R4FhirModelResolver modelResolver = new R4FhirModelResolver();
+    RestFhirRetrieveProvider retrieveProvider = new RestFhirRetrieveProvider(new SearchParameterResolver(fhirContext), fhirContext.newRestfulGenericClient("http://fhirtest.uhn.ca/baseR4"));
+    CompositeDataProvider provider = new CompositeDataProvider(modelResolver, retrieveProvider);
     context.registerDataProvider("http://hl7.org/fhir", provider);
-    BaseFhirDataProvider provider1 = new DummyFhirDataProvider("org.hl7.davinci.r4.fhirresources");
-    context.registerDataProvider("http://hl7.org/fhir", provider1);
 
     for (Map.Entry<String, org.hl7.fhir.r4.model.Resource> entry : cqlParams.entrySet()) {
       context.setParameter(null, entry.getKey(), entry.getValue());

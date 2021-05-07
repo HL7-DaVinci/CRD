@@ -1,6 +1,6 @@
 package org.hl7.davinci.endpoint.rules;
 
-import org.opencds.cqf.cql.execution.Context;
+import org.opencds.cqf.cql.engine.execution.Context;
 
 public class CoverageRequirementRuleResult {
 

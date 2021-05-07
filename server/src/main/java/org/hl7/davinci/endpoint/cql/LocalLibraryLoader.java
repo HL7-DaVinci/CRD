@@ -18,12 +18,13 @@ import org.cqframework.cql.elm.execution.Library;
 import org.cqframework.cql.elm.execution.VersionedIdentifier;
 import org.hl7.cql_annotations.r1.Annotation;
 import org.hl7.elm.r1.ObjectFactory;
-import org.opencds.cqf.cql.execution.CqlLibraryReader;
+import org.opencds.cqf.cql.engine.execution.CqlLibraryReader;
+import org.opencds.cqf.cql.engine.execution.LibraryLoader;
 
 /**
  * This file mostly copied from the CQL Engine test files. Created by Bryn on 12/29/2016.
  */
-public class LocalLibraryLoader implements org.opencds.cqf.cql.execution.LibraryLoader {
+public class LocalLibraryLoader implements LibraryLoader {
 
   public LocalLibraryLoader(LibraryManager libraryManager) {
     if (libraryManager == null) {
