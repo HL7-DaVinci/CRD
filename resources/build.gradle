@@ -4,14 +4,14 @@ dependencies {
     compile group: 'com.helger', name: 'ph-schematron', version: '4.1.0'
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
 
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:4.0.3'
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:4.0.3'
-    compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-validation-resources-r4', version: '4.0.3'
-    compile 'ca.uhn.hapi.fhir:hapi-fhir-validation:4.0.3'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:5.3.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.3.0'
+    compile group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-validation-resources-r4', version: '5.3.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-validation:5.3.0'
 
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.8'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.8'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
 
     compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     compile group: 'org.springframework', name: 'spring-context', version: '5.0.8.RELEASE'

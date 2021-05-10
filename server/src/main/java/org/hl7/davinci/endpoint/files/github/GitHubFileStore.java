@@ -221,8 +221,6 @@ public class GitHubFileStore extends CommonFileStore {
     FhirContext ctx = null;
     if (fhirVersion.equalsIgnoreCase("R4")) {
       ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
-    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-      ctx = new org.hl7.davinci.stu3.FhirComponents().getFhirContext();
     } else {
       logger.warn("unsupported FHIR version: " + fhirVersion + ", skipping folder");
       return;

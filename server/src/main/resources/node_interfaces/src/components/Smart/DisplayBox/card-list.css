@@ -1,0 +1,59 @@
+.decision-card {
+    padding: 15px;
+    margin: 10px;
+    background: #fcfcfc;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    border-left-width: 3px;
+  }
+  
+  .decision-card img {
+    display: block;
+    width: 100px;
+    margin: 0 0 5px;
+  }
+  
+  .card-icon {
+    display: block;
+    width: 100px;
+    margin: 0 0 5px;
+  }
+  
+  .card-top {
+    position: relative;
+  }
+  
+  .source-link {
+    margin-right: 8px;
+  }
+  
+  .card-source {
+    font-size: .85em;
+    font-style: italic;
+    margin: 0 0 5px;
+  }
+  
+  .source-link {
+    color: blue;
+    text-decoration: none;
+  }
+  
+  .card-summary {
+    margin: 0 0 5px;
+  }
+  
+  .alert-info {
+    border-left-color: #0079be;
+  }
+  
+  .alert-warning {
+    border-left-color: #ffae42;
+  }
+  
+  .alert-hard-stop {
+    border-left-color: #c00;
+  }
+  
+  .alert-error {
+    border-left-color: #333;
+  }

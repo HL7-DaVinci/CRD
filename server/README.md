@@ -102,11 +102,14 @@ If the credentials are not provided, CRD will look for ValueSets in the `server/
 | `/`                                        | Web page with basic RI information |
 | `/data`                                    | Web-based administrative interface |
 | `/cds-services/`                           | CDS Hook Discovery endpoint |
+| `/cds-services/order-select-crd`           | CDS Hook endpoint for order-select |
 | `/cds-services/order-sign-crd`             | CDS Hook endpoint for order-sign |
 | `/files/`                                  | File retrieval endpoint |
 | `/fhir/`                                   | Endpoint for retrieving FHIR Resources (Quesionnaire and Library) needed by DTR |
 | `/reload`                                  | Rebuild the database of rules |
 | `/fetchFhirUri/`                           | Used by the smart application to fetch fhir resources by URI |
+| `/launch`                                  | Launch page for CRD SMART app |
+| `/index`                                   | Index page for CRD SMART app |
 
 ## Configuration
 
@@ -225,3 +228,14 @@ The CRD server can embed the DTR smart application from https://github.com/HL7-D
 Run the gradle task `embedDtr` to automatically clone the repo (master) and build into the appropriate location. This task must be manually run to pull down new versions of DTR.
 
 Once done, the application can be accessed at (e.g.) `localhost:8090/smart/index.html`. This files are in `src/main/resources/static/smart` and should be commited. Note that files should be accessed by their full name, (e.g. `smart/index.html` vs `smart/`).
+
+## The CRD Smart App
+
+The CRD server has a built in standalone SMART app which lets the user make CRD requests without going through a workflow.  The standalone smart app is accessed at the `/launch` page.
+
+To launch the app, visit `/launch` and input an `iss`, or FHIR server.  If the CRD standalone app is not yet registered with the FHIR server, you can get a client ID by registering it.  Otherwise, you should have a client ID for the specific FHIR server for this app.
+
+After the `iss` and `client_id` are input, click launch and wait go through any authorization prompts. After, the SMART app will load.  The app allows users to generate a CDS hook by inputting simple information, like patient age and gender or location.  The CRD server will respond normally to these generated hooks, allowing users to test what-if scenarios.
+
+
+

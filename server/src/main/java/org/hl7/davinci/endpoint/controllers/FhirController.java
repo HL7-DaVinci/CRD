@@ -34,7 +34,6 @@ public class FhirController {
   private FhirResourceRepository fhirResourceRepository;
 
   org.hl7.davinci.endpoint.fhir.r4.Metadata r4Metadata = new org.hl7.davinci.endpoint.fhir.r4.Metadata();
-  org.hl7.davinci.endpoint.fhir.stu3.Metadata stu3Metadata = new org.hl7.davinci.endpoint.fhir.stu3.Metadata();
 
 
   @GetMapping(value = "/api/fhir")
@@ -53,8 +52,6 @@ public class FhirController {
     String json = "";
     if (fhirVersion.equalsIgnoreCase("R4")) {
       json = r4Metadata.getMetadata(baseUrl);
-    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-      json = stu3Metadata.getMetadata(baseUrl);
     } else {
       logger.warning("Unsupported FHIR version: " + fhirVersion);
     }
@@ -170,8 +167,6 @@ public class FhirController {
     // pull out the ID and name
     if (fhirVersion.equalsIgnoreCase("R4")) {
       fhirResourceInfo = org.hl7.davinci.r4.Utilities.getFhirResourceInfo(entity.getBody());
-    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-      fhirResourceInfo = org.hl7.davinci.stu3.Utilities.getFhirResourceInfo(entity.getBody());
     } else {
       logger.warning("unsupported FHIR version: " + fhirVersion + ", not storing");
       HttpStatus status = HttpStatus.BAD_REQUEST;

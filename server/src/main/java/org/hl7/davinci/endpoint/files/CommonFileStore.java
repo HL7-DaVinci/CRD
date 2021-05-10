@@ -5,7 +5,6 @@ import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.hl7.ShortNameMaps;
-import org.hl7.davinci.FhirResourceInfo;
 import org.hl7.davinci.SuppressParserErrorHandler;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.cql.CqlRule;
@@ -43,6 +42,7 @@ public abstract class CommonFileStore implements FileStore {
 
   private QuestionnaireValueSetProcessor questionnaireValueSetProcessor;
   private SubQuestionnaireProcessor subQuestionnaireProcessor;
+  private LibraryContentProcessor libraryContentProcessor;
 
   private FhirContext ctx;
   private IParser parser;
@@ -50,6 +50,7 @@ public abstract class CommonFileStore implements FileStore {
   public CommonFileStore() {
     this.questionnaireValueSetProcessor = new QuestionnaireValueSetProcessor();
     this.subQuestionnaireProcessor = new SubQuestionnaireProcessor();
+    this.libraryContentProcessor = new LibraryContentProcessor();
     this.ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
     this.parser = ctx.newJsonParser().setPrettyPrint(true);
   }
@@ -105,7 +106,17 @@ public abstract class CommonFileStore implements FileStore {
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setName(name);
     List<FhirResource> fhirResourceList = fhirResources.findByName(criteria);
-    return readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
+    FileResource resource = readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
+
+    if ((resource != null) && fhirVersion.equalsIgnoreCase("r4")) {
+      // If this is a library, process it by replacing the content url with a base64 encoded version of the cql
+      if (resourceType.equalsIgnoreCase("Library") && config.getEmbedCqlInLibrary()) {
+        FileResource processedResource = this.libraryContentProcessor.processResource(resource, this, baseUrl);
+        return processedResource;
+      }
+    }
+
+    return resource;
   }
 
   public FileResource getFhirResourceById(String fhirVersion, String resourceType, String id, String baseUrl) {
@@ -121,13 +132,21 @@ public abstract class CommonFileStore implements FileStore {
     List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
     FileResource resource = readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
 
-    // If this is a questionnaire, run it through the processor to modify it before
-    // returning.
-    // We do not handle nested sub-questionnaire at this time.
-    if ((resource != null) && isRoot && fhirVersion.equalsIgnoreCase("r4") && resourceType.equalsIgnoreCase("Questionnaire")) {
-      FileResource processedResource = this.subQuestionnaireProcessor.processResource(resource, this, baseUrl);
-      processedResource = this.questionnaireValueSetProcessor.processResource(processedResource, this, baseUrl);
-      return processedResource;
+    if ((resource != null) && fhirVersion.equalsIgnoreCase("r4")) {
+
+      // If this is a questionnaire, run it through the processor to modify it before returning.
+      // We do not handle nested sub-questionnaire at this time.
+      if (isRoot && resourceType.equalsIgnoreCase("Questionnaire")) {
+        FileResource processedResource = this.subQuestionnaireProcessor.processResource(resource, this, baseUrl);
+        processedResource = this.questionnaireValueSetProcessor.processResource(processedResource, this, baseUrl);
+        return processedResource;
+      }
+
+      // If this is a library, process it by replacing the content url with a base64 encoded version of the cql
+      if (resourceType.equalsIgnoreCase("Library") && config.getEmbedCqlInLibrary()) {
+        FileResource processedResource = this.libraryContentProcessor.processResource(resource, this, baseUrl);
+        return processedResource;
+      }
     }
 
     return resource;
@@ -139,7 +158,17 @@ public abstract class CommonFileStore implements FileStore {
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setUrl(url);
     List<FhirResource> fhirResourceList = fhirResources.findByUrl(criteria);
-    return readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
+    FileResource resource = readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
+
+    if ((resource != null) && fhirVersion.equalsIgnoreCase("r4")) {
+      // If this is a library, process it by replacing the content url with a base64 encoded version of the cql
+      if (resourceType.equalsIgnoreCase("Library") && config.getEmbedCqlInLibrary()) {
+        FileResource processedResource = this.libraryContentProcessor.processResource(resource, this, baseUrl);
+        return processedResource;
+      }
+    }
+
+    return resource;
   }
 
   // from RuleFinder
@@ -263,8 +292,6 @@ public abstract class CommonFileStore implements FileStore {
     FhirContext ctx = null;
     if (fhirVersion.equalsIgnoreCase("R4")) {
       ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
-    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-      ctx = new org.hl7.davinci.stu3.FhirComponents().getFhirContext();
     } else {
       logger.warn("unsupported FHIR version: " + fhirVersion + ", skipping folder");
       return;
@@ -339,15 +366,6 @@ public abstract class CommonFileStore implements FileStore {
         logger.warn("processFhirResource: Ignoring unsupported FHIR R4 Resource of type " + resourceType);
         return;
       }
-    } else if (fhirVersion.equalsIgnoreCase("STU3")) {
-      FhirResourceInfo fhirResourceInfo = org.hl7.davinci.stu3.Utilities.getFhirResourceInfo(baseResource);
-      if (!fhirResourceInfo.valid()) {
-        logger.warn("processFhirResource: Ignoring unsupported FHIR STU3 Resource of type " + resourceType);
-        return;
-      }
-      resourceId = fhirResourceInfo.getId();
-      resourceName = fhirResourceInfo.getName();
-      resourceUrl = fhirResourceInfo.getUrl();
     }
 
     if (resourceId == null) {

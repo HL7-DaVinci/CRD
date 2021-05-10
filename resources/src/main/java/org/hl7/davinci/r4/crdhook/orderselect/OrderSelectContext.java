@@ -27,7 +27,7 @@ public class OrderSelectContext extends ServiceContext {
   private String[] selections;
 
   /**
-   * STU3 - FHIR Bundle of MedicationRequest, ReferralRequest, ProcedureRequest, NutritionOrder,
+   * R4 - FHIR Bundle of MedicationRequest, ReferralRequest, ProcedureRequest, NutritionOrder,
    * VisionPrescription. REQUIRED
    */
   @JsonSerialize(using = JacksonHapiSerializer.class)

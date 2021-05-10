@@ -12,11 +12,13 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
+import org.hl7.ShortNameMaps;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
+import org.cdshooks.AlternativeTherapy;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.RequestLog;
@@ -26,7 +28,8 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.json.simple.JSONObject;
-import org.opencds.cqf.cql.execution.Context;
+import org.opencds.cqf.cql.engine.execution.Context;
+import org.opencds.cqf.cql.engine.runtime.Code;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +174,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 || StringUtils.isNotEmpty(results.getQuestionnaireDispenseUri()))) {
           List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
           response.addCard(CardBuilder.transform(results, smartAppLinks));
+
+          // add a card for an alternative therapy if there is one
+          if (results.getAlternativeTherapy().getApplies()) {
+            try {
+              response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(), results.getRequest(),
+                  fhirComponents));
+            } catch (RuntimeException e) {
+              logger.warn("Failed to process alternative therapy: " + e.getMessage());
+            }
+          }
         } else {
           logger.warn("Unspecified Questionnaire URI; summary card sent to client");
           response.addCard(CardBuilder.transform(results));
@@ -253,14 +266,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context)); 
 
     if (evaluateStatement("RESULT_requestId", context) != null) {
+      results.setRequest((IBaseResource) evaluateStatement("RESULT_requestId", context));
       results.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-      .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_requestId", context))));
+          .encodeResourceToString(results.getRequest())));
     }
 
     boolean isNotMedicationDispense = true;
     if (evaluateStatement("RESULT_dispense", context) != null) {
+      results.setRequest((IBaseResource) evaluateStatement("RESULT_dispense", context));
       results.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-      .encodeResourceToString((IBaseResource) evaluateStatement("RESULT_dispense", context))));
+      .encodeResourceToString(results.getRequest())));
       isNotMedicationDispense = false;
     }
 
@@ -317,6 +332,26 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (Exception e) {
       logger.info("-- No Dispense questionnaire defined");
     }
+
+    AlternativeTherapy alternativeTherapy = new AlternativeTherapy();
+    alternativeTherapy.setApplies(false);
+    try {
+      if (evaluateStatement("ALTERNATIVE_THERAPY", context) != null) {
+        Object ac = evaluateStatement("ALTERNATIVE_THERAPY", context);
+
+        Code code = (Code) ac;
+        logger.info("alternate therapy suggested: " + code.getDisplay() + " (" + code.getCode() + " / " +
+            ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.inverse().get(code.getSystem()).toUpperCase() + ")");
+
+        alternativeTherapy.setApplies(true)
+            .setCode(code.getCode())
+            .setSystem(code.getSystem())
+            .setDisplay(code.getDisplay());
+      }
+    } catch (Exception e) {
+      logger.info("-- No alternative therapy defined");
+    }
+    results.setAlternativeTherapy(alternativeTherapy);
 
     return results;
   }
@@ -404,5 +439,4 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   // Implement this in child class
   public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request,
       FileStore fileStore, String baseUrl) throws RequestIncompleteException;
-
 }
