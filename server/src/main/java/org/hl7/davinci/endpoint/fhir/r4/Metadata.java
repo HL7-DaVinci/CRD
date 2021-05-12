@@ -62,7 +62,7 @@ public class Metadata {
     implementation.setDescription(metadata.getTitle());
     implementation.setUrl(baseUrl + "metadata");
     metadata.setImplementation(implementation);
-    metadata.setFhirVersion(FHIRVersion._4_0_0);
+    metadata.setFhirVersion(FHIRVersion._4_0_1);
     metadata.addFormat("json");
     metadata.addExtension("http://hl7.org/fhir/StructureDefinition/capabilitystatement-websocket", new StringType("/fhir/r4"));
     metadata.addImplementationGuide("https://build.fhir.org/ig/HL7/davinci-crd/index.html");
