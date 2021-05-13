@@ -16,7 +16,7 @@ This guide will take you through the development environment setup for each of t
 - [Prerequisites](#prerequisites)
 - [Install core tools](#install-core-tools)
     * [Installing core tools on MacOS](#installing-core-tools-on-macos)
-        + [Install AdoptOpenJDK8](#install-adoptopenjdk8)
+        + [Install AdoptOpenJDK8 or equivalent JDK](#install-adoptopenjdk8)
         + [Install Gradle 6.3](#install-gradle-6.3)
         + [Install Node.js and npm](#install-node.js-v12.14+-and-npm)
         + [Install Docker Desktop for Mac](#install-docker-desktop-for-mac)
