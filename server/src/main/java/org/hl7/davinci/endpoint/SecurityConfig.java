@@ -37,7 +37,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
   public CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(ImmutableList.of("http://localhost:8080", "http://localhost:3000", "http://localhost:3002",
-        "https://davinci-crd.logicahealth.org"));
+        "https://davinci-crd.logicahealth.org", "https://davinci-crd-test.logicahealth.org"));
     configuration.setAllowedMethods(ImmutableList.of("HEAD",
         "GET", "POST", "PUT", "DELETE", "PATCH"));
     // setAllowCredentials(true) is important, otherwise:
