@@ -140,6 +140,7 @@ public class DataController {
    * Reload the entire File Store.
    * @return
    */
+  @CrossOrigin
   @PostMapping(path = "/reload")
   public RedirectView reload(@RequestParam String vsac_api_key) {
     logger.info("reload rule file index");
