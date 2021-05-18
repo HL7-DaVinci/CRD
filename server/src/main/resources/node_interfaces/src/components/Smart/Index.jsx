@@ -145,8 +145,10 @@ export default class Index extends Component {
           deviceRequestResources = deviceRequestResources.map((e) => {
               return {resource: e}
           })
+
+          const baseUrl = getBaseUrl();
           const request = buildRequest(this.state.deviceRequest, this.state.patient, this.state.serviceUri, this.state.token, deviceRequestResources, true, 'order-sign')
-          fetch('http://localhost:8090/r4/cds-services/order-sign-crd', {
+          fetch(`${baseUrl}r4/cds-services/order-sign-crd`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
