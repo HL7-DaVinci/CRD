@@ -16,6 +16,12 @@ spring:
     active: localDb
 #    active: cdsConnect
 
+# CORS Allowed Origins
++corsOrigins:
+  - "http://localhost:8080"
+  - "http://localhost:3000"
+  - "http://localhost:3002"
+
 keycloak:
   auth-server-url: http://localhost:8180/auth
   realm: SpringBootKeycloak
