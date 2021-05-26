@@ -67,3 +67,5 @@ localDb:
 valueSetCachePath: ValueSetCache/
 
 hostOrg: default
+
+CDSHooksSourceLabel: "MITRE Corporation CRD Reference Implementation"

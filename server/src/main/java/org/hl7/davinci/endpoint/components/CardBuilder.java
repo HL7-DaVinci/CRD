@@ -7,6 +7,7 @@ import java.util.List;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,18 @@ import org.slf4j.LoggerFactory;
  * Convenience methods for working with CDS Hooks cards.
  */
 public class CardBuilder {
+
   static final Logger logger = LoggerFactory.getLogger(CardBuilder.class);
+
+  private YamlConfig myConfig;
+
+  // Default Constructor
+  public CardBuilder() {}
+
+  public CardBuilder(YamlConfig myConfig)
+  {
+    this.myConfig = myConfig;
+  }
 
   public static class CqlResultsForCard {
     private Boolean ruleApplies;
@@ -190,18 +202,19 @@ public class CardBuilder {
    * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(CqlResultsForCard cqlResults) {
-    Card card = baseCard();
+  public static Card transform(CqlResultsForCard cqlResults, YamlConfig myConfig)
+  {
+    Card card = baseCard(myConfig);
 
     Link link = new Link();
     link.setUrl(cqlResults.getInfoLink());
     link.setType("absolute");
     link.setLabel("Documentation Requirements");
 
-
     card.setLinks(Arrays.asList(link));
     card.setSummary(cqlResults.getSummary());
     card.setDetail(cqlResults.getDetails());
+
     return card;
   }
 
@@ -212,8 +225,8 @@ public class CardBuilder {
    * @param smartAppLaunchLink smart app launch Link
    * @return card with appropriate information
    */
-  public static Card transform(CqlResultsForCard cqlResults, Link smartAppLaunchLink) {
-    Card card = transform(cqlResults);
+  public static Card transform(CqlResultsForCard cqlResults, Link smartAppLaunchLink, YamlConfig myConfig) {
+    Card card = transform(cqlResults, myConfig);
     List<Link> links = new ArrayList<Link>(card.getLinks());
     links.add(smartAppLaunchLink);
     card.setLinks(links);
@@ -227,8 +240,8 @@ public class CardBuilder {
    * @param smartAppLaunchLinks a list of links
    * @return card to be returned
    */
-  public static Card transform(CqlResultsForCard cqlResults, List<Link> smartAppLaunchLinks) {
-    Card card = transform(cqlResults);
+  public static Card transform(CqlResultsForCard cqlResults, List<Link> smartAppLaunchLinks, YamlConfig myConfig) {
+    Card card = transform(cqlResults, myConfig);
     List<Link> links = new ArrayList<Link>(card.getLinks());
     links.addAll(smartAppLaunchLinks);
     card.setLinks(links);
@@ -241,16 +254,16 @@ public class CardBuilder {
    * @param summary The desired summary for the card
    * @return valid card
    */
-  public static Card summaryCard(String summary) {
-    Card card = baseCard();
+  public static Card summaryCard(String summary, YamlConfig myConfig) {
+    Card card = baseCard(myConfig);
     card.setSummary(summary);
     return card;
   }
 
   public static Card alternativeTherapyCard(AlternativeTherapy alternativeTherapy, IBaseResource resource,
-                                            FhirComponentsT fhirComponents) {
+                                            FhirComponentsT fhirComponents, YamlConfig myConfig) {
     logger.info("Build Alternative Therapy Card: " + alternativeTherapy.toString());
-    Card card = baseCard();
+    Card card = baseCard(myConfig);
 
     card.setSummary("Alternative Therapy Suggested");
     card.setDetail(alternativeTherapy.getDisplay() + " (" + alternativeTherapy.getCode() + ") should be used instead.");
@@ -297,26 +310,32 @@ public class CardBuilder {
    *
    * @param response The response to check and add cards to
    */
-  public static void errorCardIfNonePresent(CdsResponse response) {
-    if (response.getCards() == null || response.getCards().size() == 0) {
+  public static void errorCardIfNonePresent(CdsResponse response, YamlConfig myConfig)
+  {
+    if (response.getCards() == null || response.getCards().size() == 0)
+    {
       Card card = new Card();
       card.setIndicator(Card.IndicatorEnum.WARNING);
       Source source = new Source();
-      source.setLabel("Da Vinci CRD Reference Implementation");
+      source.setLabel(myConfig.getCDSHooksSourceLabel());
       card.setSource(source);
       String msg = "Unable to process hook request from provided information.";
       card.setSummary(msg);
       response.addCard(card);
+
       logger.warn(msg + "; summary card sent to client");
     }
   }
 
-  private static Card baseCard() {
+  private static Card baseCard(YamlConfig myConfig)
+  {
     Card card = new Card();
     card.setIndicator(Card.IndicatorEnum.INFO);
     Source source = new Source();
-    source.setLabel("Da Vinci CRD Reference Implementation");
+    source.setLabel(myConfig.getCDSHooksSourceLabel());
     card.setSource(source);
+
     return card;
   }
+
 }

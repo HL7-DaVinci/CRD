@@ -152,7 +152,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage() + "; summary card sent to client");
-      response.addCard(CardBuilder.summaryCard(e.getMessage()));
+      response.addCard(CardBuilder.summaryCard(e.getMessage(), myConfig));
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
       return response;
@@ -173,20 +173,20 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 || StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri())
                 || StringUtils.isNotEmpty(results.getQuestionnaireDispenseUri()))) {
           List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
-          response.addCard(CardBuilder.transform(results, smartAppLinks));
+          response.addCard(CardBuilder.transform(results, smartAppLinks, myConfig));
 
           // add a card for an alternative therapy if there is one
           if (results.getAlternativeTherapy().getApplies()) {
             try {
               response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(), results.getRequest(),
-                  fhirComponents));
+                  fhirComponents, myConfig));
             } catch (RuntimeException e) {
               logger.warn("Failed to process alternative therapy: " + e.getMessage());
             }
           }
         } else {
           logger.warn("Unspecified Questionnaire URI; summary card sent to client");
-          response.addCard(CardBuilder.transform(results));
+          response.addCard(CardBuilder.transform(results, myConfig));
         }
       }
     }
@@ -197,10 +197,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     if (!foundApplicableRule) {
       String msg = "No documentation rules found";
       logger.warn(msg + "; summary card sent to client");
-      response.addCard(CardBuilder.summaryCard(msg));
+      response.addCard(CardBuilder.summaryCard(msg, myConfig));
     }
 
-    CardBuilder.errorCardIfNonePresent(response);
+    CardBuilder.errorCardIfNonePresent(response, myConfig);
 
     return response;
   }
