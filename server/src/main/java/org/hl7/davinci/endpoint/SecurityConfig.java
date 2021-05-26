@@ -14,10 +14,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+import java.util.logging.Logger;
+
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig extends WebSecurityConfigurerAdapter {
+  private static Logger logger = Logger.getLogger(SecurityConfig.class.getName());
 
   @Autowired
   private YamlConfig myConfig;
@@ -36,9 +40,9 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(ImmutableList.of("http://localhost:8080", "http://localhost:3000", "http://localhost:3002",
-        "https://davinci-crd.logicahealth.org", "https://davinci-crd-test.logicahealth.org",
-        "https://davinci-crd-request-generator.logicahealth.org", "https://davinci-dtr.logicahealth.org"));
+    configuration.setAllowedOrigins(myConfig.getCorsOrigins());
+    List<String> allowedOrigins = configuration.getAllowedOrigins();
+    allowedOrigins.forEach((n) -> logger.info("CORS Origin String: " + n));
     configuration.setAllowedMethods(ImmutableList.of("HEAD",
         "GET", "POST", "PUT", "DELETE", "PATCH"));
     // setAllowCredentials(true) is important, otherwise:
