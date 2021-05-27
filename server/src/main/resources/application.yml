@@ -25,6 +25,12 @@ server:
 
 checkJwt: false
 
+# CORS Allowed Origins
+corsOrigins:
+  - "http://localhost:8080"
+  - "http://localhost:3000"
+  - "http://localhost:3002"
+
 checkPractitionerLocation: false
 
 # The smart app launchUrl. It can be relative, which will be turned into an absolute link against the url the server is running at.

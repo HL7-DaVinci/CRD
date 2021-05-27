@@ -44,6 +44,7 @@ public class CdsHooksController {
     logger.info("r4/serviceDiscovery");
     CdsServiceInformation serviceInformation = new CdsServiceInformation();
     serviceInformation.addServicesItem(orderSignService);
+    serviceInformation.addServicesItem(orderSelectService);
     return serviceInformation;
   }
 
