@@ -1,6 +1,7 @@
 package org.hl7.davinci.endpoint.config;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,6 +22,7 @@ public class YamlConfig {
   Environment env;
 
   private boolean checkJwt;
+  private List<String> corsOrigins;
   private URI launchUrl;
   private boolean checkPractitionerLocation;
   private boolean appendParamsToSmartLaunchUrl;
@@ -41,9 +43,13 @@ public class YamlConfig {
     return checkJwt;
   }
 
-  public URI getLaunchUrl() { return launchUrl; }
-
   public void setCheckJwt(boolean check) { checkJwt = check; }
+
+  public List<String> getCorsOrigins() { return corsOrigins; }
+
+  public void setCorsOrigins(List<String> origins) { corsOrigins = origins; }
+
+  public URI getLaunchUrl() { return launchUrl; }
 
   public void setLaunchUrl(URI launch) { launchUrl = launch; }
 
