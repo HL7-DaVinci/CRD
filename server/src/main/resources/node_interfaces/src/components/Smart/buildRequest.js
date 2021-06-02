@@ -18,14 +18,7 @@ export default function buildRequest(request, patient, ehrUrl, token, prefetch, 
         }
     };
 
-    if (hook === "order-review") {
-        r4json.context.orders = {
-            "resourceType": "Bundle",
-            "entry": [
-                request
-            ]
-        }
-    } else if (hook === "order-select") {
+    if (hook === "order-select") {
         r4json.context.draftOrders = {
             "resourceType": "Bundle",
             "entry": [

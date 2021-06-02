@@ -9,10 +9,6 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import org.cdshooks.Hook;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
-import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeContext;
-import org.hl7.davinci.r4.crdhook.medicationprescribe.MedicationPrescribeRequest;
-import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewContext;
-import org.hl7.davinci.r4.crdhook.orderreview.OrderReviewRequest;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectContext;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignContext;
@@ -31,113 +27,6 @@ public class CrdRequestCreator {
   static final Logger logger = LoggerFactory.getLogger(CrdRequestCreator.class);
 
   /**
-   * Generate a order review request that contains a DeviceRequest.
-   *
-   * @param patientGender Desired gender of the patient in the request
-   * @param patientBirthdate Desired birth date of the patient in the request
-   * @return Fully populated CdsRequest
-   */
-  public static OrderReviewRequest createOrderReviewRequest(
-      Enumerations.AdministrativeGender patientGender,
-      Date patientBirthdate, String patientAddressState, String providerAddressState) {
-
-    OrderReviewRequest request = new OrderReviewRequest();
-    request.setHook(Hook.ORDER_REVIEW);
-    request.setHookInstance(UUID.randomUUID().toString());
-    OrderReviewContext context = new OrderReviewContext();
-    request.setContext(context);
-    context.setUserId("Practitioner/1234");
-    Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
-    context.setPatientId(patient.getId());
-
-    DeviceRequest dr = new DeviceRequest();
-    dr.setStatus(DeviceRequest.DeviceRequestStatus.DRAFT);
-    dr.setId("DeviceRequest/123");
-
-    PrefetchCallback callback = (p, c) -> {
-      dr.setPerformer(new Reference(p));
-      dr.addInsurance(new Reference(c));
-    };
-    dr.setSubject(new Reference(patient));
-    Practitioner provider = createPractitioner();
-    Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
-    CrdPrefetch prefetch = new CrdPrefetch();
-    prefetch.setDeviceRequestBundle(prefetchBundle);
-    request.setPrefetch(prefetch);
-
-    Coding oxygen = new Coding().setCode("E0424")
-        .setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
-        .setDisplay("Stationary Compressed Gaseous Oxygen System, Rental");
-    dr.setCode(new CodeableConcept().addCoding(oxygen));
-    Bundle orderBundle = new Bundle();
-    Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
-    bec.setResource(dr);
-    orderBundle.addEntry(bec);
-    Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
-    pfDrBec.setResource(dr);
-    prefetchBundle.addEntry(pfDrBec);
-    context.setOrders(orderBundle);
-
-    Device device = new Device();
-    device.setType(new CodeableConcept().addCoding(oxygen));
-    bec = new Bundle.BundleEntryComponent();
-    bec.setResource(device);
-    prefetchBundle.addEntry(bec);
-
-    return request;
-  }
-
-  /**
-   * Generate a medication prescribe request that contains a MedicationRequest.
-   *
-   * @param patientGender Desired gender of the patient in the request
-   * @param patientBirthdate Desired birth date of the patient in the request
-   * @return Fully populated CdsRequest
-   */
-  public static MedicationPrescribeRequest createMedicationPrescribeRequest(
-      Enumerations.AdministrativeGender patientGender,
-      Date patientBirthdate, String patientAddressState, String providerAddressState) {
-    MedicationPrescribeRequest request = new MedicationPrescribeRequest();
-    request.setHook(Hook.MEDICATION_PRESCRIBE);
-    request.setHookInstance(UUID.randomUUID().toString());
-    MedicationPrescribeContext context = new MedicationPrescribeContext();
-    request.setContext(context);
-    context.setUserId("Practitioner/1234");
-    Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
-    context.setPatientId(patient.getId());
-
-    MedicationRequest mr = new MedicationRequest();
-    mr.setStatus(MedicationRequest.MedicationRequestStatus.DRAFT);
-    mr.setId("MedicationRequest/123");
-
-    PrefetchCallback callback = (p, c) -> {
-      mr.setPerformer(new Reference(p));
-      mr.addInsurance(new Reference(c));
-    };
-    mr.setSubject(new Reference(patient));
-    Practitioner provider = createPractitioner();
-    Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
-    CrdPrefetch prefetch = new CrdPrefetch();
-    prefetch.setMedicationRequestBundle(prefetchBundle);
-    request.setPrefetch(prefetch);
-
-    Coding botox = new Coding().setCode("860195")
-        .setSystem("http://www.nlm.nih.gov/research/umls/rxnorm")
-        .setDisplay("Botox");
-    mr.setMedication(new CodeableConcept().addCoding(botox));
-    Bundle medicationBundle = new Bundle();
-    Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
-    bec.setResource(mr);
-    medicationBundle.addEntry(bec);
-    Bundle.BundleEntryComponent pfMrBec = new Bundle.BundleEntryComponent();
-    pfMrBec.setResource(mr);
-    prefetchBundle.addEntry(pfMrBec);
-    context.setMedications(medicationBundle);
-
-    return request;
-  }
-
-  /**
    * Generate a order select request that contains a DeviceRequest.
    *
    * @param patientGender Desired gender of the patient in the request
@@ -149,7 +38,7 @@ public class CrdRequestCreator {
       Date patientBirthdate, String patientAddressState, String providerAddressState) {
 
     OrderSelectRequest request = new OrderSelectRequest();
-    request.setHook(Hook.ORDER_REVIEW);
+    request.setHook(Hook.ORDER_SELECT);
     request.setHookInstance(UUID.randomUUID().toString());
     OrderSelectContext context = new OrderSelectContext();
     request.setContext(context);
@@ -207,7 +96,7 @@ public class CrdRequestCreator {
       Date patientBirthdate, String patientAddressState, String providerAddressState) {
 
     OrderSignRequest request = new OrderSignRequest();
-    request.setHook(Hook.ORDER_REVIEW);
+    request.setHook(Hook.ORDER_SIGN);
     request.setHookInstance(UUID.randomUUID().toString());
     OrderSignContext context = new OrderSignContext();
     request.setContext(context);
