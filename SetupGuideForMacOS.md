@@ -39,6 +39,7 @@ This guide will take you through the development environment setup for each of t
 
 Your computer must have these minimum requirements:
 - Running MacOS
+    
     > A DRLS setup guide for Windows 10 is currently in progress and will be added to this page when complete. That said, we **highly recommend** that you run DRLS on MacOS, as this was the primary platform on which DRLS was developed.
 - x86_64 (64-bit) or equivalent processor
     * Follow these instructions to verify your machine's compliance: https://www.macobserver.com/tips/how-to/mac-32-bit-64-bit/ 
@@ -66,7 +67,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     ```bash
     sdk list java # find sdkman's identifier for the LTS version of AdoptOpenJDK 8
     sdk install java <identifier_for_adoptopenjdk8>
-
+    
     # After the installation is complete, verify the correct version of java is running with:
     java -version
     ```
@@ -88,6 +89,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     ```
 2. Depending on the output of the above commands, either:
     * **[Install Node.js](https://nodejs.org/en/)**. Be sure to pick the **LTS version**.
+        
         > This download will come with npm, so no need to separately install it.
     * or **update your existing Node.js and npm installations** via:
         ```bash
@@ -144,7 +146,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     use_oauth = false
     ```
 
-### dtr configs
+### crd-request-generator configs
 
 1. `cd <drlsroot>/crd-request-generator/src`
 2. Edit `properties.json` to look like this:
@@ -162,7 +164,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     }
     ```
 
-### crd-request-generator configs
+### dtr configs
 
 1. cd `<drlsroot>/dtr` 
 2. In `webpack.config.dev.js`, set `https` to `false`. Your file should look something like this:
@@ -173,7 +175,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
         https: false,
         host: "0.0.0.0",
         public: "0.0.0.0",
-
+    
         ...
     ```
 
