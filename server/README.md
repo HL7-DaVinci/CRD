@@ -85,10 +85,11 @@ This is the more flexible approach for developers.
 ValueSets from VSAC may be used by DTR rules. CRD will attempt to fetch these ValueSets from the VSAC SVS API and convert them to FHIR R4
 ValueSets so they will be available for the DTR SMART App. While rulesets are being loaded from the CDS-Library, CRD will look for VSAC ValueSets referenced by OID and attempt to load them. (NOTE: It will not error out if fails to fetch ValueSets.) To load valuesets CRD needs NLM/VSAC credentials. These can be provided in two ways.
 
-1.  Setting environment variable `VSAC_API_KEY`. Example in bash:
+1. Setting environment variable `VSAC_API_KEY`. Example in bash:
 
-        $ export VSAC_API_KEY=vsac_api_key
-    _Note: Single quotes means ignore special characters_
+       $ export VSAC_API_KEY=vsac_api_key
+
+   _Note: Single quotes means ignore special characters_
 
 2.  Providing credentials when reloading rules from the rule listing UI at http://localhost:8090/data. The credentials can optionally be provided before hitting "Reload Data".
 
@@ -174,7 +175,7 @@ To access files directly on CDS Connect, the application.yml configuration file 
     			profiles:
     				active: cdsConnect
     		cdsConnect:
-	    		url: https://cds.ahrq.gov
+        		url: https://cds.ahrq.gov
     			username: user
     			password: pass
     	}
@@ -184,7 +185,7 @@ To access files directly on CDS Connect, the application.yml configuration file 
 Each of the Rules must be stored in their own topic. The name of the artifact shall be the name of the topic. The payer must be configured with the code and codesystem within the CRD section must also be configured with the topic name. The TopicMetadata must be pasted into the "Artifact Representation" Inclusions box. First set the editor to "source" so most formatting will be removed. The files and resources will be attached to the "Logic Files" within the "Artifact Representation". All common, shared files must be attached to another artifact named "Shared". It shall have simple TopicMetadata in the Inclusions field as simply as:
 
 	{ "topic": shared", "fhirVersions": [ "R4" ] }
-	
+
 Files must be named as described in the documentation for the [CDS-Library](https://github.com/HL7-DaVinci/CDS-Library).
 
 ## Security
@@ -204,7 +205,7 @@ This functionality can be turned off and on by changing the `checkJWt` property 
 
 ## Building Web Apps (the UI)
 
-To edit the web apps, the code in `src/main/resources/node_interfaces` should be updated. These changes will not be reflected by the server. To build the jsx files, run `npm run-script buildx`. This command will run a bash script that will automatically build the files out and move them to the correct directory to be hosted by the spring server.
+To edit the web apps, the code in `src/main/resources/node_interfaces` should be updated. These changes will not be reflected by the server. To build the jsx files, first run `npm install`, then run `npm run-script buildx`. This command will run a bash script that will automatically build the files out and move them to the correct directory to be hosted by the spring server.
 
 You can also run the gradle task `buildReact` in the `server` directory to do the same thing. Alternatively, running the bash script itself using `./buildout.sh` with `node_interfaces` as a working directory.
 
