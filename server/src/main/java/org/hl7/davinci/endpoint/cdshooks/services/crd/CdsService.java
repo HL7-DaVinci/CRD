@@ -130,8 +130,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Parsed request
     requestLog.advanceTimeline(requestService);
 
-    //requestLog.addCard("hello");
-
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
     prefetchHydrator.hydrate();
 
@@ -216,7 +214,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     CardBuilder.errorCardIfNonePresent(response);
     
     // Ading card to requestLog
-    requestLog.addCard(response.getCards());
+    requestLog.setAddCardList(response.getCards());
     requestService.edit(requestLog);
 
 
