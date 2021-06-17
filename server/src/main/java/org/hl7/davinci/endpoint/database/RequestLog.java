@@ -51,14 +51,15 @@ public class RequestLog {
   @Column(name = "id", updatable = false, nullable = false)
   private long id;
 
-  @Column(name = "request_body", length = 2000000000, nullable = false)
+  @Lob
+  @Column(name = "request_body", nullable = false)
   private byte[] requestBody;
 
   @Column(name = "timestamp", nullable = false)
   private long timestamp;
 
-
-  @Column(name = "card_list", length = 2000000000)
+  @Lob
+  @Column(name = "card_list")
   private String cardList;
 
   @Column(name = "patient_age")
@@ -120,11 +121,17 @@ public class RequestLog {
     setTimestamp(timestamp);
     setFhirVersion(fhirVersion);
     boolean[] timeline = new boolean[sections];
+    // add new card list so that log will return a card
+    // ArrayList<String> cardList = new ArrayList<String>();
+    // assign cardlist because it is not in request
+    // setCardList(cardList);
     // one for free because if we're here, we're authorized
     timeline[0] = true;
     setTimeline(timeline);
     this.timelineCounter = 1;
     this.topicCounter = 0;
+    
+    //this.cardCounter = 0;
     requestService.create(this);
   }
 
@@ -202,20 +209,21 @@ public class RequestLog {
 
   }
 
-  public void addCard(Object card) {
+  public void setAddCardList(Object card) {
     String newStr;
     try {
       
       ObjectMapper mapper = new ObjectMapper();
       ObjectWriter w = mapper.writer();
       newStr = w.writeValueAsString(card);
-      this.setCardList(newStr);
+      
     }
 
     catch (Exception e) {
     logger.error("failed to write request json: " + e.getMessage());
     newStr = "error";
     }
+    this.setCardList(newStr);
   }
 
   public void addTopic(RequestService requestService, String topic) {
