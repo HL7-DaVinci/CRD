@@ -36,7 +36,7 @@ export default class RequestLog extends Component {
 
     async getData() {
         // const requestData = await this.generateData();
-        const requestData = await fetch('http://localhost:8090/' + 'api/requests', {
+        const requestData = await fetch("http://localhost:8090/" + 'api/requests', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -48,7 +48,7 @@ export default class RequestLog extends Component {
             console.log("error=", error)
         });
 
-        console.log(requestData)
+        //console.log(requestData)
 
         if (requestData) {
             requestData.sort(this.compareTime);
