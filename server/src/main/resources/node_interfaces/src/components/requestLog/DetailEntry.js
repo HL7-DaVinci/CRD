@@ -131,7 +131,7 @@ export default class DetailEntry extends Component {
 
                  {this.state.showCards?
                  <div className = "requestBody">
-                 { this.unfurlJson(JSON.parse((this.props.data.cardList))) }
+                 { this.unfurlJson(JSON.parse(this.props.data.cardList)) }
                </div>
                   :
                 null}
