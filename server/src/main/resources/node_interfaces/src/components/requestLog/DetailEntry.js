@@ -13,11 +13,11 @@ export default class DetailEntry extends Component {
             requestInfo: {},
             showRequestBody:false,
             showResults: false,
-            showCard: false
+            showCards: false
         };
          this.showRequestBody = this.showRequestBody.bind(this);
          this.showResults = this.showResults.bind(this);
-         this.showCard = this.showCard.bind(this);
+         this.showCards = this.showCards.bind(this);
 
          // process the topics array
          this.resultsCount = 0;
@@ -34,7 +34,7 @@ export default class DetailEntry extends Component {
                 }
             }
          }
-    }
+        }
 
     showRequestBody(){
         this.setState(prevState=>{
@@ -48,9 +48,9 @@ export default class DetailEntry extends Component {
         });
     }
 
-    showCard(){
+    showCards(){
         this.setState(prevState=>{
-            return {showCard:!prevState.showCard}
+            return {showCards:!prevState.showCards}
         });
     }
 
@@ -92,8 +92,8 @@ export default class DetailEntry extends Component {
                         if(this.state.showResults){
                             this.setState({showResults: false})
                         }
-                        if(this.state.showCard){
-                            this.setState({showCard:false})
+                        if(this.state.showCards){
+                            this.setState({showCards:false})
                         }
                     }}>
 
@@ -113,8 +113,8 @@ export default class DetailEntry extends Component {
                         <div className={"errorDetail " + [this.state.showRequestBody?"filled":"empty"]} onClick={this.showRequestBody}>
                             Show Request Body
                         </div>
-                        <div className={"errorDetail " + [this.state.showCard?"filled":"empty"]} onClick={this.showCard}>
-                            Show Card
+                        <div className={"errorDetail " + [this.state.showCards?"filled":"empty"]} onClick={this.showCards}>
+                            Show Cards
                         </div>
                         <div className={"errorDetail " + [this.state.showResults?"filled":"empty"]} onClick={this.showResults}>
                             Topic Results <span>[ {this.resultsCount} ]</span>
@@ -129,9 +129,9 @@ export default class DetailEntry extends Component {
                  :
                  null}
 
-                 {this.state.showCard?
-                 <div className = "requestCard">
-                 { this.unfurlJson(JSON.parse(atob(this.props.data.requestCard)))}
+                 {this.state.showCards?
+                 <div className = "requestBody">
+                 { this.unfurlJson(JSON.parse((this.props.data.cardList))) }
                </div>
                   :
                 null}
