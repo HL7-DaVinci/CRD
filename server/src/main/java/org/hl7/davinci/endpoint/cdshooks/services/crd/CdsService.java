@@ -151,7 +151,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage() + "; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
-      requestLog.setAddCardList(response.getCards());
+      requestLog.setCardListFromCards(response.getCards());
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
       return response;
@@ -221,7 +221,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     CardBuilder.errorCardIfNonePresent(response);
     
     // Ading card to requestLog
-    requestLog.setAddCardList(response.getCards());
+    requestLog.setCardListFromCards(response.getCards());
     requestService.edit(requestLog);
 
 

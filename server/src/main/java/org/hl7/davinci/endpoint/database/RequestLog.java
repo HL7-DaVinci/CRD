@@ -204,13 +204,13 @@ public class RequestLog {
 
   }
 
-  public void setAddCardList(Object card) {
+  public void setCardListFromCards(Object cards) {
     String newStr;
     try {
       
       ObjectMapper mapper = new ObjectMapper();
       ObjectWriter w = mapper.writer();
-      newStr = w.writeValueAsString(card);
+      newStr = w.writeValueAsString(cards);
       
     }
 
