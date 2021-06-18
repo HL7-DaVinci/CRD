@@ -122,17 +122,11 @@ public class RequestLog {
     setTimestamp(timestamp);
     setFhirVersion(fhirVersion);
     boolean[] timeline = new boolean[sections];
-    // add new card list so that log will return a card
-    // ArrayList<String> cardList = new ArrayList<String>();
-    // assign cardlist because it is not in request
-    // setCardList(cardList);
     // one for free because if we're here, we're authorized
     timeline[0] = true;
     setTimeline(timeline);
     this.timelineCounter = 1;
     this.topicCounter = 0;
-    
-    //this.cardCounter = 0;
     requestService.create(this);
   }
 
