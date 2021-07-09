@@ -80,7 +80,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   FileStore fileStore;
 
   private List<PrefetchTemplateElement> prefetchElements = null;
-  private FhirComponentsT fhirComponents;
+  protected FhirComponentsT fhirComponents;
 
   /**
    * Create a new cdsservice.
@@ -158,49 +158,64 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return response;
     }
 
+    boolean errorCardOnEmpty = false;
     boolean foundApplicableRule = false;
     for (CoverageRequirementRuleResult lookupResult : lookupResults) {
       requestLog.addTopic(requestService, lookupResult.getTopic());
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext(), lookupResult.getTopic());
+      CoverageRequirements coverageRequirements = results.getCoverageRequirements();
+
       if (results.ruleApplies()) {
         foundApplicableRule = true;
-        if ((results.getDocumentationRequired() || results.getPriorAuthRequired())
-            && (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())
-                || StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())
-                || StringUtils.isNotEmpty(results.getQuestionnaireLabUri())
-                || StringUtils.isNotEmpty(results.getQuestionnaireProgressNoteUri())
-                || StringUtils.isNotEmpty(results.getQuestionnairePARequestUri())
-                || StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri())
-                || StringUtils.isNotEmpty(results.getQuestionnaireDispenseUri()))) {
-          List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
-          response.addCard(CardBuilder.transform(results, smartAppLinks));
 
-          // add a card for an alternative therapy if there is one
-          if (results.getAlternativeTherapy().getApplies()) {
-            try {
-              response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(), results.getRequest(),
-                  fhirComponents));
-            } catch (RuntimeException e) {
-              logger.warn("Failed to process alternative therapy: " + e.getMessage());
+        if (results.getCoverageRequirements().getApplies()) {
+          errorCardOnEmpty = true;
+
+          if ((coverageRequirements.getDocumentationRequired() || coverageRequirements.getPriorAuthRequired())
+              && (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
+              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
+              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
+              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
+              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())
+              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())
+              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri()))) {
+            List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
+            response.addCard(CardBuilder.transform(results, smartAppLinks));
+
+            // add a card for an alternative therapy if there is one
+            if (results.getAlternativeTherapy().getApplies()) {
+              try {
+                response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(), results.getRequest(),
+                    fhirComponents));
+              } catch (RuntimeException e) {
+                logger.warn("Failed to process alternative therapy: " + e.getMessage());
+              }
             }
+          } else {
+            logger.warn("Unspecified Questionnaire URI; summary card sent to client");
+            response.addCard(CardBuilder.transform(results));
           }
-        } else {
-          logger.warn("Unspecified Questionnaire URI; summary card sent to client");
-          response.addCard(CardBuilder.transform(results));
         }
+      }
+
+      // apply the DrugInteractions regardless of whether the rule applies
+      if (results.getDrugInteraction().getApplies()) {
+        response.addCard(CardBuilder.drugInteractionCard(results.getDrugInteraction()));
       }
     }
 
     // CQL Executed
     requestLog.advanceTimeline(requestService);
 
-    if (!foundApplicableRule) {
-      String msg = "No documentation rules found";
-      logger.warn(msg + "; summary card sent to client");
-      response.addCard(CardBuilder.summaryCard(msg));
-    }
+    if (errorCardOnEmpty) {
+      if (!foundApplicableRule) {
+        String msg = "No documentation rules found";
+        logger.warn(msg + "; summary card sent to client");
+        response.addCard(CardBuilder.summaryCard(msg));
+      }
 
-    CardBuilder.errorCardIfNonePresent(response);
+      CardBuilder.errorCardIfNonePresent(response);
+    }
 
     return response;
   }
@@ -208,155 +223,49 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
       CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
-    if (StringUtils.isNotEmpty(results.getQuestionnaireOrderUri())) {
+    CoverageRequirements coverageRequirements = results.getCoverageRequirements();
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnaireOrderUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Order Form"));
+          coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
+          coverageRequirements.getPriorAuthRequired(), "Order Form"));
     }
-    if (StringUtils.isNotEmpty(results.getQuestionnaireFaceToFaceUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnaireFaceToFaceUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Face to Face Encounter Form"));
+          coverageRequirements.getQuestionnaireFaceToFaceUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
+          coverageRequirements.getPriorAuthRequired(), "Face to Face Encounter Form"));
     }
-    if (StringUtils.isNotEmpty(results.getQuestionnaireLabUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnaireLabUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Lab Form"));
+          coverageRequirements.getQuestionnaireLabUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
+          coverageRequirements.getPriorAuthRequired(), "Lab Form"));
     }
-    if (StringUtils.isNotEmpty(results.getQuestionnaireProgressNoteUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnaireProgressNoteUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Progress Note"));
+          coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
+          coverageRequirements.getPriorAuthRequired(), "Progress Note"));
     }
 
-    if (StringUtils.isNotEmpty(results.getQuestionnairePARequestUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnairePARequestUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "PA Request"));
+          coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
+          coverageRequirements.getPriorAuthRequired(), "PA Request"));
     }
     
-    if (StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnairePlanOfCareUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Plan of Care/Certification"));
+          coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
+          coverageRequirements.getPriorAuthRequired(), "Plan of Care/Certification"));
     }
 
-    if (StringUtils.isNotEmpty(results.getQuestionnaireDispenseUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          results.getQuestionnaireDispenseUri(), results.getRequestId(), lookupResult.getCriteria(),
-          results.getPriorAuthRequired(), "Dispense Form"));
+          coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
+          coverageRequirements.getPriorAuthRequired(), "Dispense Form"));
     }
     return listOfLinks;
   }
 
-  private CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
-    CqlResultsForCard results = new CqlResultsForCard();
-
-    results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES", context));
-    if (!results.ruleApplies()) {
-      return results;
-    }
-
-    String humanReadableTopic = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(topic), ' ');
-
-    results.setSummary(humanReadableTopic + ": " + evaluateStatement("RESULT_Summary", context).toString())
-        .setDetails(evaluateStatement("RESULT_Details", context).toString())
-        .setInfoLink(evaluateStatement("RESULT_InfoLink", context).toString())
-        .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
-        .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context)); 
-
-    if (evaluateStatement("RESULT_requestId", context) != null) {
-      results.setRequest((IBaseResource) evaluateStatement("RESULT_requestId", context));
-      results.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-          .encodeResourceToString(results.getRequest())));
-    }
-
-    boolean isNotMedicationDispense = true;
-    if (evaluateStatement("RESULT_dispense", context) != null) {
-      results.setRequest((IBaseResource) evaluateStatement("RESULT_dispense", context));
-      results.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-      .encodeResourceToString(results.getRequest())));
-      isNotMedicationDispense = false;
-    }
-
-    if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null && isNotMedicationDispense) {
-      results.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString());
-    }
-
-    try {
-      if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null && isNotMedicationDispense) {
-        results
-            .setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString());
-      }
-    } catch (Exception e) {
-      logger.info("-- No face to face questionnaire defined");
-    }
-
-    try {
-      if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null && isNotMedicationDispense) {
-        results.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString());
-      }
-    } catch (Exception e) {
-      logger.info("-- No Lab questionnaire defined");
-    }
-
-    try {
-      if (evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context) != null && isNotMedicationDispense) {
-        results.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString());
-      }
-    } catch (Exception e) {
-      logger.info("-- No Progress note questionnaire defined");
-    }
-
-    try {
-      if (evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context) != null && isNotMedicationDispense) {
-        results.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString());
-      }
-    } catch (Exception e) {
-      logger.info("-- No plan of care questionnaire defined");
-    }
-
-    try {
-      if (evaluateStatement("RESULT_QuestionnairePARequestUri", context) != null && isNotMedicationDispense) {
-        results.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString());
-      }
-    } catch (Exception e) {
-      logger.info("-- No PA Request questionnaire defined");
-    }
-
-    // only display the dispense form for MedicationDispense request
-    try {
-      if (evaluateStatement("RESULT_QuestionnaireDispenseUri", context) != null && !isNotMedicationDispense) {
-        results.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString());
-      }
-    } catch (Exception e) {
-      logger.info("-- No Dispense questionnaire defined");
-    }
-
-    AlternativeTherapy alternativeTherapy = new AlternativeTherapy();
-    alternativeTherapy.setApplies(false);
-    try {
-      if (evaluateStatement("ALTERNATIVE_THERAPY", context) != null) {
-        Object ac = evaluateStatement("ALTERNATIVE_THERAPY", context);
-
-        Code code = (Code) ac;
-        logger.info("alternate therapy suggested: " + code.getDisplay() + " (" + code.getCode() + " / " +
-            ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.inverse().get(code.getSystem()).toUpperCase() + ")");
-
-        alternativeTherapy.setApplies(true)
-            .setCode(code.getCode())
-            .setSystem(code.getSystem())
-            .setDisplay(code.getDisplay());
-      }
-    } catch (Exception e) {
-      logger.info("-- No alternative therapy defined");
-    }
-    results.setAlternativeTherapy(alternativeTherapy);
-
-    return results;
-  }
-
-  private Object evaluateStatement(String statement, Context context) {
+  protected Object evaluateStatement(String statement, Context context) {
     try {
       return context.resolveExpressionRef(statement).evaluate(context);
       // can be thrown if statement is not defined in the cql
@@ -436,7 +345,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return link;
   }
 
-  // Implement this in child class
+  // Implement these in child class
   public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request,
       FileStore fileStore, String baseUrl) throws RequestIncompleteException;
+
+  protected abstract CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic);
 }

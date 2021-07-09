@@ -10,7 +10,6 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.fhir.r4.model.*;
-import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +101,38 @@ public class FhirBundleProcessor {
     }
   }
 
+  public void processOrderSelectMedicationStatements() {
+    Bundle medicationRequestBundle = prefetch.getMedicationRequestBundle();
+    List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
+
+    Bundle medicationStatementBundle = prefetch.getMedicationStatementBundle();
+    List<MedicationStatement> medicationStatementList = Utilities.getResourcesOfTypeFromBundle(MedicationStatement.class, medicationStatementBundle);
+
+    if (!medicationRequestList.isEmpty()) {
+      logger.info("r4/FhirBundleProcessor::processOrderSelectMedicationStatements: MedicationRequests(s) found");
+
+      // process each of the MedicationRequests
+      for (MedicationRequest medicationRequest : medicationRequestList) {
+        if (idInSelectionsList(medicationRequest.getId())) {
+
+          // run on each of the MedicationStatements
+          for (MedicationStatement medicationStatement : medicationStatementList) {
+            logger.info("r4/FhirBundleProcessor::processOrderSelectMedicationStatements: MedicationStatement found: " + medicationStatement.getId());
+
+            List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance());
+
+            HashMap<String, Resource> cqlParams = new HashMap<>();
+            cqlParams.put("Patient", (Patient) medicationRequest.getSubject().getResource());
+            cqlParams.put("medication_request", medicationRequest);
+            cqlParams.put("medication_statement", medicationStatement);
+
+            buildExecutionContexts(criteriaList, cqlParams);
+          }
+        }
+      }
+    }
+  }
+
   private List<CoverageRequirementRuleCriteria> createCriteriaList(CodeableConcept codeableConcept, List<Reference> insurance) {
     try {
       List<Coding> codings = codeableConcept.getCoding();
@@ -144,6 +175,14 @@ public class FhirBundleProcessor {
   }
 
   private void buildExecutionContexts(List<CoverageRequirementRuleCriteria> criteriaList, Patient patient, String requestType, DomainResource request) {
+    HashMap<String, Resource> cqlParams = new HashMap<>();
+    cqlParams.put("Patient", patient);
+    cqlParams.put(requestType, request);
+    buildExecutionContexts(criteriaList, cqlParams);
+  }
+
+  private void buildExecutionContexts(List<CoverageRequirementRuleCriteria> criteriaList, HashMap<String, Resource> cqlParams) {
+
     for (CoverageRequirementRuleCriteria criteria : criteriaList) {
       logger.info("FhirBundleProcessor::buildExecutionContexts() criteria: " + criteria.toString());
       List<RuleMapping> rules = fileStore.findRules(criteria);
@@ -156,20 +195,13 @@ public class FhirBundleProcessor {
 
           //get the CqlRule
           CqlRule cqlRule = fileStore.getCqlRule(rule.getTopic(), rule.getFhirVersion());
-          result.setContext(createCqlExecutionContext(cqlRule, patient, requestType, request));
+          result.setContext(CqlExecutionContextBuilder.getExecutionContext(cqlRule, cqlParams, baseUrl));
           results.add(result);
         } catch (Exception e) {
           logger.info("r4/FhirBundleProcessor::buildExecutionContexts: failed processing cql bundle: " + e.getMessage());
         }
       }
     }
-  }
-
-  private Context createCqlExecutionContext(CqlRule cqlRule, Patient patient, String requestType, DomainResource request) {
-    HashMap<String, Resource> cqlParams = new HashMap<>();
-    cqlParams.put("Patient", patient);
-    cqlParams.put(requestType, request);
-    return CqlExecutionContextBuilder.getExecutionContext(cqlRule, cqlParams, baseUrl);
   }
 
   private String stripResourceType(String identifier) {

@@ -5,8 +5,6 @@ import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 import org.cdshooks.Hook;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectContext;
@@ -35,7 +33,8 @@ public class CrdRequestCreator {
    */
   public static OrderSelectRequest createOrderSelectRequest(
       Enumerations.AdministrativeGender patientGender,
-      Date patientBirthdate, String patientAddressState, String providerAddressState) {
+      Date patientBirthdate, String patientAddressState, String providerAddressState,
+      Coding requestCoding, Coding statementCoding) {
 
     OrderSelectRequest request = new OrderSelectRequest();
     request.setHook(Hook.ORDER_SELECT);
@@ -46,40 +45,50 @@ public class CrdRequestCreator {
     Patient patient = createPatient(patientGender, patientBirthdate, patientAddressState);
     context.setPatientId(patient.getId());
 
-    DeviceRequest dr = new DeviceRequest();
-    dr.setStatus(DeviceRequest.DeviceRequestStatus.DRAFT);
-    dr.setId("DeviceRequest/123");
+    // create and build MedicationRequest
+    MedicationRequest mr = new MedicationRequest();
+    mr.setStatus(MedicationRequest.MedicationRequestStatus.DRAFT);
+    mr.setId("MedicationRequest/123");
+    mr.setIntent(MedicationRequest.MedicationRequestIntent.ORDER);
 
     PrefetchCallback callback = (p, c) -> {
-      dr.setPerformer(new Reference(p));
-      dr.addInsurance(new Reference(c));
+      mr.setPerformer(new Reference(p));
+      mr.addInsurance(new Reference(c));
     };
-    dr.setSubject(new Reference(patient));
+    mr.setSubject(new Reference(patient));
     Practitioner provider = createPractitioner();
     Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
-    CrdPrefetch prefetch = new CrdPrefetch();
-    prefetch.setDeviceRequestBundle(prefetchBundle);
-    request.setPrefetch(prefetch);
 
-    Coding oxygen = new Coding().setCode("E0424")
-        .setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
-        .setDisplay("Stationary Compressed Gaseous Oxygen System, Rental");
-    dr.setCode(new CodeableConcept().addCoding(oxygen));
+
+    mr.setMedication(new CodeableConcept().addCoding(requestCoding));
     Bundle orderBundle = new Bundle();
     Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
-    bec.setResource(dr);
+    bec.setResource(mr);
     orderBundle.addEntry(bec);
     Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
-    pfDrBec.setResource(dr);
+    pfDrBec.setResource(mr);
     prefetchBundle.addEntry(pfDrBec);
     context.setDraftOrders(orderBundle);
     context.setSelections(new String[] {"123"});
 
-    Device device = new Device();
-    device.setType(new CodeableConcept().addCoding(oxygen));
+
+    Bundle prefetchMedicationStatementBundle = new Bundle();
     bec = new Bundle.BundleEntryComponent();
-    bec.setResource(device);
-    prefetchBundle.addEntry(bec);
+    bec.setResource(patient);
+    prefetchMedicationStatementBundle.addEntry(bec);
+    bec = new Bundle.BundleEntryComponent();
+    MedicationStatement ms = new MedicationStatement();
+    ms.setId("MedciationStatement/12345");
+    ms.setMedication(new CodeableConcept().addCoding(statementCoding));
+    bec.setResource(ms);
+    prefetchMedicationStatementBundle.addEntry(bec);
+
+
+    // add the prefetch into the request
+    CrdPrefetch prefetch = new CrdPrefetch();
+    prefetch.setMedicationRequestBundle(prefetchBundle);
+    prefetch.setMedicationStatementBundle(prefetchMedicationStatementBundle);
+    request.setPrefetch(prefetch);
 
     return request;
   }

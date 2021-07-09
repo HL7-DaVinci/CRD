@@ -19,22 +19,15 @@ public class CardBuilder {
 
   public static class CqlResultsForCard {
     private Boolean ruleApplies;
-    private String summary;
-    private String details;
-    private String infoLink;
-    private String questionnaireOrderUri;
-    private String questionnaireFaceToFaceUri;
-    private String questionnaireLabUri;
-    private String questionnaireProgressNoteUri;
-    private String questionnairePARequestUri;
-    private String questionnairePlanOfCareUri;
-    private String questionnaireDispenseUri;
-    private String requestId;
-    private Boolean priorAuthRequired;
-    private Boolean documentationRequired;
+
+    private CoverageRequirements coverageRequirements;
     private AlternativeTherapy alternativeTherapy;
+    private DrugInteraction drugInteraction;
+
     private IBaseResource request;
 
+    public CqlResultsForCard() {
+    }
 
     public Boolean ruleApplies() {
       return ruleApplies;
@@ -49,130 +42,24 @@ public class CardBuilder {
       return this;
     }
 
-    public String getSummary() {
-      return summary;
-    }
-
-    public CqlResultsForCard setSummary(String summary) {
-      this.summary = summary;
-      return this;
-    }
-
-    public String getDetails() {
-      return details;
-    }
-
-    public CqlResultsForCard setDetails(String details) {
-      this.details = details;
-      return this;
-    }
-
-    public String getInfoLink() {
-      return infoLink;
-    }
-
-    public CqlResultsForCard setInfoLink(String infoLink) {
-      this.infoLink = infoLink;
-      return this;
-    }
-
-    public String getQuestionnaireOrderUri() {
-      return questionnaireOrderUri;
-    }
-
-    public CqlResultsForCard setQuestionnaireOrderUri(String questionnaireOrderUri) {
-      this.questionnaireOrderUri = questionnaireOrderUri;
-      return this;
-    }
-
-    public String getRequestId() {
-      return requestId;
-    }
-
-    public CqlResultsForCard setRequestId(String requestId) {
-      this.requestId = requestId;
-      return this;
-    }
-
-    public boolean getPriorAuthRequired() {
-      return priorAuthRequired;
-    }
-
-    public CqlResultsForCard setPriorAuthRequired(boolean priorAuthRequired) {
-      this.priorAuthRequired = priorAuthRequired;
-      return this;
-    }
-
-    public boolean getDocumentationRequired() {
-      return documentationRequired;
-    }
-
-    public CqlResultsForCard setDocumentationRequired(boolean documentationRequired) {
-      this.documentationRequired = documentationRequired;
-      return this;
-    }
-
-    public CqlResultsForCard() {
-    }
-
-    public String getQuestionnaireFaceToFaceUri() {
-      return this.questionnaireFaceToFaceUri;
-    }
-
-    public CqlResultsForCard setQuestionnaireFaceToFaceUri(String questionnaireFaceToFaceUri) {
-      this.questionnaireFaceToFaceUri = questionnaireFaceToFaceUri;
-      return this;
-    }
-
-    public String getQuestionnaireLabUri() {
-      return questionnaireLabUri;
-    }
-
-    public CqlResultsForCard setQuestionnaireLabUri(String questionnaireLabUri) {
-      this.questionnaireLabUri = questionnaireLabUri;
-      return this;
-    }
-
-    public String getQuestionnaireProgressNoteUri() {
-      return questionnaireProgressNoteUri;
-    }
-
-    public CqlResultsForCard setQuestionnaireProgressNoteUri(String questionnaireProgressNoteUri) {
-      this.questionnaireProgressNoteUri = questionnaireProgressNoteUri;
-      return this;
-    }
-
-    public String getQuestionnairePARequestUri() {
-      return questionnairePARequestUri;
-    }
-
-    public CqlResultsForCard setQuestionnairePARequestUri(String questionnairePARequestUri) {
-      this.questionnairePARequestUri = questionnairePARequestUri;
-      return this;
-    }
-
-    public String getQuestionnairePlanOfCareUri() {
-      return questionnairePlanOfCareUri;
-    }
-
-    public CqlResultsForCard setQuestionnairePlanOfCareUri(String questionnairePlanOfCareUri) {
-      this.questionnairePlanOfCareUri = questionnairePlanOfCareUri;
-      return this;
-    }
-
-    public String getQuestionnaireDispenseUri() {
-      return questionnaireDispenseUri;
-    }
-
-    public CqlResultsForCard setQuestionnaireDispenseUri(String questionnaireDispenseUri) {
-      this.questionnaireDispenseUri = questionnaireDispenseUri;
-      return this;
-    }
-
     public AlternativeTherapy getAlternativeTherapy() { return alternativeTherapy; }
 
     public CqlResultsForCard setAlternativeTherapy(AlternativeTherapy alternativeTherapy) {
       this.alternativeTherapy = alternativeTherapy;
+      return this;
+    }
+
+    public DrugInteraction getDrugInteraction() { return drugInteraction; }
+
+    public CqlResultsForCard setDrugInteraction(DrugInteraction drugInteraction) {
+      this.drugInteraction = drugInteraction;
+      return this;
+    }
+
+    public CoverageRequirements getCoverageRequirements() { return coverageRequirements; }
+
+    public CqlResultsForCard setCoverageRequirements(CoverageRequirements coverageRequirements) {
+      this.coverageRequirements = coverageRequirements;
       return this;
     }
 
@@ -194,14 +81,14 @@ public class CardBuilder {
     Card card = baseCard();
 
     Link link = new Link();
-    link.setUrl(cqlResults.getInfoLink());
+    link.setUrl(cqlResults.getCoverageRequirements().getInfoLink());
     link.setType("absolute");
     link.setLabel("Documentation Requirements");
 
 
     card.setLinks(Arrays.asList(link));
-    card.setSummary(cqlResults.getSummary());
-    card.setDetail(cqlResults.getDetails());
+    card.setSummary(cqlResults.getCoverageRequirements().getSummary());
+    card.setDetail(cqlResults.getCoverageRequirements().getDetails());
     return card;
   }
 
@@ -288,6 +175,15 @@ public class CardBuilder {
     suggestionList.add(alternativeTherapySuggestion);
     card.setSuggestions(suggestionList);
 
+    return card;
+  }
+
+  public static Card drugInteractionCard(DrugInteraction drugInteraction) {
+    logger.info("Build Drug Interaction Card: " + drugInteraction.getSummary());
+    Card card = baseCard();
+    card.setSummary(drugInteraction.getSummary());
+    card.setDetail(drugInteraction.getDetail());
+    card.setIndicator(Card.IndicatorEnum.WARNING);
     return card;
   }
 
