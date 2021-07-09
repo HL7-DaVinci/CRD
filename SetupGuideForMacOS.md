@@ -146,7 +146,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     use_oauth = false
     ```
 
-### dtr configs
+### crd-request-generator configs
 
 1. `cd <drlsroot>/crd-request-generator/src`
 2. Edit `properties.json` to look like this:
@@ -164,7 +164,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     }
     ```
 
-### crd-request-generator configs
+### dtr configs
 
 1. cd `<drlsroot>/dtr/bin` 
 2. In `dev`, set `https` to `false`. Your file should look something like this:
