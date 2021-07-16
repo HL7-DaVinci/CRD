@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../../../../resources/node_interfaces/src/components/requestLog"
+		},
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../../../../.."
+		},
+		{
+			"path": "../../../../../../../../../../../../DRLS/CRD/server/src/main"
+		},
+		{
+			"path": "../../../../../../../../../../../../DRLS/CDS-Library/CRD-DTR"
+		}
+	],
+	"settings": {}
+}
