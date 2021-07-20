@@ -91,6 +91,15 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
       results.setRequest((IBaseResource) evaluateStatement("RESULT_dispense", context));
       coverageRequirements.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
           .encodeResourceToString(results.getRequest())));
+
+      // only display the dispense form for MedicationDispense request
+      try {
+        if (evaluateStatement("RESULT_QuestionnaireDispenseUri", context) != null) {
+          coverageRequirements.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No Dispense questionnaire defined");
+      }
     }
     else // not a MedicationDispense
     {
@@ -136,15 +145,6 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
         }
       } catch (Exception e) {
         logger.info("-- No PA Request questionnaire defined");
-      }
-
-      // only display the dispense form for MedicationDispense request
-      try {
-        if (evaluateStatement("RESULT_QuestionnaireDispenseUri", context) != null) {
-          coverageRequirements.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No Dispense questionnaire defined");
       }
     }
     results.setCoverageRequirements(coverageRequirements);
