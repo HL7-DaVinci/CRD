@@ -9,8 +9,6 @@ public enum Hook {
   /**
    * NOTE: CRD only currently supports order-sign hooks.
    */
-  ORDER_REVIEW("order-review"),
-  MEDICATION_PRESCRIBE("medication-prescribe"),
   ORDER_SELECT("order-select"),
   ORDER_SIGN("order-sign");
 
