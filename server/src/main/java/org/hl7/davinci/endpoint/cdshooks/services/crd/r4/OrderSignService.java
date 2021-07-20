@@ -87,65 +87,65 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
           .encodeResourceToString(results.getRequest())));
     }
 
-    boolean isNotMedicationDispense = true;
     if (evaluateStatement("RESULT_dispense", context) != null) {
       results.setRequest((IBaseResource) evaluateStatement("RESULT_dispense", context));
       coverageRequirements.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
           .encodeResourceToString(results.getRequest())));
-      isNotMedicationDispense = false;
     }
-
-    if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null && isNotMedicationDispense) {
-      coverageRequirements.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString());
-    }
-
-    try {
-      if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null && isNotMedicationDispense) {
-        coverageRequirements.setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString());
+    else // not a MedicationDispense
+    {
+      if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null) {
+        coverageRequirements.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString());
       }
-    } catch (Exception e) {
-      logger.info("-- No face to face questionnaire defined");
-    }
 
-    try {
-      if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null && isNotMedicationDispense) {
-        coverageRequirements.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString());
+      try {
+        if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null) {
+          coverageRequirements.setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No face to face questionnaire defined");
       }
-    } catch (Exception e) {
-      logger.info("-- No Lab questionnaire defined");
-    }
 
-    try {
-      if (evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context) != null && isNotMedicationDispense) {
-        coverageRequirements.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString());
+      try {
+        if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null) {
+          coverageRequirements.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No Lab questionnaire defined");
       }
-    } catch (Exception e) {
-      logger.info("-- No Progress note questionnaire defined");
-    }
 
-    try {
-      if (evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context) != null && isNotMedicationDispense) {
-        coverageRequirements.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString());
+      try {
+        if (evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context) != null) {
+          coverageRequirements.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No Progress note questionnaire defined");
       }
-    } catch (Exception e) {
-      logger.info("-- No plan of care questionnaire defined");
-    }
 
-    try {
-      if (evaluateStatement("RESULT_QuestionnairePARequestUri", context) != null && isNotMedicationDispense) {
-        coverageRequirements.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString());
+      try {
+        if (evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context) != null) {
+          coverageRequirements.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No plan of care questionnaire defined");
       }
-    } catch (Exception e) {
-      logger.info("-- No PA Request questionnaire defined");
-    }
 
-    // only display the dispense form for MedicationDispense request
-    try {
-      if (evaluateStatement("RESULT_QuestionnaireDispenseUri", context) != null && !isNotMedicationDispense) {
-        coverageRequirements.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString());
+      try {
+        if (evaluateStatement("RESULT_QuestionnairePARequestUri", context) != null) {
+          coverageRequirements.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No PA Request questionnaire defined");
       }
-    } catch (Exception e) {
-      logger.info("-- No Dispense questionnaire defined");
+
+      // only display the dispense form for MedicationDispense request
+      try {
+        if (evaluateStatement("RESULT_QuestionnaireDispenseUri", context) != null) {
+          coverageRequirements.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No Dispense questionnaire defined");
+      }
     }
     results.setCoverageRequirements(coverageRequirements);
 

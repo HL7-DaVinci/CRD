@@ -2,6 +2,7 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.cdshooks.AlternativeTherapy;
@@ -75,7 +76,6 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
     drugInteraction.setApplies(false);
     try {
       if (evaluateStatement("DRUG_INTERACTION", context) != null) {
-        Object b = evaluateStatement("DRUG_INTERACTION", context);
         drugInteraction.setApplies((Boolean) evaluateStatement("DRUG_INTERACTION", context));
 
         if (drugInteraction.getApplies()) {
@@ -83,15 +83,11 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
           String detail = "Drug ";
 
           if (evaluateStatement("REQUESTED_DRUG_CODE", context) != null) {
-            Object c = evaluateStatement("REQUESTED_DRUG_CODE", context);
-            ArrayList<Coding> clist = (ArrayList<Coding>) c;
-            Coding code = clist.get(0);
+            Coding code = getFirstCodeFromCodingListObject(evaluateStatement("REQUESTED_DRUG_CODE", context));
             detail = detail + " " + code.getDisplay() + " (" + code.getCode() + ") has a dangerous drug/drug interaction with medication patient is already taking: ";
           }
           if (evaluateStatement("STATEMENT_DRUG_CODE", context) != null) {
-            Object c = evaluateStatement("STATEMENT_DRUG_CODE", context);
-            ArrayList<Coding> clist = (ArrayList<Coding>) c;
-            Coding code = clist.get(0);
+            Coding code = getFirstCodeFromCodingListObject(evaluateStatement("STATEMENT_DRUG_CODE", context));
             detail = detail + code.getDisplay() + " (" + code.getCode() + ")";
           }
 
@@ -106,4 +102,15 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
     return results;
   }
 
+  private Coding getFirstCodeFromCodingListObject(Object c) {
+    List<?> clist = new ArrayList<>();
+    if (c instanceof Collection) {
+      clist = new ArrayList<>((Collection<?>) c);
+    }
+    List<Coding> codingList = new ArrayList<>();
+    for (Object obj: clist) {
+      codingList.add((Coding) obj);
+    }
+    return codingList.get(0);
+  }
 }

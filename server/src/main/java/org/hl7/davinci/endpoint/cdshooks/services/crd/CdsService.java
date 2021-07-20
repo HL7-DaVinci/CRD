@@ -12,13 +12,12 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
-import org.hl7.ShortNameMaps;
+import org.hibernate.criterion.Order;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.cdshooks.AlternativeTherapy;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.database.RequestLog;
@@ -26,10 +25,9 @@ import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.json.simple.JSONObject;
+import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
 import org.opencds.cqf.cql.engine.execution.Context;
-import org.opencds.cqf.cql.engine.runtime.Code;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,7 +156,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return response;
     }
 
-    boolean errorCardOnEmpty = false;
+    boolean errorCardOnEmpty = true;
+
+    // no error cards on empty when order-select request
+    if (request instanceof OrderSelectRequest) {
+      errorCardOnEmpty = false;
+    }
+
     boolean foundApplicableRule = false;
     for (CoverageRequirementRuleResult lookupResult : lookupResults) {
       requestLog.addTopic(requestService, lookupResult.getTopic());
@@ -169,9 +173,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         foundApplicableRule = true;
 
         if (results.getCoverageRequirements().getApplies()) {
-          errorCardOnEmpty = true;
 
-          if ((coverageRequirements.getDocumentationRequired() || coverageRequirements.getPriorAuthRequired())
+          if ((coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired())
               && (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
               || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
               || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
@@ -227,40 +230,40 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.getPriorAuthRequired(), "Order Form"));
+          coverageRequirements.isPriorAuthRequired(), "Order Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireFaceToFaceUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.getPriorAuthRequired(), "Face to Face Encounter Form"));
+          coverageRequirements.isPriorAuthRequired(), "Face to Face Encounter Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireLabUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.getPriorAuthRequired(), "Lab Form"));
+          coverageRequirements.isPriorAuthRequired(), "Lab Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.getPriorAuthRequired(), "Progress Note"));
+          coverageRequirements.isPriorAuthRequired(), "Progress Note"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.getPriorAuthRequired(), "PA Request"));
+          coverageRequirements.isPriorAuthRequired(), "PA Request"));
     }
     
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.getPriorAuthRequired(), "Plan of Care/Certification"));
+          coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.getPriorAuthRequired(), "Dispense Form"));
+          coverageRequirements.isPriorAuthRequired(), "Dispense Form"));
     }
     return listOfLinks;
   }

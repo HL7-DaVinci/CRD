@@ -19,9 +19,6 @@ public class CdsResponse {
    * @return
    */
   public CdsResponse addCard(Card cardsItem) {
-    if (this.cards == null) {
-      this.cards = new ArrayList<Card>();
-    }
     this.cards.add(cardsItem);
     return this;
   }

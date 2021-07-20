@@ -13,8 +13,8 @@ public class CoverageRequirements {
   private String questionnairePlanOfCareUri;
   private String questionnaireDispenseUri;
   private String requestId;
-  private Boolean priorAuthRequired;
-  private Boolean documentationRequired;
+  private boolean priorAuthRequired;
+  private boolean documentationRequired;
 
   public boolean getApplies() { return applies; }
 
@@ -120,7 +120,7 @@ public class CoverageRequirements {
     return this;
   }
 
-  public boolean getPriorAuthRequired() {
+  public boolean isPriorAuthRequired() {
     return priorAuthRequired;
   }
 
@@ -129,7 +129,7 @@ public class CoverageRequirements {
     return this;
   }
 
-  public boolean getDocumentationRequired() {
+  public boolean isDocumentationRequired() {
     return documentationRequired;
   }
 
