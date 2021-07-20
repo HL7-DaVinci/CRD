@@ -1,4 +1,4 @@
-package org.hl7.davinci.r4.crdhook;
+package org.hl7.davinci.r4.crdhook.ordersign;
 
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.fhir.r4.model.Bundle;
@@ -28,6 +28,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=MedicationRequest:patient"
           + "&_include=MedicationRequest:intended-dispenser"
           + "&_include=MedicationRequest:intended-performer"
+          + "&_include=MedicationRequest:performer"
           + "&_include:recurse=PractitionerRole:location"
           + "&_include=MedicationRequest:requester:PractitionerRole"
           + "&_include=MedicationRequest:medication"

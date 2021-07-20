@@ -11,7 +11,7 @@ public class CdsResponse {
    * them). The EHR decides how to display cards, but we recommend displaying suggestions using
    * buttons, and links using underlined text. REQUIRED
    */
-  private List<Card> cards = null;
+  private List<Card> cards = new ArrayList<Card>();
 
   /**
    * Add a card.
@@ -19,9 +19,6 @@ public class CdsResponse {
    * @return
    */
   public CdsResponse addCard(Card cardsItem) {
-    if (this.cards == null) {
-      this.cards = new ArrayList<Card>();
-    }
     this.cards.add(cardsItem);
     return this;
   }
