@@ -87,6 +87,10 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
           .encodeResourceToString(results.getRequest())));
     }
 
+    // setup the alternative therapy information
+    AlternativeTherapy alternativeTherapy = new AlternativeTherapy();
+    alternativeTherapy.setApplies(false);
+
     if (evaluateStatement("RESULT_dispense", context) != null) {
       results.setRequest((IBaseResource) evaluateStatement("RESULT_dispense", context));
       coverageRequirements.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
@@ -146,27 +150,26 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
       } catch (Exception e) {
         logger.info("-- No PA Request questionnaire defined");
       }
+
+      // process the alternative therapies
+      try {
+        if (evaluateStatement("ALTERNATIVE_THERAPY", context) != null) {
+          Object ac = evaluateStatement("ALTERNATIVE_THERAPY", context);
+
+          Code code = (Code) ac;
+          logger.info("alternate therapy suggested: " + code.getDisplay() + " (" + code.getCode() + " / " +
+              ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.inverse().get(code.getSystem()).toUpperCase() + ")");
+
+          alternativeTherapy.setApplies(true)
+              .setCode(code.getCode())
+              .setSystem(code.getSystem())
+              .setDisplay(code.getDisplay());
+        }
+      } catch (Exception e) {
+        logger.info("-- No alternative therapy defined");
+      }
     }
     results.setCoverageRequirements(coverageRequirements);
-
-    AlternativeTherapy alternativeTherapy = new AlternativeTherapy();
-    alternativeTherapy.setApplies(false);
-    try {
-      if (evaluateStatement("ALTERNATIVE_THERAPY", context) != null) {
-        Object ac = evaluateStatement("ALTERNATIVE_THERAPY", context);
-
-        Code code = (Code) ac;
-        logger.info("alternate therapy suggested: " + code.getDisplay() + " (" + code.getCode() + " / " +
-            ShortNameMaps.CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.inverse().get(code.getSystem()).toUpperCase() + ")");
-
-        alternativeTherapy.setApplies(true)
-            .setCode(code.getCode())
-            .setSystem(code.getSystem())
-            .setDisplay(code.getDisplay());
-      }
-    } catch (Exception e) {
-      logger.info("-- No alternative therapy defined");
-    }
     results.setAlternativeTherapy(alternativeTherapy);
 
     // add empty drug interaction
