@@ -148,7 +148,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage() + "; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
-      requestLog.setCardListFromCards(response.getCards());
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
       return response;
@@ -212,12 +211,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         response.addCard(CardBuilder.summaryCard(msg));
       }
 
-    CardBuilder.errorCardIfNonePresent(response);
-    
-    // Ading card to requestLog
-    requestLog.setCardListFromCards(response.getCards());
-    requestService.edit(requestLog);
-
+      CardBuilder.errorCardIfNonePresent(response);
+    }
 
     return response;
   }
@@ -253,7 +248,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           coverageRequirements.isPriorAuthRequired(), "PA Request"));
     }
 
-    if (StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
           coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));
