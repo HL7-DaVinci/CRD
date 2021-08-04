@@ -51,11 +51,15 @@ public class RequestLog {
   @Column(name = "id", updatable = false, nullable = false)
   private long id;
 
-  @Column(name = "request_body", length = 100000, nullable = false)
+  @Column(name = "request_body", length = 2000000000, nullable = false)
   private byte[] requestBody;
 
   @Column(name = "timestamp", nullable = false)
   private long timestamp;
+
+
+  @Column(name = "card_list", length = 2000000000)
+  private String cardList;
 
   @Column(name = "patient_age")
   private int patientAge;
@@ -198,6 +202,22 @@ public class RequestLog {
 
   }
 
+  public void addCard(Object card) {
+    String newStr;
+    try {
+      
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectWriter w = mapper.writer();
+      newStr = w.writeValueAsString(card);
+      this.setCardList(newStr);
+    }
+
+    catch (Exception e) {
+    logger.error("failed to write request json: " + e.getMessage());
+    newStr = "error";
+    }
+  }
+
   public void addTopic(RequestService requestService, String topic) {
     int topicMax = 10;
     if (this.topicCounter == 0) { // first topic added
@@ -251,6 +271,14 @@ public class RequestLog {
 
   public void setTimestamp(long timestamp) {
     this.timestamp = timestamp;
+  }
+
+  public void setCardList(String cardList) {
+    this.cardList = cardList;
+  }
+
+  public String getCardList() {
+    return this.cardList;
   }
 
   public int getPatientAge() {

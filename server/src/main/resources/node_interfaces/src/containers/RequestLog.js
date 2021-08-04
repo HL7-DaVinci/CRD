@@ -36,7 +36,7 @@ export default class RequestLog extends Component {
 
     async getData() {
         // const requestData = await this.generateData();
-        const requestData = await fetch(baseUrl + 'api/requests', {
+        const requestData = await fetch('http://localhost:8090/' + 'api/requests', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -47,6 +47,8 @@ export default class RequestLog extends Component {
             console.log("Couldn't load data, make sure the server is running.")
             console.log("error=", error)
         });
+
+        console.log(requestData)
 
         if (requestData) {
             requestData.sort(this.compareTime);
