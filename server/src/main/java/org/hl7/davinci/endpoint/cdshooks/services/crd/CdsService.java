@@ -121,7 +121,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   /**
    * Performs generic operations for incoming requests of any type.
-   * 
+   *
    * @param request the generically typed incoming request
    * @return The response from the server
    */
@@ -132,6 +132,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     // Parsed request
     requestLog.advanceTimeline(requestService);
+
+    //requestLog.addCard("hello");
 
     PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
     prefetchHydrator.hydrate();
@@ -217,8 +219,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         response.addCard(CardBuilder.summaryCard(msg));
       }
 
-      CardBuilder.errorCardIfNonePresent(response);
-    }
+    CardBuilder.errorCardIfNonePresent(response);
+    
+    // Ading card to requestLog
+    requestLog.addCard(response.getCards());
+    requestService.edit(requestLog);
+
 
     return response;
   }
@@ -253,8 +259,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
           coverageRequirements.isPriorAuthRequired(), "PA Request"));
     }
-    
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
+
+    if (StringUtils.isNotEmpty(results.getQuestionnairePlanOfCareUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
           coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));

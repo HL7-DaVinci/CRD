@@ -12,10 +12,12 @@ export default class DetailEntry extends Component {
             slideIn: "slideInStart",
             requestInfo: {},
             showRequestBody:false,
-            showResults: false
+            showResults: false,
+            showCard: false
         };
          this.showRequestBody = this.showRequestBody.bind(this);
          this.showResults = this.showResults.bind(this);
+         this.showCard = this.showCard.bind(this);
 
          // process the topics array
          this.resultsCount = 0;
@@ -45,6 +47,13 @@ export default class DetailEntry extends Component {
             return {showResults:!prevState.showResults}
         });
     }
+
+    showCard(){
+        this.setState(prevState=>{
+            return {showCard:!prevState.showCard}
+        });
+    }
+
     unfurlJson(jsonData){
         var divStyle = {
             marginLeft:20
@@ -54,14 +63,14 @@ export default class DetailEntry extends Component {
             return Object.keys(jsonData).map(element=>{
                 // we don't want to show the actual token that was used
                 if(element==="access_token"){
-                    return(              
+                    return(
                     <div className="jsonData" key={element} style={divStyle}>
 
                     <span className="elementKey">{element}</span>: <span className="elementBody">-</span>
                 </div>
                     )
                 }
-                return ( 
+                return (
                 <div className="jsonData" key={element} style={divStyle}>
 
                     <span className="elementKey">{element}</span>: <span className="elementBody">{jsonData[element]===null?"null":typeof jsonData[element] === "object"?this.unfurlJson(jsonData[element]):jsonData[element]}</span>
@@ -75,13 +84,16 @@ export default class DetailEntry extends Component {
      render() {
          return (
              <div>
-                    <div className="detailWindow" 
+                    <div className="detailWindow"
                     onClick={()=>{
                         if(this.state.showRequestBody){
                             this.setState({showRequestBody:false})
                         }
                         if(this.state.showResults){
                             this.setState({showResults: false})
+                        }
+                        if(this.state.showCard){
+                            this.setState({showCard:false})
                         }
                     }}>
 
@@ -101,6 +113,9 @@ export default class DetailEntry extends Component {
                         <div className={"errorDetail " + [this.state.showRequestBody?"filled":"empty"]} onClick={this.showRequestBody}>
                             Show Request Body
                         </div>
+                        <div className={"errorDetail " + [this.state.showCard?"filled":"empty"]} onClick={this.showCard}>
+                            Show Card
+                        </div>
                         <div className={"errorDetail " + [this.state.showResults?"filled":"empty"]} onClick={this.showResults}>
                             Topic Results <span>[ {this.resultsCount} ]</span>
                         </div>
@@ -113,6 +128,13 @@ export default class DetailEntry extends Component {
                  </div>
                  :
                  null}
+
+                 {this.state.showCard?
+                 <div className = "requestCard">
+                 { this.unfurlJson(JSON.parse(atob(this.props.data.requestCard)))}
+               </div>
+                  :
+                null}
                  {this.state.showResults?
                  <div className="requestBody">&nbsp;&nbsp;Topics: {this.topics}</div>
                  :null}
@@ -121,4 +143,4 @@ export default class DetailEntry extends Component {
          )
 
     }
-} 
+}
