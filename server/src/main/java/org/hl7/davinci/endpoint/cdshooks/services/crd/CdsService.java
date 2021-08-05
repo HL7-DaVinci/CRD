@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -312,16 +313,22 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // request is the ID of the device request or medrec (not the full URI like the
     // IG says, since it should be taken from fhirBase
 
+    String filepath = "../../getfile/" + criteria.getQueryString();
+
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
-    appContext = appContext + "&fhirpath=" + applicationBaseUrl + "/fhir/";
 
     appContext = appContext + "&priorauth=" + (priorAuthRequired ? "true" : "false");
-    appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
+    appContext = appContext + "&filepath=";
     if (myConfig.getUrlEncodeAppContext()) {
-      logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
-      appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8);
+      try {
+        logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
+        appContext = URLEncoder.encode(appContext, "UTF-8").toString();
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
     }
 
+    appContext = appContext + "_";
     logger.info("smarLinkBuilder: appContext: " + appContext);
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
