@@ -1,10 +1,10 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,7 +12,6 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
-import org.hibernate.criterion.Order;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
@@ -26,7 +25,6 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
-import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,22 +40,22 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * The {id} portion of the URL to this service which is available at
    * {baseUrl}/cds-services/{id}. REQUIRED
    */
-  public String id = null;
+  public String id;
 
   /**
    * The hook this service should be invoked on. REQUIRED
    */
-  public Hook hook = null;
+  public Hook hook;
 
   /**
    * The human-friendly name of this service. RECOMMENDED
    */
-  public String title = null;
+  public String title;
 
   /**
    * The description of this service. REQUIRED
    */
-  public String description = null;
+  public String description;
 
   /**
    * An object containing key/value pairs of FHIR queries that this service is
@@ -65,8 +63,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * a string that describes the type of data being requested and the value is a
    * string representing the FHIR query. OPTIONAL
    */
-  public Prefetch prefetch = null;
-  Class<?> requestClass = null;
+  public Prefetch prefetch;
 
   @Autowired
   private YamlConfig myConfig;
@@ -77,7 +74,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   @Autowired
   FileStore fileStore;
 
-  private List<PrefetchTemplateElement> prefetchElements = null;
+  private final List<PrefetchTemplateElement> prefetchElements;
   protected FhirComponentsT fhirComponents;
 
   /**
@@ -156,12 +153,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return response;
     }
 
-    boolean errorCardOnEmpty = true;
+    boolean errorCardOnEmpty = !(request instanceof OrderSelectRequest);
 
     // no error cards on empty when order-select request
-    if (request instanceof OrderSelectRequest) {
-      errorCardOnEmpty = false;
-    }
 
     boolean foundApplicableRule = false;
     for (CoverageRequirementRuleResult lookupResult : lookupResults) {
@@ -284,6 +278,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri,
       String reqResourceId, CoverageRequirementRuleCriteria criteria, boolean priorAuthRequired, String label) {
     URI configLaunchUri = myConfig.getLaunchUrl();
+    questionnaireUri = applicationBaseUrl + "/fhir/r4/" + questionnaireUri;
+
     String launchUrl;
     if (myConfig.getLaunchUrl().isAbsolute()) {
       launchUrl = myConfig.getLaunchUrl().toString();
@@ -302,32 +298,24 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
     }
     if (patientId != null && patientId.startsWith("Patient/")) {
-      patientId = patientId.substring(8, patientId.length());
+      patientId = patientId.substring(8);
     }
 
     // PARAMS:
     // template is the uri of the questionnaire
     // request is the ID of the device request or medrec (not the full URI like the
     // IG says, since it should be taken from fhirBase
-    // HashMap<String,String> appContextMap = new HashMap<>();
-    // appContextMap.put("template", questionnaireUri);
-    // appContextMap.put("request", reqResourceId);
-    String filepath = "../../getfile/" + criteria.getQueryString();
 
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
+    appContext = appContext + "&fhirpath=" + applicationBaseUrl + "/fhir/";
 
     appContext = appContext + "&priorauth=" + (priorAuthRequired ? "true" : "false");
-    appContext = appContext + "&filepath=";
+    appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
     if (myConfig.getUrlEncodeAppContext()) {
-      try {
-        logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
-        appContext = URLEncoder.encode(appContext, "UTF-8").toString();
-      } catch (UnsupportedEncodingException e) {
-        e.printStackTrace();
-      }
+      logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
+      appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8);
     }
 
-    appContext = appContext + "_";
     logger.info("smarLinkBuilder: appContext: " + appContext);
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
