@@ -214,7 +214,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       }
     }
 
-    CardBuilder.errorCardIfNonePresent(response);
+    if (errorCardOnEmpty)
+    {
+      CardBuilder.errorCardIfNonePresent(response);
+    }
+
+    
 
     // Ading card to requestLog
     requestLog.setCardListFromCards(response.getCards());
