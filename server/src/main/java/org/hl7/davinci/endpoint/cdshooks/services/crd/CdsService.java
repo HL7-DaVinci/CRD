@@ -207,19 +207,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestLog.advanceTimeline(requestService);
 
     if (errorCardOnEmpty) {
+      CardBuilder.errorCardIfNonePresent(response);
       if (!foundApplicableRule) {
         String msg = "No documentation rules found";
         logger.warn(msg + "; summary card sent to client");
         response.addCard(CardBuilder.summaryCard(msg));
       }
     }
-
-    if (errorCardOnEmpty)
-    {
-      CardBuilder.errorCardIfNonePresent(response);
-    }
-
-    
 
     // Ading card to requestLog
     requestLog.setCardListFromCards(response.getCards());
