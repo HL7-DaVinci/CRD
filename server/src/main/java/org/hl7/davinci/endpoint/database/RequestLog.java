@@ -187,7 +187,7 @@ public class RequestLog {
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].birthDate");
       Period period = new Period(new DateTime(jList.get(0)), new DateTime());
       this.setPatientAge( period.getYears() );
-      
+
     } catch (Exception e) {
       logger.error("failed to write request json: " + e.getMessage());
       requestStr = "error";
@@ -207,11 +207,11 @@ public class RequestLog {
   public void setCardListFromCards(Object cards) {
     String newStr;
     try {
-      
+
       ObjectMapper mapper = new ObjectMapper();
       ObjectWriter w = mapper.writer();
       newStr = w.writeValueAsString(cards);
-      
+
     }
 
     catch (Exception e) {
