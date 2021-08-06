@@ -18,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Lob;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
@@ -51,11 +52,16 @@ public class RequestLog {
   @Column(name = "id", updatable = false, nullable = false)
   private long id;
 
-  @Column(name = "request_body", length = 100000, nullable = false)
+  @Lob
+  @Column(name = "request_body", nullable = false)
   private byte[] requestBody;
 
   @Column(name = "timestamp", nullable = false)
   private long timestamp;
+
+  @Lob
+  @Column(name = "card_list")
+  private String cardList;
 
   @Column(name = "patient_age")
   private int patientAge;
@@ -181,7 +187,7 @@ public class RequestLog {
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].birthDate");
       Period period = new Period(new DateTime(jList.get(0)), new DateTime());
       this.setPatientAge( period.getYears() );
-      
+
     } catch (Exception e) {
       logger.error("failed to write request json: " + e.getMessage());
       requestStr = "error";
@@ -196,6 +202,23 @@ public class RequestLog {
     this.timelineCounter++;
     requestService.edit(this);
 
+  }
+
+  public void setCardListFromCards(Object cards) {
+    String newStr;
+    try {
+
+      ObjectMapper mapper = new ObjectMapper();
+      ObjectWriter w = mapper.writer();
+      newStr = w.writeValueAsString(cards);
+
+    }
+
+    catch (Exception e) {
+    logger.error("failed to write request json: " + e.getMessage());
+    newStr = "error";
+    }
+    this.setCardList(newStr);
   }
 
   public void addTopic(RequestService requestService, String topic) {
@@ -251,6 +274,14 @@ public class RequestLog {
 
   public void setTimestamp(long timestamp) {
     this.timestamp = timestamp;
+  }
+
+  public void setCardList(String cardList) {
+    this.cardList = cardList;
+  }
+
+  public String getCardList() {
+    return this.cardList;
   }
 
   public int getPatientAge() {

@@ -58,7 +58,7 @@ public class DataController {
   @GetMapping(value = "/api/requests")
   @CrossOrigin
   public Iterable<RequestLog> showAllLogs() {
-    // logger.info("showAllLogs: GET /api/requests");
+    logger.info("showAll: GET /api/data");
 
     boolean[] timelineTrue = new boolean[5];
     Arrays.fill(timelineTrue, Boolean.TRUE);

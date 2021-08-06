@@ -12,10 +12,12 @@ export default class DetailEntry extends Component {
             slideIn: "slideInStart",
             requestInfo: {},
             showRequestBody:false,
-            showResults: false
+            showResults: false,
+            showCards: false
         };
          this.showRequestBody = this.showRequestBody.bind(this);
          this.showResults = this.showResults.bind(this);
+         this.showCards = this.showCards.bind(this);
 
          // process the topics array
          this.resultsCount = 0;
@@ -32,7 +34,7 @@ export default class DetailEntry extends Component {
                 }
             }
          }
-    }
+        }
 
     showRequestBody(){
         this.setState(prevState=>{
@@ -45,6 +47,13 @@ export default class DetailEntry extends Component {
             return {showResults:!prevState.showResults}
         });
     }
+
+    showCards(){
+        this.setState(prevState=>{
+            return {showCards:!prevState.showCards}
+        });
+    }
+
     unfurlJson(jsonData){
         var divStyle = {
             marginLeft:20
@@ -54,14 +63,14 @@ export default class DetailEntry extends Component {
             return Object.keys(jsonData).map(element=>{
                 // we don't want to show the actual token that was used
                 if(element==="access_token"){
-                    return(              
+                    return(
                     <div className="jsonData" key={element} style={divStyle}>
 
                     <span className="elementKey">{element}</span>: <span className="elementBody">-</span>
                 </div>
                     )
                 }
-                return ( 
+                return (
                 <div className="jsonData" key={element} style={divStyle}>
 
                     <span className="elementKey">{element}</span>: <span className="elementBody">{jsonData[element]===null?"null":typeof jsonData[element] === "object"?this.unfurlJson(jsonData[element]):jsonData[element]}</span>
@@ -75,13 +84,16 @@ export default class DetailEntry extends Component {
      render() {
          return (
              <div>
-                    <div className="detailWindow" 
+                    <div className="detailWindow"
                     onClick={()=>{
                         if(this.state.showRequestBody){
                             this.setState({showRequestBody:false})
                         }
                         if(this.state.showResults){
                             this.setState({showResults: false})
+                        }
+                        if(this.state.showCards){
+                            this.setState({showCards:false})
                         }
                     }}>
 
@@ -101,6 +113,9 @@ export default class DetailEntry extends Component {
                         <div className={"errorDetail " + [this.state.showRequestBody?"filled":"empty"]} onClick={this.showRequestBody}>
                             Show Request Body
                         </div>
+                        <div className={"errorDetail " + [this.state.showCards?"filled":"empty"]} onClick={this.showCards}>
+                            Show Cards
+                        </div>
                         <div className={"errorDetail " + [this.state.showResults?"filled":"empty"]} onClick={this.showResults}>
                             Topic Results <span>[ {this.resultsCount} ]</span>
                         </div>
@@ -113,6 +128,13 @@ export default class DetailEntry extends Component {
                  </div>
                  :
                  null}
+
+                 {this.state.showCards?
+                 <div className = "requestBody">
+                 { this.unfurlJson(JSON.parse(this.props.data.cardList)) }
+               </div>
+                  :
+                null}
                  {this.state.showResults?
                  <div className="requestBody">&nbsp;&nbsp;Topics: {this.topics}</div>
                  :null}
@@ -121,4 +143,4 @@ export default class DetailEntry extends Component {
          )
 
     }
-} 
+}

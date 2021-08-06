@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -118,7 +119,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   /**
    * Performs generic operations for incoming requests of any type.
-   * 
+   *
    * @param request the generically typed incoming request
    * @return The response from the server
    */
@@ -148,6 +149,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage() + "; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(e.getMessage()));
+      requestLog.setCardListFromCards(response.getCards());
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
       return response;
@@ -210,9 +212,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         logger.warn(msg + "; summary card sent to client");
         response.addCard(CardBuilder.summaryCard(msg));
       }
-
       CardBuilder.errorCardIfNonePresent(response);
     }
+
+    // Ading card to requestLog
+    requestLog.setCardListFromCards(response.getCards());
+    requestService.edit(requestLog);
+
 
     return response;
   }
@@ -247,7 +253,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
           coverageRequirements.isPriorAuthRequired(), "PA Request"));
     }
-    
+
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
@@ -306,16 +312,22 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // request is the ID of the device request or medrec (not the full URI like the
     // IG says, since it should be taken from fhirBase
 
+    String filepath = "../../getfile/" + criteria.getQueryString();
+
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
-    appContext = appContext + "&fhirpath=" + applicationBaseUrl + "/fhir/";
 
     appContext = appContext + "&priorauth=" + (priorAuthRequired ? "true" : "false");
-    appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
+    appContext = appContext + "&filepath=";
     if (myConfig.getUrlEncodeAppContext()) {
-      logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
-      appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8);
+      try {
+        logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
+        appContext = URLEncoder.encode(appContext, "UTF-8").toString();
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
     }
 
+    appContext = appContext + "_";
     logger.info("smarLinkBuilder: appContext: " + appContext);
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
