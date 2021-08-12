@@ -315,19 +315,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     String filepath = "../../getfile/" + criteria.getQueryString();
 
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
+    appContext = appContext + "&fhirpath=" + applicationBaseUrl + "/fhir/";
 
     appContext = appContext + "&priorauth=" + (priorAuthRequired ? "true" : "false");
-    appContext = appContext + "&filepath=";
+    appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
     if (myConfig.getUrlEncodeAppContext()) {
-      try {
-        logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
-        appContext = URLEncoder.encode(appContext, "UTF-8").toString();
-      } catch (UnsupportedEncodingException e) {
-        e.printStackTrace();
-      }
+      logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
+      appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8).toString();
     }
 
-    appContext = appContext + "_";
     logger.info("smarLinkBuilder: appContext: " + appContext);
 
     if (myConfig.isAppendParamsToSmartLaunchUrl()) {
