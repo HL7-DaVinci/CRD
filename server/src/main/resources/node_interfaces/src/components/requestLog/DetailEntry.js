@@ -23,7 +23,7 @@ export default class DetailEntry extends Component {
          this.resultsCount = 0;
          this.topics = '';
          var i;
-         if (this.props.data.topics != null) {
+         
             for (i=0; i< this.props.data.topics.length; i++) {
                 if (this.props.data.topics[i] != null) {
                     this.resultsCount = this.resultsCount + 1;
@@ -35,7 +35,7 @@ export default class DetailEntry extends Component {
                     }
                 }
             }
-        }
+        
         }
 
     showRequestBody(){
