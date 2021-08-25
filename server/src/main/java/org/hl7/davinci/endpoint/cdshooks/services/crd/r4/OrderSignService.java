@@ -38,7 +38,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public static final Hook HOOK = Hook.ORDER_SIGN;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
-  public static final List<PrefetchTemp=lateElement> PREFETCH_ELEMENTS = Arrays.asList(
+  public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
       CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
       CrdPrefetchTemplateElements.SUPPLY_REQUEST_BUNDLE,
       CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
