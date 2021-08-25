@@ -16,6 +16,9 @@ import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.crdhook.ConfigurationOption;
+import org.hl7.davinci.r4.crdhook.Extension;
+import org.hl7.davinci.r4.crdhook.ordersign.CrdExtensionConfigurationOptions;
 import org.hl7.davinci.r4.crdhook.ordersign.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -35,7 +38,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public static final Hook HOOK = Hook.ORDER_SIGN;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
-  public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
+  public static final List<PrefetchTemp=lateElement> PREFETCH_ELEMENTS = Arrays.asList(
       CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
       CrdPrefetchTemplateElements.SUPPLY_REQUEST_BUNDLE,
       CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
@@ -45,7 +48,12 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   static final Logger logger = LoggerFactory.getLogger(OrderSignService.class);
 
-  public OrderSignService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS); }
+  public static final List<ConfigurationOption> CONFIGURATION_OPTIONS = Arrays.asList(
+      CrdExtensionConfigurationOptions.ALTERNATIVE_THERAPY
+  );
+  public static final Extension EXTENSION = new Extension(CONFIGURATION_OPTIONS);
+
+  public OrderSignService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, EXTENSION); }
 
   @Override
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore, String baseUrl) {

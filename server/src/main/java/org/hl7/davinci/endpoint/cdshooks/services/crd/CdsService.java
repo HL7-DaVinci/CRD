@@ -26,6 +26,7 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.r4.crdhook.Extension;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   FileStore fileStore;
 
   private final List<PrefetchTemplateElement> prefetchElements;
+
   protected FhirComponentsT fhirComponents;
+
+  private final Extension extension;
 
   /**
    * Create a new cdsservice.
@@ -88,9 +92,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @param prefetchElements List of prefetch elements, will be in prefetch
    *                         template.
    * @param fhirComponents   Fhir components to use
+   * @param extension        Custom CDS Hooks extensions.
    */
   public CdsService(String id, Hook hook, String title, String description,
-      List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents) {
+      List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents,
+      Extension extension) {
 
     if (id == null) {
       throw new NullPointerException("CDSService id cannot be null");
@@ -111,7 +117,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       this.prefetch.put(prefetchElement.getKey(), prefetchElement.getQuery());
     }
     this.fhirComponents = fhirComponents;
+    this.extension = extension;
   }
+
+  public Extension getExtension() { return extension; }
 
   public List<PrefetchTemplateElement> getPrefetchElements() {
     return prefetchElements;
