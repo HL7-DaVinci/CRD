@@ -321,7 +321,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
     if (myConfig.getUrlEncodeAppContext()) {
       logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
-      appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8).toString();
+      try {
+          appContext = URLEncoder.encode(appContext, "UTF-8").toString();
+      } catch (UnsupportedEncodingException e) {
+          logger.warn("CdsService::smartLinkBuilder: unsupported url encoding: " + e.getMessage());
+          throw new RuntimeException(e.getMessage());
+      }
     }
 
     logger.info("smarLinkBuilder: appContext: " + appContext);
