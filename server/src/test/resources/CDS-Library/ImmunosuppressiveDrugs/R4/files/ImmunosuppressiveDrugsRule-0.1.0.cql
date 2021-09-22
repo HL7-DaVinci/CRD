@@ -17,12 +17,6 @@ define PRIORAUTH_REQUIRED:
 define DOCUMENTATION_REQUIRED:
   true
 
-define RESULT_Summary:
-  'Documentation Required.'
-
-define RESULT_Details:
-  'Documentation Required, please complete form via Smart App link.'
-
 define RESULT_InfoLink:
     'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/ProviderComplianceTipsforHospitalBedsandAccessories-ICN909476.pdf'
 

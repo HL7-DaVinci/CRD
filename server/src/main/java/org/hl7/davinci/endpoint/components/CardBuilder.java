@@ -2,12 +2,17 @@ package org.hl7.davinci.endpoint.components;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.fhir.instance.model.api.IBase;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Annotation;
+import org.hl7.fhir.r4.model.DeviceRequest;
+import org.hl7.fhir.r4.model.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,10 +90,10 @@ public class CardBuilder {
     link.setType("absolute");
     link.setLabel("Documentation Requirements");
 
-
     card.setLinks(Arrays.asList(link));
     card.setSummary(cqlResults.getCoverageRequirements().getSummary());
     card.setDetail(cqlResults.getCoverageRequirements().getDetails());
+
     return card;
   }
 
@@ -184,6 +189,39 @@ public class CardBuilder {
     card.setSummary(drugInteraction.getSummary());
     card.setDetail(drugInteraction.getDetail());
     card.setIndicator(Card.IndicatorEnum.WARNING);
+    return card;
+  }
+
+  public static Card createSuggestionsWithNote(Card card,
+                                               CqlResultsForCard cqlResults,
+                                               FhirComponentsT fhirComponents) {
+    List<Suggestion> suggestionList = new ArrayList<>();
+    Suggestion requestWithNoteSuggestion = new Suggestion();
+
+    requestWithNoteSuggestion.setLabel("Save Update To EHR");
+    requestWithNoteSuggestion.setIsRecommended(true);
+    List<Action> actionList = new ArrayList<>();
+
+    // build the Annotation
+    Annotation annotation = new Annotation();
+    StringType author = new StringType();
+    author.setValue(card.getSource().getLabel());
+    annotation.setAuthor(author);
+    String text = card.getSummary() + ": " + card.getDetail();
+    annotation.setText(text);
+    annotation.setTime(new Date()); // set the date and time to now
+    IBaseResource resource = FhirRequestProcessor.addNoteToRequest(cqlResults.getRequest(), annotation);
+
+    Action updateAction = new Action(fhirComponents);
+    updateAction.setType(Action.TypeEnum.update);
+    updateAction.setDescription("Update original " + cqlResults.getRequest().fhirType() + " to add note");
+    updateAction.setResource(resource);
+
+    actionList.add(updateAction);
+
+    requestWithNoteSuggestion.setActions(actionList);
+    suggestionList.add(requestWithNoteSuggestion);
+    card.setSuggestions(suggestionList);
     return card;
   }
 

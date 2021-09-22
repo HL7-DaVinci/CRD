@@ -17,12 +17,6 @@ define PRIORAUTH_REQUIRED:
 define DOCUMENTATION_REQUIRED:
   true
 
-define RESULT_Summary:
-  'No auth needed'
-
-define RESULT_Details:
-  'No authorization is required, as laid out at the attached link.'
-
 define RESULT_InfoLink:
     'https://www.cms.gov/outreach-and-education/medicare-learning-network-mln/mlnproducts/downloads/home-oxygen-therapy-text-only.pdf'
 
