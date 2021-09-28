@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class Extension {
+public class DiscoveryExtension {
 
   @JsonProperty("davinci-crd.configuration-options")
   private List<ConfigurationOption> configurationOptions;
 
-  public Extension(List<ConfigurationOption> configurationOptions) {
+  public DiscoveryExtension(List<ConfigurationOption> configurationOptions) {
     this.configurationOptions = configurationOptions;
   }
 

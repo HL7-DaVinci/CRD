@@ -17,7 +17,7 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.ConfigurationOption;
-import org.hl7.davinci.r4.crdhook.Extension;
+import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.ordersign.CrdExtensionConfigurationOptions;
 import org.hl7.davinci.r4.crdhook.ordersign.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
@@ -51,7 +51,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public static final List<ConfigurationOption> CONFIGURATION_OPTIONS = Arrays.asList(
       CrdExtensionConfigurationOptions.ALTERNATIVE_THERAPY
   );
-  public static final Extension EXTENSION = new Extension(CONFIGURATION_OPTIONS);
+  public static final DiscoveryExtension EXTENSION = new DiscoveryExtension(CONFIGURATION_OPTIONS);
 
   public OrderSignService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, EXTENSION); }
 
