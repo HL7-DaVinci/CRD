@@ -177,7 +177,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
               || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())
               || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())
-              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri()))) {
+              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
+              || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri()))) {
             List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
             response.addCard(CardBuilder.transform(results, smartAppLinks));
 
@@ -264,6 +265,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
           coverageRequirements.isPriorAuthRequired(), "Dispense Form"));
+    }
+
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          coverageRequirements.getQuestionnaireAdditionalUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
+          coverageRequirements.isPriorAuthRequired(), "Additional Form"));
     }
     return listOfLinks;
   }

@@ -151,6 +151,14 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
         logger.info("-- No PA Request questionnaire defined");
       }
 
+      try {
+        if (evaluateStatement("RESULT_QuestionnaireAdditionalUri", context) != null) {
+          coverageRequirements.setQuestionnaireAdditionalUri(evaluateStatement("RESULT_QuestionnaireAdditionalUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No additional questionnaire defined");
+      }
+
       // process the alternative therapies
       try {
         if (evaluateStatement("ALTERNATIVE_THERAPY", context) != null) {

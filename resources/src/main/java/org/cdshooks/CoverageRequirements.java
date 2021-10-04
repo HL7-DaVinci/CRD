@@ -12,6 +12,7 @@ public class CoverageRequirements {
   private String questionnairePARequestUri;
   private String questionnairePlanOfCareUri;
   private String questionnaireDispenseUri;
+  private String questionnaireAdditionalUri;
   private String requestId;
   private boolean priorAuthRequired;
   private boolean documentationRequired;
@@ -136,5 +137,13 @@ public class CoverageRequirements {
   public CoverageRequirements setDocumentationRequired(boolean documentationRequired) {
     this.documentationRequired = documentationRequired;
     return this;
+  }
+
+  public String getQuestionnaireAdditionalUri() {
+    return questionnaireAdditionalUri;
+  }
+
+  public void setQuestionnaireAdditionalUri(String questionnaireAdditionalUri) {
+    this.questionnaireAdditionalUri = questionnaireAdditionalUri;
   }
 }
