@@ -1,2 +1,0 @@
-The same rule should apply to:
-- E0466
