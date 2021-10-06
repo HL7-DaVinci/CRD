@@ -75,6 +75,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
 
     results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES", context));
     if (!results.ruleApplies()) {
+      logger.warn("rule does not apply");
       return results;
     }
 
@@ -83,11 +84,24 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
 
     String humanReadableTopic = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(topic), ' ');
 
-    coverageRequirements.setSummary(humanReadableTopic + ": " + evaluateStatement("RESULT_Summary", context).toString())
-        .setDetails(evaluateStatement("RESULT_Details", context).toString())
-        .setInfoLink(evaluateStatement("RESULT_InfoLink", context).toString())
+    coverageRequirements.setInfoLink(evaluateStatement("RESULT_InfoLink", context).toString())
         .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
         .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
+
+    // if prior auth, supercede the documentation required
+    if (coverageRequirements.isPriorAuthRequired()) {
+      logger.info("Prior Auth Required");
+      coverageRequirements.setSummary(humanReadableTopic + ": Prior Authorization required.")
+          .setDetails("Prior Authorization required, follow the attached link for information.");
+    } else if (coverageRequirements.isDocumentationRequired()) {
+      logger.info("Documentation Required");
+      coverageRequirements.setSummary(humanReadableTopic + ": Documentation Required.")
+          .setDetails("Documentation Required, please complete form via Smart App link.");
+    } else {
+      logger.info("No Prior Auth or Documentation Required");
+      coverageRequirements.setSummary(humanReadableTopic + ": No Prior Authorization required.")
+          .setDetails("No Prior Authorization required for " + humanReadableTopic + ".");
+    }
 
     if (evaluateStatement("RESULT_requestId", context) != null) {
       results.setRequest((IBaseResource) evaluateStatement("RESULT_requestId", context));
