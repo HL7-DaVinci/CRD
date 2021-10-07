@@ -66,7 +66,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     Run the following sdkman commands to complete the install:
     ```bash
     sdk list java # find sdkman's identifier for the LTS version of AdoptOpenJDK 11
-    sdk install java <identifier_for_adoptopenjdk8>
+    sdk install java <identifier_for_adoptopenjdk11>
     
     # After the installation is complete, verify the correct version of java is running with:
     java -version
