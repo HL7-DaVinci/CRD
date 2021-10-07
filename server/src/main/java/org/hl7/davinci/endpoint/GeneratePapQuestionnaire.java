@@ -250,7 +250,7 @@ public class GeneratePapQuestionnaire {
         System.out.println(f.newJsonParser().setPrettyPrint(true).encodeResourceToString(q));
 
         try {
-            java.io.FileWriter filewriter = new java.io.FileWriter("/Users/kmulcahy/git/davinci/crd/server/src/main/jib/smartAppFhirArtifacts/positive-airway-pressure-questionnaire.json");
+            java.io.FileWriter filewriter = new java.io.FileWriter("positive-airway-pressure-questionnaire.json");
             java.io.PrintWriter printWriter = new PrintWriter(filewriter);
             printWriter.write(f.newJsonParser().setPrettyPrint(true).encodeResourceToString(q));
             printWriter.close();

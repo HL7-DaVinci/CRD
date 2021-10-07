@@ -14,12 +14,6 @@ define PRIORAUTH_REQUIRED:
 define DOCUMENTATION_REQUIRED:
   true
 
-define RESULT_Summary:
-  'Prior Authorization required.'
-
-define RESULT_Details:
-  'Prior Authorization required, follow the attached link for information.'
-
 define RESULT_InfoLink:
   'https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNMattersArticles/Downloads/SE1514.pdf'
 
