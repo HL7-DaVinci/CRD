@@ -58,6 +58,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
 #### Install AdoptOpenJDK11
 
 > Important note: **Do not skip** these steps, **even if you already have AdoptOpenJDK11 installed on your Mac**, as they will make your life easier when you need to update and/or switch your Mac's default Java version down the line.
+> In this guide, the steps to install AdoptOpenJDK11 are given using sdkman. You can feel free to use other package management tools.
 
 1. Install [sdkman](https://sdkman.io/), a MacOS-native tool for package management.
 2. Using sdkman, install **AdoptOpenJDK (version 11)** for MacOS. We **do not recommend** using the Oracle JDK as Oracle's license for its JDK is more restrictive.
@@ -220,12 +221,9 @@ gradle loadData
 ```
 Wait until you see the server is running at 91% and there is no more console output before proceeding to [Start keycloak]().
 
-> Optional. Verify test-ehr is running with the following links. You may need to add '/r4' to the end of the links.
+> Optional. Verify test-ehr is running with the following links. http://localhost:8080/test-ehr/r4 is the base URL of the server and will require a resource type or operation name appended to the end.
 >
-> - http://localhost:8080/test-ehr/ should show you a HAPI EHR UI.
-> - http://localhost:8080/test-ehr/search?serverId=home&pretty=true&resource=Patient should reveal a few patients.
-> - http://localhost:8080/test-ehr/r4/Patient should reveal a 200 response with a patient resource.
-
+> - http://localhost:8080/test-ehr/r4/Patient should display a 200 response with a patient resource.
 
 ### Start keycloak
 
@@ -249,8 +247,9 @@ npm install # Only required if running crd-request-generator for the first time
 npm start
 ```
 
-> Optional. Verify dtr is running:
-> - http://localhost:3005/register should show you a simple web page with a form.
+> Verify dtr is running:
+> - http://localhost:3005/register should show you a simple web page with a form to register a Client ID and Fhir Server.
+> - Instructions to register on this page are detailed below in the section **Register the test-ehr**.
 
 ### Start crd-request-generator
 
@@ -260,7 +259,6 @@ cd <drlsroot>/crd-request-generator
 npm install # Only required if running crd-request-generator for the first time
 PORT=3000 npm start
 ```
-***You may need to use `npm install --force` if typescript/react compatibilty issues prevent installation.***
 
 Once crd-request-generator has started successfully, a webpage running on http://localhost:3000/ehr-server/reqgen should open automatically.
 
