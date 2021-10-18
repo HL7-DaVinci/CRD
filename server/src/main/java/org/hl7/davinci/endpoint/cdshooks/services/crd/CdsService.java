@@ -170,25 +170,26 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
         if (results.getCoverageRequirements().getApplies()) {
 
-          if ((coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired())
-              && (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
-                  || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
-                  || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
-                  || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
-                  || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())
-                  || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())
-                  || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
-                  || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri()))) {
-            List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
-            response.addCard(CardBuilder.transform(results, smartAppLinks));
+          if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
+            if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
+              List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
+              response.addCard(CardBuilder.transform(results, smartAppLinks));
 
-            // add a card for an alternative therapy if there is one
-            if (results.getAlternativeTherapy().getApplies()) {
-              try {
-                response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
-                    results.getRequest(), fhirComponents));
-              } catch (RuntimeException e) {
-                logger.warn("Failed to process alternative therapy: " + e.getMessage());
+              // add a card for an alternative therapy if there is one
+              if (results.getAlternativeTherapy().getApplies()) {
+                try {
+                  response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
+                      results.getRequest(), fhirComponents));
+                } catch (RuntimeException e) {
+                  logger.warn("Failed to process alternative therapy: " + e.getMessage());
+                }
               }
             } else {
               logger.warn("Unspecified Questionnaire URI; summary card sent to client");
