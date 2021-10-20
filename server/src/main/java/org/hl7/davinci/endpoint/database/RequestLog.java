@@ -179,14 +179,26 @@ public class RequestLog {
       }
 
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].address[*].state");
-      this.setPatientAddressState( jList.get(0) );
+      if (jList.isEmpty()) {
+        this.setPatientAddressState("N/A");
+      } else {
+        this.setPatientAddressState(jList.get(0));
+      }
 
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].gender");
-      this.setPatientGender( jList.get(0) );
+      if (jList.isEmpty()) {
+        this.setPatientGender("N/A");
+      } else {
+        this.setPatientGender(jList.get(0));
+      }
 
       jList = JsonPath.read(reqDoc, "$..resource[?(@.resourceType=='Patient')].birthDate");
-      Period period = new Period(new DateTime(jList.get(0)), new DateTime());
-      this.setPatientAge( period.getYears() );
+      if (jList.isEmpty()) {
+        this.setPatientAge(-100);
+      } else {
+        Period period = new Period(new DateTime(jList.get(0)), new DateTime());
+        this.setPatientAge(period.getYears());
+      }
 
     } catch (Exception e) {
       logger.error("failed to write request json: " + e.getMessage());
