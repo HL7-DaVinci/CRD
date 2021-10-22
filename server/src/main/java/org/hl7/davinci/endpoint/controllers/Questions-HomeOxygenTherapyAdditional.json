@@ -1,0 +1,89 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "HomeOxygenTherapyAdditional",
+    "name": "HomeOxygenTherapyAdditional",
+    "description": "Questions for Home Oxygen Therapy Order Reason",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/StructureDefinition/cqf-questionnaire",
+            "http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaire-r4"
+        ]
+    },
+    "title": "Home Oxygen Therapy Additional Adaptive Form Questionnaire",
+    "status": "draft",
+    "subjectType": [
+        "Patient"
+    ],
+    "date": "2019-03-26",
+    "publisher": "Da Vinci DTR",
+    "item": [
+        {
+            "linkId": "1",
+            "text": "Order Reason",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+                {
+                    "modifierExtension": [
+                        {
+                            "url": "1.1"
+                        }
+                    ],
+                    "valueCoding": {
+                        "code": "Initial or original order for certification"
+                    }
+                },
+                {
+                    "modifierExtension": [
+                        {
+                            "url": "1.2"
+                        }
+                    ],
+                    "valueCoding": {
+                        "code": "Change in status"
+                    }
+                },
+                {
+                    "modifierExtension": [
+                        {
+                            "url": "1.3"
+                        }
+                    ],
+                    "valueCoding": {
+                        "code": "Revision or change in equipment"
+                    }
+                },
+                {
+                    "modifierExtension": [
+                        {
+                            "url": "1.4"
+                        }
+                    ],
+                    "valueCoding": {
+                        "code": "Replacement"
+                    }
+                }
+            ]
+        },
+        {
+            "linkId": "1.1",
+            "type": "display",
+            "text": "Submit the order form"
+        },
+        {
+            "linkId": "1.4",
+            "type": "display",
+            "text": "Replacement Reasoning, etc."
+        },
+        {
+            "linkId": "1.2",
+            "type": "display",
+            "text": "Status Reasoning, Patient relocated, etc."
+        },
+        {
+            "linkId": "1.3",
+            "type": "display",
+            "text": "Revision/Equipment change Reasoning, etc."
+        }
+    ]
+}
