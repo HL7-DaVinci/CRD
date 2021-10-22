@@ -63,27 +63,115 @@
                         "code": "Replacement"
                     }
                 }
+            ],
+            "item": [
+                {
+                    "linkId": "1.1",
+                    "type": "display",
+                    "text": "Submit the order form"
+                },
+
+                {
+                    "linkId": "1.2",
+                    "type": "display",
+                    "text": "Status Reasoning, Patient relocated, etc."
+                },
+                {
+                    "linkId": "1.3",
+                    "type": "display",
+                    "text": "Revision/Equipment change Reasoning, etc."
+                },
+                {
+                    "linkId": "1.4",
+                    "text": "Replacement Reason",
+                    "type": "choice",
+                    "required": true,
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "Lost or stolen"
+                            },
+                            "modifierExtension": [
+                                {
+                                    "url": "1.4.1"
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "End of lifetime"
+                            },
+                            "modifierExtension": [
+                                {
+                                    "url": "1.4.2"
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "Repair exceeds 60% of cost"
+                            },
+                            "modifierExtension": [
+                                {
+                                    "url": "1.4.3"
+                                }
+                            ]
+                        }
+                    ],
+                    "item": [
+                        {
+                            "linkId": "1.4.1",
+                            "type": "display",
+                            "text": "Your prior auth number is A1234 (lost/stolen response)"
+                        },
+                        {
+                            "linkId": "1.4.3",
+                            "text": "Your prior auth number is B1234 (repair cost response). How much will it cost?",
+                            "type": "choice",
+                            "required": true,
+                            "answerOption": [
+                                {
+                                    "valueCoding": {
+                                        "code": "Greater than $500"
+                                    },
+                                    "modifierExtension": [
+                                        {
+                                            "url": "1.4.3.1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "valueCoding": {
+                                        "code": "Less than $500"
+                                    },
+                                    "modifierExtension": [
+                                        {
+                                            "url": "1.4.3.2"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "item": [
+                                {
+                                    "linkId": "1.4.3.1",
+                                    "type": "display",
+                                    "text": "Your response idicated that it will cost more than $500."
+                                },
+                                {
+                                    "linkId": "1.4.3.2",
+                                    "type": "display",
+                                    "text": "Your response indicated that it will cost less than $500."
+                                }
+                            ]
+                        },
+                        {
+                            "linkId": "1.4.2",
+                            "type": "display",
+                            "text": "Your prior auth number is B1234 (EOL response)"
+                        }
+                    ]
+                }
             ]
-        },
-        {
-            "linkId": "1.1",
-            "type": "display",
-            "text": "Submit the order form"
-        },
-        {
-            "linkId": "1.4",
-            "type": "display",
-            "text": "Replacement Reasoning, etc."
-        },
-        {
-            "linkId": "1.2",
-            "type": "display",
-            "text": "Status Reasoning, Patient relocated, etc."
-        },
-        {
-            "linkId": "1.3",
-            "type": "display",
-            "text": "Revision/Equipment change Reasoning, etc."
         }
     ]
 }
