@@ -50,7 +50,7 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseStatus;
 public class QuestionnaireController {
 
     /**
-     * A class that demos a tree to define next questions based on responses.
+     * An inner class that demos a tree to define next questions based on responses.
      */
     private class AdaptiveQuestionnaireTree {
         
@@ -113,6 +113,7 @@ public class QuestionnaireController {
          * Inner class that describes a node of the tree.
          */
         private class AdaptiveQuestionnaireNode {
+
             // Contains the current question of the node.
             private QuestionnaireItemComponent questionItem;
             // Map of (answerResponse->childQuestionItemNode) (The child could have answer options within it or be a leaf node. It does have a question item component though).
@@ -185,8 +186,8 @@ public class QuestionnaireController {
 
     // Logger.
     private static Logger logger = Logger.getLogger(Application.class.getName());
-    // Tree that tracks the questions.
-    private AdaptiveQuestionnaireTree questionnaireTree;
+    // Trees that track the current and next questions. Is key-value mappng of: Map<Questionnaire ID -> AdaptiveQuestionnaireTree>
+    private static final Map<String, AdaptiveQuestionnaireTree> questionnaireTrees = new HashMap<String, AdaptiveQuestionnaireTree>();
 
     /**
      * 
@@ -237,7 +238,7 @@ public class QuestionnaireController {
 
             if (inputQuestionnaireFromRequest != null) {
 
-                if(questionnaireTree == null){
+                if(!questionnaireTrees.containsKey(inputQuestionnaireFromRequest.getId())){
 
                     // Import the requested CDS-Library Questionnaire (Couldn't get CDS to work with it, just reading it in it locally for now. In future will need to be pulled from CDS.)
                     Questionnaire cdsQuestionnaire = null;
@@ -259,13 +260,15 @@ public class QuestionnaireController {
                     inputQuestionnaireFromRequest.addItem(topQuestionItem);
 
                     // Build the tree and don't expect any answers since we only just received the required questions.
-                    questionnaireTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
-                    System.out.println(inputQuestionnaireFromRequest.getItem());
-                    logger.info("--- Built Questionnaire Tree for " + inputQuestionnaireFromRequest.getId());
+                    AdaptiveQuestionnaireTree newTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
+                    questionnaireTrees.put(inputQuestionnaireFromRequest.getId(), newTree);
 
+                    logger.info("--- Built Questionnaire Tree for " + inputQuestionnaireFromRequest.getId());
                 } else {
+                    // Pull in the current tree for the requested questionnaire id.
+                    AdaptiveQuestionnaireTree currentTree = questionnaireTrees.get(inputQuestionnaireFromRequest.getId());
                     // Previous question Id
-                    String previousQuestionId = this.questionnaireTree.getCurrentQuestionId();
+                    String previousQuestionId = currentTree.getCurrentQuestionId();
                     // Get the answer component of the item with the previous question id from the recieved resource.
                     List<QuestionnaireResponseItemComponent> allQuestions = inputQuestionnaireResponse.getItem();
                     allQuestions = allQuestions.stream().filter((QuestionnaireResponseItemComponent item) -> item.getLinkId().equals(previousQuestionId)).collect(Collectors.toList());
@@ -273,15 +276,15 @@ public class QuestionnaireController {
                     // Pull the string response the person gave.
                     String response = answerComponent.getValueCoding().getCode();
                     // Pull the resulting next question that the recieved response points to from the tree.
-                    QuestionnaireItemComponent nextQuestionResult = questionnaireTree.getNextQuestionForResponse(response);
+                    QuestionnaireItemComponent nextQuestionResult = currentTree.getNextQuestionForResponse(response);
                     // Add the next question to the QuestionnaireResponse.contained[0].item[].
                     Questionnaire containedQuestionnaire = (Questionnaire) inputQuestionnaireResponse.getContained().get(0);
                     containedQuestionnaire.addItem(nextQuestionResult);
                     logger.info("--- Added next question for questionnaire \'" + inputQuestionnaireFromRequest.getId() + "\' for response \'" + response + "\''.");
                     // If this question is a leaf node and is the final question, set status to "completed"
-                    if(this.questionnaireTree.reachedLeafNode()){
+                    if (currentTree.reachedLeafNode()) {
                         inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
-                        logger.info("--- Question leaf node reached, setting status to \"completed\".");
+                        logger.info("--- Questionnaire leaf node reached, setting status to \"completed\".");
                     }
                 }
 
