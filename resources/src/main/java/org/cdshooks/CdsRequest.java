@@ -2,7 +2,6 @@ package org.cdshooks;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 
-import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import org.hl7.davinci.EncounterBasedServiceContext;
 
@@ -22,6 +21,7 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
 
   private prefetchTypeT prefetch = null;
 
+  private Extension extension = null;
 
   public prefetchTypeT getPrefetch() {
     return prefetch;
@@ -71,6 +71,9 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
     this.context = context;
   }
 
+  public Extension getExtension() { return extension; }
+
+  public void setExtension(Extension extension) { this.extension = extension; }
 
   /**
    * This should return a traversible structure that can be used to resolve prefetch tokens.

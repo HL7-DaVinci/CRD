@@ -39,7 +39,7 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   static final Logger logger = LoggerFactory.getLogger(OrderSelectService.class);
 
-  public OrderSelectService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS); }
+  public OrderSelectService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, null); }
 
   @Override
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSelectRequest orderSelectRequest, FileStore fileStore, String baseUrl) {
