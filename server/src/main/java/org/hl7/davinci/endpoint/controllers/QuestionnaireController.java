@@ -114,7 +114,7 @@ public class QuestionnaireController {
          */
         private class AdaptiveQuestionnaireNode {
 
-            // Contains the current question of the node.
+            // Contains the current question item of the node.
             private QuestionnaireItemComponent questionItem;
             // Map of (answerResponse->childQuestionItemNode) (The child could have answer options within it or be a leaf node. It does have a question item component though).
             private Map<String, AdaptiveQuestionnaireNode> children;
@@ -152,7 +152,7 @@ public class QuestionnaireController {
                     String subQuestionResponse = childIdsToResponses.get(subQuestionLinkId);
                     // Create a new node for this subQuestion.
                     AdaptiveQuestionnaireNode subQuestionNode = new AdaptiveQuestionnaireNode(subQuestionItem);
-                    this.children.put(subQuestionResponse, subQuestionNode); // Should not be ID, should be response.
+                    this.children.put(subQuestionResponse, subQuestionNode);
                 }
             }
 
@@ -238,7 +238,7 @@ public class QuestionnaireController {
 
             if (inputQuestionnaireFromRequest != null) {
 
-                if(!questionnaireTrees.containsKey(inputQuestionnaireFromRequest.getId())){
+                if(!questionnaireTrees.containsKey(inputQuestionnaireFromRequest.getId() /** || item.isempty() */)){
 
                     // Import the requested CDS-Library Questionnaire (Couldn't get CDS to work with it, just reading it in it locally for now. In future will need to be pulled from CDS.)
                     Questionnaire cdsQuestionnaire = null;
@@ -253,9 +253,9 @@ public class QuestionnaireController {
                     if(cdsQuestionnaire == null) {
                         throw new RuntimeException("Requested CDS Questionnaire XXX was not imported and may not exist.");
                     }
-                    // Pull the first question from the CDS Questionnaire because it should be the top-level question.
+                    // Pull the first question from the CDS Questionnaire because it should be the top-level question (and the only item in the list).
                     QuestionnaireItemComponent topQuestionItem = cdsQuestionnaire.getItemFirstRep();
-
+                    topQuestionItem = removeChildrenFromQuestionItem(topQuestionItem);
                     // Add the first Question item to the contained Questionnaire in the response/request QuestionnaireResponse JSON as part of the response.
                     inputQuestionnaireFromRequest.addItem(topQuestionItem);
 
@@ -275,11 +275,13 @@ public class QuestionnaireController {
                     QuestionnaireResponseItemAnswerComponent answerComponent = allQuestions.get(0).getAnswerFirstRep();
                     // Pull the string response the person gave.
                     String response = answerComponent.getValueCoding().getCode();
-                    // Pull the resulting next question that the recieved response points to from the tree.
-                    QuestionnaireItemComponent nextQuestionResult = currentTree.getNextQuestionForResponse(response);
+                    // Pull the resulting next question that the recieved response points to from the tree without including its children.
+                    QuestionnaireItemComponent nextQuestionItemResult = currentTree.getNextQuestionForResponse(response);
+                    nextQuestionItemResult = removeChildrenFromQuestionItem(nextQuestionItemResult);
+
                     // Add the next question to the QuestionnaireResponse.contained[0].item[].
                     Questionnaire containedQuestionnaire = (Questionnaire) inputQuestionnaireResponse.getContained().get(0);
-                    containedQuestionnaire.addItem(nextQuestionResult);
+                    containedQuestionnaire.addItem(nextQuestionItemResult);
                     logger.info("--- Added next question for questionnaire \'" + inputQuestionnaireFromRequest.getId() + "\' for response \'" + response + "\''.");
                     // If this question is a leaf node and is the final question, set status to "completed"
                     if (currentTree.reachedLeafNode()) {
@@ -299,9 +301,28 @@ public class QuestionnaireController {
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.CONTENT_TYPE, "application/fhir+json" + "; charset=utf-8")
-                        .body("Invalid input questionnaire");
+                        .body("Invalid input questionnaire does not exist");
             }
 
         }
+    }
+
+    /**
+     * Returns a new question item that is indentical to the input qusetion item except without the children.
+     * @param inputQuestionItem
+     * @return
+     */
+    private static QuestionnaireItemComponent removeChildrenFromQuestionItem(QuestionnaireItemComponent inputQuestionItem){
+        QuestionnaireItemComponent questionItemNoChildren = new QuestionnaireItemComponent();
+        questionItemNoChildren.setLinkId(inputQuestionItem.getLinkId());
+        questionItemNoChildren.setText(inputQuestionItem.getText());
+        questionItemNoChildren.setType(inputQuestionItem.getType());
+        questionItemNoChildren.setRequired(inputQuestionItem.getRequired());
+        questionItemNoChildren.setAnswerOption(inputQuestionItem.getAnswerOption());
+
+        // Can't just remove the children because then that would alter the original object in the tree.
+        // questionItemNoChildren.setItem(null);
+
+        return questionItemNoChildren;
     }
 }
