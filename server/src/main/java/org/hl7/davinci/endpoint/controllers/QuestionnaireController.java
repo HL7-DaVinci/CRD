@@ -236,9 +236,16 @@ public class QuestionnaireController {
                 }
             }
 
+            String questionnaireId = inputQuestionnaireFromRequest.getId();
+
             if (inputQuestionnaireFromRequest != null) {
 
-                if(!questionnaireTrees.containsKey(inputQuestionnaireFromRequest.getId() /** || item.isempty() */)){
+                // If there are no item answer responses in the sent JSON, reset the tree so that we can restart the question process.
+                if(inputQuestionnaireFromRequest.getItem().size() < 1) {
+                    questionnaireTrees.remove(questionnaireId);
+                }
+
+                if(!questionnaireTrees.containsKey(questionnaireId)){
 
                     // Import the requested CDS-Library Questionnaire (Couldn't get CDS to work with it, just reading it in it locally for now. In future will need to be pulled from CDS.)
                     Questionnaire cdsQuestionnaire = null;
@@ -251,7 +258,7 @@ public class QuestionnaireController {
                         e.printStackTrace();
                     }
                     if(cdsQuestionnaire == null) {
-                        throw new RuntimeException("Requested CDS Questionnaire XXX was not imported and may not exist.");
+                        throw new RuntimeException("Requested CDS Questionnaire \'" + questionnaireId + "\' was not imported and may not exist.");
                     }
                     // Pull the first question from the CDS Questionnaire because it should be the top-level question (and the only item in the list).
                     QuestionnaireItemComponent topQuestionItem = cdsQuestionnaire.getItemFirstRep();
@@ -261,12 +268,12 @@ public class QuestionnaireController {
 
                     // Build the tree and don't expect any answers since we only just received the required questions.
                     AdaptiveQuestionnaireTree newTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
-                    questionnaireTrees.put(inputQuestionnaireFromRequest.getId(), newTree);
+                    questionnaireTrees.put(questionnaireId, newTree);
 
-                    logger.info("--- Built Questionnaire Tree for " + inputQuestionnaireFromRequest.getId());
+                    logger.info("--- Built Questionnaire Tree for " + questionnaireId);
                 } else {
                     // Pull in the current tree for the requested questionnaire id.
-                    AdaptiveQuestionnaireTree currentTree = questionnaireTrees.get(inputQuestionnaireFromRequest.getId());
+                    AdaptiveQuestionnaireTree currentTree = questionnaireTrees.get(questionnaireId);
                     // Previous question Id
                     String previousQuestionId = currentTree.getCurrentQuestionId();
                     // Get the answer component of the item with the previous question id from the recieved resource.
@@ -282,15 +289,15 @@ public class QuestionnaireController {
                     // Add the next question to the QuestionnaireResponse.contained[0].item[].
                     Questionnaire containedQuestionnaire = (Questionnaire) inputQuestionnaireResponse.getContained().get(0);
                     containedQuestionnaire.addItem(nextQuestionItemResult);
-                    logger.info("--- Added next question for questionnaire \'" + inputQuestionnaireFromRequest.getId() + "\' for response \'" + response + "\''.");
-                    // If this question is a leaf node and is the final question, set status to "completed"
+                    logger.info("--- Added next question for questionnaire \'" + questionnaireId + "\' for response \'" + response + "\'.");
+                    // If this question is a leaf node and is the final question, set the status to "completed"
                     if (currentTree.reachedLeafNode()) {
                         inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
                         logger.info("--- Questionnaire leaf node reached, setting status to \"completed\".");
                     }
                 }
 
-                logger.info("--- Get next question for questionnaire " + inputQuestionnaireFromRequest.getId());
+                logger.info("--- Get next question for questionnaire " + questionnaireId);
                 logger.info("---- Get meta profile " + inputQuestionnaireFromRequest.getMeta().getProfile().get(0).getValue());
                 
                 // Build and send the response.
@@ -319,10 +326,58 @@ public class QuestionnaireController {
         questionItemNoChildren.setType(inputQuestionItem.getType());
         questionItemNoChildren.setRequired(inputQuestionItem.getRequired());
         questionItemNoChildren.setAnswerOption(inputQuestionItem.getAnswerOption());
-
         // Can't just remove the children because then that would alter the original object in the tree.
         // questionItemNoChildren.setItem(null);
-
         return questionItemNoChildren;
     }
 }
+
+
+// --- QuestionniareResponse inital request format:
+// {
+//     "resourceType": "QuestionnaireResponse",
+//     "meta": {
+//         "profile": [
+//             "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt"
+//         ]
+//     },
+//     "contained": [
+//         {
+//             "resourceType": "Questionnaire",
+//             "id": "HomeOxygenTherapyAdditional",
+//             "meta": {
+//                 "profile": [
+//                     "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt"
+//                 ]
+//             },
+//             "url": "http://example.com/questionnaire/adaptive-form#HomeOxygenTherapyAdditional",
+//             "item": []
+//         }
+//     ],
+//     "extension": [
+//         {
+//             "url": "http://hl7.org/fhir/StructureDefinition/contained-id",
+//             "valueReference": {
+//                 "reference": "#HomeOxygenTherapyAdditional"
+//             }
+//         }
+//     ],
+//     "questionnaire": "#HomeOxygenTherapyAdditional",
+//     "status": "in-progress",
+//     "item": []
+// }
+
+// --- Answer item format:
+// "item": [
+//     {
+//         "linkId": "1",
+//         "text": "Order Reason",
+//         "answer": [
+//           {
+//             "valueCoding": {
+//               "code": "Replacement"
+//             }
+//           }
+//         ]
+//     }
+// ]
