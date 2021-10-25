@@ -7,7 +7,7 @@ import java.io.IOException;
 public enum Hook {
 
   /**
-   * NOTE: CRD only currently supports order-sign hooks.
+   * NOTE: CRD only currently supports order-sign and order-select hooks.
    */
   ORDER_SELECT("order-select"),
   ORDER_SIGN("order-sign");
