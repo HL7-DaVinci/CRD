@@ -1,7 +1,10 @@
 package org.hl7.davinci.endpoint.controllers;
 
 import org.hl7.davinci.endpoint.Application;
+import org.hl7.davinci.endpoint.files.FileResource;
+import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.fhir.instance.model.api.IDomainResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import ca.uhn.fhir.parser.IParser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +52,10 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseStatus;
 @RestController
 @RequestMapping("/Questionnaire")
 public class QuestionnaireController {
+
+
+    @Autowired
+    private FileStore fileStore;
 
     /**
      * An inner class that demos a tree to define next questions based on responses.
@@ -250,11 +258,16 @@ public class QuestionnaireController {
                     // Import the requested CDS-Library Questionnaire (Couldn't get CDS to work with it, just reading it in it locally for now. In future will need to be pulled from CDS.)
                     Questionnaire cdsQuestionnaire = null;
                     try {
-                        cdsQuestionnaire = (Questionnaire) parser.parseResource(Questionnaire.class, new FileReader(new File("/Users/rscalfani/Documents/code/drlsroot/CRD/server/src/main/java/org/hl7/davinci/endpoint/controllers/Questions-HomeOxygenTherapyAdditional.json")));
+                        //TODO: need to determine topic, filename, and fhir version without having them hard coded
+                        // File is pulled from the file store
+                        FileResource fileResource = fileStore.getFile("HomeOxygenTherapy", "Questions-HomeOxygenTherapyAdditional.json", "R4", false);
+                        cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
                         logger.info("--- Imported Questionnaire " + cdsQuestionnaire.getId());
                     } catch (DataFormatException e) {
                         e.printStackTrace();
                     } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                     if(cdsQuestionnaire == null) {
