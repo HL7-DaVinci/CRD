@@ -18,9 +18,7 @@ import org.hl7.davinci.r4.FhirComponents;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -127,13 +125,17 @@ public class QuestionnaireController {
             // Map of (answerResponse->childQuestionItemNode) (The child could have answer options within it or be a leaf node. It does have a question item component though).
             private Map<String, AdaptiveQuestionnaireNode> children;
 
+            /**
+             * Constructor
+             * @param questionItem
+             */
             public AdaptiveQuestionnaireNode(QuestionnaireItemComponent questionItem) {
                 this.questionItem = questionItem;
 
                 // The number of answer options should always equal the number of subquestion items.
                 if((this.questionItem.getAnswerOption().size() != this.questionItem.getItem().size())){
-                    throw new RuntimeException("There should be the same number of answer options as sub-items. Answer options: " + this.questionItem.getAnswerOption().size() + ", Sub-tems: " + this.questionItem.getItem().size());
-                }  
+                    throw new RuntimeException("There should be the same number of answer options as sub-items. Answer options: " + this.questionItem.getAnswerOption().size() + ", sub-items: " + this.questionItem.getItem().size());
+                }
 
                 Map<String, String> childIdsToResponses = new HashMap<String, String>();
                 // This loop iterates over the possible answer options of this questionitem and links the linkId to its possible responses.
@@ -170,7 +172,6 @@ public class QuestionnaireController {
              */
             private boolean isLeafNode() {
                 return this.children.size() < 1;
-                // return !this.questionItem.hasAnswerOption();
             }
 
             /**
@@ -209,7 +210,7 @@ public class QuestionnaireController {
     }
 
     /**
-     * 
+     *
      * @param body
      * @param request
      * @return
@@ -254,8 +255,8 @@ public class QuestionnaireController {
                 }
 
                 if(!questionnaireTrees.containsKey(questionnaireId)){
-
-                    // Import the requested CDS-Library Questionnaire (Couldn't get CDS to work with it, just reading it in it locally for now. In future will need to be pulled from CDS.)
+                    // If there is not already a tree that matches the requested questionnaire id, build it.
+                    // Import the requested CDS-Library Questionnaire.
                     Questionnaire cdsQuestionnaire = null;
                     try {
                         //TODO: need to determine topic, filename, and fhir version without having them hard coded
@@ -282,14 +283,14 @@ public class QuestionnaireController {
                     // Build the tree and don't expect any answers since we only just received the required questions.
                     AdaptiveQuestionnaireTree newTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
                     questionnaireTrees.put(questionnaireId, newTree);
-
                     logger.info("--- Built Questionnaire Tree for " + questionnaireId);
                 } else {
-                    // Pull in the current tree for the requested questionnaire id.
+                    // If there is already a tree with the requested questionnaire id, execute next-question on it with the new request.
+                    // Pull the current tree for the requested questionnaire id.
                     AdaptiveQuestionnaireTree currentTree = questionnaireTrees.get(questionnaireId);
-                    // Previous question Id
+                    // Get the previous question Id.
                     String previousQuestionId = currentTree.getCurrentQuestionId();
-                    // Get the answer component of the item with the previous question id from the recieved resource.
+                    // Get the request's answer component of the item with the previous question id.
                     List<QuestionnaireResponseItemComponent> allQuestions = inputQuestionnaireResponse.getItem();
                     allQuestions = allQuestions.stream().filter((QuestionnaireResponseItemComponent item) -> item.getLinkId().equals(previousQuestionId)).collect(Collectors.toList());
                     QuestionnaireResponseItemAnswerComponent answerComponent = allQuestions.get(0).getAnswerFirstRep();
@@ -298,11 +299,11 @@ public class QuestionnaireController {
                     // Pull the resulting next question that the recieved response points to from the tree without including its children.
                     QuestionnaireItemComponent nextQuestionItemResult = currentTree.getNextQuestionForResponse(response);
                     nextQuestionItemResult = removeChildrenFromQuestionItem(nextQuestionItemResult);
-
                     // Add the next question to the QuestionnaireResponse.contained[0].item[].
                     Questionnaire containedQuestionnaire = (Questionnaire) inputQuestionnaireResponse.getContained().get(0);
                     containedQuestionnaire.addItem(nextQuestionItemResult);
                     logger.info("--- Added next question for questionnaire \'" + questionnaireId + "\' for response \'" + response + "\'.");
+
                     // If this question is a leaf node and is the final question, set the status to "completed"
                     if (currentTree.reachedLeafNode()) {
                         inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
@@ -310,7 +311,6 @@ public class QuestionnaireController {
                     }
                 }
 
-                logger.info("--- Get next question for questionnaire " + questionnaireId);
                 logger.info("---- Get meta profile " + inputQuestionnaireFromRequest.getMeta().getProfile().get(0).getValue());
                 
                 // Build and send the response.
@@ -339,58 +339,6 @@ public class QuestionnaireController {
         questionItemNoChildren.setType(inputQuestionItem.getType());
         questionItemNoChildren.setRequired(inputQuestionItem.getRequired());
         questionItemNoChildren.setAnswerOption(inputQuestionItem.getAnswerOption());
-        // Can't just remove the children because then that would alter the original object in the tree.
-        // questionItemNoChildren.setItem(null);
         return questionItemNoChildren;
     }
 }
-
-
-// --- QuestionniareResponse inital request format:
-// {
-//     "resourceType": "QuestionnaireResponse",
-//     "meta": {
-//         "profile": [
-//             "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt"
-//         ]
-//     },
-//     "contained": [
-//         {
-//             "resourceType": "Questionnaire",
-//             "id": "HomeOxygenTherapyAdditional",
-//             "meta": {
-//                 "profile": [
-//                     "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt"
-//                 ]
-//             },
-//             "url": "http://example.com/questionnaire/adaptive-form#HomeOxygenTherapyAdditional",
-//             "item": []
-//         }
-//     ],
-//     "extension": [
-//         {
-//             "url": "http://hl7.org/fhir/StructureDefinition/contained-id",
-//             "valueReference": {
-//                 "reference": "#HomeOxygenTherapyAdditional"
-//             }
-//         }
-//     ],
-//     "questionnaire": "#HomeOxygenTherapyAdditional",
-//     "status": "in-progress",
-//     "item": []
-// }
-
-// --- Answer item format:
-// "item": [
-//     {
-//         "linkId": "1",
-//         "text": "Order Reason",
-//         "answer": [
-//           {
-//             "valueCoding": {
-//               "code": "Replacement"
-//             }
-//           }
-//         ]
-//     }
-// ]
