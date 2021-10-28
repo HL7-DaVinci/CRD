@@ -74,6 +74,18 @@ public class CdsHooksController {
       consumes = "application/json;charset=UTF-8")
   public CdsResponse handleOrderSign(@Valid @RequestBody OrderSignRequest request, final HttpServletRequest httpServletRequest) {
     logger.info("r4/handleOrderSign");
+    logger.info("zzzz: fhirServer: " + request.getFhirServer());
+    logger.info("zzzz: pathInfo: " + httpServletRequest.getPathInfo());
+    logger.info("zzzz: contextPath: " + httpServletRequest.getContextPath());
+    logger.info("zzzz: rquestURI: " + httpServletRequest.getRequestURI());
+    logger.info("zzzz: servletPath: " + httpServletRequest.getServletPath());
+    logger.info("zzzz: queryString: " + httpServletRequest.getQueryString());
+    logger.info("zzzz: localAddr: " + httpServletRequest.getLocalAddr());
+    logger.info("zzzz: localName: " + httpServletRequest.getLocalName());
+    logger.info("zzzz: remoteAddr: " + httpServletRequest.getRemoteAddr());
+    logger.info("zzzz: serverName: " + httpServletRequest.getServerName());
+    logger.info("zzzz: remoteHost: " + httpServletRequest.getRemoteHost());
+
     if (request.getPrefetch() == null) {
       request.setPrefetch(new CrdPrefetch());
     }
