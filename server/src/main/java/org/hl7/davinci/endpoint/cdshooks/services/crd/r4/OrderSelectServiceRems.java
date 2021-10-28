@@ -38,15 +38,15 @@ public class OrderSelectServiceRems extends CdsService<OrderSelectRequest> {
     FileStore fileStore;
 
     public static final String ID = "order-select-rems";
-    public static final String TITLE = "order-select Coverage Requirements Discovery";
+    public static final String TITLE = "order-select-rems Coverage Requirements Discovery";
     public static final Hook HOOK = Hook.ORDER_SELECT;
     public static final String DESCRIPTION =
-            "Get information regarding the coverage requirements for durable medical equipment";
+            "Get information regarding the coverage requirements for REMS drugs";
     public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
             CrdPrefetchTemplateElements.MEDICATION_STATEMENT_BUNDLE,
             CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE);
     public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
-    static final Logger logger = LoggerFactory.getLogger(OrderSelectService.class);
+    static final Logger logger = LoggerFactory.getLogger(OrderSelectServiceRems.class);
 
     public List<Coding> remsDrugs = new ArrayList<>();
 
@@ -104,7 +104,6 @@ public class OrderSelectServiceRems extends CdsService<OrderSelectRequest> {
     // TODO: This function is direct from FhirBundleProcessor, it should be moved to a util class
     private boolean idInSelectionsList(String identifier, List<String> selections) {
         if (selections.isEmpty()) {
-            // if selections list is empty, just assume we should process the request
             return true;
         } else {
             for ( String selection : selections) {

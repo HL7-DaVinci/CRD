@@ -66,7 +66,7 @@ public class CdsHooksController {
   }
 
   /**
-   * The coverage requirement discovery endpoint for the order select hook.
+   * The coverage requirement discovery endpoint for the order select rems hook.
    * @param request An order select triggered cds request
    * @return The card response
    */
@@ -74,7 +74,7 @@ public class CdsHooksController {
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderSelectServiceRems.ID,
           consumes = "application/json;charset=UTF-8")
   public CdsResponse handleOrderSelectRems(@Valid @RequestBody OrderSelectRequest request, final HttpServletRequest httpServletRequest) {
-    logger.info("r4/handleOrderSelect");
+    logger.info("r4/handleOrderSelectRems");
     if (request.getPrefetch() == null) {
       request.setPrefetch(new CrdPrefetch());
     }
