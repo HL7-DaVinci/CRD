@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -345,7 +346,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
     if (myConfig.getUrlEncodeAppContext()) {
       logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
-      appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8).toString();
+      try {
+        appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8.name()).toString();
+      } catch (UnsupportedEncodingException e) {
+        logger.error("CdsService::smartLinkBuilder: failed to encode URL: " + e.getMessage());
+      }
     }
 
     logger.info("smarLinkBuilder: appContext: " + appContext);
