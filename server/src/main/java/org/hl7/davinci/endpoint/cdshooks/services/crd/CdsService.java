@@ -26,6 +26,7 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   FileStore fileStore;
 
   private final List<PrefetchTemplateElement> prefetchElements;
+
   protected FhirComponentsT fhirComponents;
+
+  private final DiscoveryExtension extension;
 
   /**
    * Create a new cdsservice.
@@ -88,9 +92,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @param prefetchElements List of prefetch elements, will be in prefetch
    *                         template.
    * @param fhirComponents   Fhir components to use
+   * @param extension        Custom CDS Hooks extensions.
    */
   public CdsService(String id, Hook hook, String title, String description,
-      List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents) {
+      List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents,
+      DiscoveryExtension extension) {
 
     if (id == null) {
       throw new NullPointerException("CDSService id cannot be null");
@@ -111,7 +117,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       this.prefetch.put(prefetchElement.getKey(), prefetchElement.getQuery());
     }
     this.fhirComponents = fhirComponents;
+    this.extension = extension;
   }
+
+  public DiscoveryExtension getExtension() { return extension; }
 
   public List<PrefetchTemplateElement> getPrefetchElements() {
     return prefetchElements;
@@ -155,6 +164,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       return response;
     }
 
+    // process the extension for the configuration
+    Configuration hookConfiguration = new Configuration(); // load hook configuration with default values
+    Extension extension = request.getExtension();
+    if (extension != null) {
+      if (extension.getConfiguration() != null) {
+        hookConfiguration = extension.getConfiguration();
+      }
+    }
+
     boolean errorCardOnEmpty = !(request instanceof OrderSelectRequest);
 
     // no error cards on empty when order-select request
@@ -183,7 +201,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               response.addCard(CardBuilder.transform(results, smartAppLinks));
 
               // add a card for an alternative therapy if there is one
-              if (results.getAlternativeTherapy().getApplies()) {
+              if (results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
                 try {
                   response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
                       results.getRequest(), fhirComponents));
@@ -334,7 +352,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
     if (myConfig.getUrlEncodeAppContext()) {
       logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
-      appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8).toString();
+      try {
+        appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8.name()).toString();
+      } catch (UnsupportedEncodingException e) {
+        logger.error("CdsService::smartLinkBuilder: failed to encode URL: " + e.getMessage());
+      }
     }
 
     logger.info("smarLinkBuilder: appContext: " + appContext);
