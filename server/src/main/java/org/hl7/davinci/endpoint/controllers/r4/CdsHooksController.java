@@ -74,6 +74,10 @@ public class CdsHooksController {
       consumes = "application/json;charset=UTF-8")
   public CdsResponse handleOrderSign(@Valid @RequestBody OrderSignRequest request, final HttpServletRequest httpServletRequest) {
     logger.info("r4/handleOrderSign");
+
+    String baseUrl = Utils.getApplicationBaseUrl(httpServletRequest).toString() + "/";
+    logger.info("zzzz: baseUrl: " + baseUrl);
+
     logger.info("zzzz: fhirServer: " + request.getFhirServer());
     logger.info("zzzz: pathInfo: " + httpServletRequest.getPathInfo());
     logger.info("zzzz: contextPath: " + httpServletRequest.getContextPath());
