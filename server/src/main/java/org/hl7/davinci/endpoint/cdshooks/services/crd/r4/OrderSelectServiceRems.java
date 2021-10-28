@@ -1,24 +1,22 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import org.cdshooks.*;
+import org.cdshooks.Card;
+import org.cdshooks.CdsResponse;
+import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
-import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
+import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.Utilities;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.orderselect.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
-import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
-import org.json.simple.JSONObject;
+import org.hl7.fhir.r4.model.MedicationRequest;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +25,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 @Component("r4_OrderSelectServiceRems")
@@ -46,68 +48,109 @@ public class OrderSelectServiceRems extends CdsService<OrderSelectRequest> {
     public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
     static final Logger logger = LoggerFactory.getLogger(OrderSelectService.class);
 
-    public OrderSelectServiceRems() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS); }
+    public List<Coding> remsDrugs = new ArrayList<>();
 
-//    @Override
-//    public CdsResponse handleRequest(@Valid @RequestBody OrderSelectRequest request, URL applicationBaseUrl) {
-//        CdsResponse response = new CdsResponse();
-//        List<String> selections = Arrays.asList(request.getContext().getSelections());
-//        List<CoverageRequirementRuleResult> results = createCqlExecutionContexts(request, fileStore, applicationBaseUrl.toString() + "/");
-//        response = isRemsDrug(results.get(0).getCriteria().getCode());
-//        return response;
-//    }
+    public OrderSelectServiceRems() {
+        super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
+        Coding turalio = new Coding()
+                .setCode("2183126")
+                .setSystem("http://www.nlm.nih.gov/research/umls/rxnorm")
+                .setDisplay("Turalio");
+        Coding iPledge = new Coding()
+                .setCode("6064")
+                .setSystem("http://www.nlm.nih.gov/research/umls/rxnorm")
+                .setDisplay("Isotretinoin");
+        Coding revlimid = new Coding()
+                .setCode("337535")
+                .setSystem("http://www.nlm.nih.gov/research/umls/rxnorm")
+                .setDisplay("Revlimid");
+        Coding abstral = new Coding()
+                .setCode("1053648")
+                .setSystem("http://www.nlm.nih.gov/research/umls/rxnorm")
+                .setDisplay("Abstral");
+        remsDrugs.add(turalio);
+        remsDrugs.add(iPledge);
+        remsDrugs.add(revlimid);
+        remsDrugs.add(abstral);
+    }
+
+    @Override
+    public CdsResponse handleRequest(@Valid @RequestBody OrderSelectRequest request, URL applicationBaseUrl) {
+        CdsResponse response = new CdsResponse();
+        List<String> selections = Arrays.asList(request.getContext().getSelections());
+        CrdPrefetch prefetch = request.getPrefetch();
+        List<Coding> medications = getSelections(prefetch, selections);
+        for (Coding medication : medications) {
+            Card card = CardBuilder.summaryCard("");
+            if (isRemsDrug(medication)) {
+                card.setSummary(String.format("%s is a REMS drug", medication.getDisplay()));
+            } else {
+                card.setSummary(String.format("%s is not a REMS drug", medication.getDisplay()));
+            }
+            response.addCard(card);
+        }
+        return response;
+    }
+
+    // TODO: Change hard-coded drug checking
+    private boolean isRemsDrug(Coding medication) {
+        for( Coding remsDrug : remsDrugs){
+            if (remsDrug.getCode().equals(medication.getCode())){
+                return true;
+            }
+        }
+        return false;
+    }
+    // TODO: This function is direct from FhirBundleProcessor, it should be moved to a util class
+    private boolean idInSelectionsList(String identifier, List<String> selections) {
+        if (selections.isEmpty()) {
+            // if selections list is empty, just assume we should process the request
+            return true;
+        } else {
+            for ( String selection : selections) {
+                if (identifier.contains(stripResourceType(selection))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    // TODO: This function is direct from FhirBundleProcessor, it should be moved to a util class
+    private String stripResourceType(String identifier) {
+        int indexOfDivider = identifier.indexOf('/');
+        if (indexOfDivider+1 == identifier.length()) {
+            // remove the trailing '/'
+            return identifier.substring(0, indexOfDivider);
+        } else {
+            return identifier.substring(indexOfDivider+1);
+        }
+    }
+
+    public List<Coding> getSelections(CrdPrefetch prefetch, List<String> selections) {
+        Bundle medicationRequestBundle = prefetch.getMedicationRequestBundle();
+        List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
+        List<Coding> codings = new ArrayList<>();
+
+        if (!medicationRequestList.isEmpty()) {
+            for (MedicationRequest medicationRequest : medicationRequestList) {
+                if (idInSelectionsList(medicationRequest.getId(), selections)) {
+                    codings.add(medicationRequest.getMedicationCodeableConcept().getCodingFirstRep()); // assume there is only 1 coding per MR
+                }
+            }
+        }
+
+        return codings;
+    }
+
+    // This function could be removed, need to evaluate if we should make this class not an extension of CdsService
     @Override
     public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSelectRequest orderSelectRequest, FileStore fileStore, String baseUrl) {
-        List<String> selections = Arrays.asList(orderSelectRequest.getContext().getSelections());
-        System.out.println(selections);
-        FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSelectRequest.getPrefetch(), fileStore, baseUrl, selections);
-        fhirBundleProcessor.processMedicationRequests();
-        List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
-        System.out.println(results.size());
-
-        if (results.isEmpty()) {
-            throw RequestIncompleteException.NoSupportedBundlesFound();
-        }
-
-        return results;
+        return new ArrayList<>();
     }
 
+    // This function could be removed, need to evaluate if we should make this class not an extension of CdsService
     protected CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
-        CqlResultsForCard results = new CqlResultsForCard();
-        results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES", context));
-        System.out.println(results.ruleApplies());
-        if (!results.ruleApplies()) {
-            return results;
-        }
-
-        CoverageRequirements coverageRequirements = new CoverageRequirements();
-        coverageRequirements.setApplies(true);
-        coverageRequirements.setSummary("This is a rems drug");
-        coverageRequirements.setPriorAuthRequired(true);
-        results.setRequest((IBaseResource) evaluateStatement("RESULT_requestId", context));
-        coverageRequirements.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
-                .encodeResourceToString(results.getRequest())));
-        results.setCoverageRequirements(coverageRequirements);
-
-        AlternativeTherapy alternativeTherapy = new AlternativeTherapy();
-        alternativeTherapy.setApplies(false);
-        results.setAlternativeTherapy(alternativeTherapy);
-
-        DrugInteraction drugInteraction = new DrugInteraction();
-        drugInteraction.setApplies(false);
-        results.setDrugInteraction(drugInteraction);
-        return results;
-    }
-
-    private Coding getFirstCodeFromCodingListObject(Object c) {
-        List<?> clist = new ArrayList<>();
-        if (c instanceof Collection) {
-            clist = new ArrayList<>((Collection<?>) c);
-        }
-        List<Coding> codingList = new ArrayList<>();
-        for (Object obj: clist) {
-            codingList.add((Coding) obj);
-        }
-        return codingList.get(0);
+        return new CqlResultsForCard();
     }
 }
