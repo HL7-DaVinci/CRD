@@ -82,9 +82,12 @@ public class CdsHooksController {
     logger.info("zzzz: queryString: " + httpServletRequest.getQueryString());
     logger.info("zzzz: localAddr: " + httpServletRequest.getLocalAddr());
     logger.info("zzzz: localName: " + httpServletRequest.getLocalName());
-    logger.info("zzzz: remoteAddr: " + httpServletRequest.getRemoteAddr());
+    logger.info("zzzz: localPort: " + httpServletRequest.getLocalPort());
     logger.info("zzzz: serverName: " + httpServletRequest.getServerName());
+    logger.info("zzzz: serverPort: " + httpServletRequest.getServerPort());
+    logger.info("zzzz: remoteAddr: " + httpServletRequest.getRemoteAddr());
     logger.info("zzzz: remoteHost: " + httpServletRequest.getRemoteHost());
+    logger.info("zzzz: remotePort: " + httpServletRequest.getRemotePort());
 
     if (request.getPrefetch() == null) {
       request.setPrefetch(new CrdPrefetch());
