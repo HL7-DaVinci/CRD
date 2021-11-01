@@ -20,6 +20,7 @@ import ca.uhn.fhir.parser.IParser;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,6 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseStatus;
 @RequestMapping("/Questionnaire")
 public class QuestionnaireController {
 
-
     @Autowired
     private FileStore fileStore;
 
@@ -69,16 +69,11 @@ public class QuestionnaireController {
          */
         public AdaptiveQuestionnaireTree(Questionnaire inputQuestionnaire) {
 
-            // Because of the nested structure of the input JSON, there can be only one super-parent questionitem in the inputQuestionnaire.
-            if(inputQuestionnaire.getItem().size() != 1){
-                throw new RuntimeException("An input Adaptive next-question questionnaire can have only one super-parent question.item, found " + inputQuestionnaire.getItem().size() + ".");
-            }
-
-            // Top level parent question item. This is also the first question.
-            QuestionnaireItemComponent topQuestion = inputQuestionnaire.getItemFirstRep();
+            // Top level parent question item, the first question page.
+            QuestionnaireItemComponent topLevelQuestion = inputQuestionnaire.getItemFirstRep();
 
             // Start the root building.
-            this.root = new AdaptiveQuestionnaireNode(topQuestion);
+            this.root = new AdaptiveQuestionnaireNode(topLevelQuestion);
         }
 
         /**
@@ -86,16 +81,20 @@ public class QuestionnaireController {
          * @param response  The response given to this question.
          * @return
          */
-        public QuestionnaireItemComponent getNextQuestionForResponse(String response){
-            if(!root.children.containsKey(response)){
-                throw new RuntimeException("Not a valid response for question: \'" + this.root.questionItem.getText() + "\' with response \'" + response + "\'. Possible responses for this question: \'" + root.children.keySet() + "\'.");
+        public List<QuestionnaireItemComponent> getNextQuestionsFromResponse(String response){
+
+            if(!root.hasResponse(response)){
+                throw new RuntimeException("Not a valid response for question: \'" + this.root.determinantQuestionItem.getText() + "\' with response \'" + response + "\'. Possible responses for this question: \'" + root.children.keySet() + "\'.");
             }
-            // Pull the current question.
-            QuestionnaireItemComponent currentQuestionnaireItem = this.root.getChildForResponse(response).questionItem;
+            AdaptiveQuestionnaireNode nextQuestionSetNode = this.root.getChildForResponse(response);
+            // Pull the current question set.
+            List<QuestionnaireItemComponent> currentQuestionnaireItems = nextQuestionSetNode.getQuestionSet();
             // Set the new next question.
-            this.root = this.root.getChildForResponse(response);
+            this.root = nextQuestionSetNode;
             // Return the prior current question.
-            return currentQuestionnaireItem;
+
+            currentQuestionnaireItems.get(0).getModifierExtensionFirstRep().getValue();
+            return currentQuestionnaireItems;
         }
 
         /**
@@ -111,8 +110,8 @@ public class QuestionnaireController {
          * Returns the linkid of the current question.
          * @return
          */
-        public String getCurrentQuestionId() {
-            return this.root.getQuestionId();
+        public String getCurrentDeterminantQuestionId() {
+            return this.root.getDeterminantQuestionId();
         }
     
         /**
@@ -120,49 +119,124 @@ public class QuestionnaireController {
          */
         private class AdaptiveQuestionnaireNode {
 
-            // Contains the current question item of the node.
-            private QuestionnaireItemComponent questionItem;
+            // Contains the list of additional questions that should be displayed with this question.
+            private List<QuestionnaireItemComponent> supplementalQuestions;
+            // Contains the current question item that dictates the next question of the node.
+            private QuestionnaireItemComponent determinantQuestionItem;
             // Map of (answerResponse->childQuestionItemNode) (The child could have answer options within it or be a leaf node. It does have a question item component though).
             private Map<String, AdaptiveQuestionnaireNode> children;
 
             /**
              * Constructor
-             * @param questionItem
+             * @param determinantQuestionItem
              */
-            public AdaptiveQuestionnaireNode(QuestionnaireItemComponent questionItem) {
-                this.questionItem = questionItem;
+            public AdaptiveQuestionnaireNode(QuestionnaireItemComponent determinantQuestion) {
 
-                // The number of answer options should always equal the number of subquestion items.
-                if((this.questionItem.getAnswerOption().size() != this.questionItem.getItem().size())){
-                    throw new RuntimeException("There should be the same number of answer options as sub-items. Answer options: " + this.questionItem.getAnswerOption().size() + ", sub-items: " + this.questionItem.getItem().size());
+                this.determinantQuestionItem = determinantQuestion;
+                // Get the child and supplemental question items of this question.
+                List<QuestionnaireItemComponent> subQuestions = determinantQuestion.getItem();
+                // Extract the supplemental questions which do not have a child link-id branch from the determinant questions.
+                List<String> nonSupplementLinkIds = determinantQuestionItem.getAnswerOption().stream().map(answerOption -> answerOption.getModifierExtensionFirstRep().getUrl()).collect(Collectors.toList());
+                List<QuestionnaireItemComponent> childQuestions = this.extractChildQuestions(subQuestions, nonSupplementLinkIds);
+                // Extract the remaining questions as supplemental questions.
+                this.supplementalQuestions = this.extractSupplementalQuestions(subQuestions, nonSupplementLinkIds);
+
+                // The number of answer options of the determinant question should always equal the number of child question items.
+                if((this.determinantQuestionItem.getAnswerOption().size() != childQuestions.size())){
+                    throw new RuntimeException("There should be the same number of answer options as sub-items. Answer options: " + this.determinantQuestionItem.getAnswerOption().size() + ", sub-items: " + childQuestions.size());
                 }
 
-                Map<String, String> childIdsToResponses = new HashMap<String, String>();
-                // This loop iterates over the possible answer options of this questionitem and links the linkId to its possible responses.
-                for(QuestionnaireItemAnswerOptionComponent answerOption : questionItem.getAnswerOption()) {
-                    // The Id of this answer response's next question.
-                    String answerNextQuestionId = answerOption.getModifierExtensionFirstRep().getUrl();
-                    // The response that indicates this answer to the question.
-                    String possibleAnswerResponse = answerOption.getValueCoding().getCode();
-                    // Check for issues.
-                    if(answerNextQuestionId == null || possibleAnswerResponse == null){
-                        throw new RuntimeException("Malformed Adaptive Questionnaire. Missing a questionID or answer response.");
+                // If the determinant question item does not have any answer options, then this is a leaf node and should not generate any children.
+                if(determinantQuestionItem.hasAnswerOption()) {
+                    Map<String, String> childIdsToResponses = new HashMap<String, String>();
+                    // This loop iterates over the possible answer options of this questionitem and links the linkId to its possible responses.
+                    for(QuestionnaireItemAnswerOptionComponent answerOption : determinantQuestionItem.getAnswerOption()) {
+                        // The Id of this answer response's next question.
+                        String answerNextQuestionId = answerOption.getModifierExtensionFirstRep().getUrl();
+                        // The response that indicates this answer to the question.
+                        String possibleAnswerResponse = answerOption.getValueCoding().getCode();
+                        // Check for issues.
+                        if(answerNextQuestionId == null || possibleAnswerResponse == null){
+                            throw new RuntimeException("Malformed Adaptive Questionnaire. Missing a questionID or answer response.");
+                        }
+                        // Add the key-value pair of next question id to its assocated answer response.
+                        childIdsToResponses.put(answerNextQuestionId, possibleAnswerResponse);
                     }
-                    // Add the key-value pair of next question id to its assocated answer response.
-                    childIdsToResponses.put(answerNextQuestionId, possibleAnswerResponse);
-                }
 
-                // Create the map of answerResponses->subQuestionItems
-                this.children = new HashMap<String, AdaptiveQuestionnaireNode>();
-                List<QuestionnaireItemComponent> subQuestionItems = questionItem.getItem();
-                for(QuestionnaireItemComponent subQuestionItem : subQuestionItems){
-                    // SubQuestion linkId.
-                    String subQuestionLinkId = subQuestionItem.getLinkId();
-                    // SubQuestion's associated response.
-                    String subQuestionResponse = childIdsToResponses.get(subQuestionLinkId);
-                    // Create a new node for this subQuestion.
-                    AdaptiveQuestionnaireNode subQuestionNode = new AdaptiveQuestionnaireNode(subQuestionItem);
-                    this.children.put(subQuestionResponse, subQuestionNode);
+                    // Create the map of answerResponses->subQuestionItems
+                    this.children = new HashMap<String, AdaptiveQuestionnaireNode>();
+                    List<QuestionnaireItemComponent> subQuestionItems = determinantQuestionItem.getItem();
+                    for(QuestionnaireItemComponent subQuestionItem : subQuestionItems){
+                        // SubQuestion linkId.
+                        String subQuestionLinkId = subQuestionItem.getLinkId();
+                        // SubQuestion's associated response.
+                        String subQuestionResponse = childIdsToResponses.get(subQuestionLinkId);
+                        // Create a new node for this subQuestion.
+                        AdaptiveQuestionnaireNode subQuestionNode = new AdaptiveQuestionnaireNode(subQuestionItem);
+                        this.children.put(subQuestionResponse, subQuestionNode);
+                    }
+                }
+            }
+
+            /**
+             * Returns the question items in the given list that do not have the linkids of the given list of strings.
+             * @param questionItems
+             * @param nonSupplementQuestions
+             * @return
+             */
+            private List<QuestionnaireItemComponent> extractSupplementalQuestions(
+                    List<QuestionnaireItemComponent> questionItems, List<String> nonSupplementLinkIds) {
+                return questionItems.stream().filter(questionItem -> !nonSupplementLinkIds.contains(questionItem.getLinkId())).collect(Collectors.toList());
+            }
+
+            /**
+             * Returns the question items in the given list that do have the linkids of the given list of strings.
+             * @param questionItems
+             * @param nonSupplementQuestions
+             * @return
+             */
+            private List<QuestionnaireItemComponent> extractChildQuestions(
+                    List<QuestionnaireItemComponent> questionItems, List<String> nonSupplementLinkIds) {
+                return questionItems.stream().filter(questionItem -> nonSupplementLinkIds.contains(questionItem.getLinkId())).collect(Collectors.toList());
+            }
+
+            /**
+             * Returns the set of questions associated with the node. Incldues all questions in the set, determinant and non-determinant.
+             * @return
+             */
+            public List<QuestionnaireItemComponent> getQuestionSet() {
+                QuestionnaireItemComponent determinantQuestionNoChildren = this.removeChildrenFromQuestionItem(this.determinantQuestionItem);
+                List<QuestionnaireItemComponent> questionSet = new ArrayList<QuestionnaireItemComponent>();
+                questionSet.add(determinantQuestionNoChildren);
+                questionSet.addAll(this.supplementalQuestions);
+                return questionSet;
+            }
+
+            /**
+             * Returns a new question item that is indentical to the input qusetion item except without the children.
+             * @param inputQuestionItem
+             * @return
+             */
+            private QuestionnaireItemComponent removeChildrenFromQuestionItem(QuestionnaireItemComponent inputQuestionItem){
+                QuestionnaireItemComponent questionItemNoChildren = new QuestionnaireItemComponent();
+                questionItemNoChildren.setLinkId(inputQuestionItem.getLinkId());
+                questionItemNoChildren.setText(inputQuestionItem.getText());
+                questionItemNoChildren.setType(inputQuestionItem.getType());
+                questionItemNoChildren.setRequired(inputQuestionItem.getRequired());
+                questionItemNoChildren.setAnswerOption(inputQuestionItem.getAnswerOption());
+                return questionItemNoChildren;
+            }
+
+            /**
+             * Returns whether the determinant question contains the requested response.
+             * @param response
+             * @return
+             */
+            public boolean hasResponse(String response) {
+                try {
+                    return this.children.containsKey(response);
+                } catch (NullPointerException e) {
+                    throw new NullPointerException("Null pointer thrown for children " + this.children + " with response " + response);
                 }
             }
 
@@ -171,7 +245,7 @@ public class QuestionnaireController {
              * @return
              */
             private boolean isLeafNode() {
-                return this.children.size() < 1;
+                return this.children == null || this.children.size() < 1;
             }
 
             /**
@@ -187,9 +261,13 @@ public class QuestionnaireController {
              * Returns the question linkid for this node question.
              * @return
              */
-            public String getQuestionId() {
-                return this.questionItem.getLinkId();
+            public String getDeterminantQuestionId() {
+                return this.determinantQuestionItem.getLinkId();
             }
+        }
+
+        public List<QuestionnaireItemComponent> getCurrentQuestionSet() {
+            return this.root.getQuestionSet();
         }
     }
 
@@ -199,7 +277,7 @@ public class QuestionnaireController {
     private static final Map<String, AdaptiveQuestionnaireTree> questionnaireTrees = new HashMap<String, AdaptiveQuestionnaireTree>();
 
     /**
-     * 
+     * Retrieves the next question based on the request.
      * @param request
      * @param entity
      * @return
@@ -210,7 +288,7 @@ public class QuestionnaireController {
     }
 
     /**
-     *
+     * Returns the next question based on the request.
      * @param body
      * @param request
      * @return
@@ -274,35 +352,36 @@ public class QuestionnaireController {
                     if(cdsQuestionnaire == null) {
                         throw new RuntimeException("Requested CDS Questionnaire \'" + questionnaireId + "\' was not imported and may not exist.");
                     }
-                    // Pull the first question from the CDS Questionnaire because it should be the top-level question (and the only item in the list).
-                    QuestionnaireItemComponent topQuestionItem = cdsQuestionnaire.getItemFirstRep();
-                    topQuestionItem = removeChildrenFromQuestionItem(topQuestionItem);
-                    // Add the first Question item to the contained Questionnaire in the response/request QuestionnaireResponse JSON as part of the response.
-                    inputQuestionnaireFromRequest.addItem(topQuestionItem);
 
                     // Build the tree and don't expect any answers since we only just received the required questions.
                     AdaptiveQuestionnaireTree newTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
                     questionnaireTrees.put(questionnaireId, newTree);
                     logger.info("--- Built Questionnaire Tree for " + questionnaireId);
+
+                    List<QuestionnaireItemComponent> questionSet = newTree.getCurrentQuestionSet();
+                    final Questionnaire tempInputQuestionnaireFromRequest = inputQuestionnaireFromRequest;
+                    questionSet.forEach(questionItem -> tempInputQuestionnaireFromRequest.addItem(questionItem));
                 } else {
                     // If there is already a tree with the requested questionnaire id, execute next-question on it with the new request.
                     // Pull the current tree for the requested questionnaire id.
                     AdaptiveQuestionnaireTree currentTree = questionnaireTrees.get(questionnaireId);
                     // Get the previous question Id.
-                    String previousQuestionId = currentTree.getCurrentQuestionId();
+                    String previousQuestionId = currentTree.getCurrentDeterminantQuestionId();
                     // Get the request's answer component of the item with the previous question id.
                     List<QuestionnaireResponseItemComponent> allQuestions = inputQuestionnaireResponse.getItem();
-                    allQuestions = allQuestions.stream().filter((QuestionnaireResponseItemComponent item) -> item.getLinkId().equals(previousQuestionId)).collect(Collectors.toList());
+                    allQuestions = allQuestions.stream().filter(item -> item.getLinkId().equals(previousQuestionId)).collect(Collectors.toList());
+                    if(allQuestions.size() < 1) {
+                        throw new RuntimeException("No given answers in the request references the current question asked. Current Question ID: " + previousQuestionId + ".");
+                    }
                     QuestionnaireResponseItemAnswerComponent answerComponent = allQuestions.get(0).getAnswerFirstRep();
                     // Pull the string response the person gave.
                     String response = answerComponent.getValueCoding().getCode();
                     // Pull the resulting next question that the recieved response points to from the tree without including its children.
-                    QuestionnaireItemComponent nextQuestionItemResult = currentTree.getNextQuestionForResponse(response);
-                    nextQuestionItemResult = removeChildrenFromQuestionItem(nextQuestionItemResult);
-                    // Add the next question to the QuestionnaireResponse.contained[0].item[].
+                    List<QuestionnaireItemComponent> nextQuestionsItemResult = currentTree.getNextQuestionsFromResponse(response);
+                    // Add the next question set to the QuestionnaireResponse.contained[0].item[].
                     Questionnaire containedQuestionnaire = (Questionnaire) inputQuestionnaireResponse.getContained().get(0);
-                    containedQuestionnaire.addItem(nextQuestionItemResult);
-                    logger.info("--- Added next question for questionnaire \'" + questionnaireId + "\' for response \'" + response + "\'.");
+                    nextQuestionsItemResult.forEach(questionItem -> containedQuestionnaire.addItem(questionItem));
+                    logger.info("--- Added next question set for questionnaire \'" + questionnaireId + "\' for response \'" + response + "\'.");
 
                     // If this question is a leaf node and is the final question, set the status to "completed"
                     if (currentTree.reachedLeafNode()) {
@@ -325,20 +404,5 @@ public class QuestionnaireController {
             }
 
         }
-    }
-
-    /**
-     * Returns a new question item that is indentical to the input qusetion item except without the children.
-     * @param inputQuestionItem
-     * @return
-     */
-    private static QuestionnaireItemComponent removeChildrenFromQuestionItem(QuestionnaireItemComponent inputQuestionItem){
-        QuestionnaireItemComponent questionItemNoChildren = new QuestionnaireItemComponent();
-        questionItemNoChildren.setLinkId(inputQuestionItem.getLinkId());
-        questionItemNoChildren.setText(inputQuestionItem.getText());
-        questionItemNoChildren.setType(inputQuestionItem.getType());
-        questionItemNoChildren.setRequired(inputQuestionItem.getRequired());
-        questionItemNoChildren.setAnswerOption(inputQuestionItem.getAnswerOption());
-        return questionItemNoChildren;
     }
 }
