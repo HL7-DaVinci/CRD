@@ -146,6 +146,8 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     realm= ClientFhirServer
     use_oauth = false
     ```
+    
+>Note: **#replaceMeWithYourClientSecret** can be ignored.
 
 ### crd-request-generator configs
 
