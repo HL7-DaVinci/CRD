@@ -147,7 +147,7 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     use_oauth = false
     ```
     
->Note: **#replaceMeWithYourClientSecret** can be ignored.
+>Note: **#replaceMeWithYourClientSecret** is not required/needed.
 
 ### crd-request-generator configs
 
