@@ -12,7 +12,7 @@ echo "starting application in watch mode..."
 
 # Start the continious build listener process
 echo "starting continuous build listener..."
-gradle installBootDist --continuous 2>&1 | tee builder.log & CONTINUOUS_BUILD_PID=$!
+gradle build --continuous 2>&1 | tee builder.log & CONTINUOUS_BUILD_PID=$!
 
 # Start server process once initial build finishes  
 ( while ! grep -m1 'BUILD SUCCESSFUL' < builder.log; do
