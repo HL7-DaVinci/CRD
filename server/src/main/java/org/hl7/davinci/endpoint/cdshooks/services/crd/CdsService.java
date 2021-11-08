@@ -226,7 +226,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestLog.setCardListFromCards(response.getCards());
     requestService.edit(requestLog);
 
-
     return response;
   }
 
