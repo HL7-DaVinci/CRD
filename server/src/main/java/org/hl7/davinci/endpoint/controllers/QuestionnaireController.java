@@ -17,9 +17,11 @@ import org.hl7.davinci.r4.FhirComponents;
 
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
+import org.hl7.davinci.endpoint.Utils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -339,8 +341,12 @@ public class QuestionnaireController {
                     try {
                         //TODO: need to determine topic, filename, and fhir version without having them hard coded
                         // File is pulled from the file store
-                        FileResource fileResource = fileStore.getFile("HomeOxygenTherapy", "Questions-HomeOxygenTherapyAdditional.json", "R4", false);
-                        cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
+                        String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+                        FileResource fileResource = fileStore.getFhirResourceById("r4", "questionnaire", "HomeOxygenTherapyAdditional", baseUrl);
+                        org.springframework.core.io.Resource resource = fileResource.getResource();
+                        InputStream resourceStream = resource.getInputStream();
+                        cdsQuestionnaire = (Questionnaire) parser.parseResource(resourceStream);
+
                         logger.info("--- Imported Questionnaire " + cdsQuestionnaire.getId());
                     } catch (DataFormatException e) {
                         e.printStackTrace();
@@ -358,9 +364,9 @@ public class QuestionnaireController {
                     questionnaireTrees.put(questionnaireId, newTree);
                     logger.info("--- Built Questionnaire Tree for " + questionnaireId);
 
+                    // Add the set of questions to the response.
                     List<QuestionnaireItemComponent> questionSet = newTree.getCurrentQuestionSet();
-                    final Questionnaire tempInputQuestionnaireFromRequest = inputQuestionnaireFromRequest;
-                    questionSet.forEach(questionItem -> tempInputQuestionnaireFromRequest.addItem(questionItem));
+                    addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, questionSet);
                 } else {
                     // If there is already a tree with the requested questionnaire id, execute next-question on it with the new request.
                     // Pull the current tree for the requested questionnaire id.
@@ -368,19 +374,18 @@ public class QuestionnaireController {
                     // Get the previous question Id.
                     String previousQuestionId = currentTree.getCurrentDeterminantQuestionId();
                     // Get the request's answer component of the item with the previous question id.
-                    List<QuestionnaireResponseItemComponent> allQuestions = inputQuestionnaireResponse.getItem();
-                    allQuestions = allQuestions.stream().filter(item -> item.getLinkId().equals(previousQuestionId)).collect(Collectors.toList());
-                    if(allQuestions.size() < 1) {
+                    List<QuestionnaireResponseItemComponent> allResponses = inputQuestionnaireResponse.getItem();
+                    List<QuestionnaireResponseItemComponent> currentResponses = allResponses.stream().filter(item -> item.getLinkId().equals(previousQuestionId)).collect(Collectors.toList());
+                    if(currentResponses.size() < 1) {
                         throw new RuntimeException("No given answers in the request references the current question asked. Current Question ID: " + previousQuestionId + ".");
                     }
-                    QuestionnaireResponseItemAnswerComponent answerComponent = allQuestions.get(0).getAnswerFirstRep();
-                    // Pull the string response the person gave.
+                    // Pull the string response given by the current response.
+                    QuestionnaireResponseItemAnswerComponent answerComponent = currentResponses.get(0).getAnswerFirstRep();
                     String response = answerComponent.getValueCoding().getCode();
                     // Pull the resulting next question that the recieved response points to from the tree without including its children.
-                    List<QuestionnaireItemComponent> nextQuestionsItemResult = currentTree.getNextQuestionsFromResponse(response);
-                    // Add the next question set to the QuestionnaireResponse.contained[0].item[].
-                    Questionnaire containedQuestionnaire = (Questionnaire) inputQuestionnaireResponse.getContained().get(0);
-                    nextQuestionsItemResult.forEach(questionItem -> containedQuestionnaire.addItem(questionItem));
+                    List<QuestionnaireItemComponent> nextQuestionSetResult = currentTree.getNextQuestionsFromResponse(response);
+                    // Add the next set of questions to the response.
+                    addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, nextQuestionSetResult);
                     logger.info("--- Added next question set for questionnaire \'" + questionnaireId + "\' for response \'" + response + "\'.");
 
                     // If this question is a leaf node and is the final question, set the status to "completed"
@@ -402,7 +407,17 @@ public class QuestionnaireController {
                         .header(HttpHeaders.CONTENT_TYPE, "application/fhir+json" + "; charset=utf-8")
                         .body("Invalid input questionnaire does not exist");
             }
-
         }
+    }
+
+    /**
+     * Adds the given set of questions to the contained questionniare in the questionnaire response.
+     * @param inputQuestionnaireResponse
+     * @param questionSet
+     */
+    private void addQuestionSetToQuestionnaireResponse(QuestionnaireResponse inputQuestionnaireResponse, List<QuestionnaireItemComponent> questionSet) {
+        // Add the next question set to the QuestionnaireResponse.contained[0].item[].
+        Questionnaire containedQuestionnaire = (Questionnaire) inputQuestionnaireResponse.getContained().get(0);
+        questionSet.forEach(questionItem -> containedQuestionnaire.addItem(questionItem));
     }
 }

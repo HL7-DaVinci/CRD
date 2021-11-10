@@ -76,6 +76,10 @@ public class SubQuestionnaireProcessor extends FhirResourceProcessor<Questionnai
     for (int i = 0; i < itemList.size();) {
       List<QuestionnaireItemComponent> returnedItemList = 
         processItem(itemList.get(i), fileStore, baseUrl, containedList, extensionList);
+
+      // if(itemList.get(i).getItem().size() > 0){
+      //   this.processItemList(itemList.get(i).getItem(), fileStore, baseUrl, containedList, extensionList);
+      // }
       
       if (returnedItemList.size() == 0) {
         continue;
