@@ -55,18 +55,19 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
 
 ### Installing core tools on MacOS
 
-#### Install AdoptOpenJDK8
+#### Install AdoptOpenJDK11
 
-> Important note: **Do not skip** these steps, **even if you already have AdoptOpenJDK8 installed on your Mac**, as they will make your life easier when you need to update and/or switch your Mac's default Java version down the line.
+> Important note: **Do not skip** these steps, **even if you already have AdoptOpenJDK11 installed on your Mac**, as they will make your life easier when you need to update and/or switch your Mac's default Java version down the line.
+> In this guide, the steps to install AdoptOpenJDK11 are given using sdkman. You can feel free to use other package management tools.
 
 1. Install [sdkman](https://sdkman.io/), a MacOS-native tool for package management.
-2. Using sdkman, install **AdoptOpenJDK (version 8)** for MacOS. We **do not recommend** using the Oracle JDK as Oracle's license for its JDK is more restrictive.
-    > You will need to install the JDK for **Java 8** and be aware that you will often see Java 8 being referred to as *Java 1.8.* They mean the same thing. 1.x is just a legacy naming convention that the Java developers have moved away from but others still use.
+2. Using sdkman, install **AdoptOpenJDK (version 11)** for MacOS. We **do not recommend** using the Oracle JDK as Oracle's license for its JDK is more restrictive.
+    > You will need to install the JDK for **Java 11**
 
     Run the following sdkman commands to complete the install:
     ```bash
-    sdk list java # find sdkman's identifier for the LTS version of AdoptOpenJDK 8
-    sdk install java <identifier_for_adoptopenjdk8>
+    sdk list java # find sdkman's identifier for the LTS version of AdoptOpenJDK 11
+    sdk install java <identifier_for_adoptopenjdk11>
     
     # After the installation is complete, verify the correct version of java is running with:
     java -version
@@ -145,6 +146,8 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
     realm= ClientFhirServer
     use_oauth = false
     ```
+    
+>Note: **#replaceMeWithYourClientSecret** is not required/needed.
 
 ### crd-request-generator configs
 
@@ -156,32 +159,28 @@ Additionally, you must have credentials (api key) access to the **[Value Set Aut
         "client": "app-login",
         "auth": "http://localhost:8180/auth",
         "server": "http://localhost:8090",
-        "ehr_server": "http://localhost:8080/test-ehr/r4/",
-        "cds_service": "http://localhost:8090/r4/cds-services/order-sign-crd",
-        "true_base": "http://localhost:8080/test-ehr",
+        "ehr_server": "http://localhost:8080/test-ehr/r4",
+        "ehr_base": "http://localhost:8080/test-ehr/r4",
+        "cds_service": "http://localhost:8090/r4/cds-services",
+        "order_sign": "order-sign-crd",
+        "order_select": "order-select-crd",
         "user": "alice",
-        "password": "alice"
+        "password": "alice",
+        "public_keys": "http://localhost:3001/public_keys"
     }
     ```
 
 ### dtr configs
 
-1. cd `<drlsroot>/dtr/bin` 
-2. In `dev`, set `https` to `false`. Your file should look something like this:
-    ```javascript
-    {
-        contentBase: path.resolve(__dirname, "public"),
-        port: 3005,
-        https: false,
-        host: "0.0.0.0",
-        public: "0.0.0.0",
-    
-        ...
-    ```
+***None***
 
 ### Add VSAC credentials to your development environment
 
 > At this point, you should have credentials to access VSAC. If not, please refer to [Prerequisites](#prerequisites) for how to create these credentials and return here after you have confirmed you can access VSAC.
+> 
+> **To download the full ValueSets, your VSAC account will need to be added to the CMS-DRLS author group on https://vsac.nlm.nih.gov/. You will need to request membership access from an admin. The folks at MITRE can point you to an admin.** 
+> 
+> If this is not configured, you will get `org.hl7.davinci.endpoint.vsac.errors.VSACValueSetNotFoundException: ValueSet 2.16.840.1.113762.1.4.1219.62 Not Found` errors.
 
 > While this step is optional, we **highly recommend** that you do it so that DRLS will have the ability to dynamically load value sets from VSAC. 
 
@@ -210,7 +209,7 @@ gradle bootRun
 
 Wait until you see the server is running at 91% and there is no more console output before proceeding to [Start test-ehr]().
 
-> Optional. Verify CRD is running:
+> Optional. Verify CRD is running with the following links.
 > 
 > - http://localhost:8090 should show you a valid web page.
 > - http://localhost:8090/data should reveal a few rule sets with names such as "Hospital Beds" and "Non Emergency Ambulance Transportation."
@@ -222,16 +221,14 @@ Wait until you see the server is running at 91% and there is no more console out
 cd to <drlsroot>/test-ehr
 rm -rf target # not required if you are running test-ehr for the very first time
 rm -rf build # not required if you are running test-ehr for the very first time
-gradle appRun
+gradle bootRun
 gradle loadData
 ```
 Wait until you see the server is running at 91% and there is no more console output before proceeding to [Start keycloak]().
 
-> Optional. Verify test-ehr is running:
+> Optional. Verify test-ehr is running with the following links. http://localhost:8080/test-ehr/r4 is the base URL of the server and will require a resource type or operation name appended to the end.
 >
-> - http://localhost:8080/test-ehr/ should show you a HAPI EHR UI.
-> - http://localhost:8080/test-ehr/search?serverId=home&pretty=true&resource=Patient should reveal a few patients.
-
+> - http://localhost:8080/test-ehr/r4/Patient should display a 200 response with a patient resource.
 
 ### Start keycloak
 
@@ -255,8 +252,9 @@ npm install # Only required if running crd-request-generator for the first time
 npm start
 ```
 
-> Optional. Verify dtr is running:
-> - http://localhost:3005/register should show you a simple web page with a form.
+> Verify dtr is running:
+> - http://localhost:3005/register should show you a simple web page with a form to register a Client ID and Fhir Server.
+> - Instructions to register on this page are detailed below in the section **Register the test-ehr**.
 
 ### Start crd-request-generator
 
@@ -266,6 +264,7 @@ cd <drlsroot>/crd-request-generator
 npm install # Only required if running crd-request-generator for the first time
 PORT=3000 npm start
 ```
+
 Once crd-request-generator has started successfully, a webpage running on http://localhost:3000/ehr-server/reqgen should open automatically.
 
 ### Optional: (Re)load EHR data
