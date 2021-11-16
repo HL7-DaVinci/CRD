@@ -51,7 +51,7 @@ public class OrderSelectServiceRems extends CdsService<OrderSelectRequest> {
     public List<Coding> remsDrugs = new ArrayList<>();
 
     public OrderSelectServiceRems() {
-        super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS);
+        super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, null);
         Coding turalio = new Coding()
                 .setCode("2183126")
                 .setSystem("http://www.nlm.nih.gov/research/umls/rxnorm")
