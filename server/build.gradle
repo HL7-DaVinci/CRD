@@ -20,8 +20,8 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 
-
 dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     compile project(':resources')
     compile project(':operations')
