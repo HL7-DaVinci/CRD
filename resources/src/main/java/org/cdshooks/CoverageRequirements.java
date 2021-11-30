@@ -1,5 +1,7 @@
 package org.cdshooks;
 
+import java.util.UUID;
+
 public class CoverageRequirements {
   private boolean applies;
   private String summary;
@@ -15,6 +17,9 @@ public class CoverageRequirements {
   private String requestId;
   private boolean priorAuthRequired;
   private boolean documentationRequired;
+
+  private boolean priorAuthApproved;
+  private String priorAuthId;
 
   public boolean getApplies() { return applies; }
 
@@ -135,6 +140,26 @@ public class CoverageRequirements {
 
   public CoverageRequirements setDocumentationRequired(boolean documentationRequired) {
     this.documentationRequired = documentationRequired;
+    return this;
+  }
+
+  public boolean isPriorAuthApproved() { return priorAuthApproved; }
+
+  public CoverageRequirements setPriorAuthApproved(boolean priorAuthApproved) {
+    this.priorAuthApproved = priorAuthApproved;
+    return this;
+  }
+
+  public String getPriorAuthId() { return priorAuthId; }
+
+  public CoverageRequirements setPriorAuthId(String priorAuthId) {
+    this.priorAuthId = priorAuthId;
+    return this;
+  }
+
+  public CoverageRequirements generatePriorAuthId() {
+    // Generate a random UUID as the ID. This is the same method that Prior Auth (PAS) uses.
+    this.priorAuthId = UUID.randomUUID().toString();
     return this;
   }
 }

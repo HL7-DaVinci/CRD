@@ -20,12 +20,15 @@ import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
+import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.fhir.r4.model.ClaimResponse;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +77,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   @Autowired
   FileStore fileStore;
+
+  @Autowired
+  private FhirResourceRepository fhirResourceRepository;
 
   private final List<PrefetchTemplateElement> prefetchElements;
   protected FhirComponentsT fhirComponents;
@@ -170,7 +176,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
         if (results.getCoverageRequirements().getApplies()) {
 
-          if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
+          // if prior auth already approved
+          if (coverageRequirements.isPriorAuthApproved()) {
+            response.addCard(CardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
+                request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
+                applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
+                fhirResourceRepository));
+
+          } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
             if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
@@ -198,7 +211,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
             // no prior auth or documentation required
             logger.info("Add the no doc or prior auth required card");
             Card card = CardBuilder.transform(results);
-            card = CardBuilder.createSuggestionsWithNote(card, results, fhirComponents);
+            card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note"));
             response.addCard(card);
           }
         }

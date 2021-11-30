@@ -85,6 +85,18 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
       logger.info("Prior Auth Required");
       coverageRequirements.setSummary(humanReadableTopic + ": Prior Authorization required.")
           .setDetails("Prior Authorization required, follow the attached link for information.");
+
+      // check if prior auth is automatically approved
+      if (evaluateStatement("APPROVE_PRIORAUTH", context) != null) {
+        coverageRequirements.setPriorAuthApproved((Boolean) evaluateStatement("APPROVE_PRIORAUTH", context));
+        if (coverageRequirements.isPriorAuthApproved()) {
+          coverageRequirements.generatePriorAuthId();
+          logger.info("Prior Auth Approved: " + coverageRequirements.getPriorAuthId());
+          coverageRequirements.setSummary(humanReadableTopic + ": Prior Authorization approved.")
+              .setDetails("Prior Authorization approved, ID is " + coverageRequirements.getPriorAuthId());
+        }
+      }
+
     } else if (coverageRequirements.isDocumentationRequired()) {
       logger.info("Documentation Required");
       coverageRequirements.setSummary(humanReadableTopic + ": Documentation Required.")
