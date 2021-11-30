@@ -340,12 +340,25 @@ public class QuestionnaireController {
                     Questionnaire cdsQuestionnaire = null;
                     try {
                         //TODO: need to determine topic, filename, and fhir version without having them hard coded
-                        // File is pulled from the file store
-                        String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
-                        FileResource fileResource = fileStore.getFhirResourceById("r4", "questionnaire", "HomeOxygenTherapyAdditional", baseUrl);
-                        org.springframework.core.io.Resource resource = fileResource.getResource();
-                        InputStream resourceStream = resource.getInputStream();
-                        cdsQuestionnaire = (Questionnaire) parser.parseResource(resourceStream);
+                        boolean pullFromResources = false;
+                        if(pullFromResources){
+                            // Resource is pulled from the file store as a resource.
+                            String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+                            FileResource fileResource = fileStore.getFhirResourceById("r4", "questionnaire", "HomeOxygenTherapyAdditional", baseUrl);
+                            org.springframework.core.io.Resource resource = fileResource.getResource();
+                            InputStream resourceStream = resource.getInputStream();
+                            cdsQuestionnaire = (Questionnaire) parser.parseResource(resourceStream);
+                        } else {
+                            // File is pulled from the file store as a file.
+                            FileResource fileResource = fileStore.getFile("HomeOxygenTherapy", "Questions-HomeOxygenTherapyAdditionalAdaptive.json", "R4", false);
+                            if(fileResource == null) {
+                                throw new RuntimeException("File resource pulled from the filestore is null.");
+                            }
+                            if(fileResource.getResource() == null) {
+                                throw new RuntimeException("File resource pulled from the filestore has a null getResource().");
+                            }
+                            cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
+                        }
 
                         logger.info("--- Imported Questionnaire " + cdsQuestionnaire.getId());
                     } catch (DataFormatException e) {
@@ -396,7 +409,8 @@ public class QuestionnaireController {
                 }
 
                 logger.info("---- Get meta profile " + inputQuestionnaireFromRequest.getMeta().getProfile().get(0).getValue());
-                
+                logger.info("---- Sent response back " + inputQuestionnaireFromRequest.getId());
+
                 // Build and send the response.
                 String formattedResourceString = ctx.newJsonParser().encodeResourceToString(inputQuestionnaireResponse);
                 return ResponseEntity.status(HttpStatus.ACCEPTED).contentType(MediaType.APPLICATION_JSON)

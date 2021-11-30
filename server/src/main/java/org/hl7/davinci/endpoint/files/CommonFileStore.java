@@ -131,7 +131,7 @@ public abstract class CommonFileStore implements FileStore {
     criteria.setFhirVersion(fhirVersion).setResourceType(resourceType).setId(id).setName(id);
     List<FhirResource> fhirResourceList = fhirResources.findById(criteria);
     FileResource resource = readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
-    System.out.println("Resource Pulled: " + resource + resource.getFilename());
+    System.out.println("Resource Pulled: " + resource + "-" + resource.getFilename());
     System.out.println("Fhir Resource List: " + fhirResourceList);
     System.out.println("Criteria ID: " + criteria);
     System.out.println("BaseUrl: " + baseUrl);
