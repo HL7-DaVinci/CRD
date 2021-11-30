@@ -7,28 +7,21 @@ import org.cdshooks.Hook;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.database.RequestService;
-import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.fhir.r4.model.Coding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
 public abstract class CdsServiceRems<requestTypeT extends CdsRequest<?, ?>> extends CdsAbstract<requestTypeT> {
-    static final Logger logger = LoggerFactory.getLogger(CdsService.class);
-
-    @Autowired
-    RequestService requestService;
+    static final Logger logger = LoggerFactory.getLogger(CdsServiceRems.class);
 
     public List<Coding> remsDrugs = new ArrayList<>();
 

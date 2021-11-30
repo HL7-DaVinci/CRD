@@ -4,7 +4,6 @@ import org.cdshooks.Hook;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceRems;
-import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
@@ -15,7 +14,6 @@ import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.MedicationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

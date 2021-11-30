@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
@@ -58,6 +59,7 @@ public abstract class CdsAbstract<requestTypeT extends CdsRequest<?, ?>>{
     private final DiscoveryExtension extension;
 
     @Autowired
+    @JsonIgnore
     public YamlConfig myConfig;
 
     public CdsAbstract(String id, Hook hook, String title, String description,
