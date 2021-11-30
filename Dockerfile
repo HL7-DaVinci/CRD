@@ -1,6 +1,11 @@
-FROM gradle:jdk8-alpine
-EXPOSE 8090/tcp
+FROM gradle:6.9.0-jdk11
+# Copy app files to container
 COPY --chown=gradle:gradle . /CRD/
+# Set working directory so that all subsequent command runs in this folder
 WORKDIR /CRD/server/
-RUN ../gradlew build
-CMD ["../gradlew", "bootRun"]
+# Embed CDS Library
+# RUN gradle embedCdsLibrary
+# Expose port to access the app
+EXPOSE 8090
+# Command to run our app
+CMD gradle bootRun
