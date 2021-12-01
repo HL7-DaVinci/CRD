@@ -90,15 +90,6 @@ public class QuestionnaireController {
             }
             return this.root.getNextQuestionForAnswers(allResponseItems);
         }
-
-        /**
-         * TODO Returns whether this has reached a leaf node. TODO - NEEDS TO BE UPDATED
-         * @param response
-         * @return
-         */
-        public boolean reachedLeafNode() {
-            return this.root.isLeafNode();
-        }
     
         /**
          * Inner class that describes a node of the tree.
@@ -143,7 +134,7 @@ public class QuestionnaireController {
                         String possibleAnswerResponse = answerOption.getValueCoding().getCode();
                         // Check for issues.
                         if(answerNextQuestionId == null || possibleAnswerResponse == null){
-                            throw new RuntimeException("Malformed Adaptive Questionnaire. Missing a questionID or answer response.");
+                            throw new RuntimeException("Malformed Adaptive Questionnaire. Missing a question ID or answer response.");
                         }
                         // Add the key-value pair of next question id to its assocated answer response.
                         childIdsToResponses.put(answerNextQuestionId, possibleAnswerResponse);
@@ -177,15 +168,22 @@ public class QuestionnaireController {
                 if(currentQuestionResponses.size() != 1) {
                     // If there are no more answer items to check, we've reached the end of the recursion.
                     return this.getQuestionSet();
+                    // TODO - this could cause an unexpected end-of-questionnaire issue if incorrect responses are given.
                 }
 
                 QuestionnaireResponseItemComponent currentQuestionResponse = currentQuestionResponses.get(0);
                 QuestionnaireResponseItemAnswerComponent currentQuestionAnswer = currentQuestionResponse.getAnswerFirstRep();
 
+                if(this.isLeafNode()){
+                    // TODO: How to notify controller that this is a leaf node?
+                }
+
                 // With the currrent question answer in hand, extract the next question.
                 AdaptiveQuestionnaireNode nextNode = this.children.get(currentQuestionAnswer.getValueCoding().getCode());
                 
-                return nextNode.getNextQuestionForAnswers(allResponseItems.stream().filter(responseItem -> !responseItem.equals(currentQuestionResponse)).collect(Collectors.toList()));
+                // Has to be done this way without removing the previous answer response so that we don't alter the original list object.
+                List<QuestionnaireResponseItemComponent> nextResponseItems = allResponseItems.stream().filter(responseItem -> !responseItem.equals(currentQuestionResponse)).collect(Collectors.toList());
+                return nextNode.getNextQuestionForAnswers(nextResponseItems);
             }
 
             /**
@@ -244,9 +242,7 @@ public class QuestionnaireController {
             private boolean isLeafNode() {
                 return this.children == null || this.children.size() < 1;
             }
-
         }
-
     }
 
     // Logger.
