@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.controllers;
 
+import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
@@ -31,10 +32,13 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Questionnaire;
 import org.hl7.fhir.r4.model.QuestionnaireResponse;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.StringType;
+import org.hl7.fhir.r4.model.Type;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemAnswerOptionComponent;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent;
@@ -63,7 +67,7 @@ public class QuestionnaireController {
      */
     private class AdaptiveQuestionnaireTree {
         
-        // The current question (defined within the node).
+        // The initial question node of the tree.
         private AdaptiveQuestionnaireNode root;
     
         /**
@@ -81,14 +85,15 @@ public class QuestionnaireController {
 
         /**
          * Returns the next question based on the response to the current question. Also sets the next question based on that response.
+         * @param inputQuestionnaireResponse
          * @param allAnswerItems  The set of answer items given to this tree.
          * @return
          */
-        public List<QuestionnaireItemComponent> getNextQuestionsForAnswers(List<QuestionnaireResponseItemComponent> allResponseItems) {
+        public List<QuestionnaireItemComponent> getNextQuestionsForAnswers(List<QuestionnaireResponseItemComponent> allResponseItems, QuestionnaireResponse inputQuestionnaireResponse) {
             if(allResponseItems == null) {
                 throw new NullPointerException("Input answer items is null.");
             }
-            return this.root.getNextQuestionForAnswers(allResponseItems);
+            return this.root.getNextQuestionForAnswers(allResponseItems, inputQuestionnaireResponse);
         }
     
         /**
@@ -158,9 +163,10 @@ public class QuestionnaireController {
             /**
              * Returns the next question based on the set of provided answers.
              * @param allResponseItems
+             * @param inputQuestionnaireResponse
              * @return
              */
-            public List<QuestionnaireItemComponent> getNextQuestionForAnswers(List<QuestionnaireResponseItemComponent> allResponseItems) {
+            public List<QuestionnaireItemComponent> getNextQuestionForAnswers(List<QuestionnaireResponseItemComponent> allResponseItems, QuestionnaireResponse inputQuestionnaireResponse) {
 
                 // Extract the current question being answered from the list if answer items.
                 String currentQuestionId = this.determinantQuestionItem.getLinkId();
@@ -174,16 +180,32 @@ public class QuestionnaireController {
                 QuestionnaireResponseItemComponent currentQuestionResponse = currentQuestionResponses.get(0);
                 QuestionnaireResponseItemAnswerComponent currentQuestionAnswer = currentQuestionResponse.getAnswerFirstRep();
 
-                if(this.isLeafNode()){
-                    // TODO: How to notify controller that this is a leaf node?
-                }
 
                 // With the currrent question answer in hand, extract the next question.
-                AdaptiveQuestionnaireNode nextNode = this.children.get(currentQuestionAnswer.getValueCoding().getCode());
+                Type value = currentQuestionAnswer.getValue();
+                String response;
+                // Not a fan of this, but not sure how else to determine the value based on different possible input types.
+                if(value instanceof StringType){
+                    response = currentQuestionAnswer.getValueStringType().asStringValue();
+                } else if(value instanceof Coding){
+                    response = currentQuestionAnswer.getValueCoding().getCode();
+                } else {
+                    throw new RuntimeException("Answer does not match one of the possible input types.");
+                }
+                if(!children.containsKey(response)){
+                    throw new NullPointerException("Response does not match with a possible next question.");
+                }
+                AdaptiveQuestionnaireNode nextNode = this.children.get(response);
+
+                if(nextNode.isLeafNode()){
+                    // Since the next node is a leaf node, set the questionnaire response status to complete.
+                    inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
+                    return this.getQuestionSet();
+                }
                 
                 // Has to be done this way without removing the previous answer response so that we don't alter the original list object.
                 List<QuestionnaireResponseItemComponent> nextResponseItems = allResponseItems.stream().filter(responseItem -> !responseItem.equals(currentQuestionResponse)).collect(Collectors.toList());
-                return nextNode.getNextQuestionForAnswers(nextResponseItems);
+                return nextNode.getNextQuestionForAnswers(nextResponseItems, inputQuestionnaireResponse);
             }
 
             /**
@@ -236,7 +258,7 @@ public class QuestionnaireController {
             }
 
             /**
-             * TODO Returns whether this questionniare is a leaf node. TODO - NEEDS TO BE UPDATED.
+             * Returns whether this questionniare is a leaf node.
              * @return
              */
             private boolean isLeafNode() {
@@ -305,38 +327,8 @@ public class QuestionnaireController {
                 if(!questionnaireTrees.containsKey(questionnaireId)){
                     // If there is not already a tree that matches the requested questionnaire id, build it.
                     // Import the requested CDS-Library Questionnaire.
-                    Questionnaire cdsQuestionnaire = null;
-                    try {
-                        //TODO: need to determine topic, filename, and fhir version without having them hard coded
-                        boolean pullFromResources = false;
-                        if(pullFromResources){
-                            // Resource is pulled from the file store as a resource.
-                            String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
-                            FileResource fileResource = fileStore.getFhirResourceById("r4", "questionnaire", "HomeOxygenTherapyAdditional", baseUrl);
-                            org.springframework.core.io.Resource resource = fileResource.getResource();
-                            InputStream resourceStream = resource.getInputStream();
-                            cdsQuestionnaire = (Questionnaire) parser.parseResource(resourceStream);
-                        } else {
-                            // File is pulled from the file store as a file.
-                            FileResource fileResource = fileStore.getFile("HomeOxygenTherapy", "Questions-HomeOxygenTherapyAdditionalAdaptive.json", "R4", false);
-                            if(fileResource == null) {
-                                throw new RuntimeException("File resource pulled from the filestore is null.");
-                            }
-                            if(fileResource.getResource() == null) {
-                                throw new RuntimeException("File resource pulled from the filestore has a null getResource().");
-                            }
-                            cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
-                        }
-
-                        logger.info("--- Imported Questionnaire " + cdsQuestionnaire.getId());
-                    } catch (DataFormatException e) {
-                        e.printStackTrace();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
+                    Questionnaire cdsQuestionnaire = QuestionnaireController.importCdsQuestionnaire(request, parser, fileStore, "Questions-HomeOxygenTherapyAdditionalAdaptive.json");
+                    
                     // Build the tree.
                     AdaptiveQuestionnaireTree newTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
                     questionnaireTrees.put(questionnaireId, newTree);
@@ -348,18 +340,11 @@ public class QuestionnaireController {
                 // Get the request's set of answer responses.
                 List<QuestionnaireResponseItemComponent> allResponses = inputQuestionnaireResponse.getItem();
                 // Pull the resulting next question that the recieved responses and answers point to from the tree without including its children.
-                List<QuestionnaireItemComponent> nextQuestionSetResults = currentTree.getNextQuestionsForAnswers(allResponses);
+                List<QuestionnaireItemComponent> nextQuestionSetResults = currentTree.getNextQuestionsForAnswers(allResponses, inputQuestionnaireResponse);
                 // Add the next set of questions to the response.
                 QuestionnaireController.addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, nextQuestionSetResults);
 
                 logger.info("--- Added next question set for questionnaire \'" + questionnaireId + "\' for response \'" + allResponses + "\'.");
-
-                // If this question is a leaf node and is the final question, set the status to "completed"
-                // if (currentTree.reachedLeafNode()) {
-                //     inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
-                //     logger.info("--- Questionnaire leaf node reached, setting status to \"completed\".");
-                // }
-
                 logger.info("---- Get meta profile: " + inputQuestionnaireFromRequest.getMeta().getProfile().get(0).getValue());
                 logger.info("---- Sending response: " + inputQuestionnaireFromRequest.getId());
 
@@ -374,6 +359,48 @@ public class QuestionnaireController {
                         .body("Input questionnaire from the request does not exist.");
             }
         }
+    }
+
+    /**
+     * Imports the requested questionnaire from the CDS-Library.
+     * @param fileStore2
+     * @param parser
+     * @param request
+     * @return
+     */
+    private static Questionnaire importCdsQuestionnaire(HttpServletRequest request, IParser parser, FileStore fileStore, String questionnaireId) {
+        Questionnaire cdsQuestionnaire = null;
+        try {
+            //TODO: need to determine topic, filename, and fhir version without having them hard coded
+            boolean pullFromResources = false;
+            if(pullFromResources){
+                // Resource is pulled from the file store as a resource.
+                String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+                FileResource fileResource = fileStore.getFhirResourceById("r4", "questionnaire", questionnaireId, baseUrl);
+                org.springframework.core.io.Resource resource = fileResource.getResource();
+                InputStream resourceStream = resource.getInputStream();
+                cdsQuestionnaire = (Questionnaire) parser.parseResource(resourceStream);
+            } else {
+                // File is pulled from the file store as a file.
+                FileResource fileResource = fileStore.getFile("HomeOxygenTherapy", questionnaireId, "R4", false);
+                if(fileResource == null) {
+                    throw new RuntimeException("File resource pulled from the filestore is null.");
+                }
+                if(fileResource.getResource() == null) {
+                    throw new RuntimeException("File resource pulled from the filestore has a null getResource().");
+                }
+                cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
+            }
+
+            logger.info("--- Imported Questionnaire " + cdsQuestionnaire.getId());
+        } catch (DataFormatException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return cdsQuestionnaire;
     }
 
     /**
