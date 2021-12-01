@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -75,10 +76,8 @@ public class QuestionnaireController {
          * @param inputQuestionnaire    The input questionnaire from the CDS-Library.
          */
         public AdaptiveQuestionnaireTree(Questionnaire inputQuestionnaire) {
-
-            // Top level parent question item, the first question page.
+            // Top level parent question item; the first set of questions.
             QuestionnaireItemComponent topLevelQuestion = inputQuestionnaire.getItemFirstRep();
-
             // Start the root building.
             this.root = new AdaptiveQuestionnaireNode(topLevelQuestion);
         }
@@ -92,6 +91,8 @@ public class QuestionnaireController {
         public List<QuestionnaireItemComponent> getNextQuestionsForAnswers(List<QuestionnaireResponseItemComponent> allResponseItems, QuestionnaireResponse inputQuestionnaireResponse) {
             if(allResponseItems == null) {
                 throw new NullPointerException("Input answer items is null.");
+            } else if ((new HashSet(allResponseItems.stream().map(item -> item.getLinkId()).collect(Collectors.toList()))).size() != allResponseItems.size()){
+                throw new RuntimeException("Detected duplicate answers to the same question.");
             }
             return this.root.getNextQuestionForAnswers(allResponseItems, inputQuestionnaireResponse);
         }
@@ -173,8 +174,8 @@ public class QuestionnaireController {
                 List<QuestionnaireResponseItemComponent> currentQuestionResponses = allResponseItems.stream().filter(answerItem -> answerItem.getLinkId().equals(currentQuestionId)).collect(Collectors.toList());
                 if(currentQuestionResponses.size() != 1) {
                     // If there are no more answer items to check, we've reached the end of the recursion.
-                    return this.getQuestionSet();
                     // TODO - this could cause an unexpected end-of-questionnaire issue if incorrect responses are given.
+                    return this.getQuestionSet();
                 }
 
                 QuestionnaireResponseItemComponent currentQuestionResponse = currentQuestionResponses.get(0);
@@ -200,7 +201,7 @@ public class QuestionnaireController {
                 if(nextNode.isLeafNode()){
                     // Since the next node is a leaf node, set the questionnaire response status to complete.
                     inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
-                    return this.getQuestionSet();
+                    return nextNode.getQuestionSet();
                 }
                 
                 // Has to be done this way without removing the previous answer response so that we don't alter the original list object.
@@ -239,6 +240,7 @@ public class QuestionnaireController {
                 List<QuestionnaireItemComponent> questionSet = new ArrayList<QuestionnaireItemComponent>();
                 questionSet.add(determinantQuestionNoChildren);
                 questionSet.addAll(this.supplementalQuestions);
+                logger.info("--- Question Set: " + questionSet.stream().map(item -> item.getLinkId()).collect(Collectors.toList()));
                 return questionSet;
             }
 
@@ -319,6 +321,12 @@ public class QuestionnaireController {
                 }
             }
 
+            logger.info("--- Received questionnaire response: " + ctx.newJsonParser().encodeResourceToString(inputQuestionnaireResponse));
+            // Check that there are no duplicates in the recieved set of questions.
+            if ((new HashSet(((Questionnaire) inputQuestionnaireResponse.getContained().get(0)).getItem().stream().map(item -> item.getLinkId()).collect(Collectors.toList()))).size() != ((Questionnaire) inputQuestionnaireResponse.getContained().get(0)).getItem().size()){
+                throw new RuntimeException("Received a set of questions with duplicates.");
+            }
+
             String questionnaireId = ((Reference) inputQuestionnaireResponse.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/contained-id").getValue()).getReference();
             System.out.println("Input Questionnaire: " + questionnaireId);
 
@@ -343,13 +351,16 @@ public class QuestionnaireController {
                 List<QuestionnaireItemComponent> nextQuestionSetResults = currentTree.getNextQuestionsForAnswers(allResponses, inputQuestionnaireResponse);
                 // Add the next set of questions to the response.
                 QuestionnaireController.addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, nextQuestionSetResults);
+                // Check that there no duplicates in the set of questions.
+                if ((new HashSet(((Questionnaire) inputQuestionnaireResponse.getContained().get(0)).getItem().stream().map(item -> item.getLinkId()).collect(Collectors.toList()))).size() != ((Questionnaire) inputQuestionnaireResponse.getContained().get(0)).getItem().size()){
+                    throw new RuntimeException("Attempted to send a set of questions with duplicates. Question IDs are: " + (((Questionnaire) inputQuestionnaireResponse.getContained().get(0)).getItem().stream().map(item -> item.getLinkId()).collect(Collectors.toList())));
+                }
 
-                logger.info("--- Added next question set for questionnaire \'" + questionnaireId + "\' for response \'" + allResponses + "\'.");
-                logger.info("---- Get meta profile: " + inputQuestionnaireFromRequest.getMeta().getProfile().get(0).getValue());
-                logger.info("---- Sending response: " + inputQuestionnaireFromRequest.getId());
+                logger.info("--- Added next question set for questionnaire \'" + questionnaireId + "\' for responses \'" + allResponses + "\'.");
 
                 // Build and send the response.
                 String formattedResourceString = ctx.newJsonParser().encodeResourceToString(inputQuestionnaireResponse);
+                logger.info("--- Sending questionnaire response: " + formattedResourceString);
                 return ResponseEntity.status(HttpStatus.ACCEPTED).contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.CONTENT_TYPE, "application/fhir+json" + "; charset=utf-8")
                         .body(formattedResourceString);
