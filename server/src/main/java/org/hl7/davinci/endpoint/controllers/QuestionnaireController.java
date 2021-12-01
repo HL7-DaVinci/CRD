@@ -355,10 +355,10 @@ public class QuestionnaireController {
                 logger.info("--- Added next question set for questionnaire \'" + questionnaireId + "\' for response \'" + allResponses + "\'.");
 
                 // If this question is a leaf node and is the final question, set the status to "completed"
-                if (currentTree.reachedLeafNode()) {
-                    inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
-                    logger.info("--- Questionnaire leaf node reached, setting status to \"completed\".");
-                }
+                // if (currentTree.reachedLeafNode()) {
+                //     inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
+                //     logger.info("--- Questionnaire leaf node reached, setting status to \"completed\".");
+                // }
 
                 logger.info("---- Get meta profile: " + inputQuestionnaireFromRequest.getMeta().getProfile().get(0).getValue());
                 logger.info("---- Sending response: " + inputQuestionnaireFromRequest.getId());
