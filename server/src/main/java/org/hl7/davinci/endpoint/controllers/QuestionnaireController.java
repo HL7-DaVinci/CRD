@@ -40,6 +40,7 @@ import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseStatus;
+import org.hl7.fhir.r4.model.Reference;
 
 // --- ORDER OF RESPONSE-REQUEST OPERATIONS
 // (REQUEST) External user sends the initial QuestionnaireResponse JSON that contains which questionnaire it would like to trigger as n element the "contained" field.
@@ -62,7 +63,7 @@ public class QuestionnaireController {
      */
     private class AdaptiveQuestionnaireTree {
         
-        // The current question (defiend within the node).
+        // The current question (defined within the node).
         private AdaptiveQuestionnaireNode root;
     
         /**
@@ -80,40 +81,23 @@ public class QuestionnaireController {
 
         /**
          * Returns the next question based on the response to the current question. Also sets the next question based on that response.
-         * @param response  The response given to this question.
+         * @param allAnswerItems  The set of answer items given to this tree.
          * @return
          */
-        public List<QuestionnaireItemComponent> getNextQuestionsFromResponse(String response){
-
-            if(!root.hasResponse(response)){
-                throw new RuntimeException("Not a valid response for question: \'" + this.root.determinantQuestionItem.getText() + "\' with response \'" + response + "\'. Possible responses for this question: \'" + root.children.keySet() + "\'.");
+        public List<QuestionnaireItemComponent> getNextQuestionsForAnswers(List<QuestionnaireResponseItemComponent> allResponseItems) {
+            if(allResponseItems == null) {
+                throw new NullPointerException("Input answer items is null.");
             }
-            AdaptiveQuestionnaireNode nextQuestionSetNode = this.root.getChildForResponse(response);
-            // Pull the current question set.
-            List<QuestionnaireItemComponent> currentQuestionnaireItems = nextQuestionSetNode.getQuestionSet();
-            // Set the new next question.
-            this.root = nextQuestionSetNode;
-            // Return the prior current question.
-
-            currentQuestionnaireItems.get(0).getModifierExtensionFirstRep().getValue();
-            return currentQuestionnaireItems;
+            return this.root.getNextQuestionForAnswers(allResponseItems);
         }
 
         /**
-         * Returns whether this has reached a leaf node.
+         * TODO Returns whether this has reached a leaf node. TODO - NEEDS TO BE UPDATED
          * @param response
          * @return
          */
         public boolean reachedLeafNode() {
             return this.root.isLeafNode();
-        }
-
-        /**
-         * Returns the linkid of the current question.
-         * @return
-         */
-        public String getCurrentDeterminantQuestionId() {
-            return this.root.getDeterminantQuestionId();
         }
     
         /**
@@ -181,6 +165,30 @@ public class QuestionnaireController {
             }
 
             /**
+             * Returns the next question based on the set of provided answers.
+             * @param allResponseItems
+             * @return
+             */
+            public List<QuestionnaireItemComponent> getNextQuestionForAnswers(List<QuestionnaireResponseItemComponent> allResponseItems) {
+
+                // Extract the current question being answered from the list if answer items.
+                String currentQuestionId = this.determinantQuestionItem.getLinkId();
+                List<QuestionnaireResponseItemComponent> currentQuestionResponses = allResponseItems.stream().filter(answerItem -> answerItem.getLinkId().equals(currentQuestionId)).collect(Collectors.toList());
+                if(currentQuestionResponses.size() != 1) {
+                    // If there are no more answer items to check, we've reached the end of the recursion.
+                    return this.getQuestionSet();
+                }
+
+                QuestionnaireResponseItemComponent currentQuestionResponse = currentQuestionResponses.get(0);
+                QuestionnaireResponseItemAnswerComponent currentQuestionAnswer = currentQuestionResponse.getAnswerFirstRep();
+
+                // With the currrent question answer in hand, extract the next question.
+                AdaptiveQuestionnaireNode nextNode = this.children.get(currentQuestionAnswer.getValueCoding().getCode());
+                
+                return nextNode.getNextQuestionForAnswers(allResponseItems.stream().filter(responseItem -> !responseItem.equals(currentQuestionResponse)).collect(Collectors.toList()));
+            }
+
+            /**
              * Returns the question items in the given list that do not have the linkids of the given list of strings.
              * @param questionItems
              * @param nonSupplementQuestions
@@ -230,47 +238,15 @@ public class QuestionnaireController {
             }
 
             /**
-             * Returns whether the determinant question contains the requested response.
-             * @param response
-             * @return
-             */
-            public boolean hasResponse(String response) {
-                try {
-                    return this.children.containsKey(response);
-                } catch (NullPointerException e) {
-                    throw new NullPointerException("Null pointer thrown for children " + this.children + " with response " + response);
-                }
-            }
-
-            /**
-             * Returns whether this questionniare is a leaf node.
+             * TODO Returns whether this questionniare is a leaf node. TODO - NEEDS TO BE UPDATED.
              * @return
              */
             private boolean isLeafNode() {
                 return this.children == null || this.children.size() < 1;
             }
 
-            /**
-             * Returns the child associated with this node for the given response.
-             * @param response
-             * @return
-             */
-            private AdaptiveQuestionnaireNode getChildForResponse(String response) {
-                return this.children.get(response);
-            }
-
-            /**
-             * Returns the question linkid for this node question.
-             * @return
-             */
-            public String getDeterminantQuestionId() {
-                return this.determinantQuestionItem.getLinkId();
-            }
         }
 
-        public List<QuestionnaireItemComponent> getCurrentQuestionSet() {
-            return this.root.getQuestionSet();
-        }
     }
 
     // Logger.
@@ -325,14 +301,10 @@ public class QuestionnaireController {
                 }
             }
 
-            String questionnaireId = inputQuestionnaireFromRequest.getId();
+            String questionnaireId = ((Reference) inputQuestionnaireResponse.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/contained-id").getValue()).getReference();
+            System.out.println("Input Questionnaire: " + questionnaireId);
 
             if (inputQuestionnaireFromRequest != null) {
-
-                // If there are no item answer responses in the sent JSON, reset the tree so that we can restart the question process.
-                if(inputQuestionnaireFromRequest.getItem().size() < 1) {
-                    questionnaireTrees.remove(questionnaireId);
-                }
 
                 if(!questionnaireTrees.containsKey(questionnaireId)){
                     // If there is not already a tree that matches the requested questionnaire id, build it.
@@ -368,48 +340,32 @@ public class QuestionnaireController {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    if(cdsQuestionnaire == null) {
-                        throw new RuntimeException("Requested CDS Questionnaire \'" + questionnaireId + "\' was not imported and may not exist.");
-                    }
 
-                    // Build the tree and don't expect any answers since we only just received the required questions.
+                    // Build the tree.
                     AdaptiveQuestionnaireTree newTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
                     questionnaireTrees.put(questionnaireId, newTree);
                     logger.info("--- Built Questionnaire Tree for " + questionnaireId);
-
-                    // Add the set of questions to the response.
-                    List<QuestionnaireItemComponent> questionSet = newTree.getCurrentQuestionSet();
-                    addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, questionSet);
-                } else {
-                    // If there is already a tree with the requested questionnaire id, execute next-question on it with the new request.
-                    // Pull the current tree for the requested questionnaire id.
-                    AdaptiveQuestionnaireTree currentTree = questionnaireTrees.get(questionnaireId);
-                    // Get the previous question Id.
-                    String previousQuestionId = currentTree.getCurrentDeterminantQuestionId();
-                    // Get the request's answer component of the item with the previous question id.
-                    List<QuestionnaireResponseItemComponent> allResponses = inputQuestionnaireResponse.getItem();
-                    List<QuestionnaireResponseItemComponent> currentResponses = allResponses.stream().filter(item -> item.getLinkId().equals(previousQuestionId)).collect(Collectors.toList());
-                    if(currentResponses.size() < 1) {
-                        throw new RuntimeException("No given answers in the request references the current question asked. Current Question ID: " + previousQuestionId + ".");
-                    }
-                    // Pull the string response given by the current response.
-                    QuestionnaireResponseItemAnswerComponent answerComponent = currentResponses.get(0).getAnswerFirstRep();
-                    String response = answerComponent.getValueCoding().getCode();
-                    // Pull the resulting next question that the recieved response points to from the tree without including its children.
-                    List<QuestionnaireItemComponent> nextQuestionSetResult = currentTree.getNextQuestionsFromResponse(response);
-                    // Add the next set of questions to the response.
-                    addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, nextQuestionSetResult);
-                    logger.info("--- Added next question set for questionnaire \'" + questionnaireId + "\' for response \'" + response + "\'.");
-
-                    // If this question is a leaf node and is the final question, set the status to "completed"
-                    if (currentTree.reachedLeafNode()) {
-                        inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
-                        logger.info("--- Questionnaire leaf node reached, setting status to \"completed\".");
-                    }
                 }
 
-                logger.info("---- Get meta profile " + inputQuestionnaireFromRequest.getMeta().getProfile().get(0).getValue());
-                logger.info("---- Sent response back " + inputQuestionnaireFromRequest.getId());
+                // Pull the tree for the requested questionnaire id.
+                AdaptiveQuestionnaireTree currentTree = questionnaireTrees.get(questionnaireId);
+                // Get the request's set of answer responses.
+                List<QuestionnaireResponseItemComponent> allResponses = inputQuestionnaireResponse.getItem();
+                // Pull the resulting next question that the recieved responses and answers point to from the tree without including its children.
+                List<QuestionnaireItemComponent> nextQuestionSetResults = currentTree.getNextQuestionsForAnswers(allResponses);
+                // Add the next set of questions to the response.
+                QuestionnaireController.addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, nextQuestionSetResults);
+
+                logger.info("--- Added next question set for questionnaire \'" + questionnaireId + "\' for response \'" + allResponses + "\'.");
+
+                // If this question is a leaf node and is the final question, set the status to "completed"
+                if (currentTree.reachedLeafNode()) {
+                    inputQuestionnaireResponse.setStatus(QuestionnaireResponseStatus.COMPLETED);
+                    logger.info("--- Questionnaire leaf node reached, setting status to \"completed\".");
+                }
+
+                logger.info("---- Get meta profile: " + inputQuestionnaireFromRequest.getMeta().getProfile().get(0).getValue());
+                logger.info("---- Sending response: " + inputQuestionnaireFromRequest.getId());
 
                 // Build and send the response.
                 String formattedResourceString = ctx.newJsonParser().encodeResourceToString(inputQuestionnaireResponse);
@@ -419,7 +375,7 @@ public class QuestionnaireController {
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.CONTENT_TYPE, "application/fhir+json" + "; charset=utf-8")
-                        .body("Invalid input questionnaire does not exist");
+                        .body("Input questionnaire from the request does not exist.");
             }
         }
     }
@@ -429,7 +385,7 @@ public class QuestionnaireController {
      * @param inputQuestionnaireResponse
      * @param questionSet
      */
-    private void addQuestionSetToQuestionnaireResponse(QuestionnaireResponse inputQuestionnaireResponse, List<QuestionnaireItemComponent> questionSet) {
+    private static void addQuestionSetToQuestionnaireResponse(QuestionnaireResponse inputQuestionnaireResponse, List<QuestionnaireItemComponent> questionSet) {
         // Add the next question set to the QuestionnaireResponse.contained[0].item[].
         Questionnaire containedQuestionnaire = (Questionnaire) inputQuestionnaireResponse.getContained().get(0);
         questionSet.forEach(questionItem -> containedQuestionnaire.addItem(questionItem));
