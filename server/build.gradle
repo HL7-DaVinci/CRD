@@ -38,7 +38,6 @@ dependencies {
 
     implementation("io.jsonwebtoken:jjwt:0.7.0")
 
-//    implementation 'javax.servlet:javax.servlet-api:3.1.0'
 
     implementation 'commons-beanutils:commons-beanutils:1.9.3'
 
@@ -60,7 +59,7 @@ dependencies {
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
 
-    //Use locally implementationd cql libs (engine and fhir)
+    //Use locally compiled cql libs (engine and fhir)
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation group: 'info.cqframework', name: 'cql-to-elm', version: '1.5.1'
 
