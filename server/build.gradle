@@ -11,11 +11,6 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
-    processResources {
-        from ('CDS-Library') {
-            into 'CDS-Library'
-        }
-    }   
 }
 
 apply plugin: 'maven'
@@ -24,6 +19,11 @@ apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
+processResources {
+    from ('CDS-Library') {
+        into 'CDS-Library'
+    }
+}   
 
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
