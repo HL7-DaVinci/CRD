@@ -11,6 +11,11 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
+    processResources {
+        from ('CDS-Library') {
+            into 'CDS-Library'
+        }
+    }   
 }
 
 apply plugin: 'maven'
