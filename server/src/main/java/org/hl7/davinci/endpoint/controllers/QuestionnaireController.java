@@ -17,11 +17,9 @@ import org.hl7.davinci.r4.FhirComponents;
 
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
-import org.hl7.davinci.endpoint.Utils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,13 +30,10 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Questionnaire;
 import org.hl7.fhir.r4.model.QuestionnaireResponse;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
-import org.hl7.fhir.r4.model.StringType;
-import org.hl7.fhir.r4.model.Type;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemAnswerOptionComponent;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent;
@@ -328,10 +323,10 @@ public class QuestionnaireController {
 
             if (inputQuestionnaireFromRequest != null) {
 
-                if(!questionnaireTrees.containsKey(questionnaireId)){
+                if (!questionnaireTrees.containsKey(questionnaireId)) {
                     // If there is not already a tree that matches the requested questionnaire id, build it.
                     // Import the requested CDS-Library Questionnaire.
-                    Questionnaire cdsQuestionnaire = QuestionnaireController.importCdsQuestionnaire(request, parser, fileStore, "Questions-HomeOxygenTherapyAdditionalAdaptive.json");
+                    Questionnaire cdsQuestionnaire = QuestionnaireController.importCdsAdaptiveQuestionnaire(request, parser, fileStore, questionnaireId);
                     
                     // Build the tree.
                     AdaptiveQuestionnaireTree newTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
@@ -375,29 +370,21 @@ public class QuestionnaireController {
      * @param request
      * @return
      */
-    private static Questionnaire importCdsQuestionnaire(HttpServletRequest request, IParser parser, FileStore fileStore, String questionnaireId) {
+    private static Questionnaire importCdsAdaptiveQuestionnaire(HttpServletRequest request, IParser parser, FileStore fileStore, String questionnaireId) {
         Questionnaire cdsQuestionnaire = null;
         try {
-            //TODO: need to determine topic, filename, and fhir version without having them hard coded
-            boolean pullFromResources = false;
-            if(pullFromResources){
-                // Resource is pulled from the file store as a resource.
-                String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
-                FileResource fileResource = fileStore.getFhirResourceById("r4", "questionnaire", questionnaireId, baseUrl);
-                org.springframework.core.io.Resource resource = fileResource.getResource();
-                InputStream resourceStream = resource.getInputStream();
-                cdsQuestionnaire = (Questionnaire) parser.parseResource(resourceStream);
-            } else {
-                // File is pulled from the file store as a file.
-                FileResource fileResource = fileStore.getFile("HomeOxygenTherapy", questionnaireId, "R4", false);
-                if(fileResource == null) {
-                    throw new RuntimeException("File resource pulled from the filestore is null.");
-                }
-                if(fileResource.getResource() == null) {
-                    throw new RuntimeException("File resource pulled from the filestore has a null getResource().");
-                }
-                cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
+            String adaptiveQuestionniareFile = ("Questions-" + questionnaireId + "Adaptive.json").replace("#", ""); // The filename should be the questionnaire ID with these added values.
+            String topic = questionnaireId.replace("Additional", "").replace("#", ""); // The topic should be the questionnaire ID but without the 'Additional' tag.
+            // File is pulled from the file store as a file.
+            logger.info("--- Importing questionniare file: " + adaptiveQuestionniareFile + " from topic: " + topic);
+            FileResource fileResource = fileStore.getFile(topic, adaptiveQuestionniareFile, "R4", false);
+            if(fileResource == null) {
+                throw new RuntimeException("File resource pulled from the filestore is null.");
             }
+            if(fileResource.getResource() == null) {
+                throw new RuntimeException("File resource pulled from the filestore has a null getResource().");
+            }
+            cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
             logger.info("--- Imported Questionnaire " + cdsQuestionnaire.getId());
         } catch (DataFormatException e) {
             e.printStackTrace();
