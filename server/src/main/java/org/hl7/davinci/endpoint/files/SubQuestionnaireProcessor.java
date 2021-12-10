@@ -8,12 +8,9 @@ import java.util.List;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.ValueSet;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hl7.fhir.r4.model.Resource;
 
 /**
  * Processes FHIR R4 questionnaire to assemble sub-questionnaires into a complete questionnaire.
@@ -76,10 +73,6 @@ public class SubQuestionnaireProcessor extends FhirResourceProcessor<Questionnai
     for (int i = 0; i < itemList.size();) {
       List<QuestionnaireItemComponent> returnedItemList = 
         processItem(itemList.get(i), fileStore, baseUrl, containedList, extensionList);
-
-      // if(itemList.get(i).getItem().size() > 0){
-      //   this.processItemList(itemList.get(i).getItem(), fileStore, baseUrl, containedList, extensionList);
-      // }
       
       if (returnedItemList.size() == 0) {
         continue;

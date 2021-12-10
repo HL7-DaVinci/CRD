@@ -1,6 +1,5 @@
 package org.hl7.davinci.endpoint.controllers;
 
-import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
@@ -181,14 +180,11 @@ public class QuestionnaireController {
                 QuestionnaireResponseItemComponent currentQuestionResponse = currentQuestionResponses.get(0);
                 QuestionnaireResponseItemAnswerComponent currentQuestionAnswer = currentQuestionResponse.getAnswerFirstRep();
 
-
                 // With the currrent question answer in hand, extract the next question.
-                Type value = currentQuestionAnswer.getValue();
                 String response;
-                // Not a fan of this, but not sure how else to determine the value based on different possible input types.
-                if(value instanceof StringType){
+                if (currentQuestionAnswer.hasValueStringType()) {
                     response = currentQuestionAnswer.getValueStringType().asStringValue();
-                } else if(value instanceof Coding){
+                } else if (currentQuestionAnswer.hasValueCoding()) {
                     response = currentQuestionAnswer.getValueCoding().getCode();
                 } else {
                     throw new RuntimeException("Answer does not match one of the possible input types.");
@@ -402,7 +398,6 @@ public class QuestionnaireController {
                 }
                 cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
             }
-
             logger.info("--- Imported Questionnaire " + cdsQuestionnaire.getId());
         } catch (DataFormatException e) {
             e.printStackTrace();
