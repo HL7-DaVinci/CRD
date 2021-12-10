@@ -227,7 +227,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
             logger.info("Add the no doc or prior auth required card");
             Card card = CardBuilder.transform(results);
             card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
-                "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note"));
+                "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                true));
+            card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
             response.addCard(card);
           }
         }

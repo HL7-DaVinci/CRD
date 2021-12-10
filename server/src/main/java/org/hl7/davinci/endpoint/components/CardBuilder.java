@@ -242,8 +242,11 @@ public class CardBuilder {
 
     // add suggestion with annotation
     Suggestion suggestionWithAnnotation = createSuggestionWithNote(card, outputRequest, fhirComponents,
-        "Store prior authorization as an annotation to the order", "Add authorization to record");
+        "Store prior authorization as an annotation to the order", "Add authorization to record",
+        false);
     card.addSuggestionsItem(suggestionWithAnnotation);
+
+    card.setSelectionBehavior(Card.SelectionBehaviorEnum.AT_MOST_ONE);
 
     return card;
   }
@@ -277,11 +280,12 @@ public class CardBuilder {
                                                     IBaseResource request,
                                                     FhirComponentsT fhirComponents,
                                                     String label,
-                                                    String description) {
+                                                    String description,
+                                                    boolean isRecommended) {
     Suggestion requestWithNoteSuggestion = new Suggestion();
 
     requestWithNoteSuggestion.setLabel(label);
-    requestWithNoteSuggestion.setIsRecommended(true);
+    requestWithNoteSuggestion.setIsRecommended(isRecommended);
     List<Action> actionList = new ArrayList<>();
 
     // build the Annotation
