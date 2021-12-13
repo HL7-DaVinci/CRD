@@ -190,6 +190,8 @@ public class CardBuilder {
     suggestionList.add(alternativeTherapySuggestion);
     card.setSuggestions(suggestionList);
 
+    card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
+
     return card;
   }
 
