@@ -11,3 +11,4 @@ RUN gradle build
 EXPOSE 8090
 # Command to run our app
 CMD ./dockerRunnerDev.sh
+
