@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -205,15 +206,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
               response.addCard(CardBuilder.transform(results, smartAppLinks));
 
               // add a card for an alternative therapy if there is one
               if (results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
                 try {
-                  response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(), results.getRequest(),
-                      fhirComponents));
+                  response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
+                      results.getRequest(), fhirComponents));
                 } catch (RuntimeException e) {
                   logger.warn("Failed to process alternative therapy: " + e.getMessage());
                 }
@@ -257,7 +259,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestLog.setCardListFromCards(response.getCards());
     requestService.edit(requestLog);
 
-
     return response;
   }
 
@@ -267,41 +268,47 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Order Form"));
+          coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Order Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireFaceToFaceUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Face to Face Encounter Form"));
+          coverageRequirements.getQuestionnaireFaceToFaceUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Face to Face Encounter Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireLabUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Lab Form"));
+          coverageRequirements.getQuestionnaireLabUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Lab Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Progress Note"));
+          coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Progress Note"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "PA Request"));
+          coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "PA Request"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));
+          coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Dispense Form"));
+          coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Dispense Form"));
+    }
+
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          coverageRequirements.getQuestionnaireAdditionalUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Additional Form"));
     }
     return listOfLinks;
   }
@@ -359,7 +366,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
     if (myConfig.getUrlEncodeAppContext()) {
       logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
-      appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8).toString();
+      try {
+        appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8.name()).toString();
+      } catch (UnsupportedEncodingException e) {
+        logger.error("CdsService::smartLinkBuilder: failed to encode URL: " + e.getMessage());
+      }
     }
 
     logger.info("smarLinkBuilder: appContext: " + appContext);

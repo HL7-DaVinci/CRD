@@ -14,6 +14,7 @@ public class CoverageRequirements {
   private String questionnairePARequestUri;
   private String questionnairePlanOfCareUri;
   private String questionnaireDispenseUri;
+  private String questionnaireAdditionalUri;
   private String requestId;
   private boolean priorAuthRequired;
   private boolean documentationRequired;
@@ -161,5 +162,13 @@ public class CoverageRequirements {
     // Generate a random UUID as the ID. This is the same method that Prior Auth (PAS) uses.
     this.priorAuthId = UUID.randomUUID().toString();
     return this;
+  }
+
+  public String getQuestionnaireAdditionalUri() {
+    return questionnaireAdditionalUri;
+  }
+
+  public void setQuestionnaireAdditionalUri(String questionnaireAdditionalUri) {
+    this.questionnaireAdditionalUri = questionnaireAdditionalUri;
   }
 }
