@@ -7,11 +7,13 @@ import java.util.UUID;
 public class Suggestion {
   private String label = null;
 
-  private UUID uuid = null;
+  private String uuid = null;
 
   private List<Action> actions = null;
 
-  private boolean isRecommended = false;
+  private boolean isRecommended = true;
+
+  public Suggestion() { this.uuid = UUID.randomUUID().toString(); }
 
   public String getLabel() {
     return label;
@@ -21,11 +23,9 @@ public class Suggestion {
     this.label = label;
   }
 
-  public UUID getUuid() {
-    return uuid;
-  }
+  public String getUuid() { return uuid; }
 
-  public void setUuid(UUID uuid) {
+  public void setUuid(String uuid) {
     this.uuid = uuid;
   }
 

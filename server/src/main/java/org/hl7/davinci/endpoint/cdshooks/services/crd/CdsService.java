@@ -20,6 +20,7 @@ import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.files.FileStore;
@@ -75,6 +76,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   @Autowired
   FileStore fileStore;
+
+  @Autowired
+  private FhirResourceRepository fhirResourceRepository;
 
   private final List<PrefetchTemplateElement> prefetchElements;
 
@@ -188,7 +192,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
         if (results.getCoverageRequirements().getApplies()) {
 
-          if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
+          // if prior auth already approved
+          if (coverageRequirements.isPriorAuthApproved()) {
+            response.addCard(CardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
+                request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
+                applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
+                fhirResourceRepository));
+
+          } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
             if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
@@ -217,7 +228,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
             // no prior auth or documentation required
             logger.info("Add the no doc or prior auth required card");
             Card card = CardBuilder.transform(results);
-            card = CardBuilder.createSuggestionsWithNote(card, results, fhirComponents);
+            card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                true));
+            card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
             response.addCard(card);
           }
         }
