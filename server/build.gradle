@@ -142,7 +142,7 @@ void cloneCdsLibraryScript(branch) {
     println "GIT: clone CDS-Library branch " + branch
     exec {
         workingDir './'
-        commandLine 'git', 'clone', 'https://github.com/mcode/CDS-Library.git', 'CDS-Library'
+        commandLine 'git', 'clone', 'https://github.com/HL7-DaVinci/CDS-Library.git', 'CDS-Library'
     }
     checkoutCdsLibraryScript(branch)
 }
