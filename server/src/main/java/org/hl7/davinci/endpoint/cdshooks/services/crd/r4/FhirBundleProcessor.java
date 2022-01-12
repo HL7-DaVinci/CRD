@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hl7.davinci.endpoint.Utils.idInSelectionsList;
-
 public class FhirBundleProcessor {
   static final Logger logger = LoggerFactory.getLogger(FhirBundleProcessor.class);
 
@@ -50,7 +48,7 @@ public class FhirBundleProcessor {
       logger.info("r4/FhirBundleProcessor::getAndProcessDeviceRequests: DeviceRequest(s) found");
 
       for (DeviceRequest deviceRequest : deviceRequestList) {
-        if (idInSelectionsList(deviceRequest.getId(), selections)) {
+        if (idInSelectionsList(deviceRequest.getId())) {
           List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest.getCodeCodeableConcept(), deviceRequest.getInsurance(), null);
           buildExecutionContexts(criteriaList, (Patient) deviceRequest.getSubject().getResource(), "device_request", deviceRequest);
         }
@@ -65,7 +63,7 @@ public class FhirBundleProcessor {
       logger.info("r4/FhirBundleProcessor::getAndProcessMedicationRequests: MedicationRequest(s) found");
 
       for (MedicationRequest medicationRequest : medicationRequestList) {
-        if (idInSelectionsList(medicationRequest.getId(), selections)) {
+        if (idInSelectionsList(medicationRequest.getId())) {
           List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), null);
           buildExecutionContexts(criteriaList, (Patient) medicationRequest.getSubject().getResource(), "medication_request", medicationRequest);
         }
@@ -83,7 +81,7 @@ public class FhirBundleProcessor {
           medicationDispenseBundle);
 
       for (MedicationDispense medicationDispense : medicationDispenseList) {
-        if (idInSelectionsList(medicationDispense.getId(), selections)) {
+        if (idInSelectionsList(medicationDispense.getId())) {
           List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationDispense.getMedicationCodeableConcept(), null, payorList);
           buildExecutionContexts(criteriaList, (Patient) medicationDispense.getSubject().getResource(), "medication_dispense", medicationDispense);
         }
@@ -98,7 +96,7 @@ public class FhirBundleProcessor {
       logger.info("r4/FhirBundleProcessor::getAndProcessServiceRequests: ServiceRequest(s) found");
 
       for (ServiceRequest serviceRequest : serviceRequestList) {
-        if (idInSelectionsList(serviceRequest.getId(), selections)) {
+        if (idInSelectionsList(serviceRequest.getId())) {
           List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(serviceRequest.getCode(), serviceRequest.getInsurance(), null);
           buildExecutionContexts(criteriaList, (Patient) serviceRequest.getSubject().getResource(), "service_request", serviceRequest);
         }
@@ -118,7 +116,7 @@ public class FhirBundleProcessor {
 
       // process each of the MedicationRequests
       for (MedicationRequest medicationRequest : medicationRequestList) {
-        if (idInSelectionsList(medicationRequest.getId(), selections)) {
+        if (idInSelectionsList(medicationRequest.getId())) {
 
           // run on each of the MedicationStatements
           for (MedicationStatement medicationStatement : medicationStatementList) {
@@ -209,6 +207,31 @@ public class FhirBundleProcessor {
           logger.info("r4/FhirBundleProcessor::buildExecutionContexts: failed processing cql bundle: " + e.getMessage());
         }
       }
+    }
+  }
+
+  private String stripResourceType(String identifier) {
+    int indexOfDivider = identifier.indexOf('/');
+    if (indexOfDivider+1 == identifier.length()) {
+      // remove the trailing '/'
+      return identifier.substring(0, indexOfDivider);
+    } else {
+      return identifier.substring(indexOfDivider+1);
+    }
+  }
+
+  private boolean idInSelectionsList(String identifier) {
+    if (this.selections.isEmpty()) {
+      // if selections list is empty, just assume we should process the request
+      return true;
+    } else {
+      for ( String selection : selections) {
+        if (identifier.contains(stripResourceType(selection))) {
+          logger.info("r4/FhirBundleProcessor::idInSelectionsList(" + identifier + "): identifier found in selections list");
+          return true;
+        }
+      }
+      return false;
     }
   }
 
