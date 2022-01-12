@@ -1,18 +1,16 @@
 package org.hl7.davinci.endpoint.components;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.davinci.endpoint.database.FhirResource;
+import org.hl7.davinci.endpoint.database.FhirResourceRepository;
+import org.hl7.davinci.r4.Utilities;
 import org.hl7.fhir.instance.model.api.IBase;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.Annotation;
-import org.hl7.fhir.r4.model.DeviceRequest;
-import org.hl7.fhir.r4.model.StringType;
+import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,19 +80,31 @@ public class CardBuilder {
    * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(CqlResultsForCard cqlResults) {
+  public static Card transform(CqlResultsForCard cqlResults, Boolean addLink) {
     Card card = baseCard();
 
-    Link link = new Link();
-    link.setUrl(cqlResults.getCoverageRequirements().getInfoLink());
-    link.setType("absolute");
-    link.setLabel("Documentation Requirements");
+    if (addLink) {
+      Link link = new Link();
+      link.setUrl(cqlResults.getCoverageRequirements().getInfoLink());
+      link.setType("absolute");
+      link.setLabel("Documentation Requirements");
+      card.setLinks(Arrays.asList(link));
+    }
 
-    card.setLinks(Arrays.asList(link));
     card.setSummary(cqlResults.getCoverageRequirements().getSummary());
     card.setDetail(cqlResults.getCoverageRequirements().getDetails());
 
     return card;
+  }
+
+  /**
+   * Transforms a result from the database into a card, defaults to adding the link.
+   *
+   * @param cqlResults
+   * @return card with appropriate information
+   */
+  public static Card transform(CqlResultsForCard cqlResults) {
+    return transform(cqlResults, true);
   }
 
   /**
@@ -180,6 +190,8 @@ public class CardBuilder {
     suggestionList.add(alternativeTherapySuggestion);
     card.setSuggestions(suggestionList);
 
+    card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
+
     return card;
   }
 
@@ -192,14 +204,90 @@ public class CardBuilder {
     return card;
   }
 
-  public static Card createSuggestionsWithNote(Card card,
-                                               CqlResultsForCard cqlResults,
-                                               FhirComponentsT fhirComponents) {
-    List<Suggestion> suggestionList = new ArrayList<>();
+  public static Card priorAuthCard(CqlResultsForCard cqlResults,
+                                   IBaseResource request,
+                                   FhirComponentsT fhirComponents,
+                                   String priorAuthId,
+                                   String patientId,
+                                   String payerId,
+                                   String providerId,
+                                   String applicationFhirPath,
+                                   FhirResourceRepository fhirResourceRepository) {
+    logger.info("Build Prior Auth Card");
+
+    Card card = transform(cqlResults, false);
+
+    // create the ClaimResponse
+    ClaimResponse claimResponse = Utilities.createClaimResponse(priorAuthId, patientId, payerId, providerId, applicationFhirPath);
+
+    // build the FhirResource and save to the database
+    FhirResource fhirResource = new FhirResource();
+    fhirResource.setFhirVersion(fhirComponents.getFhirVersion().toString())
+        .setResourceType(claimResponse.fhirType())
+        .setData(fhirComponents.getJsonParser().encodeResourceToString(claimResponse));
+    fhirResource.setId(claimResponse.getId());
+    fhirResource.setName(claimResponse.getId());
+    FhirResource newFhirResource = fhirResourceRepository.save(fhirResource);
+    logger.info("stored: " + newFhirResource.getFhirVersion() + "/" + newFhirResource.getResourceType() + "/" + newFhirResource.getId());
+
+    // create the reference to the ClaimResponse
+    Reference claimResponseReference = new Reference();
+    claimResponseReference.setReference("ClaimResponse/" + claimResponse.getId());
+
+    // add SupportingInfo to the Request
+    IBaseResource outputRequest = FhirRequestProcessor.addSupportingInfoToRequest(request, claimResponseReference);
+
+    // add suggestion with ClaimResponse
+    Suggestion suggestionWithClaimResponse = createSuggestionWithResource(outputRequest, claimResponse, fhirComponents,
+        "Store the prior authorization in the EHR");
+    card.addSuggestionsItem(suggestionWithClaimResponse);
+
+    // add suggestion with annotation
+    Suggestion suggestionWithAnnotation = createSuggestionWithNote(card, outputRequest, fhirComponents,
+        "Store prior authorization as an annotation to the order", "Add authorization to record",
+        false);
+    card.addSuggestionsItem(suggestionWithAnnotation);
+
+    card.setSelectionBehavior(Card.SelectionBehaviorEnum.AT_MOST_ONE);
+
+    return card;
+  }
+
+  public static Suggestion createSuggestionWithResource(IBaseResource request,
+                                                        IBaseResource resource,
+                                                        FhirComponentsT fhirComponents,
+                                                        String label) {
+    Suggestion suggestion = new Suggestion();
+
+    suggestion.setLabel(label);
+    suggestion.setIsRecommended(true);
+
+    // build the create Action
+    Action createAction = new Action(fhirComponents);
+    createAction.setType(Action.TypeEnum.create);
+    createAction.setDescription("Store " + resource.fhirType());
+    createAction.setResource(resource);
+    suggestion.addActionsItem(createAction);
+
+    // build the update Action
+    Action updateAction = new Action(fhirComponents);
+    updateAction.setType(Action.TypeEnum.update);
+    updateAction.setDescription("Update to the resource " + request.fhirType());
+    updateAction.setResource(request);
+    suggestion.addActionsItem(updateAction);
+
+    return suggestion;
+  }
+  public static Suggestion createSuggestionWithNote(Card card,
+                                                    IBaseResource request,
+                                                    FhirComponentsT fhirComponents,
+                                                    String label,
+                                                    String description,
+                                                    boolean isRecommended) {
     Suggestion requestWithNoteSuggestion = new Suggestion();
 
-    requestWithNoteSuggestion.setLabel("Save Update To EHR");
-    requestWithNoteSuggestion.setIsRecommended(true);
+    requestWithNoteSuggestion.setLabel(label);
+    requestWithNoteSuggestion.setIsRecommended(isRecommended);
     List<Action> actionList = new ArrayList<>();
 
     // build the Annotation
@@ -210,19 +298,17 @@ public class CardBuilder {
     String text = card.getSummary() + ": " + card.getDetail();
     annotation.setText(text);
     annotation.setTime(new Date()); // set the date and time to now
-    IBaseResource resource = FhirRequestProcessor.addNoteToRequest(cqlResults.getRequest(), annotation);
+    IBaseResource resource = FhirRequestProcessor.addNoteToRequest(request, annotation);
 
     Action updateAction = new Action(fhirComponents);
     updateAction.setType(Action.TypeEnum.update);
-    updateAction.setDescription("Update original " + cqlResults.getRequest().fhirType() + " to add note");
+    updateAction.setDescription(description);
     updateAction.setResource(resource);
 
     actionList.add(updateAction);
 
     requestWithNoteSuggestion.setActions(actionList);
-    suggestionList.add(requestWithNoteSuggestion);
-    card.setSuggestions(suggestionList);
-    return card;
+    return requestWithNoteSuggestion;
   }
 
   /**
