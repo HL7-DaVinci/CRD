@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CdsServiceInformation {
-  private List<CdsAbstract> services = null;
+  private List<CdsService> services = null;
 
   /**
    * Add a service.
    * @param servicesItem The service.
    * @return
    */
-  public CdsServiceInformation addServicesItem(CdsAbstract servicesItem) {
+  public CdsServiceInformation addServicesItem(CdsService servicesItem) {
     if (this.services == null) {
       this.services = new ArrayList<>();
     }
@@ -19,11 +19,11 @@ public class CdsServiceInformation {
     return this;
   }
 
-  public List<CdsAbstract> getServices() {
+  public List<CdsService> getServices() {
     return services;
   }
 
-  public void setServices(List<CdsAbstract> services) {
+  public void setServices(List<CdsService> services) {
     this.services = services;
   }
 }
