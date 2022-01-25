@@ -49,7 +49,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
   public CdsService(String id, Hook hook, String title, String description,
       List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents,
       DiscoveryExtension extension) {
+    
     super(id, hook, title, description, prefetchElements, fhirComponents, extension);
+    this.fhirComponents = fhirComponents;
+    System.out.println("here2");
+    System.out.println(fhirComponents); //i
+    System.out.println(this.fhirComponents); //i
   }
 
   /**
@@ -60,6 +65,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
    */
   public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
     // create the RequestLog
+    System.out.println(request);
+    System.out.println(applicationBaseUrl);
+    System.out.println(new Date().getTime());
+    System.out.println(this.id);
+    System.out.println(this.fhirComponents);
     RequestLog requestLog = new RequestLog(request, new Date().getTime(),
         this.fhirComponents.getFhirVersion().toString(), this.id, requestService, 5);
 

@@ -65,6 +65,9 @@ public abstract class CdsAbstract<requestTypeT extends CdsRequest<?, ?>>{
     public CdsAbstract(String id, Hook hook, String title, String description,
                       List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents,
                       DiscoveryExtension extension) {
+        
+        System.out.println("here");
+        System.out.println(fhirComponents); //i
 
         if (id == null) {
             throw new NullPointerException("CDSService id cannot be null");
@@ -86,6 +89,7 @@ public abstract class CdsAbstract<requestTypeT extends CdsRequest<?, ?>>{
         }
         this.fhirComponents = fhirComponents;
         this.extension = extension;
+        System.out.println(this.fhirComponents);
     }
 
     public DiscoveryExtension getExtension() { return extension; }
