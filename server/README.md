@@ -5,7 +5,7 @@ This subproject contains the CDS Service that can respond to CDS Hook requests. 
 This RI offers very basic responses to CRD requests. It will use the patient's gender and age as well as the code passed in as a part of the request (from something like the DeviceRequest, ServiceRequest, or MedicationRequest) to consult a small `coverage_requirement_rules` table. This table allows a user to set up documentation requirement rules based on age, gender and code.
 
 Users are able to create and edit entries in the coverage requirements rules through a web based interface. The goal of this functionality is to allow requesting systems to vary the payload of the request and see different response cards returned.
-
+    
 ## Running the server
 
 If this is the first time the server is being run you must first configure the application for file retrieval.
