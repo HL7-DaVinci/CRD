@@ -2,11 +2,11 @@ package org.hl7.davinci.endpoint.database;
 
 public class FhirResourceCriteria {
 
-  private String fhirVersion;
-  private String resourceType;
-  private String name;
-  private String id;
-  private String url;
+  private String fhirVersion = null;
+  private String resourceType = null;
+  private String name = null;
+  private String id = null;
+  private String url = null;
 
   public String getFhirVersion() { return fhirVersion; }
 
@@ -44,8 +44,52 @@ public class FhirResourceCriteria {
   }
 
   public String toString() {
-    return String.format(
-        "fhirVersion=%s, resourceType=%s, name=%s", fhirVersion, resourceType, name
-    );
+    String string = new String();
+    boolean first = true;
+    if (fhirVersion != null) {
+      if (first) {
+        first = false;
+      } else {
+        string = string + ", ";
+      }
+      string = string + "fhirVersion=" + fhirVersion;
+    }
+
+    if (resourceType != null) {
+      if (first) {
+        first = false;
+      } else {
+        string = string + ", ";
+      }
+      string = string + "resourceType=" + resourceType;
+    }
+
+    if (id != null) {
+      if (first) {
+        first = false;
+      } else {
+        string = string + ", ";
+      }
+      string = string + "id=" + id;
+    }
+
+    if (name != null) {
+      if (first) {
+        first = false;
+      } else {
+        string = string + ", ";
+      }
+      string = string + "name=" + name;
+    }
+
+    if (url != null) {
+      if (first) {
+        first = false;
+      } else {
+        string = string + ", ";
+      }
+      string = string + "url=" + url;
+    }
+    return string;
   }
 }

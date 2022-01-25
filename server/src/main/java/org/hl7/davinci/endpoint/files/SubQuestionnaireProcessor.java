@@ -8,12 +8,9 @@ import java.util.List;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.ValueSet;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hl7.fhir.r4.model.Resource;
 
 /**
  * Processes FHIR R4 questionnaire to assemble sub-questionnaires into a complete questionnaire.

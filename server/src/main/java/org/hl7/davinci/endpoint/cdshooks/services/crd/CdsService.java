@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
@@ -8,6 +9,7 @@ import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.files.FileStore;
@@ -105,22 +107,30 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
         if (results.getCoverageRequirements().getApplies()) {
 
-          if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
+          // if prior auth already approved
+          if (coverageRequirements.isPriorAuthApproved()) {
+            response.addCard(CardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
+                request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
+                applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
+                fhirResourceRepository));
+
+          } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
             if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
               response.addCard(CardBuilder.transform(results, smartAppLinks));
 
               // add a card for an alternative therapy if there is one
               if (results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
                 try {
-                  response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(), results.getRequest(),
-                      fhirComponents));
+                  response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
+                      results.getRequest(), fhirComponents));
                 } catch (RuntimeException e) {
                   logger.warn("Failed to process alternative therapy: " + e.getMessage());
                 }
@@ -133,7 +143,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
             // no prior auth or documentation required
             logger.info("Add the no doc or prior auth required card");
             Card card = CardBuilder.transform(results);
-            card = CardBuilder.createSuggestionsWithNote(card, results, fhirComponents);
+            card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                true));
+            card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
             response.addCard(card);
           }
         }
@@ -170,41 +183,47 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Order Form"));
+          coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Order Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireFaceToFaceUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Face to Face Encounter Form"));
+          coverageRequirements.getQuestionnaireFaceToFaceUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Face to Face Encounter Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireLabUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Lab Form"));
+          coverageRequirements.getQuestionnaireLabUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Lab Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Progress Note"));
+          coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Progress Note"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "PA Request"));
+          coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "PA Request"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));
+          coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(), lookupResult.getCriteria(),
-          coverageRequirements.isPriorAuthRequired(), "Dispense Form"));
+          coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Dispense Form"));
+    }
+
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          coverageRequirements.getQuestionnaireAdditionalUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Additional Form"));
     }
     return listOfLinks;
   }
