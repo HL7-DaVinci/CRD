@@ -49,7 +49,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
   public CdsService(String id, Hook hook, String title, String description,
       List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents,
       DiscoveryExtension extension) {
+    
     super(id, hook, title, description, prefetchElements, fhirComponents, extension);
+    this.fhirComponents = fhirComponents;
   }
 
   /**
