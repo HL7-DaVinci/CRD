@@ -1,6 +1,7 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import org.cdshooks.AlternativeTherapy;
+import org.hl7.fhir.instance.model.api.IBase;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
@@ -115,6 +116,46 @@ public class FhirRequestProcessor {
         break;
       case "SupplyRequest":
       case "Appointment":
+      case "Encounter":
+      default:
+        logger.info("Unsupported fhir R4 resource type (" + request.fhirType() + ") when adding note");
+        throw new RuntimeException("Unsupported fhir R4 resource type " + request.fhirType());
+    }
+
+    return output;
+  }
+
+  public static IBaseResource addSupportingInfoToRequest(IBaseResource request, Reference reference) {
+    IBaseResource output = request;
+
+    switch (request.fhirType()) {
+      case "DeviceRequest":
+        DeviceRequest deviceRequest = ((DeviceRequest) request).copy();
+        deviceRequest.addSupportingInfo(reference);
+        output = deviceRequest;
+        break;
+      case "MedicationRequest":
+        MedicationRequest medicationRequest = ((MedicationRequest) request).copy();
+        medicationRequest.addSupportingInformation(reference);
+        output = medicationRequest;
+        break;
+      case "MedicationDispense":
+        MedicationDispense medicationDispense = ((MedicationDispense) request).copy();
+        medicationDispense.addSupportingInformation(reference);
+        output = medicationDispense;
+        break;
+      case "ServiceRequest":
+        ServiceRequest serviceRequest = ((ServiceRequest) request).copy();
+        serviceRequest.addSupportingInfo(reference);
+        output = serviceRequest;
+        break;
+      case "Appointment":
+        Appointment appointment = ((Appointment) request).copy();
+        appointment.addSupportingInformation(reference);
+        output = appointment;
+        break;
+      case "NutritionOrder":
+      case "SupplyRequest":
       case "Encounter":
       default:
         logger.info("Unsupported fhir R4 resource type (" + request.fhirType() + ") when adding note");

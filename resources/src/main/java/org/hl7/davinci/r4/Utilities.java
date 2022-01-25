@@ -1,35 +1,16 @@
 package org.hl7.davinci.r4;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import org.hl7.davinci.FhirResourceInfo;
-import org.hl7.davinci.PatientInfo;
-import org.hl7.davinci.PractitionerRoleInfo;
-import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.SharedUtilities;
-import org.hl7.davinci.SuppressParserErrorHandler;
+import org.hl7.davinci.*;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.Address;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Address.AddressUse;
-import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.DomainResource;
-import org.hl7.fhir.r4.model.Library;
-import org.hl7.fhir.r4.model.Location;
-import org.hl7.fhir.r4.model.Organization;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.PractitionerRole;
-import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.QuestionnaireResponse;
-import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.ValueSet;
+import org.hl7.fhir.r4.model.ClaimResponse.AdjudicationComponent;
 
 public class Utilities {
   /**
@@ -246,6 +227,101 @@ public class Utilities {
 
   public static FhirResourceInfo getFhirResourceInfo(String resourceString) {
     return getFhirResourceInfo(parseFhirData(resourceString));
+  }
+
+  public static Reference convertIdToReference(String id, String fhirType) {
+    Reference reference = new Reference();
+    if (id.toUpperCase().startsWith(fhirType.toUpperCase() + "/")) {
+      reference.setReference(id);
+    } else {
+      reference.setReference(fhirType + "/" + id);
+    }
+    return reference;
+  }
+
+  public static ClaimResponse createClaimResponse(String priorAuthId, String patientId, String payerId, String providerId, String applicationFhirPath) {
+    Date now = new Date();
+
+    ClaimResponse claimResponse = new ClaimResponse();
+
+    claimResponse.setId(priorAuthId);
+
+    Meta meta = new Meta();
+    meta.addProfile("http://hl7.org/fhir/us/davinci-pas/StructureDefinition/profile-claimresponse");
+    claimResponse.setMeta(meta);
+
+    claimResponse.addIdentifier(new Identifier().setSystem(applicationFhirPath).setValue(claimResponse.getId()));
+
+    claimResponse.setStatus(ClaimResponse.ClaimResponseStatus.ACTIVE);
+
+    CodeableConcept codeableConcept = new CodeableConcept();
+    Coding coding = new Coding();
+    coding.setSystem("http://terminology.hl7.org/CodeSystem/claim-type");
+    coding.setCode("professional");
+    coding.setDisplay("Professional");
+    codeableConcept.addCoding(coding);
+    claimResponse.setType(codeableConcept);
+
+    claimResponse.setUse(ClaimResponse.Use.PREAUTHORIZATION);
+
+    claimResponse.setPatient(convertIdToReference(patientId, "Patient"));
+
+    claimResponse.setCreated(now);
+
+    claimResponse.setInsurer(convertIdToReference(payerId, "Organization"));
+
+    claimResponse.setOutcome(ClaimResponse.RemittanceOutcome.COMPLETE);
+
+    claimResponse.setDisposition("Granted");
+
+    claimResponse.setPreAuthRef(claimResponse.getId());
+
+    ClaimResponse.ItemComponent itemComponent = new ClaimResponse.ItemComponent();
+
+    Extension reviewActionExtension = new Extension();
+    reviewActionExtension.setUrl("http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-reviewAction");
+    reviewActionExtension.addExtension(
+        new Extension()
+            .setUrl("http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-reviewActionCode")
+            .setValue(new CodeableConcept().addCoding(
+                new Coding()
+                    .setSystem("https://valueset.x12.org/x217/005010/response/2000F/HCR/1/01/00/306")
+                    .setCode("A1"))));
+    reviewActionExtension.addExtension(
+        new Extension()
+            .setUrl("number")
+            .setValue(new StringType(UUID.randomUUID().toString())));
+    itemComponent.addExtension(reviewActionExtension);
+
+    itemComponent.addExtension(
+        new Extension()
+            .setUrl("http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-itemPreAuthIssueDate")
+            .setValue(new DateType().setValue(now)));
+
+    itemComponent.addExtension(
+        new Extension()
+            .setUrl("http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-authorizationNumber")
+            .setValue(new StringType(UUID.randomUUID().toString())));
+
+    Extension providerExtension = new Extension();
+    providerExtension.setUrl("http://hl7.org/fhir/us/davinci-pas/StructureDefinition/extension-itemAuthorizedProvider");
+    providerExtension.addExtension(
+        new Extension()
+            .setUrl("provider")
+            .setValue(new Reference().setReference(convertIdToReference(providerId, "Practitioner").getReference())));
+    itemComponent.addExtension(providerExtension);
+
+    itemComponent.setItemSequence(1);
+
+    itemComponent.addAdjudication(
+        new AdjudicationComponent().setCategory(
+            new CodeableConcept().addCoding(
+                new Coding().setSystem("http://terminology.hl7.org/CodeSystem/adjudication")
+                    .setCode("submitted"))));
+
+    claimResponse.addItem(itemComponent);
+
+    return claimResponse;
   }
 
 }
