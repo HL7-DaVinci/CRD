@@ -16,6 +16,7 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
   @Autowired
   FileStore fileStore;
+  
+  @Autowired
+  private FhirResourceRepository fhirResourceRepository;
   
   protected FhirComponentsT fhirComponents;
 
