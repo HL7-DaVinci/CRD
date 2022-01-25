@@ -38,6 +38,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
   @Autowired
   FileStore fileStore;
+  
+  protected FhirComponentsT fhirComponents;
+
 
   public CdsService(String id, Hook hook, String title, String description,
       List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents,
