@@ -6,6 +6,7 @@ import org.cdshooks.CdsResponse;
 import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSelectService;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSelectServiceRems;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSignService;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
@@ -33,7 +34,7 @@ public class CdsHooksController {
 
   @Autowired private OrderSelectService orderSelectService;
   @Autowired private OrderSignService orderSignService;
-
+  @Autowired private OrderSelectServiceRems orderSelectServiceRems;
   /**
    * The FHIR r4 services discovery endpoint.
    * @return A services object containing an array of all services available on this server
@@ -64,6 +65,21 @@ public class CdsHooksController {
     return orderSelectService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
 
+  /**
+   * The coverage requirement discovery endpoint for the order select rems hook.
+   * @param request An order select triggered cds request
+   * @return The card response
+   */
+  @CrossOrigin
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderSelectServiceRems.ID,
+          consumes = "application/json;charset=UTF-8")
+  public CdsResponse handleOrderSelectRems(@Valid @RequestBody OrderSelectRequest request, final HttpServletRequest httpServletRequest) {
+    logger.info("r4/handleOrderSelectRems");
+    if (request.getPrefetch() == null) {
+      request.setPrefetch(new CrdPrefetch());
+    }
+    return orderSelectServiceRems.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+  }
   /**
    * The coverage requirement discovery endpoint for the order sign hook.
    * @param request An order sign triggered cds request
