@@ -19,8 +19,8 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 
-
 dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     implementation project(':resources')
     implementation project(':operations')
