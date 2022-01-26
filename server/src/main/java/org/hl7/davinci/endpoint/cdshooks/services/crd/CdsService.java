@@ -26,6 +26,7 @@ import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
+import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.opencds.cqf.cql.engine.execution.Context;
@@ -161,7 +162,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
       logger.warn(e.getMessage() + "; summary card sent to client");
-      response.addCard(CardBuilder.summaryCard(e.getMessage()));
+      response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
       requestLog.setCardListFromCards(response.getCards());
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
@@ -209,7 +210,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
-              response.addCard(CardBuilder.transform(results, smartAppLinks));
+
+              if (coverageRequirements.isPriorAuthRequired()) {
+                response.addCard(CardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks));
+              } else if (coverageRequirements.isDocumentationRequired()) {
+                response.addCard(CardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks));
+              }
 
               // add a card for an alternative therapy if there is one
               if (results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
@@ -222,12 +228,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               }
             } else {
               logger.warn("Unspecified Questionnaire URI; summary card sent to client");
-              response.addCard(CardBuilder.transform(results));
+              response.addCard(CardBuilder.transform(CardTypes.COVERAGE, results));
             }
           } else {
             // no prior auth or documentation required
             logger.info("Add the no doc or prior auth required card");
-            Card card = CardBuilder.transform(results);
+            Card card = CardBuilder.transform(CardTypes.COVERAGE, results);
             card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                 "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                 true));
@@ -250,9 +256,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       if (!foundApplicableRule) {
         String msg = "No documentation rules found";
         logger.warn(msg + "; summary card sent to client");
-        response.addCard(CardBuilder.summaryCard(msg));
+        response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, msg));
       }
-      CardBuilder.errorCardIfNonePresent(response);
+      CardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
     }
 
     // Ading card to requestLog
@@ -345,6 +351,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       }
     }
 
+    // remove the trailing '/' if there is one
     if (fhirBase != null && fhirBase.endsWith("/")) {
       fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
     }
