@@ -171,7 +171,9 @@ public class Utilities {
     for (Coverage coverage: coverages){
       for (Reference ref: coverage.getPayor()){
         Organization organization = (Organization) ref.getResource();
-        payors.add(organization);
+        if (organization != null) {
+          payors.add(organization);
+        }
       }
     }
     return payors;
