@@ -63,9 +63,9 @@ public abstract class CdsServiceRems<requestTypeT extends CdsRequest<?, ?>> exte
         for (Coding medication : medications) {
             Card card = CardBuilder.summaryCard("");
             if (isRemsDrug(medication)) {
-                card.setSummary(String.format("%s is a REMS drug", medication.getDisplay()));
+                card.setSummary(String.format("%s has REMS", medication.getDisplay()));
             } else {
-                card.setSummary(String.format("%s is not a REMS drug", medication.getDisplay()));
+                card.setSummary(String.format("%s does not have REMS", medication.getDisplay()));
             }
             response.addCard(card);
         }
