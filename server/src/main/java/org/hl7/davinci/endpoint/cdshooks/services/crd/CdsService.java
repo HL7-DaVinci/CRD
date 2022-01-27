@@ -193,7 +193,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Order Form"));
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Patient Enrollment Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
@@ -208,7 +208,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Progress Note"));
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Patient Status Update Form"));
     }
 
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())) {

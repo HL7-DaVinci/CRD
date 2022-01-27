@@ -28,7 +28,7 @@ public class OrderSelectServiceRems extends CdsServiceRems<OrderSelectRequest> {
     public static final String TITLE = "order-select-rems Coverage Requirements Discovery";
     public static final Hook HOOK = Hook.ORDER_SELECT;
     public static final String DESCRIPTION =
-            "Get information regarding the coverage requirements for REMS drugs";
+            "Get information regarding the coverage requirements for drugs with REMS";
     public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
             CrdPrefetchTemplateElements.MEDICATION_STATEMENT_BUNDLE,
             CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE);
