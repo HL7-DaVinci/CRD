@@ -131,7 +131,6 @@ gradle-app.setting
 
 # Settings, classpath and bin directories
 .settings/
-.vscode/
 .classpath
 */.settings
 */.classpath
@@ -148,7 +147,6 @@ gradle-app.setting
 .classpath
 .settings/
 bin/
-.vscode/
 
 # ignore the embeded CDS Library
 CDS-Library
