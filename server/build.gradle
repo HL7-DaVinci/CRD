@@ -19,11 +19,16 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 processResources {
-     from ('CDS-Library') {
-         into 'CDS-Library'
-     }
- }   
+    from ('CDS-Library') {
+        into 'CDS-Library'
+    }
+}   
 
+bootRun {  
+    if (project.hasProperty('debug')) { 
+        jvmArgs=["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8091"]
+    }
+} 
 
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")

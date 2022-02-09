@@ -20,7 +20,7 @@
      sleep 1
  done
  echo "starting crd server..."
- gradle bootRun 2>&1 | tee ./logs/runner.log ) & SERVER_PID=$!
+ gradle bootRun -Pdebug 2>&1 | tee ./logs/runner.log ) & SERVER_PID=$!
 
  # Handle application background process exiting
  wait $CONTINUOUS_BUILD_PID $SERVER_PID
