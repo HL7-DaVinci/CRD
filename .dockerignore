@@ -1,0 +1,12 @@
+.git
+target
+build
+bin
+logs
+.gradle
+server/.gradle
+server/bin
+server/build
+server/ValueSetCache
+operations/build
+resources/build
