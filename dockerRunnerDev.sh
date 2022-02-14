@@ -19,7 +19,7 @@
  ( while ! grep -m1 'BUILD SUCCESSFUL' < ./logs/builder.log; do
      sleep 1
  done
- echo "starting crd server..."
+ echo "starting crd server in debug mode..."
  gradle bootRun -Pdebug 2>&1 | tee ./logs/runner.log ) & SERVER_PID=$!
 
  # Handle application background process exiting
