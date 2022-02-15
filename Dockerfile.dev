@@ -9,5 +9,6 @@ WORKDIR /CRD
 RUN gradle build
 # Expose port to access the app
 EXPOSE 8090
+EXPOSE 8091
 # Command to run our app
 CMD ./dockerRunnerDev.sh

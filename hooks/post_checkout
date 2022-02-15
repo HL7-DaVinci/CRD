@@ -1,2 +1,0 @@
-#!/bin/bash
-git clone https://github.com/HL7-DaVinci/CDS-Library.git server/CDS-Library

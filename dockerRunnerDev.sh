@@ -19,8 +19,8 @@ gradle build --continuous 2>&1 | tee ./logs/builder.log & CONTINUOUS_BUILD_PID=$
 ( while ! grep -m1 'BUILD SUCCESSFUL' < ./logs/builder.log; do
     sleep 1
 done
-echo "starting crd server..."
-gradle bootRun 2>&1 | tee ./logs/runner.log ) & SERVER_PID=$!
+echo "starting crd server in debug mode..."
+gradle bootRun -Pdebug | tee ./logs/runner.log ) & SERVER_PID=$!
 
 # Handle application background process exiting
 wait $CONTINUOUS_BUILD_PID $SERVER_PID
