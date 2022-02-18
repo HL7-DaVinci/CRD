@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hl7.davinci.r4.JacksonBundleDeserializer;
 import org.hl7.davinci.r4.JacksonHapiSerializer;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 
 /**
  * Class that supports the representation of prefetch information in a CDS Hook request.
@@ -103,4 +104,51 @@ public class CrdPrefetch {
   public Bundle getMedicationStatementBundle() { return medicationStatementBundle; }
 
   public void setMedicationStatementBundle(Bundle medicationStatementBundle) { this.medicationStatementBundle = medicationStatementBundle; }
+
+  /**
+   * Checks whether the given resource exists in the requested resource type.
+   * @param id
+   * @return
+   */
+  public boolean containsRequestResourceId(String id) {
+    boolean containsId = false;
+    containsId |= this.bundleContainsResourceId(this.deviceRequestBundle, id);
+    containsId |= this.bundleContainsResourceId(this.medicationRequestBundle, id);
+    containsId |= this.bundleContainsResourceId(this.nutritionOrderBundle, id);
+    containsId |= this.bundleContainsResourceId(this.serviceRequestBundle, id);
+    containsId |= this.bundleContainsResourceId(this.supplyRequestBundle, id);
+    containsId |= this.bundleContainsResourceId(this.appointmentBundle, id);
+    containsId |= this.bundleContainsResourceId(this.encounterBundle, id);
+    containsId |= this.bundleContainsResourceId(this.medicationDispenseBundle, id);
+    containsId |= this.bundleContainsResourceId(this.medicationStatementBundle, id);
+    return containsId;
+  }
+
+  /**
+   * Returns whether the given bundle contains the given resource.
+   * @param bundle
+   * @param id
+   * @return
+   */
+  private boolean bundleContainsResourceId(Bundle bundle, String id) {
+    if(bundle != null) {
+      return bundle.getEntry().stream().anyMatch((BundleEntryComponent entry) -> entry.getResource().getId().equals(id));
+    }
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("[");
+    for(BundleEntryComponent entry : this.getDeviceRequestBundle().getEntry()) {
+      sb.append(entry.getResource());
+      sb.append("-");
+      sb.append(entry.getResource().getId());
+      sb.append(",");
+    }
+    sb.setLength(sb.length()-1);
+    sb.append("]");
+    return sb.toString();
+  }
 }

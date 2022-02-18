@@ -18,8 +18,9 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
+import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
@@ -151,7 +152,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // hydrated
     requestLog.advanceTimeline(requestService);
 
-    // logger.info("***** ***** request from requestLog: "+requestLog.toString() );
+    // Attempt a Query Batch Request to backfill missing attributes.
+    QueryBatchRequest batchRequest = new QueryBatchRequest(this, request, this.fhirComponents);
+    batchRequest.performQueryBatchRequest();
+
+    logger.info("***** ***** request from requestLog: " + requestLog.toString() );
 
     CdsResponse response = new CdsResponse();
 

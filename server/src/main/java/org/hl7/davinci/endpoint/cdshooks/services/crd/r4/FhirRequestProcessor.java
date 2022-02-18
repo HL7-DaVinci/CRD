@@ -1,9 +1,10 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import org.cdshooks.AlternativeTherapy;
-import org.hl7.fhir.instance.model.api.IBase;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,5 +164,47 @@ public class FhirRequestProcessor {
     }
 
     return output;
+  }
+
+  /**
+   * Adds the given resource to the given CrdPrefetch based on the given resource type.
+   * @param crdResponse
+   * @param resource
+   * @param requestType
+   */
+  public static void addToCrdPrefetchRequest(CrdPrefetch crdResponse, Resource resource, ResourceType requestType) {
+    BundleEntryComponent resourceEntry = new BundleEntryComponent();
+    resourceEntry.setResource(resource);
+    switch (requestType) {
+      case DeviceRequest:
+        crdResponse.getDeviceRequestBundle().addEntry(resourceEntry);
+        break;
+      case MedicationRequest:
+        crdResponse.getMedicationRequestBundle().addEntry(resourceEntry);
+        break;
+      case NutritionOrder:
+        crdResponse.getNutritionOrderBundle().addEntry(resourceEntry);
+        break;
+      case ServiceRequest:
+        crdResponse.getServiceRequestBundle().addEntry(resourceEntry);
+        break;
+      case SupplyRequest:
+        crdResponse.getSupplyRequestBundle().addEntry(resourceEntry);
+        break;
+      case Appointment:
+        crdResponse.getAppointmentBundle().addEntry(resourceEntry);
+        break;
+      case Encounter:
+        crdResponse.getEncounterBundle().addEntry(resourceEntry);
+        break;
+      case MedicationDispense:
+        crdResponse.getMedicationDispenseBundle().addEntry(resourceEntry);
+        break;
+      case MedicationStatement:
+        crdResponse.getMedicationStatementBundle().addEntry(resourceEntry);
+        break;
+      default:
+        throw new RuntimeException("Unexpected resource type for draft order request. Given " + requestType + ".");
+    }
   }
 }
