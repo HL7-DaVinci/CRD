@@ -172,36 +172,34 @@ public class FhirRequestProcessor {
    * @param resource
    * @param requestType
    */
-  public static void addToCrdPrefetchRequest(CrdPrefetch crdResponse, Resource resource, ResourceType requestType) {
-    BundleEntryComponent resourceEntry = new BundleEntryComponent();
-    resourceEntry.setResource(resource);
+  public static void addToCrdPrefetchRequest(CrdPrefetch crdResponse, ResourceType requestType, List<BundleEntryComponent> resources) {
     switch (requestType) {
       case DeviceRequest:
-        crdResponse.getDeviceRequestBundle().addEntry(resourceEntry);
+        crdResponse.getDeviceRequestBundle().getEntry().addAll(resources);
         break;
       case MedicationRequest:
-        crdResponse.getMedicationRequestBundle().addEntry(resourceEntry);
+        crdResponse.getMedicationRequestBundle().getEntry().addAll(resources);
         break;
       case NutritionOrder:
-        crdResponse.getNutritionOrderBundle().addEntry(resourceEntry);
+        crdResponse.getNutritionOrderBundle().getEntry().addAll(resources);
         break;
       case ServiceRequest:
-        crdResponse.getServiceRequestBundle().addEntry(resourceEntry);
+        crdResponse.getServiceRequestBundle().getEntry().addAll(resources);
         break;
       case SupplyRequest:
-        crdResponse.getSupplyRequestBundle().addEntry(resourceEntry);
+        crdResponse.getSupplyRequestBundle().getEntry().addAll(resources);
         break;
       case Appointment:
-        crdResponse.getAppointmentBundle().addEntry(resourceEntry);
+        crdResponse.getAppointmentBundle().getEntry().addAll(resources);
         break;
       case Encounter:
-        crdResponse.getEncounterBundle().addEntry(resourceEntry);
+        crdResponse.getEncounterBundle().getEntry().addAll(resources);
         break;
       case MedicationDispense:
-        crdResponse.getMedicationDispenseBundle().addEntry(resourceEntry);
+        crdResponse.getMedicationDispenseBundle().getEntry().addAll(resources);
         break;
       case MedicationStatement:
-        crdResponse.getMedicationStatementBundle().addEntry(resourceEntry);
+        crdResponse.getMedicationStatementBundle().getEntry().addAll(resources);
         break;
       default:
         throw new RuntimeException("Unexpected resource type for draft order request. Given " + requestType + ".");

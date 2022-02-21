@@ -58,29 +58,27 @@ public class QueryBatchRequest {
   /**
    * Backfills the missing required values of the response. In this case, it
    * should be called after the Prefetch and Prefetch Hydrator have run,
-   * backfilling the attributes they missed.
+   * querying and adding the attributes they missed.
    * Approach:
    * 1. Pull the IDs of the required references from the request object's draft
    * orders.
    * 2. See which of those values are missing from the current CRD response.
    * 3. Build the Query Batch JSON request using
    * http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#fhir-resource-access
-   * 4. Populate the CRD response with the values from the Query Batch JSON.
+   * 4. Populate the CRD response with the values from the Query Batch response.
    */
   public void performQueryBatchRequest() {
-    logger.info("***** ***** Attempting Query Batch Request");
-    // 2. Figure out what's missing from the request.
-    // The response object.
+    logger.info("***** ***** Attempting Query Batch Request.");
+
     CrdPrefetch crdResponse = cdsRequest.getPrefetch();
-    // This list of references that should be queried in the request.
+    // The list of references that should be queried in the request.
     List<String> requiredReferences = new ArrayList<String>();
 
-    // 1. Get the IDs of the missing values.
+    // 1. Get the IDs of references in the request's draft orders.
     Bundle draftOrdersBundle = cdsRequest.getContext().getDraftOrders();
-    Resource requestEntryResource = draftOrdersBundle.getEntry().get(0).getResource(); // This assumes that only the
-                                                                                       // first draft order is relevant.
+    // This assumes that only the first draft order is relevant.
+    Resource requestEntryResource = draftOrdersBundle.getEntry().get(0).getResource();
     ResourceType requestType = requestEntryResource.getResourceType();
-
     // Extract the references by iterating through the JSON.
     Gson gson = new Gson();
     final JsonObject jsonObject = gson.toJsonTree(requestEntryResource).getAsJsonObject();
@@ -91,13 +89,13 @@ public class QueryBatchRequest {
     logger.info("----- References: " + requiredReferences);
     logger.info("----- Full Resource: " + requestEntryResource);
 
-    // Remove IDs from the references if they already exist in the CRD Response.
+    // 2. Remove IDs from the references if they already exist in the CRD Response.
     requiredReferences = requiredReferences.stream()
         .filter(referenceId -> !crdResponse.containsRequestResourceId(referenceId))
         .collect(Collectors.toList());
 
     if (!requiredReferences.isEmpty()) {
-      // Build the Query Batch Request JSON using
+      // 3. Build the Query Batch Request JSON using
       // http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#fhir-resource-access
       Bundle queryBatchBundle = buildQueryBatchRequestBundle(requiredReferences);
       String queryBatchRequest = FhirContext.forR4().newJsonParser().encodeResourceToString(queryBatchBundle);
@@ -111,14 +109,10 @@ public class QueryBatchRequest {
         logger.error("Failed to backfill prefetch with Query Batch Request " + queryBatchRequest, e);
       }
 
-      // Populate the response with fields pulled from the Query Batch Request.
+      // 4. Populate the response with fields pulled from the Query Batch Request.
       if (queryBatchResponse != null) {
         Bundle queryResponseBundle = (Bundle) queryBatchResponse;
-        for (BundleEntryComponent entry : queryResponseBundle.getEntry()) {
-          // Add the resource to the CRD response.
-          Resource currentResource = entry.getResource();
-          FhirRequestProcessor.addToCrdPrefetchRequest(crdResponse, currentResource, requestType);
-        }
+        FhirRequestProcessor.addToCrdPrefetchRequest(crdResponse, requestType, queryResponseBundle.getEntry());
       } else {
         logger.error("No response recieved for the Query Batch Request.");
       }
@@ -205,7 +199,7 @@ public class QueryBatchRequest {
     Bundle queryBatchBundle = new Bundle();
     queryBatchBundle.setType(BundleType.BATCH);
     for (String reference : resourceReferences) {
-      if(reference.contains(PRACTIONER_ROLE)){
+      if (reference.contains(PRACTIONER_ROLE)) {
         reference = QueryBatchRequest.buildPractionerRoleQuery(reference);
       }
       BundleEntryComponent entry = new BundleEntryComponent();
@@ -220,13 +214,15 @@ public class QueryBatchRequest {
 
   /**
    * Adds support for PractitionerRole nested requests.
+   * 
    * @param reference
    * @return
    */
   private static String buildPractionerRoleQuery(String reference) {
     String[] referenceIdSplit = reference.split("/");
     String refernceId = referenceIdSplit[referenceIdSplit.length];
-    String query = "PractitionerRole?_id=" + refernceId + "&_include=PractitionerRole:organization&_include=PractitionerRole:practitioner";
+    String query = "PractitionerRole?_id=" + refernceId
+        + "&_include=PractitionerRole:organization&_include=PractitionerRole:practitioner";
     return query;
   }
 
