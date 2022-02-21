@@ -1,5 +1,8 @@
 package org.hl7.davinci.r4.crdhook;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hl7.davinci.r4.JacksonBundleDeserializer;
@@ -140,8 +143,28 @@ public class CrdPrefetch {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
+    List<BundleEntryComponent> entries = new ArrayList<>();
+    if(this.deviceRequestBundle != null){
+      entries = this.deviceRequestBundle.getEntry();
+    } else if(this.nutritionOrderBundle != null){
+      entries = this.nutritionOrderBundle.getEntry();
+    } else if(this.serviceRequestBundle != null){
+      entries = this.serviceRequestBundle.getEntry();
+    } else if(this.medicationDispenseBundle != null){
+      entries = this.medicationDispenseBundle.getEntry();
+    } else if(this.medicationStatementBundle != null){
+      entries = this.medicationStatementBundle.getEntry();
+    } else if(this.encounterBundle != null){
+      entries = this.encounterBundle.getEntry();
+    } else if(this.appointmentBundle != null){
+      entries = this.appointmentBundle.getEntry();
+    } else if(this.medicationRequestBundle != null){
+      entries = this.medicationRequestBundle.getEntry();
+    } else if(this.supplyRequestBundle != null){
+      entries = this.supplyRequestBundle.getEntry();
+    }
     sb.append("[");
-    for(BundleEntryComponent entry : this.getDeviceRequestBundle().getEntry()) {
+    for(BundleEntryComponent entry : entries) {
       sb.append(entry.getResource());
       sb.append("-");
       sb.append(entry.getResource().getId());

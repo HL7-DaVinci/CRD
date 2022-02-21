@@ -39,7 +39,7 @@ import com.google.gson.JsonObject;
 
 public class QueryBatchRequest {
 
-  private static final Logger logger = LoggerFactory.getLogger(PrefetchHydrator.class);
+  private static final Logger logger = LoggerFactory.getLogger(QueryBatchRequest.class);
   private static final String REFERENCE = "reference";
   private static final String PRACTIONER_ROLE = "PractitionerRole";
 
@@ -71,6 +71,7 @@ public class QueryBatchRequest {
     logger.info("***** ***** Attempting Query Batch Request.");
 
     CrdPrefetch crdResponse = cdsRequest.getPrefetch();
+    logger.info("Pre-Query Batch CRDResponse: " + crdResponse);
     // The list of references that should be queried in the request.
     List<String> requiredReferences = new ArrayList<String>();
 
@@ -105,6 +106,7 @@ public class QueryBatchRequest {
       try {
         logger.info("Executing Query Batch Request: " + queryBatchRequest);
         queryBatchResponse = executeFhirQuery(queryBatchRequest, this.cdsRequest, this.fhirComponents);
+        queryBatchResponse = extractBundledResources(queryBatchResponse);
       } catch (Exception e) {
         logger.error("Failed to backfill prefetch with Query Batch Request " + queryBatchRequest, e);
       }
@@ -112,7 +114,9 @@ public class QueryBatchRequest {
       // 4. Populate the response with fields pulled from the Query Batch Request.
       if (queryBatchResponse != null) {
         Bundle queryResponseBundle = (Bundle) queryBatchResponse;
+        logger.info("qbr: " + queryBatchResponse);
         FhirRequestProcessor.addToCrdPrefetchRequest(crdResponse, requestType, queryResponseBundle.getEntry());
+        logger.info("Post-Query Batch CRDResponse: " + crdResponse);
       } else {
         logger.error("No response recieved for the Query Batch Request.");
       }
@@ -220,10 +224,29 @@ public class QueryBatchRequest {
    */
   private static String buildPractionerRoleQuery(String reference) {
     String[] referenceIdSplit = reference.split("/");
-    String refernceId = referenceIdSplit[referenceIdSplit.length];
-    String query = "PractitionerRole?_id=" + refernceId
-        + "&_include=PractitionerRole:organization&_include=PractitionerRole:practitioner";
+    String referenceId = referenceIdSplit[referenceIdSplit.length - 1];
+    String query = "PractitionerRole?_id=" + referenceId
+        + "&_include=PractitionerRole:organization&_include=PractitionerRole:practitioner&_include=PractitionerRole:location";
+    logger.info("PRAROLE: " + query);
     return query;
+  }
+
+  private static IBaseResource extractBundledResources(IBaseResource resource) {
+    Bundle bundle = (Bundle) resource;
+    List<BundleEntryComponent> entriesToAdd = new ArrayList<>();
+    List<BundleEntryComponent> entriesToRemove = new ArrayList<>();
+    for (int bundleIndex = 0; bundleIndex < bundle.getEntry().size(); bundleIndex++) {
+      BundleEntryComponent entry = bundle.getEntry().get(bundleIndex);
+      if (entry.getResource().getResourceType().equals(ResourceType.Bundle)) {
+        Bundle bundledBundle = (Bundle) entry.getResource();
+        entriesToAdd.addAll(bundledBundle.getEntry());
+        entriesToRemove.add(entry);
+      }
+    }
+    bundle.getEntry().addAll(entriesToAdd);
+    bundle.getEntry().removeAll(entriesToRemove);
+    logger.info("ENTRIES: " + bundle.getEntry().stream().map(entry -> entry.getResource()).collect(Collectors.toList()));
+    return bundle;
   }
 
 }
