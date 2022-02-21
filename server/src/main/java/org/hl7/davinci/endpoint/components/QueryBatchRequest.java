@@ -41,6 +41,7 @@ public class QueryBatchRequest {
 
   private static final Logger logger = LoggerFactory.getLogger(PrefetchHydrator.class);
   private static final String REFERENCE = "reference";
+  private static final String PRACTIONER_ROLE = "PractitionerRole";
 
   // private final CdsService<?> cdsService;
   private final CdsRequest<CrdPrefetch, ServiceContext> cdsRequest;
@@ -69,9 +70,6 @@ public class QueryBatchRequest {
   public void performQueryBatchRequest() {
     logger.info("***** ***** Attempting Query Batch Request");
     // 2. Figure out what's missing from the request.
-
-    logger.info("CDS Request: " + cdsRequest);
-
     // The response object.
     CrdPrefetch crdResponse = cdsRequest.getPrefetch();
     // This list of references that should be queried in the request.
@@ -79,7 +77,8 @@ public class QueryBatchRequest {
 
     // 1. Get the IDs of the missing values.
     Bundle draftOrdersBundle = cdsRequest.getContext().getDraftOrders();
-    Resource requestEntryResource = draftOrdersBundle.getEntry().get(0).getResource();  // This assumes that only the first draft order is relevant.
+    Resource requestEntryResource = draftOrdersBundle.getEntry().get(0).getResource(); // This assumes that only the
+                                                                                       // first draft order is relevant.
     ResourceType requestType = requestEntryResource.getResourceType();
 
     // Extract the references by iterating through the JSON.
@@ -112,12 +111,8 @@ public class QueryBatchRequest {
         logger.error("Failed to backfill prefetch with Query Batch Request " + queryBatchRequest, e);
       }
 
-      // Populate the response with missing fields pulled from the Query Batch
-      // Request.
+      // Populate the response with fields pulled from the Query Batch Request.
       if (queryBatchResponse != null) {
-        // String stringResponse =
-        // FhirContext.forR4().newJsonParser().encodeResourceToString(queryBatchResponse);
-        // logger.info("Recieved Query Batch Response: " + stringResponse);
         Bundle queryResponseBundle = (Bundle) queryBatchResponse;
         for (BundleEntryComponent entry : queryResponseBundle.getEntry()) {
           // Add the resource to the CRD response.
@@ -128,7 +123,7 @@ public class QueryBatchRequest {
         logger.error("No response recieved for the Query Batch Request.");
       }
     } else {
-      logger.info("Query Batch Request not needed: references already fetched.");
+      logger.info("A Query Batch Request is not needed: all references have already already fetched.");
     }
   }
 
@@ -209,9 +204,10 @@ public class QueryBatchRequest {
   private static Bundle buildQueryBatchRequestBundle(List<String> resourceReferences) {
     Bundle queryBatchBundle = new Bundle();
     queryBatchBundle.setType(BundleType.BATCH);
-    // Not yet supported: custom "url" format:
-    // "PractitionerRole?_id=ABC&_include=PractitionerRole:organization&_include=PractitionerRole:practitioner"
     for (String reference : resourceReferences) {
+      if(reference.contains(PRACTIONER_ROLE)){
+        reference = QueryBatchRequest.buildPractionerRoleQuery(reference);
+      }
       BundleEntryComponent entry = new BundleEntryComponent();
       BundleEntryRequestComponent request = new BundleEntryRequestComponent();
       request.setMethod(HTTPVerb.GET);
@@ -220,6 +216,18 @@ public class QueryBatchRequest {
       queryBatchBundle.addEntry(entry);
     }
     return queryBatchBundle;
+  }
+
+  /**
+   * Adds support for PractitionerRole nested requests.
+   * @param reference
+   * @return
+   */
+  private static String buildPractionerRoleQuery(String reference) {
+    String[] referenceIdSplit = reference.split("/");
+    String refernceId = referenceIdSplit[referenceIdSplit.length];
+    String query = "PractitionerRole?_id=" + refernceId + "&_include=PractitionerRole:organization&_include=PractitionerRole:practitioner";
+    return query;
   }
 
 }
