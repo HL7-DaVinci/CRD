@@ -11,8 +11,12 @@ import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.DeviceRequest;
+import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
 import org.slf4j.Logger;
@@ -40,7 +44,6 @@ import com.google.gson.JsonObject;
 public class QueryBatchRequest {
 
   private static final Logger logger = LoggerFactory.getLogger(QueryBatchRequest.class);
-  private static final String REFERENCE = "reference";
   private static final String PRACTIONER_ROLE = "PractitionerRole";
 
   // private final CdsService<?> cdsService;
@@ -78,17 +81,17 @@ public class QueryBatchRequest {
     // 1. Get the IDs of references in the request's draft orders.
     Bundle draftOrdersBundle = cdsRequest.getContext().getDraftOrders();
     // This assumes that only the first draft order is relevant.
-    Resource requestEntryResource = draftOrdersBundle.getEntry().get(0).getResource();
-    ResourceType requestType = requestEntryResource.getResourceType();
+    Resource requestResourceEntry = draftOrdersBundle.getEntry().get(0).getResource();
+    ResourceType requestType = requestResourceEntry.getResourceType();
     // Extract the references by iterating through the JSON.
     Gson gson = new Gson();
-    final JsonObject jsonObject = gson.toJsonTree(requestEntryResource).getAsJsonObject();
+    final JsonObject jsonObject = gson.toJsonTree(requestResourceEntry).getAsJsonObject();
     for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-      QueryBatchRequest.extractReferenceIds(requiredReferences, entry.getValue());
+      FhirRequestProcessor.extractReferenceIds(requiredReferences, entry.getValue());
     }
 
     logger.info("----- References: " + requiredReferences);
-    logger.info("----- Full Resource: " + requestEntryResource);
+    logger.info("----- Full Resource: " + requestResourceEntry);
 
     // 2. Remove IDs from the references if they already exist in the CRD Response.
     requiredReferences = requiredReferences.stream()
@@ -106,7 +109,8 @@ public class QueryBatchRequest {
       try {
         logger.info("Executing Query Batch Request: " + queryBatchRequest);
         queryBatchResponse = executeFhirQuery(queryBatchRequest, this.cdsRequest, this.fhirComponents);
-        queryBatchResponse = extractBundledResources(queryBatchResponse);
+        queryBatchResponse = extractNestedBundledResources((Bundle)queryBatchResponse);
+        logger.info("Extracted Query Batch Resources: " + ((Bundle)queryBatchResponse).getEntry().stream().map(entry -> entry.getResource()).collect(Collectors.toList()));
       } catch (Exception e) {
         logger.error("Failed to backfill prefetch with Query Batch Request " + queryBatchRequest, e);
       }
@@ -114,7 +118,29 @@ public class QueryBatchRequest {
       // 4. Populate the response with fields pulled from the Query Batch Request.
       if (queryBatchResponse != null) {
         Bundle queryResponseBundle = (Bundle) queryBatchResponse;
-        logger.info("qbr: " + queryBatchResponse);
+        // Add the request resource to the query batch response as it may be missing.
+        BundleEntryComponent requestResource = new BundleEntryComponent();
+
+        // TODO - for some reason, the Coverage and Subject are not automatically being linked to the request object. It is somehow automatically linked during standard prefetch.
+        if(requestResourceEntry.getResourceType().equals(ResourceType.DeviceRequest)){
+          // There is sadly no superclass for devicerequest/servicerequest/etc. so it is apparently impossible to have a generic approach to this.
+          DeviceRequest deviceRequest = (DeviceRequest) requestResourceEntry;
+          List<Coverage> coverages = FhirRequestProcessor.extractCoverage(queryResponseBundle);
+          deviceRequest.getInsuranceFirstRep().setResource(coverages.get(0));
+          List<Patient> patients = FhirRequestProcessor.extractPatients(queryResponseBundle);
+          deviceRequest.getSubject().setResource(patients.get(0));
+        } else if(requestResourceEntry.getResourceType().equals(ResourceType.ServiceRequest)){
+          ServiceRequest serviceRequest = (ServiceRequest) requestResourceEntry;
+          List<Coverage> coverages = FhirRequestProcessor.extractCoverage(queryResponseBundle);
+          serviceRequest.getInsuranceFirstRep().setResource(coverages.get(0));
+          List<Patient> patients = FhirRequestProcessor.extractPatients(queryResponseBundle);
+          serviceRequest.getSubject().setResource(patients.get(0));
+        }
+
+        requestResource.setResource(requestResourceEntry);
+        queryResponseBundle.addEntry(requestResource);
+        // Add the query batch responses to the CRD Prefetch request.
+        logger.info("Query Batch Response Entries: " + queryResponseBundle.getEntry());
         FhirRequestProcessor.addToCrdPrefetchRequest(crdResponse, requestType, queryResponseBundle.getEntry());
         logger.info("Post-Query Batch CRDResponse: " + crdResponse);
       } else {
@@ -122,28 +148,6 @@ public class QueryBatchRequest {
       }
     } else {
       logger.info("A Query Batch Request is not needed: all references have already already fetched.");
-    }
-  }
-
-  /**
-   * Extracts the reference Ids from the given JSON.
-   * 
-   * @param references
-   * @param jsonElement
-   */
-  private static void extractReferenceIds(List<String> references, JsonElement jsonElement) {
-    if (jsonElement.isJsonArray()) {
-      for (JsonElement innerElement : jsonElement.getAsJsonArray()) {
-        extractReferenceIds(references, innerElement);
-      }
-    } else if (jsonElement.isJsonObject()) {
-      if (jsonElement.getAsJsonObject().has(REFERENCE)) {
-        if (jsonElement.getAsJsonObject().get(REFERENCE).isJsonObject()) {
-          String referenceId = jsonElement.getAsJsonObject().get(REFERENCE).getAsJsonObject()
-              .get("myStringValue").toString();
-          references.add(referenceId.replace("\"", ""));
-        }
-      }
     }
   }
 
@@ -227,12 +231,15 @@ public class QueryBatchRequest {
     String referenceId = referenceIdSplit[referenceIdSplit.length - 1];
     String query = "PractitionerRole?_id=" + referenceId
         + "&_include=PractitionerRole:organization&_include=PractitionerRole:practitioner&_include=PractitionerRole:location";
-    logger.info("PRAROLE: " + query);
     return query;
   }
 
-  private static IBaseResource extractBundledResources(IBaseResource resource) {
-    Bundle bundle = (Bundle) resource;
+  /**
+   * Extracts the resources inside a bundled bundle to be at the top level of the bundle, making them no longer nested.
+   * @param resource
+   * @return
+   */
+  private static Bundle extractNestedBundledResources(Bundle bundle) {
     List<BundleEntryComponent> entriesToAdd = new ArrayList<>();
     List<BundleEntryComponent> entriesToRemove = new ArrayList<>();
     for (int bundleIndex = 0; bundleIndex < bundle.getEntry().size(); bundleIndex++) {
@@ -245,7 +252,6 @@ public class QueryBatchRequest {
     }
     bundle.getEntry().addAll(entriesToAdd);
     bundle.getEntry().removeAll(entriesToRemove);
-    logger.info("ENTRIES: " + bundle.getEntry().stream().map(entry -> entry.getResource()).collect(Collectors.toList()));
     return bundle;
   }
 

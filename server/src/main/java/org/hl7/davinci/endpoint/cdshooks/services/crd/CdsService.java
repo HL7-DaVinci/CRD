@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import javax.validation.Valid;
 
+import com.google.gson.Gson;
+
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
@@ -146,8 +148,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Parsed request
     requestLog.advanceTimeline(requestService);
 
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
-    prefetchHydrator.hydrate();
+    // PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
+    // prefetchHydrator.hydrate();
 
     // hydrated
     requestLog.advanceTimeline(requestService);
@@ -160,12 +162,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     CdsResponse response = new CdsResponse();
 
+    Gson gson = new Gson();
+    final String jsonObject = gson.toJson(request.getPrefetch());
+    logger.info("Post-prefetch CRDPrefetch request: " + jsonObject);
+
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
     try {
       lookupResults = this.createCqlExecutionContexts(request, fileStore, applicationBaseUrl.toString() + "/");
       requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
+      logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
       requestLog.setCardListFromCards(response.getCards());

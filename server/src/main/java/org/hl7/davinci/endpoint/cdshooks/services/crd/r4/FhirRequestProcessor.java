@@ -3,8 +3,10 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 import org.cdshooks.AlternativeTherapy;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.instance.model.api.IIdType;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +14,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.google.gson.JsonElement;
+
 public class FhirRequestProcessor {
 
   static final Logger logger = LoggerFactory.getLogger(FhirRequestProcessor.class);
+
+  private static final String REFERENCE = "reference";
 
   public static IBaseResource swapTherapyInRequest(IBaseResource request, AlternativeTherapy alternativeTherapy) {
     IBaseResource output = request;
@@ -175,34 +181,97 @@ public class FhirRequestProcessor {
   public static void addToCrdPrefetchRequest(CrdPrefetch crdResponse, ResourceType requestType, List<BundleEntryComponent> resources) {
     switch (requestType) {
       case DeviceRequest:
-        crdResponse.getDeviceRequestBundle().getEntry().addAll(resources);
+        if(crdResponse.getDeviceRequestBundle() == null){
+          Bundle deviceRequestBundle = new Bundle();
+          deviceRequestBundle.setType(BundleType.COLLECTION);
+          deviceRequestBundle.getTypeElement().setValue(BundleType.COLLECTION);
+          deviceRequestBundle.getTypeElement().addExtension();
+          crdResponse.setDeviceRequestBundle(deviceRequestBundle);
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getDeviceRequestBundle(), resources);
         break;
       case MedicationRequest:
-        crdResponse.getMedicationRequestBundle().getEntry().addAll(resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getMedicationRequestBundle(), resources);
         break;
       case NutritionOrder:
-        crdResponse.getNutritionOrderBundle().getEntry().addAll(resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getNutritionOrderBundle(), resources);
         break;
       case ServiceRequest:
-        crdResponse.getServiceRequestBundle().getEntry().addAll(resources);
+        if(crdResponse.getServiceRequestBundle() == null){
+          crdResponse.setServiceRequestBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getServiceRequestBundle(), resources);
         break;
       case SupplyRequest:
-        crdResponse.getSupplyRequestBundle().getEntry().addAll(resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getSupplyRequestBundle(), resources);
         break;
       case Appointment:
-        crdResponse.getAppointmentBundle().getEntry().addAll(resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getAppointmentBundle(), resources);
         break;
       case Encounter:
-        crdResponse.getEncounterBundle().getEntry().addAll(resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getEncounterBundle(), resources);
         break;
       case MedicationDispense:
-        crdResponse.getMedicationDispenseBundle().getEntry().addAll(resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getMedicationDispenseBundle(), resources);
         break;
       case MedicationStatement:
-        crdResponse.getMedicationStatementBundle().getEntry().addAll(resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getMedicationStatementBundle(), resources);
         break;
       default:
         throw new RuntimeException("Unexpected resource type for draft order request. Given " + requestType + ".");
+    }
+  }
+
+  private static void addNonDuplicateResourcesToBundle(Bundle bundle, List<BundleEntryComponent> resources) {
+    for(BundleEntryComponent resourceEntry : resources){
+      if(!bundle.getEntry().stream().anyMatch(requestEntry -> requestEntry.getResource().getId().equals(resourceEntry.getResource().getId()))){
+        bundle.addEntry(resourceEntry);
+      }
+    }
+    bundle.setUserData("ca.uhn.fhir.parser.BaseParser_RESOURCE_CREATED_BY_PARSER", true);
+    // IIdType idtype = new IdType();
+    // bundle.setId(idtype);
+  }
+
+  public static List<Patient> extractPatients(Bundle queryResponseBundle) {
+    List<Patient> coverages = new ArrayList<>();
+    for(BundleEntryComponent entry : queryResponseBundle.getEntry()){
+      if(entry.getResource().getResourceType().equals(ResourceType.Patient)){
+        coverages.add((Patient) entry.getResource());
+      }
+    }
+    return coverages;
+  }
+
+  public static List<Coverage> extractCoverage(Bundle queryResponseBundle) {
+    List<Coverage> coverages = new ArrayList<>();
+    for(BundleEntryComponent entry : queryResponseBundle.getEntry()){
+      if(entry.getResource().getResourceType().equals(ResourceType.Coverage)){
+        coverages.add((Coverage) entry.getResource());
+      }
+    }
+    return coverages;
+  }
+
+  /**
+   * Extracts the reference Ids from the given JSON.
+   * 
+   * @param references
+   * @param jsonElement
+   */
+  public static void extractReferenceIds(List<String> references, JsonElement jsonElement) {
+    if (jsonElement.isJsonArray()) {
+      for (JsonElement innerElement : jsonElement.getAsJsonArray()) {
+        extractReferenceIds(references, innerElement);
+      }
+    } else if (jsonElement.isJsonObject()) {
+      if (jsonElement.getAsJsonObject().has(REFERENCE)) {
+        if (jsonElement.getAsJsonObject().get(REFERENCE).isJsonObject()) {
+          String referenceId = jsonElement.getAsJsonObject().get(REFERENCE).getAsJsonObject()
+              .get("myStringValue").toString();
+          references.add(referenceId.replace("\"", ""));
+        }
+      }
     }
   }
 }
