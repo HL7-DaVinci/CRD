@@ -2,6 +2,7 @@ package org.hl7.davinci.endpoint;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import com.google.common.net.HttpHeaders;
 
@@ -35,6 +36,29 @@ public class Utils {
       return url;
     } catch (MalformedURLException e) {
       throw new RuntimeException("Unable to get current server URL");
+    }
+  }
+
+  public static String stripResourceType(String identifier) {
+    int indexOfDivider = identifier.indexOf('/');
+    if (indexOfDivider+1 == identifier.length()) {
+      // remove the trailing '/'
+      return identifier.substring(0, indexOfDivider);
+    } else {
+      return identifier.substring(indexOfDivider+1);
+    }
+  }
+
+  public static boolean idInSelectionsList(String identifier, List<String> selections) {
+    if (selections.isEmpty()) {
+      return true;
+    } else {
+      for ( String selection : selections) {
+        if (identifier.contains(stripResourceType(selection))) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 

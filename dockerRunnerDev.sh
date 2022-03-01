@@ -1,6 +1,6 @@
 #!/bin/bash
 
- # Handle closing application on signal interrupt (ctrl + c)
+# Handle closing application on signal interrupt (ctrl + c)
  trap 'kill $CONTINUOUS_BUILD_PID $SERVER_PID; gradle --stop; exit' INT
 
  mkdir logs 
