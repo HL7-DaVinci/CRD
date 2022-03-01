@@ -1,6 +1,7 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
 import org.cdshooks.Card;
+import org.hl7.davinci.r4.CardTypes;
 import org.cdshooks.CdsRequest;
 import org.cdshooks.CdsResponse;
 import org.cdshooks.Hook;
@@ -61,7 +62,7 @@ public abstract class CdsServiceRems<requestTypeT extends CdsRequest<?, ?>> exte
         CdsResponse response = new CdsResponse();
         List<Coding> medications = getMedications(request);
         for (Coding medication : medications) {
-            Card card = CardBuilder.summaryCard("");
+            Card card = CardBuilder.summaryCard(CardTypes.COVERAGE, "");
             if (isRemsDrug(medication)) {
                 card.setSummary(String.format("%s has REMS", medication.getDisplay()));
             } else {
