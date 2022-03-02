@@ -106,10 +106,8 @@ public class QuestionnaireEmbeddedCQLProcessor extends FhirResourceProcessor<Que
 
     @Override
     public InputStream getLibrarySource(VersionedIdentifier libraryIdentifier) {
-        String libraryFileName = String.format("%s/%s%s.cql",
-                "path", libraryIdentifier.getId(),
-                libraryIdentifier.getVersion() != null ? ("-" + libraryIdentifier.getVersion()) : "");
-        return QuestionnaireEmbeddedCQLProcessor.class.getResourceAsStream(libraryFileName);
+        String filename = libraryIdentifier.getId() + "-" + libraryIdentifier.getVersion() + ".cql";
+        return QuestionnaireEmbeddedCQLProcessor.class.getResourceAsStream(filename);
     }
 
 }
