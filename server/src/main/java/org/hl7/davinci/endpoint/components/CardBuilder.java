@@ -3,12 +3,10 @@ package org.hl7.davinci.endpoint.components;
 import java.util.*;
 
 import org.cdshooks.*;
-import org.cdshooks.Coding;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.endpoint.database.FhirResource;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
-import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.fhir.instance.model.api.IBase;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -79,12 +77,11 @@ public class CardBuilder {
   /**
    * Transforms a result from the database into a card.
    *
-   * @param cardType
    * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults, Boolean addLink) {
-    Card card = baseCard(cardType);
+  public static Card transform(CqlResultsForCard cqlResults, Boolean addLink) {
+    Card card = baseCard();
 
     if (addLink) {
       Link link = new Link();
@@ -103,24 +100,22 @@ public class CardBuilder {
   /**
    * Transforms a result from the database into a card, defaults to adding the link.
    *
-   * @param cardType
    * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults) {
-    return transform(cardType, cqlResults, true);
+  public static Card transform(CqlResultsForCard cqlResults) {
+    return transform(cqlResults, true);
   }
 
   /**
    * Transforms a result from the database into a card.
    *
-   * @param cardType
    * @param cqlResults
    * @param smartAppLaunchLink smart app launch Link
    * @return card with appropriate information
    */
-  public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults, Link smartAppLaunchLink) {
-    Card card = transform(cardType, cqlResults);
+  public static Card transform(CqlResultsForCard cqlResults, Link smartAppLaunchLink) {
+    Card card = transform(cqlResults);
     List<Link> links = new ArrayList<Link>(card.getLinks());
     links.add(smartAppLaunchLink);
     card.setLinks(links);
@@ -130,13 +125,12 @@ public class CardBuilder {
   /**
    * Tranform the CQL results for card
    * then add a list of smart app launch links to the card
-   * @param cardType
    * @param cqlResults The CQL results
    * @param smartAppLaunchLinks a list of links
    * @return card to be returned
    */
-  public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults, List<Link> smartAppLaunchLinks) {
-    Card card = transform(cardType, cqlResults);
+  public static Card transform(CqlResultsForCard cqlResults, List<Link> smartAppLaunchLinks) {
+    Card card = transform(cqlResults);
     List<Link> links = new ArrayList<Link>(card.getLinks());
     links.addAll(smartAppLaunchLinks);
     card.setLinks(links);
@@ -146,12 +140,11 @@ public class CardBuilder {
   /**
    * Creates a card with a summary but also has all of the necessary fields populated to be valid.
    *
-   * @param cardType
    * @param summary The desired summary for the card
    * @return valid card
    */
-  public static Card summaryCard(CardTypes cardType, String summary) {
-    Card card = baseCard(cardType);
+  public static Card summaryCard(String summary) {
+    Card card = baseCard();
     card.setSummary(summary);
     return card;
   }
@@ -159,7 +152,7 @@ public class CardBuilder {
   public static Card alternativeTherapyCard(AlternativeTherapy alternativeTherapy, IBaseResource resource,
                                             FhirComponentsT fhirComponents) {
     logger.info("Build Alternative Therapy Card: " + alternativeTherapy.toString());
-    Card card = baseCard(CardTypes.THERAPY_ALTERNATIVES_OPT);
+    Card card = baseCard();
 
     card.setSummary("Alternative Therapy Suggested");
     card.setDetail(alternativeTherapy.getDisplay() + " (" + alternativeTherapy.getCode() + ") should be used instead.");
@@ -204,7 +197,7 @@ public class CardBuilder {
 
   public static Card drugInteractionCard(DrugInteraction drugInteraction) {
     logger.info("Build Drug Interaction Card: " + drugInteraction.getSummary());
-    Card card = baseCard(CardTypes.CONTRAINDICATION);
+    Card card = baseCard();
     card.setSummary(drugInteraction.getSummary());
     card.setDetail(drugInteraction.getDetail());
     card.setIndicator(Card.IndicatorEnum.WARNING);
@@ -222,7 +215,7 @@ public class CardBuilder {
                                    FhirResourceRepository fhirResourceRepository) {
     logger.info("Build Prior Auth Card");
 
-    Card card = transform(CardTypes.PRIOR_AUTH, cqlResults, false);
+    Card card = transform(cqlResults, false);
 
     // create the ClaimResponse
     ClaimResponse claimResponse = Utilities.createClaimResponse(priorAuthId, patientId, payerId, providerId, applicationFhirPath);
@@ -318,25 +311,19 @@ public class CardBuilder {
     return requestWithNoteSuggestion;
   }
 
-  private static Source createSource(CardTypes cardType) {
-    Source source = new Source();
-    source.setLabel("Da Vinci CRD Reference Implementation");
-    source.setTopic(cardType.getCoding());
-    return source;
-  }
-
   /**
    * Creates an error card and adds it to the response if the response that is passed in does not
    * contain any cards.
    *
-   * @param cardType
    * @param response The response to check and add cards to
    */
-  public static void errorCardIfNonePresent(CardTypes cardType, CdsResponse response) {
+  public static void errorCardIfNonePresent(CdsResponse response) {
     if (response.getCards() == null || response.getCards().size() == 0) {
       Card card = new Card();
       card.setIndicator(Card.IndicatorEnum.WARNING);
-      card.setSource(createSource(cardType));
+      Source source = new Source();
+      source.setLabel("Da Vinci CRD Reference Implementation");
+      card.setSource(source);
       String msg = "Unable to process hook request from provided information.";
       card.setSummary(msg);
       response.addCard(card);
@@ -344,10 +331,12 @@ public class CardBuilder {
     }
   }
 
-  private static Card baseCard(CardTypes cardType) {
+  private static Card baseCard() {
     Card card = new Card();
     card.setIndicator(Card.IndicatorEnum.INFO);
-    card.setSource(createSource(cardType));
+    Source source = new Source();
+    source.setLabel("Da Vinci CRD Reference Implementation");
+    card.setSource(source);
     return card;
   }
 }

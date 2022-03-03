@@ -28,9 +28,7 @@ bootRun {
     if (project.hasProperty('debug')) { 
         jvmArgs=["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8091"]
     }
-
 }
-
 
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")

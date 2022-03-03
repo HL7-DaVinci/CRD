@@ -141,12 +141,7 @@ public class PrefetchHydrator {
   }
 
   private IBaseResource executeFhirQuery(String query, String token) {
-    // remove the trailing '/' if there is one
-    String fhirBase = cdsRequest.getFhirServer();
-    if (fhirBase != null && fhirBase.endsWith("/")) {
-      fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
-    }
-    String fullUrl = fhirBase + "/" + query;
+    String fullUrl = cdsRequest.getFhirServer() + query;
     //    TODO: Once our provider fhir server is up, switch the fetch to use the hapi client instead
     //    cdsRequest.getOauth();
     //    FhirContext ctx = FhirContext.forR4();
@@ -165,7 +160,7 @@ public class PrefetchHydrator {
     }
     HttpEntity<String> entity = new HttpEntity<>("", headers);
     try {
-      logger.info("Fetching: " + fullUrl);
+      logger.debug("Fetching: " + fullUrl);
       ResponseEntity<String> response = restTemplate.exchange(fullUrl, HttpMethod.GET,
           entity, String.class);
       return fhirComponents.getJsonParser().parseResource(response.getBody());
