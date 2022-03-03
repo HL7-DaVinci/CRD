@@ -395,7 +395,7 @@ public class QuestionnaireController {
                     // If there is not already a tree that matches the requested questionnaire id,
                     // build it.
                     // Import the requested CDS-Library Questionnaire.
-                    Questionnaire cdsQuestionnaire = QuestionnaireController.importCdsAdaptiveQuestionnaire(request,
+                    Questionnaire cdsQuestionnaire = importCdsAdaptiveQuestionnaire(request,
                             parser, fileStore, questionnaireId);
 
                     // Build the tree.
@@ -451,7 +451,7 @@ public class QuestionnaireController {
      * @param request
      * @return
      */
-    private static Questionnaire importCdsAdaptiveQuestionnaire(HttpServletRequest request, IParser parser,
+    private Questionnaire importCdsAdaptiveQuestionnaire(HttpServletRequest request, IParser parser,
             FileStore fileStore, String questionnaireId) {
         Questionnaire cdsQuestionnaire = null;
         try {
