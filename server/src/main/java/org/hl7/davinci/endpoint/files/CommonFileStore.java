@@ -119,10 +119,6 @@ public abstract class CommonFileStore implements FileStore {
         FileResource processedResource = this.libraryContentProcessor.processResource(resource, this, baseUrl);
         return processedResource;
       }
-      if (resourceType.equalsIgnoreCase("Questionnaire")) {
-        // convert inline cql to elm
-        return resource;
-      }
     }
 
     return resource;
@@ -466,8 +462,7 @@ public abstract class CommonFileStore implements FileStore {
 
   /**
    * Looks for ValueSet references in Questionnaire.item**.answerValueSet entries
-   * that point to a VSAC ValueSet by OID and have the cache fetch the
-   * ValueSet.
+   * that point to a VSAC ValueSet by OID and have the cache fetch the ValueSet.
    * 
    * @param questionnaire The FHIR Questionnaire resource to look for ValueSet
    *                      references in.
