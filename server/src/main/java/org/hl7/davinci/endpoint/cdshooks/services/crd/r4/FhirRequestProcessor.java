@@ -173,80 +173,101 @@ public class FhirRequestProcessor {
   }
 
   /**
-   * Adds the given resource to the given CrdPrefetch based on the given resource type.
+   * Adds the given resource to the given CrdPrefetch based on the given resource
+   * type.
+   * 
    * @param crdResponse
    * @param resource
    * @param requestType
    */
-  public static void addToCrdPrefetchRequest(CrdPrefetch crdResponse, ResourceType requestType, List<BundleEntryComponent> resources) {
+  public static void addToCrdPrefetchRequest(CrdPrefetch crdResponse, ResourceType requestType,
+      List<BundleEntryComponent> resourcesToAdd) {
     switch (requestType) {
       case DeviceRequest:
-        if(crdResponse.getDeviceRequestBundle() == null){
-          Bundle deviceRequestBundle = new Bundle();
-          deviceRequestBundle.setType(BundleType.COLLECTION);
-          deviceRequestBundle.getTypeElement().setValue(BundleType.COLLECTION);
-          deviceRequestBundle.getTypeElement().addExtension();
-          crdResponse.setDeviceRequestBundle(deviceRequestBundle);
+        if (crdResponse.getDeviceRequestBundle() == null) {
+          crdResponse.setDeviceRequestBundle(new Bundle());
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getDeviceRequestBundle(), resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getDeviceRequestBundle(), resourcesToAdd);
         break;
       case MedicationRequest:
-        addNonDuplicateResourcesToBundle(crdResponse.getMedicationRequestBundle(), resources);
+        if (crdResponse.getMedicationRequestBundle() == null) {
+          crdResponse.setMedicationRequestBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getMedicationRequestBundle(), resourcesToAdd);
         break;
       case NutritionOrder:
-        addNonDuplicateResourcesToBundle(crdResponse.getNutritionOrderBundle(), resources);
+        if (crdResponse.getNutritionOrderBundle() == null) {
+          crdResponse.setNutritionOrderBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getNutritionOrderBundle(), resourcesToAdd);
         break;
       case ServiceRequest:
-        if(crdResponse.getServiceRequestBundle() == null){
+        if (crdResponse.getServiceRequestBundle() == null) {
           crdResponse.setServiceRequestBundle(new Bundle());
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getServiceRequestBundle(), resources);
+        addNonDuplicateResourcesToBundle(crdResponse.getServiceRequestBundle(), resourcesToAdd);
         break;
       case SupplyRequest:
-        addNonDuplicateResourcesToBundle(crdResponse.getSupplyRequestBundle(), resources);
+        if (crdResponse.getSupplyRequestBundle() == null) {
+          crdResponse.setSupplyRequestBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getSupplyRequestBundle(), resourcesToAdd);
         break;
       case Appointment:
-        addNonDuplicateResourcesToBundle(crdResponse.getAppointmentBundle(), resources);
+        if (crdResponse.getAppointmentBundle() == null) {
+          crdResponse.setAppointmentBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getAppointmentBundle(), resourcesToAdd);
         break;
       case Encounter:
-        addNonDuplicateResourcesToBundle(crdResponse.getEncounterBundle(), resources);
+        if (crdResponse.getEncounterBundle() == null) {
+          crdResponse.setEncounterBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getEncounterBundle(), resourcesToAdd);
         break;
       case MedicationDispense:
-        addNonDuplicateResourcesToBundle(crdResponse.getMedicationDispenseBundle(), resources);
+        if (crdResponse.getDeviceRequestBundle() == null) {
+          crdResponse.setDeviceRequestBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getMedicationDispenseBundle(), resourcesToAdd);
         break;
       case MedicationStatement:
-        addNonDuplicateResourcesToBundle(crdResponse.getMedicationStatementBundle(), resources);
+        if (crdResponse.getMedicationStatementBundle() == null) {
+          crdResponse.setMedicationStatementBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getMedicationStatementBundle(), resourcesToAdd);
         break;
       default:
         throw new RuntimeException("Unexpected resource type for draft order request. Given " + requestType + ".");
     }
   }
 
-  private static void addNonDuplicateResourcesToBundle(Bundle bundle, List<BundleEntryComponent> resources) {
-    for(BundleEntryComponent resourceEntry : resources){
-      if(!bundle.getEntry().stream().anyMatch(requestEntry -> requestEntry.getResource().getId().equals(resourceEntry.getResource().getId()))){
+  /**
+   * Adds non-duplicate resources that do not already exist in the bundle to the bundle.
+   */
+  private static void addNonDuplicateResourcesToBundle(Bundle bundle, List<BundleEntryComponent> resourcesToAdd) {
+    for (BundleEntryComponent resourceEntry : resourcesToAdd) {
+      if (!bundle.getEntry().stream()
+          .anyMatch(bundleEntry -> bundleEntry.getResource().getId().equals(resourceEntry.getResource().getId()))) {
         bundle.addEntry(resourceEntry);
       }
     }
-    bundle.setUserData("ca.uhn.fhir.parser.BaseParser_RESOURCE_CREATED_BY_PARSER", true);
-    // IIdType idtype = new IdType();
-    // bundle.setId(idtype);
   }
 
-  public static List<Patient> extractPatients(Bundle queryResponseBundle) {
+  public static List<Patient> extractPatientsFromBundle(Bundle queryResponseBundle) {
     List<Patient> coverages = new ArrayList<>();
-    for(BundleEntryComponent entry : queryResponseBundle.getEntry()){
-      if(entry.getResource().getResourceType().equals(ResourceType.Patient)){
+    for (BundleEntryComponent entry : queryResponseBundle.getEntry()) {
+      if (entry.getResource().getResourceType().equals(ResourceType.Patient)) {
         coverages.add((Patient) entry.getResource());
       }
     }
     return coverages;
   }
 
-  public static List<Coverage> extractCoverage(Bundle queryResponseBundle) {
+  public static List<Coverage> extractCoverageFromBundle(Bundle queryResponseBundle) {
     List<Coverage> coverages = new ArrayList<>();
-    for(BundleEntryComponent entry : queryResponseBundle.getEntry()){
-      if(entry.getResource().getResourceType().equals(ResourceType.Coverage)){
+    for (BundleEntryComponent entry : queryResponseBundle.getEntry()) {
+      if (entry.getResource().getResourceType().equals(ResourceType.Coverage)) {
         coverages.add((Coverage) entry.getResource());
       }
     }
@@ -272,6 +293,66 @@ public class FhirRequestProcessor {
           references.add(referenceId.replace("\"", ""));
         }
       }
+    }
+  }
+
+  /**
+   * Adds the given coverage and patient to the given resource.
+   * @param resource  The resource to add coverage and patient data to.
+   * @param patients  The list of valid patients.
+   * @param coverages The list of valid coverages.
+   */
+  public static void addInsuranceAndSubject(Resource resource, List<Patient> patients, List<Coverage> coverages) {
+    // Source: https://build.fhir.org/ig/HL7/davinci-crd/hooks.html#prefetch
+    switch(resource.getResourceType()){
+      case Appointment:
+        // Appointment does not define an insurance or subject field.
+      case DeviceRequest:
+        DeviceRequest deviceRequest = (DeviceRequest) resource;
+        if(!coverages.isEmpty()){
+          deviceRequest.getInsuranceFirstRep().setResource(coverages.get(0));
+        }
+        if(!patients.isEmpty()){
+          deviceRequest.getSubject().setResource(patients.get(0));
+        }
+        break;
+      case Encounter:
+        Encounter encounter = (Encounter) resource;
+        // Encounter does not have an insurance field.
+        if(!patients.isEmpty()){
+          encounter.getSubject().setResource(patients.get(0));
+        }
+        break;
+      case MedicationRequest:
+        MedicationRequest medicationRequest = (MedicationRequest) resource;
+        if(!coverages.isEmpty()){
+          medicationRequest.getInsuranceFirstRep().setResource(coverages.get(0));
+        }
+        if(!patients.isEmpty()){
+          medicationRequest.getSubject().setResource(patients.get(0));
+        }
+      case MedicationDispense:
+        MedicationDispense dispense = (MedicationDispense) resource;
+        // MedicationDispense does not have an insurance field.
+        // It is also not defined in the prefetch section of the spec, though that is likely a typo from the duplicated MedicationRequest.
+        if(!patients.isEmpty()){
+          dispense.getSubject().setResource(patients.get(0));
+        }
+        break;
+      case NutritionOrder:
+        // Appointment does not define an insurance or subject field.
+      case ServiceRequest:
+        ServiceRequest serviceRequest = (ServiceRequest) resource;
+        if(!coverages.isEmpty()){
+          serviceRequest.getInsuranceFirstRep().setResource(coverages.get(0));
+        }
+        if(!patients.isEmpty()){
+          serviceRequest.getSubject().setResource(patients.get(0));
+        }
+        break;
+      default:
+        // The input request type is not one of the 7 defined above and in the spec.
+        throw new RuntimeException("Invalid request type: " + resource.getResourceType() + ".");
     }
   }
 }

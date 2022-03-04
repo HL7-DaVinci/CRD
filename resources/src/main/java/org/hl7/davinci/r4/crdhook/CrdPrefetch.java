@@ -114,17 +114,15 @@ public class CrdPrefetch {
    * @return
    */
   public boolean containsRequestResourceId(String id) {
-    boolean containsId = false;
-    containsId |= this.bundleContainsResourceId(this.deviceRequestBundle, id);
-    containsId |= this.bundleContainsResourceId(this.medicationRequestBundle, id);
-    containsId |= this.bundleContainsResourceId(this.nutritionOrderBundle, id);
-    containsId |= this.bundleContainsResourceId(this.serviceRequestBundle, id);
-    containsId |= this.bundleContainsResourceId(this.supplyRequestBundle, id);
-    containsId |= this.bundleContainsResourceId(this.appointmentBundle, id);
-    containsId |= this.bundleContainsResourceId(this.encounterBundle, id);
-    containsId |= this.bundleContainsResourceId(this.medicationDispenseBundle, id);
-    containsId |= this.bundleContainsResourceId(this.medicationStatementBundle, id);
-    return containsId;
+    return this.bundleContainsResourceId(this.deviceRequestBundle, id)
+        || this.bundleContainsResourceId(this.medicationRequestBundle, id)
+        || this.bundleContainsResourceId(this.nutritionOrderBundle, id)
+        || this.bundleContainsResourceId(this.serviceRequestBundle, id)
+        || this.bundleContainsResourceId(this.supplyRequestBundle, id)
+        || this.bundleContainsResourceId(this.appointmentBundle, id)
+        || this.bundleContainsResourceId(this.encounterBundle, id)
+        || this.bundleContainsResourceId(this.medicationDispenseBundle, id)
+        || this.bundleContainsResourceId(this.medicationStatementBundle, id);
   }
 
   /**
@@ -134,10 +132,15 @@ public class CrdPrefetch {
    * @return
    */
   private boolean bundleContainsResourceId(Bundle bundle, String id) {
-    if(bundle != null) {
-      return bundle.getEntry().stream().anyMatch((BundleEntryComponent entry) -> entry.getResource().getId().equals(id));
+    if (bundle == null) {
+      return false;
     }
-    return false;
+    if (id.contains("/")) {
+      String[] splitId = id.split("/");
+      id = splitId[splitId.length-1];
+    }
+    final String idToCheck = id;
+    return bundle.getEntry().stream().anyMatch(entry -> entry.getResource().getId().contains(idToCheck));
   }
 
   @Override

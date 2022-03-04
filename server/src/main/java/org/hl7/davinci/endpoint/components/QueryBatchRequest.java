@@ -12,11 +12,9 @@ import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.DeviceRequest;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
-import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
 import org.slf4j.Logger;
@@ -74,81 +72,68 @@ public class QueryBatchRequest {
     logger.info("***** ***** Attempting Query Batch Request.");
 
     CrdPrefetch crdResponse = cdsRequest.getPrefetch();
-    logger.info("Pre-Query Batch CRDResponse: " + crdResponse);
-    // The list of references that should be queried in the request.
+    // The list of references that should be queried in the batch request.
     List<String> requiredReferences = new ArrayList<String>();
 
-    // 1. Get the IDs of references in the request's draft orders.
+    // Get the IDs of references in the request's draft orders.
     Bundle draftOrdersBundle = cdsRequest.getContext().getDraftOrders();
     // This assumes that only the first draft order is relevant.
-    Resource requestResourceEntry = draftOrdersBundle.getEntry().get(0).getResource();
-    ResourceType requestType = requestResourceEntry.getResourceType();
+    Resource initialRequestResource = draftOrdersBundle.getEntry().get(0).getResource();
+    ResourceType requestType = initialRequestResource.getResourceType();
     // Extract the references by iterating through the JSON.
     Gson gson = new Gson();
-    final JsonObject jsonObject = gson.toJsonTree(requestResourceEntry).getAsJsonObject();
+    final JsonObject jsonObject = gson.toJsonTree(initialRequestResource).getAsJsonObject();
     for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
       FhirRequestProcessor.extractReferenceIds(requiredReferences, entry.getValue());
     }
 
-    logger.info("----- References: " + requiredReferences);
-    logger.info("----- Full Resource: " + requestResourceEntry);
-
-    // 2. Remove IDs from the references if they already exist in the CRD Response.
+    // Filter out references that already exist in the CRD Response.
     requiredReferences = requiredReferences.stream()
         .filter(referenceId -> !crdResponse.containsRequestResourceId(referenceId))
         .collect(Collectors.toList());
 
-    if (!requiredReferences.isEmpty()) {
-      // 3. Build the Query Batch Request JSON using
-      // http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#fhir-resource-access
-      Bundle queryBatchBundle = buildQueryBatchRequestBundle(requiredReferences);
-      String queryBatchRequest = FhirContext.forR4().newJsonParser().encodeResourceToString(queryBatchBundle);
-
-      // Make the query batch request to the EHR server.
-      IBaseResource queryBatchResponse = null;
-      try {
-        logger.info("Executing Query Batch Request: " + queryBatchRequest);
-        queryBatchResponse = executeFhirQuery(queryBatchRequest, this.cdsRequest, this.fhirComponents);
-        queryBatchResponse = extractNestedBundledResources((Bundle)queryBatchResponse);
-        logger.info("Extracted Query Batch Resources: " + ((Bundle)queryBatchResponse).getEntry().stream().map(entry -> entry.getResource()).collect(Collectors.toList()));
-      } catch (Exception e) {
-        logger.error("Failed to backfill prefetch with Query Batch Request " + queryBatchRequest, e);
-      }
-
-      // 4. Populate the response with fields pulled from the Query Batch Request.
-      if (queryBatchResponse != null) {
-        Bundle queryResponseBundle = (Bundle) queryBatchResponse;
-        // Add the request resource to the query batch response as it may be missing.
-        BundleEntryComponent requestResource = new BundleEntryComponent();
-
-        // TODO - for some reason, the Coverage and Subject are not automatically being linked to the request object. It is somehow automatically linked during standard prefetch.
-        if(requestResourceEntry.getResourceType().equals(ResourceType.DeviceRequest)){
-          // There is sadly no superclass for devicerequest/servicerequest/etc. so it is apparently impossible to have a generic approach to this.
-          DeviceRequest deviceRequest = (DeviceRequest) requestResourceEntry;
-          List<Coverage> coverages = FhirRequestProcessor.extractCoverage(queryResponseBundle);
-          deviceRequest.getInsuranceFirstRep().setResource(coverages.get(0));
-          List<Patient> patients = FhirRequestProcessor.extractPatients(queryResponseBundle);
-          deviceRequest.getSubject().setResource(patients.get(0));
-        } else if(requestResourceEntry.getResourceType().equals(ResourceType.ServiceRequest)){
-          ServiceRequest serviceRequest = (ServiceRequest) requestResourceEntry;
-          List<Coverage> coverages = FhirRequestProcessor.extractCoverage(queryResponseBundle);
-          serviceRequest.getInsuranceFirstRep().setResource(coverages.get(0));
-          List<Patient> patients = FhirRequestProcessor.extractPatients(queryResponseBundle);
-          serviceRequest.getSubject().setResource(patients.get(0));
-        }
-
-        requestResource.setResource(requestResourceEntry);
-        queryResponseBundle.addEntry(requestResource);
-        // Add the query batch responses to the CRD Prefetch request.
-        logger.info("Query Batch Response Entries: " + queryResponseBundle.getEntry());
-        FhirRequestProcessor.addToCrdPrefetchRequest(crdResponse, requestType, queryResponseBundle.getEntry());
-        logger.info("Post-Query Batch CRDResponse: " + crdResponse);
-      } else {
-        logger.error("No response recieved for the Query Batch Request.");
-      }
-    } else {
+    logger.info("References to query: " + requiredReferences);
+    if (requiredReferences.isEmpty()) {
       logger.info("A Query Batch Request is not needed: all references have already already fetched.");
+      return;
     }
+
+    // Build the Query Batch Request JSON.
+    Bundle queryBatchRequestBundle = buildQueryBatchRequestBundle(requiredReferences);
+    String queryBatchRequest = FhirContext.forR4().newJsonParser().encodeResourceToString(queryBatchRequestBundle);
+
+    // Make the query batch request to the EHR server.
+    Bundle queryResponseBundle = null;
+    try {
+      logger.info("Executing Query Batch Request: " + queryBatchRequest);
+      queryResponseBundle = (Bundle) executeFhirQuery(queryBatchRequest, this.cdsRequest, this.fhirComponents);
+      queryResponseBundle = extractNestedBundledResources(queryResponseBundle);
+      logger.info("Extracted Query Batch Resources: "
+          + (queryResponseBundle).getEntry().stream().map(entry -> entry.getResource()).collect(Collectors.toList()));
+    } catch (Exception e) {
+      logger.error("Failed to backfill prefetch with Query Batch Request " + queryBatchRequest, e);
+    }
+
+    if (queryResponseBundle == null) {
+      logger.error("No response recieved from the Query Batch Request.");
+      return;
+    }
+
+    // Add the request resource to the query batch response as it may be missing.
+    // Coverage and Subject are not automatically being
+    // linked to the request object. It seems to somehow automatically link during
+    // standard prefetch, but not here so we're doing it manually.
+    List<Coverage> coverages = FhirRequestProcessor.extractCoverageFromBundle(queryResponseBundle);
+    List<Patient> patients = FhirRequestProcessor.extractPatientsFromBundle(queryResponseBundle);
+    FhirRequestProcessor.addInsuranceAndSubject(initialRequestResource, patients, coverages);
+    BundleEntryComponent newEntry = new BundleEntryComponent();
+    newEntry.setResource(initialRequestResource);
+    queryResponseBundle.addEntry(newEntry);
+
+    // Add the query batch response resources to the CRD Prefetch request.
+    logger.info("Query Batch Response Entries: " + queryResponseBundle.getEntry());
+    FhirRequestProcessor.addToCrdPrefetchRequest(crdResponse, requestType, queryResponseBundle.getEntry());
+    logger.info("Post-Query Batch CRDResponse: " + crdResponse);
   }
 
   /**
@@ -204,6 +189,7 @@ public class QueryBatchRequest {
    * @return
    */
   private static Bundle buildQueryBatchRequestBundle(List<String> resourceReferences) {
+    // http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#fhir-resource-access
     Bundle queryBatchBundle = new Bundle();
     queryBatchBundle.setType(BundleType.BATCH);
     for (String reference : resourceReferences) {
@@ -235,7 +221,9 @@ public class QueryBatchRequest {
   }
 
   /**
-   * Extracts the resources inside a bundled bundle to be at the top level of the bundle, making them no longer nested.
+   * Extracts the resources inside a bundled bundle to be at the top level of the
+   * bundle, making them no longer nested.
+   * 
    * @param resource
    * @return
    */
