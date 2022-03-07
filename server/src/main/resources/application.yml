@@ -74,3 +74,6 @@ localDb:
 valueSetCachePath: ValueSetCache/
 
 hostOrg: default
+
+# Configure whether Query Batch Requests will be used to backfill potentially missing prefetch resources.
+queryBatchRequest: true

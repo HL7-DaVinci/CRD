@@ -148,15 +148,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Parsed request
     requestLog.advanceTimeline(requestService);
 
-    // PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
-    // prefetchHydrator.hydrate();
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
+    prefetchHydrator.hydrate();
 
     // hydrated
     requestLog.advanceTimeline(requestService);
 
     // Attempt a Query Batch Request to backfill missing attributes.
-    QueryBatchRequest batchRequest = new QueryBatchRequest(this, request, this.fhirComponents);
-    batchRequest.performQueryBatchRequest();
+    if(myConfig.isQueryBatchRequest()){
+      QueryBatchRequest batchRequest = new QueryBatchRequest(this, request, this.fhirComponents);
+      batchRequest.performQueryBatchRequest();
+    }
 
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );
 
