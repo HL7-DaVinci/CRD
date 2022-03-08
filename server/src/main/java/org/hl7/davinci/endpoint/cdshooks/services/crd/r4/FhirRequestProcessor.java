@@ -226,8 +226,8 @@ public class FhirRequestProcessor {
         addNonDuplicateResourcesToBundle(crdResponse.getEncounterBundle(), resourcesToAdd);
         break;
       case MedicationDispense:
-        if (crdResponse.getDeviceRequestBundle() == null) {
-          crdResponse.setDeviceRequestBundle(new Bundle());
+        if (crdResponse.getMedicationDispenseBundle() == null) {
+          crdResponse.setMedicationDispenseBundle(new Bundle());
         }
         addNonDuplicateResourcesToBundle(crdResponse.getMedicationDispenseBundle(), resourcesToAdd);
         break;
@@ -254,19 +254,29 @@ public class FhirRequestProcessor {
     }
   }
 
-  public static List<Patient> extractPatientsFromBundle(Bundle queryResponseBundle) {
-    List<Patient> coverages = new ArrayList<>();
-    for (BundleEntryComponent entry : queryResponseBundle.getEntry()) {
+  /**
+   * Extracts patients from the given bundle.
+   * @param bundle
+   * @return
+   */
+  public static List<Patient> extractPatientsFromBundle(Bundle bundle) {
+    List<Patient> patients = new ArrayList<>();
+    for (BundleEntryComponent entry : bundle.getEntry()) {
       if (entry.getResource().getResourceType().equals(ResourceType.Patient)) {
-        coverages.add((Patient) entry.getResource());
+        patients.add((Patient) entry.getResource());
       }
     }
-    return coverages;
+    return patients;
   }
 
-  public static List<Coverage> extractCoverageFromBundle(Bundle queryResponseBundle) {
+  /**
+   * Extracts the coverage elements from the given bundle.
+   * @param bundle
+   * @return
+   */
+  public static List<Coverage> extractCoverageFromBundle(Bundle bundle) {
     List<Coverage> coverages = new ArrayList<>();
-    for (BundleEntryComponent entry : queryResponseBundle.getEntry()) {
+    for (BundleEntryComponent entry : bundle.getEntry()) {
       if (entry.getResource().getResourceType().equals(ResourceType.Coverage)) {
         coverages.add((Coverage) entry.getResource());
       }
@@ -305,8 +315,6 @@ public class FhirRequestProcessor {
   public static void addInsuranceAndSubject(Resource resource, List<Patient> patients, List<Coverage> coverages) {
     // Source: https://build.fhir.org/ig/HL7/davinci-crd/hooks.html#prefetch
     switch(resource.getResourceType()){
-      case Appointment:
-        // Appointment does not define an insurance or subject field.
       case DeviceRequest:
         DeviceRequest deviceRequest = (DeviceRequest) resource;
         if(!coverages.isEmpty()){
@@ -339,8 +347,6 @@ public class FhirRequestProcessor {
           dispense.getSubject().setResource(patients.get(0));
         }
         break;
-      case NutritionOrder:
-        // Appointment does not define an insurance or subject field.
       case ServiceRequest:
         ServiceRequest serviceRequest = (ServiceRequest) resource;
         if(!coverages.isEmpty()){
@@ -350,6 +356,10 @@ public class FhirRequestProcessor {
           serviceRequest.getSubject().setResource(patients.get(0));
         }
         break;
+      case NutritionOrder:
+        // NutritionOrder does not define an insurance or subject field.
+      case Appointment:
+        // Appointment does not define an insurance or subject field.
       default:
         // The input request type is not one of the 7 defined above and in the spec.
         throw new RuntimeException("Invalid request type: " + resource.getResourceType() + ".");
