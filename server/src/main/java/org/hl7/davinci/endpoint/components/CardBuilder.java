@@ -3,16 +3,16 @@ package org.hl7.davinci.endpoint.components;
 import java.util.*;
 
 import org.cdshooks.*;
-import org.cdshooks.Coding;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.endpoint.database.FhirResource;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.r4.CardTypes;
+import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.Utilities;
-import org.hl7.fhir.instance.model.api.IBase;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -246,13 +246,13 @@ public class CardBuilder {
 
     // add suggestion with ClaimResponse
     Suggestion suggestionWithClaimResponse = createSuggestionWithResource(outputRequest, claimResponse, fhirComponents,
-        "Store the prior authorization in the EHR");
+        "Store the prior authorization in the EHR", true);
     card.addSuggestionsItem(suggestionWithClaimResponse);
 
     // add suggestion with annotation
     Suggestion suggestionWithAnnotation = createSuggestionWithNote(card, outputRequest, fhirComponents,
         "Store prior authorization as an annotation to the order", "Add authorization to record",
-        false);
+        false, CoverageGuidance.PRIOR_AUTH);
     card.addSuggestionsItem(suggestionWithAnnotation);
 
     card.setSelectionBehavior(Card.SelectionBehaviorEnum.AT_MOST_ONE);
@@ -263,11 +263,12 @@ public class CardBuilder {
   public static Suggestion createSuggestionWithResource(IBaseResource request,
                                                         IBaseResource resource,
                                                         FhirComponentsT fhirComponents,
-                                                        String label) {
+                                                        String label,
+                                                        boolean isRecommended) {
     Suggestion suggestion = new Suggestion();
 
     suggestion.setLabel(label);
-    suggestion.setIsRecommended(true);
+    suggestion.setIsRecommended(isRecommended);
 
     // build the create Action
     Action createAction = new Action(fhirComponents);
@@ -285,12 +286,15 @@ public class CardBuilder {
 
     return suggestion;
   }
+
   public static Suggestion createSuggestionWithNote(Card card,
                                                     IBaseResource request,
                                                     FhirComponentsT fhirComponents,
                                                     String label,
                                                     String description,
-                                                    boolean isRecommended) {
+                                                    boolean isRecommended,
+                                                    CoverageGuidance coverageGuidance) {
+    Date now = new Date();
     Suggestion requestWithNoteSuggestion = new Suggestion();
 
     requestWithNoteSuggestion.setLabel(label);
@@ -304,8 +308,36 @@ public class CardBuilder {
     annotation.setAuthor(author);
     String text = card.getSummary() + ": " + card.getDetail();
     annotation.setText(text);
-    annotation.setTime(new Date()); // set the date and time to now
+    annotation.setTime(now); // set the date and time to now
     IBaseResource resource = FhirRequestProcessor.addNoteToRequest(request, annotation);
+
+    // build the Extension with the coverage information
+    Extension extension = new Extension();
+    extension.setUrl("http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-coverage-information");
+
+    Extension coverageInfo = new Extension();
+    coverageInfo.setUrl("coverageInfo")
+        .setValue(coverageGuidance.getCoding());
+    extension.addExtension(coverageInfo);
+
+    Extension coverageExtension = new Extension();
+    Reference coverageReference = new Reference();
+    //TODO: get the coverage from the prefetch and pass it into here instead of retrieving it from the request
+    coverageReference.setReference(FhirRequestProcessor.getCoverageFromRequest(request).getReference());
+    coverageExtension.setUrl("coverage")
+        .setValue(coverageReference);
+    extension.addExtension(coverageExtension);
+
+    Extension date = new Extension();
+    date.setUrl("date")
+        .setValue(new DateType().setValue(now));
+    extension.addExtension(date);
+    Extension identifier = new Extension();
+    String id = UUID.randomUUID().toString();
+    identifier.setUrl("identifier")
+        .setValue(new StringType(id));
+    extension.addExtension(identifier);
+    resource = FhirRequestProcessor.addExtensionToRequest(resource, extension);
 
     Action updateAction = new Action(fhirComponents);
     updateAction.setType(Action.TypeEnum.update);
