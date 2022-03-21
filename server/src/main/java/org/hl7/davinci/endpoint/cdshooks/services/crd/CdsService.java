@@ -149,8 +149,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Parsed request
     requestLog.advanceTimeline(requestService);
 
-    // PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
-    // prefetchHydrator.hydrate();
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
+    prefetchHydrator.hydrate();
 
     // hydrated
     requestLog.advanceTimeline(requestService);
