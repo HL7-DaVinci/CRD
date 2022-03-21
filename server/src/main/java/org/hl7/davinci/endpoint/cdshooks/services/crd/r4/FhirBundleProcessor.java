@@ -175,8 +175,7 @@ public class FhirBundleProcessor {
       throw e;
     } catch (Exception e) {
       // catch all remaining exceptions
-      System.out.println("Create criteria list exception: ");
-      e.printStackTrace();
+      System.out.println(e);
       throw new RequestIncompleteException("Unable to parse list of codes, codesystems, and payors from a device request.");
     }
   }

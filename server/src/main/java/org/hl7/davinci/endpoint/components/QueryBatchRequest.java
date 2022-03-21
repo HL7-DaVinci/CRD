@@ -3,8 +3,8 @@ package org.hl7.davinci.endpoint.components;
 import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FatalRequestIncompleteException;
 import org.hl7.davinci.FhirComponentsT;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.davinci.endpoint.files.FhirResourceProcessor;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.ServiceContext;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -39,38 +39,30 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+/**
+ * A Query Batch Request can be used to populate fields in a CDS Request that a Prefetch may have missed.
+ */
 public class QueryBatchRequest {
 
   private static final Logger logger = LoggerFactory.getLogger(QueryBatchRequest.class);
   private static final String PRACTIONER_ROLE = "PractitionerRole";
 
-  // private final CdsService<?> cdsService;
-  private final CdsRequest<CrdPrefetch, ServiceContext> cdsRequest;
   private final FhirComponentsT fhirComponents;
 
-  public QueryBatchRequest(CdsService<?> cdsService, CdsRequest<?, ?> cdsRequest, FhirComponentsT fhirComponents) {
-    // A Query Batch Request is used to try and populate missing fields that the
-    // prefetch/hydrator missed.
-    // this.cdsService = cdsService;
-    this.cdsRequest = (CdsRequest<CrdPrefetch, ServiceContext>) cdsRequest;
+  public QueryBatchRequest(FhirComponentsT fhirComponents) {
     this.fhirComponents = fhirComponents;
   }
 
   /**
-   * Backfills the missing required values of the response. In this case, it
-   * should be called after the Prefetch and Prefetch Hydrator have run,
-   * querying and adding the attributes they missed.
-   * Approach:
-   * 1. Pull the IDs of the required references from the request object's draft
-   * orders.
-   * 2. See which of those values are missing from the current CRD response.
-   * 3. Build the Query Batch JSON request using
-   * http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#fhir-resource-access
-   * 4. Populate the CRD response with the values from the Query Batch response.
+   * Backfills the missing required values of the response that prefetch may have missed.
+   * This implementation pulls the IDs of the required references from the request object's draft
+   * orders, checks which of those values are missing from the current CRD response, builds the
+   * Query Batch JSON request using
+   * http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#fhir-resource-access,
+   * then populates the CRD response with the response from the Query Batch.
    */
-  public void performQueryBatchRequest() {
-    logger.info("***** ***** Attempting Query Batch Request.");
-
+  public void performQueryBatchRequest(CdsRequest<CrdPrefetch, ?> cdsRequest) {
+    logger.info("***** ***** Performing Query Batch Request.");
     CrdPrefetch crdResponse = cdsRequest.getPrefetch();
     // The list of references that should be queried in the batch request.
     List<String> requiredReferences = new ArrayList<String>();
@@ -106,7 +98,7 @@ public class QueryBatchRequest {
     Bundle queryResponseBundle = null;
     try {
       logger.info("Executing Query Batch Request: " + queryBatchRequest);
-      queryResponseBundle = (Bundle) executeFhirQuery(queryBatchRequest, this.cdsRequest, this.fhirComponents);
+      queryResponseBundle = (Bundle) FhirRequestProcessor.executeFhirQuery(queryBatchRequest, cdsRequest, this.fhirComponents, HttpMethod.POST);
       queryResponseBundle = extractNestedBundledResources(queryResponseBundle);
       logger.info("Extracted Query Batch Resources: "
           + (queryResponseBundle).getEntry().stream().map(entry -> entry.getResource()).collect(Collectors.toList()));
@@ -134,52 +126,6 @@ public class QueryBatchRequest {
     logger.info("Query Batch Response Entries: " + queryResponseBundle.getEntry());
     FhirRequestProcessor.addToCrdPrefetchRequest(crdResponse, requestType, queryResponseBundle.getEntry());
     logger.info("Post-Query Batch CRDResponse: " + crdResponse);
-  }
-
-  /**
-   * Executes the given fhir query.
-   * 
-   * @param query
-   * @param cdsRequest
-   * @param fhirComponents
-   * @return
-   */
-  private static IBaseResource executeFhirQuery(String query, CdsRequest<?, ?> cdsRequest,
-      FhirComponentsT fhirComponents) {
-    if (cdsRequest.getFhirServer() == null) {
-      throw new FatalRequestIncompleteException("Attempted to perform a Query Batch Request, but no fhir "
-          + "server provided.");
-    }
-    // Remove the trailing '/' if there is one.
-    String fhirBase = cdsRequest.getFhirServer();
-    if (fhirBase != null && fhirBase.endsWith("/")) {
-      fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
-    }
-    String fullUrl = fhirBase + "/";
-
-    String token = null;
-    if (cdsRequest.getFhirAuthorization() != null) {
-      token = cdsRequest.getFhirAuthorization().getAccessToken();
-    }
-
-    RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
-    headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    if (token != null) {
-      headers.set("Authorization", "Bearer " + token);
-    }
-    HttpEntity<String> entity = new HttpEntity<>(query, headers);
-    try {
-      logger.info("Fetching: " + fullUrl);
-      // Request source: https://www.hl7.org/fhir/http.html#transaction
-      ResponseEntity<String> response = restTemplate.exchange(fullUrl, HttpMethod.POST, entity, String.class);
-      logger.info("Fetched: " + response.getBody());
-      return fhirComponents.getJsonParser().parseResource(response.getBody());
-    } catch (RestClientException e) {
-      logger.warn("Unable to make the fetch request", e);
-      return null;
-    }
   }
 
   /**

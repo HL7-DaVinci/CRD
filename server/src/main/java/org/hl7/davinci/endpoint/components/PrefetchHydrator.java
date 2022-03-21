@@ -2,7 +2,6 @@ package org.hl7.davinci.endpoint.components;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -12,16 +11,11 @@ import org.hl7.davinci.FatalRequestIncompleteException;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 public class PrefetchHydrator {
 
@@ -116,10 +110,6 @@ public class PrefetchHydrator {
         // check if the bundle actually has element
         String prefetchQuery = cdsService.prefetch.get(prefetchKey);
         String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
-        String token = null;
-        if (cdsRequest.getFhirAuthorization() != null) {
-          token = cdsRequest.getFhirAuthorization().getAccessToken();
-        }
         // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
         // e.g. this could be a query template for a medication order but we have a device request
         if (hydratedPrefetchQuery != null) {
@@ -131,47 +121,12 @@ public class PrefetchHydrator {
             PropertyUtils
                 .setProperty(crdResponse, prefetchKey,
                     prefetchElement.getReturnType().cast(
-                        executeFhirQuery(hydratedPrefetchQuery, token)));
+                        FhirRequestProcessor.executeFhirQuery(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
           } catch (Exception e) {
             logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
           }
         }
       }
-    }
-  }
-
-  private IBaseResource executeFhirQuery(String query, String token) {
-    // remove the trailing '/' if there is one
-    String fhirBase = cdsRequest.getFhirServer();
-    if (fhirBase != null && fhirBase.endsWith("/")) {
-      fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
-    }
-    String fullUrl = fhirBase + "/" + query;
-    //    TODO: Once our provider fhir server is up, switch the fetch to use the hapi client instead
-    //    cdsRequest.getOauth();
-    //    FhirContext ctx = FhirContext.forR4();
-    //    BearerTokenAuthInterceptor authInterceptor = new BearerTokenAuthInterceptor(oauth.get("access_token"));
-    //    IGenericClient client = ctx.newRestfulGenericClient(server);
-    //    client.registerInterceptor(authInterceptor);
-    //    return client;
-    //    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-    //    return client.search().byUrl(query).encodedJson().returnBundle(Bundle.class).execute();
-
-    RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
-    headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-    if (token != null) {
-      headers.set("Authorization", "Bearer " + token);
-    }
-    HttpEntity<String> entity = new HttpEntity<>("", headers);
-    try {
-      logger.info("Fetching: " + fullUrl);
-      ResponseEntity<String> response = restTemplate.exchange(fullUrl, HttpMethod.GET,
-          entity, String.class);
-      return fhirComponents.getJsonParser().parseResource(response.getBody());
-    } catch (RestClientException e) {
-      logger.warn("Unable to make the fetch request", e);
-      return null;
     }
   }
 

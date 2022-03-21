@@ -31,6 +31,7 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
@@ -148,16 +149,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Parsed request
     requestLog.advanceTimeline(requestService);
 
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
-    prefetchHydrator.hydrate();
+    // PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
+    // prefetchHydrator.hydrate();
 
     // hydrated
     requestLog.advanceTimeline(requestService);
 
     // Attempt a Query Batch Request to backfill missing attributes.
     if(myConfig.isQueryBatchRequest()){
-      QueryBatchRequest batchRequest = new QueryBatchRequest(this, request, this.fhirComponents);
-      batchRequest.performQueryBatchRequest();
+      QueryBatchRequest batchRequest = new QueryBatchRequest(this.fhirComponents);
+      batchRequest.performQueryBatchRequest((CdsRequest<CrdPrefetch, ?>) request);
     }
 
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );

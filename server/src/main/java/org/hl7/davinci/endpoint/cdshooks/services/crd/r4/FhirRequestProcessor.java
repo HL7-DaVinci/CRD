@@ -1,16 +1,25 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import org.cdshooks.AlternativeTherapy;
+import org.cdshooks.CdsRequest;
+import org.hl7.davinci.FatalRequestIncompleteException;
+import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.instance.model.api.IIdType;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -365,4 +374,60 @@ public class FhirRequestProcessor {
         throw new RuntimeException("Invalid request type: " + resource.getResourceType() + ".");
     }
   }
+
+  /**
+   * Executes the given fhir query.
+   * 
+   * @param query
+   * @param cdsRequest
+   * @param fhirComponents
+   * @return
+   */
+  public static IBaseResource executeFhirQuery(String query, CdsRequest<?, ?> cdsRequest,
+      FhirComponentsT fhirComponents, HttpMethod httpMethod) {
+    if (cdsRequest.getFhirServer() == null) {
+      throw new FatalRequestIncompleteException("Attempted to perform a Query Batch Request, but no fhir "
+          + "server provided.");
+    }
+    // Remove the trailing '/' if there is one.
+    String fhirBase = cdsRequest.getFhirServer();
+    if (fhirBase != null && fhirBase.endsWith("/")) {
+      fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
+    }
+    String fullUrl = fhirBase + "/";
+    //    TODO: Once our provider fhir server is up, switch the fetch to use the hapi client instead
+    //    cdsRequest.getOauth();
+    //    FhirContext ctx = FhirContext.forR4();
+    //    BearerTokenAuthInterceptor authInterceptor = new BearerTokenAuthInterceptor(oauth.get("access_token"));
+    //    IGenericClient client = ctx.newRestfulGenericClient(server);
+    //    client.registerInterceptor(authInterceptor);
+    //    return client;
+    //    IGenericClient client = ctx.newRestfulGenericClient(serverBase);
+    //    return client.search().byUrl(query).encodedJson().returnBundle(Bundle.class).execute();
+
+    String token = null;
+    if (cdsRequest.getFhirAuthorization() != null) {
+      token = cdsRequest.getFhirAuthorization().getAccessToken();
+    }
+
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders headers = new HttpHeaders();
+    headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    if (token != null) {
+      headers.set("Authorization", "Bearer " + token);
+    }
+    HttpEntity<String> entity = new HttpEntity<>(query, headers);
+    try {
+      logger.info("Fetching: " + fullUrl);
+      // Request source: https://www.hl7.org/fhir/http.html#transaction
+      ResponseEntity<String> response = restTemplate.exchange(fullUrl, httpMethod, entity, String.class);
+      logger.info("Fetched: " + response.getBody());
+      return fhirComponents.getJsonParser().parseResource(response.getBody());
+    } catch (RestClientException e) {
+      logger.warn("Unable to make the fetch request", e);
+      return null;
+    }
+  }
+
 }
