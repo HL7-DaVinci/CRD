@@ -12,7 +12,9 @@ import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.fhir.dstu2.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -38,7 +40,7 @@ public class PrefetchHydrator {
    *
    * @param cdsService The service that is processing the request.
    * @param cdsRequest The request in question, the prefetch will be hydrated if possible. Note that
-   *                   this object gets modified.
+   *                   this object gets modified
    * @param fhirComponents The fhir components object.
    */
   public PrefetchHydrator(CdsService cdsService, CdsRequest cdsRequest,
@@ -108,22 +110,31 @@ public class PrefetchHydrator {
       }
       if (!alreadyIncluded) {
         // check if the bundle actually has element
-        String prefetchQuery = cdsService.prefetch.get(prefetchKey);
-        String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
-        // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
-        // e.g. this could be a query template for a medication order but we have a device request
-        if (hydratedPrefetchQuery != null) {
-          if (cdsRequest.getFhirServer() == null) {
-            throw new FatalRequestIncompleteException("Attempting to fill the prefetch, but no fhir "
-                + "server provided. Either provide a full prefetch or provide a fhir server.");
-          }
-          try {
-            PropertyUtils
-                .setProperty(crdResponse, prefetchKey,
-                    prefetchElement.getReturnType().cast(
-                        FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
-          } catch (Exception e) {
-            logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
+        String[] prefetchQueries = cdsService.prefetch.get(prefetchKey);
+        for (String prefetchQuery : prefetchQueries) {
+          String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
+          // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
+          // e.g. this could be a query template for a medication order but we have a device request
+          if (hydratedPrefetchQuery != null) {
+            if (cdsRequest.getFhirServer() == null) {
+              throw new FatalRequestIncompleteException("Attempting to fill the prefetch, but no fhir "
+                  + "server provided. Either provide a full prefetch or provide a fhir server.");
+            }
+            try {
+              Bundle bundle = (Bundle) PropertyUtils.getProperty(crdResponse, prefetchKey);
+              if (bundle == null) {
+                PropertyUtils
+                  .setProperty(crdResponse, prefetchKey,
+                      prefetchElement.getReturnType().cast(
+                          FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
+              } else {
+                Bundle newBundle = (Bundle) prefetchElement.getReturnType().cast(
+                    FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET));
+                bundle.getEntry().addAll(newBundle.getEntry());
+              }
+            } catch (Exception e) {
+              logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
+            }
           }
         }
       }

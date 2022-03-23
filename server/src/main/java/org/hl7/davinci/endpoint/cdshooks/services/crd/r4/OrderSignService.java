@@ -40,11 +40,11 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
       "Get information regarding the coverage requirements for durable medical equipment";
   public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
       CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
-      CrdPrefetchTemplateElements.SUPPLY_REQUEST_BUNDLE,
-      CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
-      CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE,
-      CrdPrefetchTemplateElements.SERVICE_REQUEST_BUNDLE,
-      CrdPrefetchTemplateElements.MEDICATION_DISPENSE_BUNDLE);
+      // CrdPrefetchTemplateElements.SUPPLY_REQUEST_BUNDLE,
+      // CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
+      CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE);
+      // CrdPrefetchTemplateElements.SERVICE_REQUEST_BUNDLE,
+      // CrdPrefetchTemplateElements.MEDICATION_DISPENSE_BUNDLE);
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   static final Logger logger = LoggerFactory.getLogger(OrderSignService.class);
 
