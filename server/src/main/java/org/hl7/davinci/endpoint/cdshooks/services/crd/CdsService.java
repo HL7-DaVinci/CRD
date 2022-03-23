@@ -167,7 +167,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     Gson gson = new Gson();
     final String jsonObject = gson.toJson(request.getPrefetch());
-    logger.info("Post-prefetch CRDPrefetch request: " + jsonObject);
+    logger.info("Final populated CRDPrefetch: " + jsonObject);
 
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;

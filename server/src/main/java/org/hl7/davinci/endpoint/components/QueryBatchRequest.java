@@ -92,18 +92,18 @@ public class QueryBatchRequest {
 
     // Build the Query Batch Request JSON.
     Bundle queryBatchRequestBundle = buildQueryBatchRequestBundle(requiredReferences);
-    String queryBatchRequest = FhirContext.forR4().newJsonParser().encodeResourceToString(queryBatchRequestBundle);
+    String queryBatchRequestBody = FhirContext.forR4().newJsonParser().encodeResourceToString(queryBatchRequestBundle);
 
     // Make the query batch request to the EHR server.
     Bundle queryResponseBundle = null;
     try {
-      logger.info("Executing Query Batch Request: " + queryBatchRequest);
-      queryResponseBundle = (Bundle) FhirRequestProcessor.executeFhirQueryBody(queryBatchRequest, cdsRequest, this.fhirComponents, HttpMethod.POST);
+      logger.info("Executing Query Batch Request: " + queryBatchRequestBody);
+      queryResponseBundle = (Bundle) FhirRequestProcessor.executeFhirQueryBody(queryBatchRequestBody, cdsRequest, this.fhirComponents, HttpMethod.POST);
       queryResponseBundle = extractNestedBundledResources(queryResponseBundle);
       logger.info("Extracted Query Batch Resources: "
           + (queryResponseBundle).getEntry().stream().map(entry -> entry.getResource()).collect(Collectors.toList()));
     } catch (Exception e) {
-      logger.error("Failed to backfill prefetch with Query Batch Request " + queryBatchRequest, e);
+      logger.error("Failed to backfill prefetch with Query Batch Request " + queryBatchRequestBody, e);
     }
 
     if (queryResponseBundle == null) {

@@ -440,7 +440,9 @@ public class FhirRequestProcessor {
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-    headers.setContentType(MediaType.APPLICATION_JSON);
+    if(!queryBody.isEmpty()){
+      headers.setContentType(MediaType.APPLICATION_JSON);
+    }
     if (token != null) {
       headers.set("Authorization", "Bearer " + token);
     }
