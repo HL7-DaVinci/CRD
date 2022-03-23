@@ -376,14 +376,41 @@ public class FhirRequestProcessor {
   }
 
   /**
-   * Executes the given fhir query.
-   * 
-   * @param query
+   * Execute a Fhir Query with a URL-based query.
+   * @param queryUrl
    * @param cdsRequest
    * @param fhirComponents
+   * @param httpMethod
    * @return
    */
-  public static IBaseResource executeFhirQuery(String query, CdsRequest<?, ?> cdsRequest,
+  public static IBaseResource executeFhirQueryUrl(String queryUrl, CdsRequest<?, ?> cdsRequest,
+      FhirComponentsT fhirComponents, HttpMethod httpMethod) {
+    return executeFhirQuery("", queryUrl, cdsRequest, fhirComponents, httpMethod);
+  }
+
+  /**
+   * Execute a Fhir Query with a body-based query.
+   * @param queryBody
+   * @param cdsRequest
+   * @param fhirComponents
+   * @param httpMethod
+   * @return
+   */
+  public static IBaseResource executeFhirQueryBody(String queryBody, CdsRequest<?, ?> cdsRequest,
+      FhirComponentsT fhirComponents, HttpMethod httpMethod) {
+    return executeFhirQuery(queryBody, "", cdsRequest, fhirComponents, httpMethod);
+  }
+
+  /**
+   * Execute a Fhir query with the given query body and query url.
+   * @param queryBody
+   * @param queryUrl
+   * @param cdsRequest
+   * @param fhirComponents
+   * @param httpMethod
+   * @return
+   */
+  public static IBaseResource executeFhirQuery(String queryBody, String queryUrl, CdsRequest<?, ?> cdsRequest,
       FhirComponentsT fhirComponents, HttpMethod httpMethod) {
     if (cdsRequest.getFhirServer() == null) {
       throw new FatalRequestIncompleteException("Attempted to perform a Query Batch Request, but no fhir "
@@ -394,7 +421,7 @@ public class FhirRequestProcessor {
     if (fhirBase != null && fhirBase.endsWith("/")) {
       fhirBase = fhirBase.substring(0, fhirBase.length() - 1);
     }
-    String fullUrl = fhirBase + "/";
+    String fullUrl = fhirBase + "/" + queryUrl;
     //    TODO: Once our provider fhir server is up, switch the fetch to use the hapi client instead
     //    cdsRequest.getOauth();
     //    FhirContext ctx = FhirContext.forR4();
@@ -417,7 +444,7 @@ public class FhirRequestProcessor {
     if (token != null) {
       headers.set("Authorization", "Bearer " + token);
     }
-    HttpEntity<String> entity = new HttpEntity<>(query, headers);
+    HttpEntity<String> entity = new HttpEntity<>(queryBody, headers);
     try {
       logger.info("Fetching: " + fullUrl);
       // Request source: https://www.hl7.org/fhir/http.html#transaction
@@ -429,5 +456,4 @@ public class FhirRequestProcessor {
       return null;
     }
   }
-
 }

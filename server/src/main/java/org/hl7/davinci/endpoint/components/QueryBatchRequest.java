@@ -98,7 +98,7 @@ public class QueryBatchRequest {
     Bundle queryResponseBundle = null;
     try {
       logger.info("Executing Query Batch Request: " + queryBatchRequest);
-      queryResponseBundle = (Bundle) FhirRequestProcessor.executeFhirQuery(queryBatchRequest, cdsRequest, this.fhirComponents, HttpMethod.POST);
+      queryResponseBundle = (Bundle) FhirRequestProcessor.executeFhirQueryBody(queryBatchRequest, cdsRequest, this.fhirComponents, HttpMethod.POST);
       queryResponseBundle = extractNestedBundledResources(queryResponseBundle);
       logger.info("Extracted Query Batch Resources: "
           + (queryResponseBundle).getEntry().stream().map(entry -> entry.getResource()).collect(Collectors.toList()));
