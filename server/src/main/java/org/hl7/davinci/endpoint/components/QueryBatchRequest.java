@@ -1,15 +1,11 @@
 package org.hl7.davinci.endpoint.components;
 
 import org.cdshooks.CdsRequest;
-import org.hl7.davinci.FatalRequestIncompleteException;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
-import org.hl7.davinci.endpoint.files.FhirResourceProcessor;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
-import org.hl7.davinci.r4.crdhook.ServiceContext;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Patient;
@@ -19,18 +15,11 @@ import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import ca.uhn.fhir.context.FhirContext;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
