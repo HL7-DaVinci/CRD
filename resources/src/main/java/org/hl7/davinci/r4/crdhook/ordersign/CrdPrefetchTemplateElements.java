@@ -9,7 +9,7 @@ import org.hl7.fhir.r4.model.Bundle;
  */
 public class CrdPrefetchTemplateElements {
 
-  public static final String COVERAGE_PREFETCH_QUERY =  "Coverage?member={{context.patient}}";
+  public static final String COVERAGE_PREFETCH_QUERY =  "Coverage?_member={{context.patientId}}";
 
   public static final PrefetchTemplateElement DEVICE_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "deviceRequestBundle",
@@ -50,16 +50,17 @@ public class CrdPrefetchTemplateElements {
   //         + "&_include=NutritionOrder:insurance:Coverage",
   //     Bundle.class);
 
-  // public static final PrefetchTemplateElement SERVICE_REQUEST_BUNDLE = new PrefetchTemplateElement(
-  //     "serviceRequestBundle",
-  //     "ServiceRequest?_id={{context.draftOrders.ServiceRequest.id}}"
-  //         + "&_include=ServiceRequest:patient"
-  //         + "&_include=ServiceRequest:performer"
-  //         + "&_include=ServiceRequest:requester"
-  //         + "&_include=PractitionerRole:organization"
-  //         + "&_include=PractitionerRole:practitioner"
-  //         + "&_include=ServiceRequest:insurance:Coverage",
-  //     Bundle.class);
+  public static final PrefetchTemplateElement SERVICE_REQUEST_BUNDLE = new PrefetchTemplateElement(
+      "serviceRequestBundle",
+      Bundle.class,
+      "ServiceRequest?_id={{context.draftOrders.ServiceRequest.id}}"
+          + "&_include=ServiceRequest:patient"
+          + "&_include=ServiceRequest:performer"
+          + "&_include=ServiceRequest:requester"
+          + "&_include:iterate=PractitionerRole:organization"
+          + "&_include:iterate=PractitionerRole:practitioner",
+          COVERAGE_PREFETCH_QUERY
+      );
 
   // public static final PrefetchTemplateElement SUPPLY_REQUEST_BUNDLE = new PrefetchTemplateElement(
   //     "supplyRequestBundle",

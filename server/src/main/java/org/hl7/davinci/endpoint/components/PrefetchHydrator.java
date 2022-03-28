@@ -131,6 +131,7 @@ public class PrefetchHydrator {
                 Bundle newBundle = (Bundle) prefetchElement.getReturnType().cast(
                     FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET));
                 bundle.getEntry().addAll(newBundle.getEntry());
+                PropertyUtils.setProperty(crdResponse, prefetchKey, bundle);
               }
             } catch (Exception e) {
               logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
