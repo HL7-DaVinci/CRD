@@ -21,8 +21,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=DeviceRequest:device"
           + "&_include:iterate=PractitionerRole:organization"
           + "&_include:iterate=PractitionerRole:practitioner",
-          COVERAGE_PREFETCH_QUERY
-    );
+          COVERAGE_PREFETCH_QUERY);
 
   public static final PrefetchTemplateElement MEDICATION_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "medicationRequestBundle",
@@ -34,21 +33,19 @@ public class CrdPrefetchTemplateElements {
           + "&_include=MedicationRequest:medication"
           + "&_include:iterate=PractitionerRole:organization"
           + "&_include:iterate=PractitionerRole:practitioner",
-          COVERAGE_PREFETCH_QUERY
-      );
+          COVERAGE_PREFETCH_QUERY);
 
-  // public static final PrefetchTemplateElement NUTRITION_ORDER_BUNDLE = new PrefetchTemplateElement(
-  //     "nutritionOrderBundle",
-  //     "NutritionOrder?_id={{context.draftOrders.NutritionOrder.id}}"
-  //         + "&_include=NutritionOrder:patient"
-  //         + "&_include=NutritionOrder:provider"
-  //         + "&_include=NutritionOrder:requester"
-  //         + "&_include=PractitionerRole:organization"
-  //         + "&_include=PractitionerRole:practitioner"
-  //         + "&_include=NutritionOrder:encounter"
-  //         + "&_include=Encounter:location"
-  //         + "&_include=NutritionOrder:insurance:Coverage",
-  //     Bundle.class);
+  public static final PrefetchTemplateElement NUTRITION_ORDER_BUNDLE = new PrefetchTemplateElement(
+      "nutritionOrderBundle",
+      Bundle.class,
+      "NutritionOrder?_id={{context.draftOrders.NutritionOrder.id}}"
+          + "&_include=NutritionOrder:patient"
+          + "&_include=NutritionOrder:provider"
+          + "&_include=NutritionOrder:requester"
+          + "&_include=PractitionerRole:organization"
+          + "&_include=PractitionerRole:practitioner"
+          + "&_include=NutritionOrder:encounter"
+          + "&_include=Encounter:location");
 
   public static final PrefetchTemplateElement SERVICE_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "serviceRequestBundle",
@@ -59,8 +56,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=ServiceRequest:requester"
           + "&_include:iterate=PractitionerRole:organization"
           + "&_include:iterate=PractitionerRole:practitioner",
-          COVERAGE_PREFETCH_QUERY
-      );
+          COVERAGE_PREFETCH_QUERY);
 
   // public static final PrefetchTemplateElement SUPPLY_REQUEST_BUNDLE = new PrefetchTemplateElement(
   //     "supplyRequestBundle",
@@ -75,25 +71,26 @@ public class CrdPrefetchTemplateElements {
   //         + "&_include=SupplyRequest:insurance:Coverage",
   //     Bundle.class);
 
-  // public static final PrefetchTemplateElement APPOINTMENT_BUNDLE = new PrefetchTemplateElement(
-  //     "appointmentBundle",
-  //     "Appointment?_id={{context.appointments.Appointment.id}}"
-  //         + "&_include=Appointment:patient"
-  //         + "&_include=Appointment:practitioner:PractitionerRole"
-  //         + "&_include:iterate=PractitionerRole:organization"
-  //         + "&_include:iterate=PractitionerRole:practitioner"
-  //         + "&_include=Appointment:location"
-  //         + "&_include=Appointment:insurance:Coverage",
-  //     Bundle.class);
+  public static final PrefetchTemplateElement APPOINTMENT_BUNDLE = new PrefetchTemplateElement(
+      "appointmentBundle",
+      Bundle.class,
+      "Appointment?_id={{context.appointments.Appointment.id}}"
+          + "&_include=Appointment:patient"
+          + "&_include=Appointment:practitioner:PractitionerRole"
+          + "&_include:iterate=PractitionerRole:organization"
+          + "&_include:iterate=PractitionerRole:practitioner"
+          + "&_include=Appointment:location",
+      COVERAGE_PREFETCH_QUERY);
 
-  // public static final PrefetchTemplateElement ENCOUNTER_BUNDLE = new PrefetchTemplateElement(
-  //     "encounterBundle",
-  //     "Encounter?_id={{context.encounterId}}"
-  //         + "&_include=Encounter:patient&_include=Encounter:service-provider"
-  //         + "&_include=Encounter:practitioner"
-  //         + "&_include=Encounter:location"
-  //         + "&_include=Encounter:insurance:Coverage",
-  //     Bundle.class);
+  public static final PrefetchTemplateElement ENCOUNTER_BUNDLE = new PrefetchTemplateElement(
+      "encounterBundle",
+      Bundle.class,
+      "Encounter?_id={{context.encounterId}}"
+          + "&_include=Encounter:patient"
+          + "&_include=Encounter:service-provider"
+          + "&_include=Encounter:practitioner"
+          + "&_include=Encounter:location",
+      COVERAGE_PREFETCH_QUERY);
 
   //   public static final PrefetchTemplateElement MEDICATION_DISPENSE_BUNDLE = new PrefetchTemplateElement(
   //       "medicationDispenseBundle",
