@@ -44,6 +44,7 @@ public abstract class CommonFileStore implements FileStore {
   private QuestionnaireValueSetProcessor questionnaireValueSetProcessor;
   private SubQuestionnaireProcessor subQuestionnaireProcessor;
   private LibraryContentProcessor libraryContentProcessor;
+  private QuestionnaireEmbeddedCQLProcessor questionnaireEmbeddedCQLProcessor;
 
   private FhirContext ctx;
   private IParser parser;
@@ -54,6 +55,7 @@ public abstract class CommonFileStore implements FileStore {
     this.libraryContentProcessor = new LibraryContentProcessor();
     this.ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
     this.parser = ctx.newJsonParser().setPrettyPrint(true);
+    this.questionnaireEmbeddedCQLProcessor = new QuestionnaireEmbeddedCQLProcessor();
   }
 
   // must define in child class
@@ -65,7 +67,8 @@ public abstract class CommonFileStore implements FileStore {
 
   protected abstract String readFhirResourceFromFile(FhirResource fhirResource, String fhirVersion);
 
-  protected FileResource readFhirResourceFromFiles(List<FhirResource> fhirResourceList, String fhirVersion, String baseUrl) {
+  protected FileResource readFhirResourceFromFiles(List<FhirResource> fhirResourceList, String fhirVersion,
+      String baseUrl) {
     if (!fhirResourceList.isEmpty()) {
       // just return the first matched resource
       FhirResource fhirResource = fhirResourceList.get(0);
@@ -110,7 +113,8 @@ public abstract class CommonFileStore implements FileStore {
     FileResource resource = readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
 
     if ((resource != null) && fhirVersion.equalsIgnoreCase("r4")) {
-      // If this is a library, process it by replacing the content url with a base64 encoded version of the cql
+      // If this is a library, process it by replacing the content url with a base64
+      // encoded version of the cql
       if (resourceType.equalsIgnoreCase("Library") && config.getEmbedCqlInLibrary()) {
         FileResource processedResource = this.libraryContentProcessor.processResource(resource, this, baseUrl);
         return processedResource;
@@ -136,15 +140,18 @@ public abstract class CommonFileStore implements FileStore {
 
     if ((resource != null) && fhirVersion.equalsIgnoreCase("r4")) {
 
-      // If this is a questionnaire, run it through the processor to modify it before returning.
+      // If this is a questionnaire, run it through the processor to modify it before
+      // returning.
       // We do not handle nested sub-questionnaire at this time.
       if (isRoot && resourceType.equalsIgnoreCase("Questionnaire")) {
         FileResource processedResource = this.subQuestionnaireProcessor.processResource(resource, this, baseUrl);
         processedResource = this.questionnaireValueSetProcessor.processResource(processedResource, this, baseUrl);
+        processedResource = this.questionnaireEmbeddedCQLProcessor.processResource(processedResource, null, null);
         return processedResource;
       }
 
-      // If this is a library, process it by replacing the content url with a base64 encoded version of the cql
+      // If this is a library, process it by replacing the content url with a base64
+      // encoded version of the cql
       if (resourceType.equalsIgnoreCase("Library") && config.getEmbedCqlInLibrary()) {
         FileResource processedResource = this.libraryContentProcessor.processResource(resource, this, baseUrl);
         return processedResource;
@@ -163,7 +170,8 @@ public abstract class CommonFileStore implements FileStore {
     FileResource resource = readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
 
     if ((resource != null) && fhirVersion.equalsIgnoreCase("r4")) {
-      // If this is a library, process it by replacing the content url with a base64 encoded version of the cql
+      // If this is a library, process it by replacing the content url with a base64
+      // encoded version of the cql
       if (resourceType.equalsIgnoreCase("Library") && config.getEmbedCqlInLibrary()) {
         FileResource processedResource = this.libraryContentProcessor.processResource(resource, this, baseUrl);
         return processedResource;
@@ -241,7 +249,8 @@ public abstract class CommonFileStore implements FileStore {
                       for (String fhirVersion : metadata.getFhirVersions()) {
 
                         String mainCqlLibraryName = metadata.getTopic() + "Rule";
-                        File mainCqlFile = findFile(path, metadata.getTopic(), fhirVersion, mainCqlLibraryName, FileStore.CQL_EXTENSION);
+                        File mainCqlFile = findFile(path, metadata.getTopic(), fhirVersion, mainCqlLibraryName,
+                            FileStore.CQL_EXTENSION);
                         if (mainCqlFile == null) {
                           logger.warn("CommonFileStore::reloadFromFolder(): failed to find main CQL file for topic: "
                               + metadata.getTopic());
@@ -336,7 +345,8 @@ public abstract class CommonFileStore implements FileStore {
     }
   }
 
-  protected void processFhirResource(IBaseResource baseResource, String path, String filename, String fhirVersion, String topic) {
+  protected void processFhirResource(IBaseResource baseResource, String path, String filename, String fhirVersion,
+      String topic) {
     String resourceType;
     String resourceId = "";
     String resourceName = "";
@@ -451,22 +461,27 @@ public abstract class CommonFileStore implements FileStore {
   }
 
   /**
-   * Looks for ValueSet references in Questionnaire.item**.answerValueSet entries that point to a VSAC ValueSet by OID and have the cache fetch the
-   * ValueSet.
+   * Looks for ValueSet references in Questionnaire.item**.answerValueSet entries
+   * that point to a VSAC ValueSet by OID and have the cache fetch the ValueSet.
    * 
-   * @param questionnaire The FHIR Questionnaire resource to look for ValueSet references in.
+   * @param questionnaire The FHIR Questionnaire resource to look for ValueSet
+   *                      references in.
    */
   protected void findAndFetchRequiredVSACValueSets(org.hl7.fhir.r4.model.Questionnaire questionnaire) {
     findAndFetchRequiredVSACValueSets(questionnaire.getItem());
   }
 
   /**
-   * Looks for ValueSet references in a list of Questionnaire item components in the answerValueSet entries that
-   * point to a VSAC ValueSet by OID and have the cache fetch the ValueSet. Also recurses into children item elements.
+   * Looks for ValueSet references in a list of Questionnaire item components in
+   * the answerValueSet entries that
+   * point to a VSAC ValueSet by OID and have the cache fetch the ValueSet. Also
+   * recurses into children item elements.
    * 
-   * @param itemComponents The FHIR Questionnaire Item components to look for ValueSet references in.
+   * @param itemComponents The FHIR Questionnaire Item components to look for
+   *                       ValueSet references in.
    */
-  protected void findAndFetchRequiredVSACValueSets(List<org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent> itemComponents) {
+  protected void findAndFetchRequiredVSACValueSets(
+      List<org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent> itemComponents) {
     for (org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent itemComponent : itemComponents) {
       // If there is an answerValueSet field we should see if it is a VSAC reference
       if (itemComponent.hasAnswerValueSet()) {

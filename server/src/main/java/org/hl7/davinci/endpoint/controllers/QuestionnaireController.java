@@ -40,6 +40,7 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemAnsw
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseStatus;
 import org.hl7.fhir.r4.model.Reference;
+import org.hl7.davinci.endpoint.files.QuestionnaireEmbeddedCQLProcessor;
 
 // --- ORDER OF RESPONSE-REQUEST OPERATIONS
 // (REQUEST) External user sends the initial QuestionnaireResponse JSON that contains which questionnaire it would like to trigger as n element the "contained" field.
@@ -56,6 +57,12 @@ public class QuestionnaireController {
 
     @Autowired
     private FileStore fileStore;
+
+    private QuestionnaireEmbeddedCQLProcessor questionnaireEmbeddedCQLProcessor;
+
+    public QuestionnaireController() {
+        this.questionnaireEmbeddedCQLProcessor = new QuestionnaireEmbeddedCQLProcessor();
+    }
 
     /**
      * An inner class that demos a tree to define next questions based on responses.
@@ -326,7 +333,7 @@ public class QuestionnaireController {
                 if (!questionnaireTrees.containsKey(questionnaireId)) {
                     // If there is not already a tree that matches the requested questionnaire id, build it.
                     // Import the requested CDS-Library Questionnaire.
-                    Questionnaire cdsQuestionnaire = QuestionnaireController.importCdsAdaptiveQuestionnaire(request, parser, fileStore, questionnaireId);
+                    Questionnaire cdsQuestionnaire = importCdsAdaptiveQuestionnaire(request, parser, fileStore, questionnaireId);
                     
                     // Build the tree.
                     AdaptiveQuestionnaireTree newTree = new AdaptiveQuestionnaireTree(cdsQuestionnaire);
@@ -370,7 +377,7 @@ public class QuestionnaireController {
      * @param request
      * @return
      */
-    private static Questionnaire importCdsAdaptiveQuestionnaire(HttpServletRequest request, IParser parser, FileStore fileStore, String questionnaireId) {
+    private Questionnaire importCdsAdaptiveQuestionnaire(HttpServletRequest request, IParser parser, FileStore fileStore, String questionnaireId) {
         Questionnaire cdsQuestionnaire = null;
         try {
             String adaptiveQuestionniareFile = ("Questions-" + questionnaireId + "Adaptive.json").replace("#", ""); // The filename should be the questionnaire ID with these added values.
@@ -385,6 +392,7 @@ public class QuestionnaireController {
                 throw new RuntimeException("File resource pulled from the filestore has a null getResource().");
             }
             cdsQuestionnaire = (Questionnaire) parser.parseResource(fileResource.getResource().getInputStream());
+            cdsQuestionnaire = this.questionnaireEmbeddedCQLProcessor.processResource(cdsQuestionnaire, null, null);
             logger.info("--- Imported Questionnaire " + cdsQuestionnaire.getId());
         } catch (DataFormatException e) {
             e.printStackTrace();
