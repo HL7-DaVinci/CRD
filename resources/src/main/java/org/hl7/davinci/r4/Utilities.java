@@ -169,12 +169,10 @@ public class Utilities {
   public static List<Organization> getPayors(List<Coverage> coverages) {
     List<Organization> payors = new ArrayList<>();
     for (Coverage coverage: coverages){
-      if(coverage != null){
-        for (Reference ref: coverage.getPayor()){
-          Organization organization = (Organization) ref.getResource();
-          if (organization != null) {
-            payors.add(organization);
-          }
+      for (Reference ref: coverage.getPayor()){
+        Organization organization = (Organization) ref.getResource();
+        if (organization != null) {
+          payors.add(organization);
         }
       }
     }
