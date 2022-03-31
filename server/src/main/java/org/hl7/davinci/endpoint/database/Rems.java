@@ -17,6 +17,9 @@ public class Rems {
   @Column(name = "json", nullable = false, length = 100000)
   private JsonObject json;
 
+  @Column(name = "status", nullable = false, length = 100)
+  private String status;
+
   public void Rems() {}
 
   public String getCase_number() {
@@ -33,5 +36,13 @@ public class Rems {
 
   public void setJSON(JsonObject jsonParam) {
     this.json = jsonParam;
+  }
+
+  public String getStatus() {
+    return this.status;
+  }
+
+  public void setStatus(String statusParam) {
+    this.status = statusParam;
   }
 }

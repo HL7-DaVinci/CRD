@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import java.util.Optional;
 import java.util.UUID;
-
-
+import java.util.concurrent.TimeUnit;
+import javax.persistence.EntityNotFoundException;
 
 import java.util.Arrays;
 
@@ -163,11 +163,23 @@ public class DataController {
     return new RedirectView(newUrl);
   }
 
-//   Runnable updateComplianceBundleStatus = new Runnable() {
-//     public void run() {
-//         System.out.println("here");
-//     }
-// };
+  public void updateComplianceBundleStatus(String uid) {
+    try {
+      TimeUnit.MINUTES.sleep(1);
+    }
+    catch(Exception e)
+    {
+        System.out.println(e);
+      }
+    Rems rems = remsRepository.findById(uid).orElseThrow(() -> new EntityNotFoundException(uid));
+    rems.setStatus("Approved");
+    remsRepository.save(rems);
+  }
+
+  public void updateComplianceBundleStatusInBackground (final String uid) {
+    Thread t = new Thread(() -> updateComplianceBundleStatus(uid));
+    t.start();
+  }
 
   @PostMapping(value = "/api/rems")
   @CrossOrigin
@@ -180,8 +192,9 @@ public class DataController {
     Rems complianceBundle = new Rems();
     complianceBundle.setCase_number(id);
     complianceBundle.setJSON(remsObject);
+    complianceBundle.setStatus("Pending");
     remsRepository.save(complianceBundle);
-    // new Thread(updateComplianceBundleStatus).start();
+    updateComplianceBundleStatusInBackground(id);
     return ResponseEntity.ok().body(complianceBundle);
 
   }
@@ -189,12 +202,8 @@ public class DataController {
   @CrossOrigin
   @GetMapping("/api/rems/{id}")
   public ResponseEntity<Object> getRems(@PathVariable String id) {
-    Optional<Rems> rems = remsRepository.findById(id);
-    if (rems.isPresent()) {
-      return ResponseEntity.ok().body(rems);
-    } else {
-      return null;
-    }
+    Rems rems = remsRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    return ResponseEntity.ok().body(rems);
   }
 
 }
