@@ -191,7 +191,7 @@ public class DataController {
   public ResponseEntity<Object> getRems(@PathVariable String id) {
     Optional<Rems> rems = remsRepository.findById(id);
     if (rems.isPresent()) {
-      return ResponseEntity.ok().body(rems.get());
+      return ResponseEntity.ok().body(rems);
     } else {
       return null;
     }
