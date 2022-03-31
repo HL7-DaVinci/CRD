@@ -191,7 +191,7 @@ public class DataController {
 
     Rems complianceBundle = new Rems();
     complianceBundle.setCase_number(id);
-    complianceBundle.setJSON(remsObject);
+    complianceBundle.setJSON(remsObject.toString());
     complianceBundle.setStatus("Pending");
     remsRepository.save(complianceBundle);
     updateComplianceBundleStatusInBackground(id);
@@ -205,5 +205,4 @@ public class DataController {
     Rems rems = remsRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     return ResponseEntity.ok().body(rems);
   }
-
 }
