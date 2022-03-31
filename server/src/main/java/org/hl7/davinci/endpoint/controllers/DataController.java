@@ -16,6 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+import java.util.Optional;
+import java.util.UUID;
+
+
 
 import java.util.Arrays;
 
@@ -37,6 +41,9 @@ public class DataController {
 
   @Autowired
   private ClientRepository clientRepository;
+
+  @Autowired
+  private RemsRepository remsRepository;
 
   @Autowired
   private YamlConfig myConfig;
@@ -154,6 +161,40 @@ public class DataController {
     String newUrl = "/data";
 
     return new RedirectView(newUrl);
+  }
+
+//   Runnable updateComplianceBundleStatus = new Runnable() {
+//     public void run() {
+//         System.out.println("here");
+//     }
+// };
+
+  @PostMapping(value = "/api/rems")
+  @CrossOrigin
+  public ResponseEntity<Object> postRems(@RequestBody String jsonData) {
+    Gson gson = new GsonBuilder().create();
+    JsonParser parser = new JsonParser();
+    JsonObject remsObject = parser.parse(jsonData).getAsJsonObject();
+    String id = UUID.randomUUID().toString().replace("-", "");
+
+    Rems complianceBundle = new Rems();
+    complianceBundle.setCase_number(id);
+    complianceBundle.setJSON(remsObject);
+    remsRepository.save(complianceBundle);
+    // new Thread(updateComplianceBundleStatus).start();
+    return ResponseEntity.ok().body(complianceBundle);
+
+  }
+
+  @CrossOrigin
+  @GetMapping("/api/rems/{id}")
+  public ResponseEntity<Object> getRems(@PathVariable String id) {
+    Optional<Rems> rems = remsRepository.findById(id);
+    if (rems.isPresent()) {
+      return ResponseEntity.ok().body(rems.get());
+    } else {
+      return null;
+    }
   }
 
 }
