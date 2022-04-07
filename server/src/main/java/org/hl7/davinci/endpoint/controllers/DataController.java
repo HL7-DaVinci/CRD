@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.*;
@@ -19,8 +21,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import javax.persistence.EntityNotFoundException;
-
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.util.Arrays;
 
 import java.io.IOException;
@@ -171,7 +173,7 @@ public class DataController {
     {
         System.out.println(e);
       }
-    Rems rems = remsRepository.findById(uid).orElseThrow(() -> new EntityNotFoundException(uid));
+    Rems rems = remsRepository.findById(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, uid + " not found"));
     rems.setStatus("Approved");
     remsRepository.save(rems);
   }
@@ -184,14 +186,12 @@ public class DataController {
   @PostMapping(value = "/api/rems")
   @CrossOrigin
   public ResponseEntity<Object> postRems(@RequestBody String jsonData) {
-    Gson gson = new GsonBuilder().create();
-    JsonParser parser = new JsonParser();
-    JsonObject remsObject = parser.parse(jsonData).getAsJsonObject();
+    JsonNode remsObject = JacksonUtil.toJsonNode(jsonData);
     String id = UUID.randomUUID().toString().replace("-", "");
 
     Rems complianceBundle = new Rems();
     complianceBundle.setCase_number(id);
-    complianceBundle.setJSON(remsObject.toString());
+    complianceBundle.setComplianceBundle(remsObject);
     complianceBundle.setStatus("Pending");
     remsRepository.save(complianceBundle);
     updateComplianceBundleStatusInBackground(id);
@@ -202,7 +202,7 @@ public class DataController {
   @CrossOrigin
   @GetMapping("/api/rems/{id}")
   public ResponseEntity<Object> getRems(@PathVariable String id) {
-    Rems rems = remsRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
+    Rems rems = remsRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id + " not found"));
     return ResponseEntity.ok().body(rems);
   }
 }

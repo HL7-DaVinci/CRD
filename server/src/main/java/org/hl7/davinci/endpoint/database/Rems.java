@@ -4,18 +4,23 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import com.google.gson.JsonObject;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Type;
+import com.fasterxml.jackson.databind.JsonNode;
 
 
 @Entity
 @Table(name = "rems")
+@TypeDef(name = "json", typeClass = JsonType.class, defaultForType = JsonNode.class )
 public class Rems {
   @Id
   @Column(name = "case_number", nullable = false, length = 100)
   private String case_number;
 
-  @Column(name = "json", nullable = false, length = 100000)
-  private String json;
+  @Type(type = "json")
+  @Column(columnDefinition = "json", name = "complianceBundle", nullable = false, length = 10000000)
+  private JsonNode complianceBundle;
 
   @Column(name = "status", nullable = false, length = 100)
   private String status;
@@ -30,12 +35,12 @@ public class Rems {
     this.case_number = id;
   }
 
-  public String getJSON() {
-    return this.json;
+  public JsonNode getComplianceBundle() {
+    return this.complianceBundle;
   }
 
-  public void setJSON(String jsonParam) {
-    this.json = jsonParam;
+  public void setComplianceBundle(JsonNode jsonParam) {
+    this.complianceBundle = jsonParam;
   }
 
   public String getStatus() {
