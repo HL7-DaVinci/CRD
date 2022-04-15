@@ -210,6 +210,7 @@ public class FhirRequestProcessor {
       case "SupplyRequest":
       case "Encounter":
       default:
+        logger.info("Unsupported fhir R4 resource type (" + request.fhirType() + ") when retrieving coverage");
         throw new NoCoverageException("No coverage found within fhir R4 resource type " + request.fhirType());
     }
 
