@@ -5,6 +5,7 @@ import java.util.*;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.NoCoverageException;
 import org.hl7.davinci.endpoint.database.FhirResource;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.r4.CardTypes;
@@ -341,8 +342,8 @@ public class CardBuilder {
           .setValue(new StringType(id));
       extension.addExtension(identifier);
       resource = FhirRequestProcessor.addExtensionToRequest(resource, extension);
-    } catch (RuntimeException e) {
-      logger.warn("No Coverage, discrete coverage extension will not be included.");
+    } catch (NoCoverageException e) {
+      logger.warn("No Coverage, discrete coverage extension will not be included: " + e.getMessage());
     }
 
     Action updateAction = new Action(fhirComponents);

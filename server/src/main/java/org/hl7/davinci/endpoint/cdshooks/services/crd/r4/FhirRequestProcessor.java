@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
 public class FhirRequestProcessor {
 
   static final Logger logger = LoggerFactory.getLogger(FhirRequestProcessor.class);
@@ -209,8 +210,7 @@ public class FhirRequestProcessor {
       case "SupplyRequest":
       case "Encounter":
       default:
-        logger.info("Unsupported fhir R4 resource type (" + request.fhirType() + ") when retrieving coverage");
-        throw new RuntimeException("Unsupported fhir R4 resource type " + request.fhirType());
+        throw new NoCoverageException("No coverage found within fhir R4 resource type " + request.fhirType());
     }
 
     return coverage;
