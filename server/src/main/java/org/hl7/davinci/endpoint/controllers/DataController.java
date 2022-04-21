@@ -167,7 +167,7 @@ public class DataController {
 
   public void updateComplianceBundleStatus(String uid) {
     try {
-      TimeUnit.MINUTES.sleep(1);
+      TimeUnit.SECONDS.sleep(30);
     }
     catch(Exception e)
     {
