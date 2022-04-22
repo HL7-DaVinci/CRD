@@ -3,8 +3,10 @@ package org.hl7.davinci.endpoint.controllers;
 import org.hl7.davinci.FhirResourceInfo;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.Utils;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirOperationProcessor;
 import org.hl7.davinci.endpoint.database.FhirResource;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
+import org.hl7.davinci.endpoint.fhir.r4.QuestionnaireForOrderOperation;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * Provides the REST interface that can be interacted with at [base]/api/fhir and [base]/fhir.
@@ -116,9 +119,9 @@ public class FhirController {
    * @return
    * @throws IOException
    */
-  @GetMapping(path = "/fhir/{fhirVersion}/{resource}") //?name={topic}
+  @GetMapping(path = "/fhir/{fhirVersion}/{resource}") //?name={TopicFormName}
   public ResponseEntity<Resource> searchFhirResource(HttpServletRequest request, @PathVariable String fhirVersion,
-                                                     @PathVariable String resource, @RequestParam(required = false) String name, @RequestParam(required = false) String url) throws IOException {
+                                                     @PathVariable String resource, @RequestParam(required = false) String name, @RequestParam(required = false) String url, @RequestParam(required = false) String topic) throws IOException {
 
     fhirVersion = fhirVersion.toUpperCase();
     resource = resource.toLowerCase();
@@ -129,11 +132,16 @@ public class FhirController {
     if (name != null) {
       name = name.toLowerCase();
       logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?name=" + name);
-      fileResource = fileStore.getFhirResourceByTopic(fhirVersion, resource, name, baseUrl);
+      fileResource = fileStore.getFhirResourceByName(fhirVersion, resource, name, baseUrl);
     }
     else if (url != null) {
       logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?url=" + url);
       fileResource = fileStore.getFhirResourceByUrl(fhirVersion, resource, url, baseUrl);
+    }
+    else if (topic != null) {
+      topic = topic.toLowerCase();
+      logger.info("GET /fhir/" + fhirVersion + "/" + resource + "?topic=" + topic);
+      fileResource = fileStore.getFhirResourcesByTopicAsBundle(fhirVersion, resource, topic, baseUrl);
     }
 
     return processFileResource(fileResource);
@@ -171,7 +179,6 @@ public class FhirController {
       logger.warning("unsupported FHIR version: " + fhirVersion + ", not storing");
       HttpStatus status = HttpStatus.BAD_REQUEST;
       MediaType contentType = MediaType.TEXT_PLAIN;
-      String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 
       return ResponseEntity.status(status).contentType(contentType)
           .body("Bad Request");
@@ -181,7 +188,6 @@ public class FhirController {
       logger.warning("submitFhirResource: unsupported FHIR Resource of type: " + fhirResourceInfo.getType() + " (" + fhirVersion + "), not storing");
       HttpStatus status = HttpStatus.BAD_REQUEST;
       MediaType contentType = MediaType.TEXT_PLAIN;
-      String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 
       return ResponseEntity.status(status).contentType(contentType)
           .body("Bad Request");
@@ -212,5 +218,62 @@ public class FhirController {
     return ResponseEntity.status(status).contentType(contentType)
         .header(HttpHeaders.LOCATION, baseUrl + "/fhir/" + fhirVersion + "/" + resource + "?identifier=" + newId)
         .body(statusMsg);
+  }
+
+  /**
+   * FHIR Operation to retrieve all of the Questionnaires and CQL files associated with a given request.
+   * @param fhirVersion (converted to uppercase)
+   * @return FHIR Bundle
+   * @throws IOException
+   */
+  @PostMapping(path = "/fhir/{fhirVersion}/Patient/$Questionnaire-for-Order", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
+  public ResponseEntity<String> questionnaireForOrderOperation(HttpServletRequest request, HttpEntity<String> entity,
+                                                   @PathVariable String fhirVersion) {
+
+    fhirVersion = fhirVersion.toUpperCase();
+    String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+
+    logger.info("POST /fhir/" + fhirVersion + "/Patient/$Questionnaire-for-Order");
+
+    String resource = null;
+    if (fhirVersion.equalsIgnoreCase("R4")) {
+      QuestionnaireForOrderOperation operation = new QuestionnaireForOrderOperation(fileStore, baseUrl);
+      resource = operation.execute(entity.getBody());
+
+      if (resource == null) {
+        logger.warning("bad parameters");
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        MediaType contentType = MediaType.TEXT_PLAIN;
+        
+        return ResponseEntity.status(status).contentType(contentType)
+            .body("Bad Parameters");
+      }
+
+    } else {
+      logger.warning("unsupported FHIR version: " + fhirVersion + ", not storing");
+      HttpStatus status = HttpStatus.BAD_REQUEST;
+      MediaType contentType = MediaType.TEXT_PLAIN;
+
+      return ResponseEntity.status(status).contentType(contentType)
+          .body("Bad Request");
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
+          .body(resource);
+  }
+
+  /**
+   * FHIR Operation to retrieve all of the Questionnaires and CQL files associated with a given request.
+   * @param fhirVersion (converted to uppercase)
+   * @param id of the Patient (ignored for now)
+   * @return FHIR Bundle
+   * @throws IOException
+   */
+  @PostMapping(path = "/fhir/{fhirVersion}/Patient/{id}/$Questionnaire-for-Order", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
+  public ResponseEntity<String> questionnaireForOrderOperationWithId(HttpServletRequest request, HttpEntity<String> entity,
+                                                   @PathVariable String fhirVersion, @PathVariable String id) {
+
+    // Ignore the ID for now
+    return questionnaireForOrderOperation(request, entity, fhirVersion);
   }
 }

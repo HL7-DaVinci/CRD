@@ -88,7 +88,7 @@ public class Metadata {
     questionnaire.addInteraction().setCode(TypeRestfulInteraction.CREATE);
     rest.addResource(questionnaire);
 
-    // QuestionnaireResponse REsource
+    // QuestionnaireResponse Resource
     CapabilityStatementRestResourceComponent questionnaireResponse = new CapabilityStatementRestResourceComponent();
     questionnaireResponse.setType("QuestionnaireResponse");
     questionnaireResponse.addInteraction().setCode(TypeRestfulInteraction.READ);
@@ -110,6 +110,16 @@ public class Metadata {
     valueset.addOperation(expandOperator);
     rest.addResource(valueset);
 
+    // Patient
+    CapabilityStatementRestResourceComponent patient = new CapabilityStatementRestResourceComponent();
+    patient.setType("Patient");
+    CapabilityStatementRestResourceOperationComponent questionnaireOrderOperation = new CapabilityStatementRestResourceOperationComponent();
+    questionnaireOrderOperation.setName("Questionnaire-for-Order");
+    questionnaireOrderOperation.setDefinition("http://hl7.org/fhir/us/davinci-dtr/OperationDefinition/Questionnaire-for-Order");
+    questionnaireOrderOperation.setDocumentation("Retrieve the Questionnaire(s), Libraries, and Valuesets for a given order and coverage. This operation is to support HL7 DaVinci DTR.");
+    patient.addOperation(questionnaireOrderOperation);
+    rest.addResource(patient);
+    
     metadata.addRest(rest);
 
     return metadata;
