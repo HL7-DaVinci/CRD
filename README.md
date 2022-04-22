@@ -72,7 +72,7 @@ If you want to test CRD in a secure fashion using OAuth, you will need to instal
 5. When prompted, create a new administrative username and password in Administration Console.
 6. Login to the Administration Console with administrative username and password created in previuos step.
 7. Click Add Realm (hover over the word 'Master' in the sidebar) to find the button. The realm will be protecting the `test-ehr`.
-	* Import the realm by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `[test-ehr repo]/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files.
+	* Import the realm by selecting the `import` option on the realm creation screen (see "Add a new realm:" below). Importing `[test-ehr repo]/src/main/resources/ClientFhirServerRealm.json` will set up the clients, but you will still have to make a new user and modify the config files. If you already have a ClientFhirServer realm in your keycloak instance, delete it before importing. The team has noticed that trying to upgrade a keycloak instance will fail to create all of the necessary scopes.
 
 			Add a new realm:
 			1) click Master (top left nav bar)
