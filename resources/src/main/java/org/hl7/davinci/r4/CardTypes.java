@@ -4,6 +4,7 @@ import org.cdshooks.Coding;
 
 public enum CardTypes {
   COVERAGE("coverage", "Coverage"),
+  DOCUMENTATION("documentation", "Documentation"),
   PRIOR_AUTH("prior-auth", "Prior Authorization"),
   DTR_CLIN("dtr-clin", "DTR Clin"),
   DTR_ADMIN("dtr-admin", "DTR Admin"),
