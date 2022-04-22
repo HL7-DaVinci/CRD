@@ -157,9 +157,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestLog.advanceTimeline(requestService);
 
     // Attempt a Query Batch Request to backfill missing attributes.
-    if(myConfig.isQueryBatchRequest()){
-      QueryBatchRequest batchRequest = new QueryBatchRequest(this.fhirComponents);
-      batchRequest.performQueryBatchRequest((CdsRequest<CrdPrefetch, ?>) request);
+    if (myConfig.isQueryBatchRequest()) {
+      QueryBatchRequest qbr = new QueryBatchRequest(this.fhirComponents);
+      this.attempQueryBatchRequest(request, qbr);
     }
 
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );
@@ -427,4 +427,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       FileStore fileStore, String baseUrl) throws RequestIncompleteException;
 
   protected abstract CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic);
+
+  /**
+   * Delegates query batch request to child classes based on their prefetch types.
+   */
+  protected abstract void attempQueryBatchRequest(requestTypeT request, QueryBatchRequest qbr);
+
 }

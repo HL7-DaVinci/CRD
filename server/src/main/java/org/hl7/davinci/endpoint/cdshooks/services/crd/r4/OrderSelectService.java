@@ -13,6 +13,7 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
+import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
@@ -112,5 +113,10 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
       codingList.add((Coding) obj);
     }
     return codingList.get(0);
+  }
+
+  @Override
+  protected void attempQueryBatchRequest(OrderSelectRequest request, QueryBatchRequest batchRequest) {
+    batchRequest.performQueryBatchRequest(request, request.getPrefetch());
   }
 }
