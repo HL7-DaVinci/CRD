@@ -42,7 +42,9 @@ public class EndToEndRequestPrefetchTest {
   private String deviceRequestPrefetchResponseJson = FileUtils
       .readFileToString(new ClassPathResource("deviceRequestPrefetchResponse_r4.json").getFile(),
           Charset.defaultCharset());
-  private String prefetchUrlMatcher = "\\/DeviceRequest\\?_id=123.*";
+  private String prefetchUrlMatcherDeviceRequest = "\\/DeviceRequest\\?_id=123.*";
+  private String prefetchUrlMatcherCoverage = "\\/Coverage\\?_member=c2f0f972-5f84-4518-948f-63d00a1fa5a0";
+  private String prefetchUrlMatcher = prefetchUrlMatcherDeviceRequest + "|" + prefetchUrlMatcherCoverage;
 
   @LocalServerPort
   private int port;
