@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class QuestionnaireForOrderOperation {
+public class QuestionnairePackageOperation {
     
-    static final Logger logger = LoggerFactory.getLogger(QuestionnaireForOrderOperation.class);
+    static final Logger logger = LoggerFactory.getLogger(QuestionnairePackageOperation.class);
 
     FileStore fileStore;
     String baseUrl;
@@ -39,7 +39,7 @@ public class QuestionnaireForOrderOperation {
     // map of Library Resources and ids/urls so that we can skip retrieving duplicates
     HashMap<String, Resource> libraries = new HashMap<>();
 
-    public QuestionnaireForOrderOperation(FileStore fileStore, String baseUrl) {
+    public QuestionnairePackageOperation(FileStore fileStore, String baseUrl) {
         this.fileStore = fileStore;
         this.baseUrl = baseUrl;
     }

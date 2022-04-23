@@ -3,10 +3,9 @@ package org.hl7.davinci.endpoint.controllers;
 import org.hl7.davinci.FhirResourceInfo;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.Utils;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirOperationProcessor;
 import org.hl7.davinci.endpoint.database.FhirResource;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
-import org.hl7.davinci.endpoint.fhir.r4.QuestionnaireForOrderOperation;
+import org.hl7.davinci.endpoint.fhir.r4.QuestionnairePackageOperation;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -226,18 +225,18 @@ public class FhirController {
    * @return FHIR Bundle
    * @throws IOException
    */
-  @PostMapping(path = "/fhir/{fhirVersion}/Patient/$Questionnaire-for-Order", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
+  @PostMapping(path = "/fhir/{fhirVersion}/Questionnaire/$questionnaire-package", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
   public ResponseEntity<String> questionnaireForOrderOperation(HttpServletRequest request, HttpEntity<String> entity,
                                                    @PathVariable String fhirVersion) {
 
     fhirVersion = fhirVersion.toUpperCase();
     String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 
-    logger.info("POST /fhir/" + fhirVersion + "/Patient/$Questionnaire-for-Order");
+    logger.info("POST /fhir/" + fhirVersion + "/Questionnaire/$Questionnaire-package");
 
     String resource = null;
     if (fhirVersion.equalsIgnoreCase("R4")) {
-      QuestionnaireForOrderOperation operation = new QuestionnaireForOrderOperation(fileStore, baseUrl);
+      QuestionnairePackageOperation operation = new QuestionnairePackageOperation(fileStore, baseUrl);
       resource = operation.execute(entity.getBody());
 
       if (resource == null) {
@@ -260,20 +259,5 @@ public class FhirController {
 
     return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
           .body(resource);
-  }
-
-  /**
-   * FHIR Operation to retrieve all of the Questionnaires and CQL files associated with a given request.
-   * @param fhirVersion (converted to uppercase)
-   * @param id of the Patient (ignored for now)
-   * @return FHIR Bundle
-   * @throws IOException
-   */
-  @PostMapping(path = "/fhir/{fhirVersion}/Patient/{id}/$Questionnaire-for-Order", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
-  public ResponseEntity<String> questionnaireForOrderOperationWithId(HttpServletRequest request, HttpEntity<String> entity,
-                                                   @PathVariable String fhirVersion, @PathVariable String id) {
-
-    // Ignore the ID for now
-    return questionnaireForOrderOperation(request, entity, fhirVersion);
   }
 }
