@@ -120,8 +120,8 @@ public class PrefetchHydrator {
           try {
             PropertyUtils
                 .setProperty(crdResponse, prefetchKey,
-                    prefetchElement.getReturnType().cast(
-                        FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
+                    prefetchElement.getReturnType().cast(FhirRequestProcessor.executeFhirQueryUrl(
+                      hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
           } catch (Exception e) {
             logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
           }
