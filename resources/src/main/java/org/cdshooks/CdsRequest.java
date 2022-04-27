@@ -1,7 +1,5 @@
 package org.cdshooks;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-
 import javax.validation.constraints.NotNull;
 import org.hl7.davinci.EncounterBasedServiceContext;
 
@@ -82,6 +80,19 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
    * @return A traversable object (traversable with PropertyUtils)
    */
   public abstract Object getDataForPrefetchToken();
+
+  @Override
+  public String toString(){
+    StringBuilder sb = new StringBuilder();
+    sb.append("[hook: " + hook + "]");
+    sb.append("[hookInstance: " + hookInstance + "]");
+    sb.append("[fhirServer: " + fhirServer + "]");
+    sb.append("[fhirAuthorization: " + fhirAuthorization + "]");
+    sb.append("[context: " + context + "]");
+    sb.append("[extension: " + extension + "]");
+    sb.append("[prefetch: " + prefetch + "]");
+    return sb.toString();
+  }
 
 
 }

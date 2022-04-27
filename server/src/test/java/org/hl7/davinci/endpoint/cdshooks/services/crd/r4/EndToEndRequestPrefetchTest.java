@@ -3,7 +3,6 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -13,7 +12,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import org.apache.commons.io.FileUtils;
 import org.hl7.davinci.endpoint.Application;
-import org.junit.Ignore;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +26,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -50,6 +48,8 @@ public class EndToEndRequestPrefetchTest {
   private int port;
   @Autowired
   private TestRestTemplate restTemplate;
+  @Autowired
+  private YamlConfig myConfig;
 
   public EndToEndRequestPrefetchTest() throws IOException {
   }
@@ -68,6 +68,8 @@ public class EndToEndRequestPrefetchTest {
 
   @Test
   public void shouldSuccessfullyFillPreFetch() {
+    // Disable Query Batch Request since it relies on a Fhir Server or mock class.
+    myConfig.setQueryBatchRequest(false);
     stubFor(get(urlMatching(prefetchUrlMatcher))
         .willReturn(aResponse()
             .withStatus(200)
@@ -88,10 +90,11 @@ public class EndToEndRequestPrefetchTest {
 
   @Test
   public void shouldFailToFillPrefetch() {
+    // Disable Query Batch Request since it relies on a Fhir Server or mock class.
+    myConfig.setQueryBatchRequest(false);
     stubFor(get(urlMatching(prefetchUrlMatcher))
         .willReturn(aResponse()
             .withStatus(404)));
-
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(deviceRequestEmptyPrefetchJson, headers);

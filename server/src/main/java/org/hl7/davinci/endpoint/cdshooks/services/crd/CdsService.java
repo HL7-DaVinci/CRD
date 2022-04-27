@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import javax.validation.Valid;
 
+import com.google.gson.Gson;
+
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
@@ -18,8 +20,9 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
+import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
@@ -29,6 +32,7 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
@@ -152,9 +156,19 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // hydrated
     requestLog.advanceTimeline(requestService);
 
-    // logger.info("***** ***** request from requestLog: "+requestLog.toString() );
+    // Attempt a Query Batch Request to backfill missing attributes.
+    if (myConfig.isQueryBatchRequest()) {
+      QueryBatchRequest qbr = new QueryBatchRequest(this.fhirComponents);
+      this.attempQueryBatchRequest(request, qbr);
+    }
+
+    logger.info("***** ***** request from requestLog: " + requestLog.toString() );
 
     CdsResponse response = new CdsResponse();
+
+    Gson gson = new Gson();
+    final String jsonObject = gson.toJson(request.getPrefetch());
+    logger.info("Final populated CRDPrefetch: " + jsonObject);
 
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
@@ -162,6 +176,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       lookupResults = this.createCqlExecutionContexts(request, fileStore, applicationBaseUrl.toString() + "/");
       requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
+      logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
       response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
       requestLog.setCardListFromCards(response.getCards());
@@ -412,4 +427,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       FileStore fileStore, String baseUrl) throws RequestIncompleteException;
 
   protected abstract CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic);
+
+  /**
+   * Delegates query batch request to child classes based on their prefetch types.
+   */
+  protected abstract void attempQueryBatchRequest(requestTypeT request, QueryBatchRequest qbr);
+
 }

@@ -32,5 +32,10 @@ public class OrderSignRequest extends CdsRequest<CrdPrefetch, OrderSignContext> 
     return mapForPrefetchTemplates;
   }
 
+  @Override
+  public String toString() {
+    return "Super: " + super.toString() + " OrderSignRequest: " + getDataForPrefetchToken().toString();
+  }
+
 
 }
