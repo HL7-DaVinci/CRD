@@ -30,6 +30,7 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
+import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
@@ -149,17 +150,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Parsed request
     requestLog.advanceTimeline(requestService);
 
-    // PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
-    // prefetchHydrator.hydrate();
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
+    prefetchHydrator.hydrate();
 
-    // // hydrated
-    // requestLog.advanceTimeline(requestService);
+    // hydrated
+    requestLog.advanceTimeline(requestService);
 
-    // // Attempt a Query Batch Request to backfill missing attributes.
-    // if(myConfig.isQueryBatchRequest()){
-    //   QueryBatchRequest batchRequest = new QueryBatchRequest(this.fhirComponents);
-    //   batchRequest.performQueryBatchRequest((CdsRequest<CrdPrefetch, ?>) request);
-    // }
+    // Attempt a Query Batch Request to backfill missing attributes.
+    if (myConfig.isQueryBatchRequest()) {
+      QueryBatchRequest qbr = new QueryBatchRequest(this.fhirComponents);
+      this.attempQueryBatchRequest(request, qbr);
+    }
 
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );
 
@@ -227,9 +228,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
 
               if (coverageRequirements.isPriorAuthRequired()) {
-                response.addCard(CardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks));
+                Card card = CardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
+                card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents, 
+                    "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                    true, CoverageGuidance.ADMIN));
+                response.addCard(card);
               } else if (coverageRequirements.isDocumentationRequired()) {
-                response.addCard(CardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks));
+                Card card = CardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
+                card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents, 
+                    "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                    true, CoverageGuidance.CLINICAL));
+                response.addCard(card);
               }
 
               // add a card for an alternative therapy if there is one
@@ -251,7 +260,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
             Card card = CardBuilder.transform(CardTypes.COVERAGE, results);
             card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                 "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
-                true));
+                true, CoverageGuidance.COVERED));
             card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
             response.addCard(card);
           }
@@ -379,8 +388,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // request is the ID of the device request or medrec (not the full URI like the
     // IG says, since it should be taken from fhirBase
 
-    String filepath = "../../getfile/" + criteria.getQueryString();
-
     String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
     appContext = appContext + "&fhirpath=" + applicationBaseUrl + "/fhir/";
 
@@ -402,7 +409,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           + "&request=" + reqResourceId;
     } else {
       // TODO: The iss should be set by the EHR?
-      launchUrl = launchUrl;
+      //launchUrl = launchUrl;
     }
 
     Link link = new Link();
@@ -420,4 +427,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       FileStore fileStore, String baseUrl) throws RequestIncompleteException;
 
   protected abstract CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic);
+
+  /**
+   * Delegates query batch request to child classes based on their prefetch types.
+   */
+  protected abstract void attempQueryBatchRequest(requestTypeT request, QueryBatchRequest qbr);
+
 }

@@ -149,6 +149,8 @@ public class FhirBundleProcessor {
       if (insurance != null) {
         List<Coverage> coverages = insurance.stream()
             .map(reference -> (Coverage) reference.getResource()).collect(Collectors.toList());
+        // Remove null coverages that may not have resolved.
+        coverages = coverages.stream().filter(coverage -> coverage != null).collect(Collectors.toList());
         payors = Utilities.getPayors(coverages);
       } else if (payorList != null) {
         payors = payorList;

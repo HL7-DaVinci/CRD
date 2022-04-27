@@ -458,4 +458,56 @@ public class FhirRequestProcessor {
       return null;
     }
   }
+ 
+  public static IBaseResource addExtensionToRequest(IBaseResource request, Extension extension) {
+    IBaseResource output = request;
+
+    switch (request.fhirType()) {
+      case "DeviceRequest":
+      case "MedicationRequest":
+      case "CommunicationRequest":
+      case "ServiceRequest":
+      case "NutritionOrder":
+      case "Appointment":
+      case "Encounter":
+        DomainResource domainResource = ((DomainResource) request);
+        domainResource.addExtension(extension);
+        output = domainResource;
+        break;
+      default:
+        logger.info("Unsupported fhir R4 resource type (" + request.fhirType() + ") when adding extension");
+        throw new RuntimeException("Unsupported fhir R4 resource type " + request.fhirType());
+    }
+
+    return output;
+  }
+
+  public static Reference getCoverageFromRequest(IBaseResource request) {
+    Reference coverage = null;
+
+    switch (request.fhirType()) {
+      case "DeviceRequest":
+        DeviceRequest deviceRequest = ((DeviceRequest) request).copy();
+        coverage = deviceRequest.getInsurance().get(0);
+        break;
+      case "MedicationRequest":
+        MedicationRequest medicationRequest = ((MedicationRequest) request).copy();
+        coverage = medicationRequest.getInsurance().get(0);
+        break;
+      case "ServiceRequest":
+        ServiceRequest serviceRequest = ((ServiceRequest) request).copy();
+        coverage = serviceRequest.getInsurance().get(0);
+        break;
+      case "MedicationDispense":
+      case "Appointment":
+      case "NutritionOrder":
+      case "SupplyRequest":
+      case "Encounter":
+      default:
+        logger.info("Unsupported fhir R4 resource type (" + request.fhirType() + ") when retrieving coverage");
+        throw new NoCoverageException("No coverage found within fhir R4 resource type " + request.fhirType());
+    }
+
+    return coverage;
+  }
 }

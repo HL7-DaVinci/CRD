@@ -12,6 +12,7 @@ import org.hl7.ShortNameMaps;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
+import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
@@ -220,5 +221,10 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
     results.setDrugInteraction(drugInteraction);
 
     return results;
+  }
+
+  @Override
+  protected void attempQueryBatchRequest(OrderSignRequest orderSignRequest, QueryBatchRequest batchRequest) {
+    batchRequest.performQueryBatchRequest(orderSignRequest, orderSignRequest.getPrefetch());
   }
 }
