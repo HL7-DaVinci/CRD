@@ -8,7 +8,6 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.Utilities;
-import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,30 +21,27 @@ public class FhirBundleProcessor {
   static final Logger logger = LoggerFactory.getLogger(FhirBundleProcessor.class);
 
   private FileStore fileStore;
-  private CrdPrefetch prefetch;
   private String baseUrl;
   private List<String> selections;
   private List<CoverageRequirementRuleResult> results = new ArrayList<>();
 
 
-  public FhirBundleProcessor(CrdPrefetch prefetch, FileStore fileStore, String baseUrl, List<String> selections) {
-    this.prefetch = prefetch;
+  public FhirBundleProcessor(FileStore fileStore, String baseUrl, List<String> selections) {
     this.fileStore = fileStore;
     this.baseUrl = baseUrl;
     this.selections = selections;
   }
 
-  public FhirBundleProcessor(CrdPrefetch prefetch, FileStore fileStore, String baseUrl) {
-    this(prefetch, fileStore, baseUrl, new ArrayList<>());
+  public FhirBundleProcessor(FileStore fileStore, String baseUrl) {
+    this(fileStore, baseUrl, new ArrayList<>());
   }
 
   public List<CoverageRequirementRuleResult> getResults() { return results; }
 
-  public void processDeviceRequests() {
-    Bundle deviceRequestBundle = prefetch.getDeviceRequestBundle();
+  public void processDeviceRequests(Bundle deviceRequestBundle) {
     List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(DeviceRequest.class, deviceRequestBundle);
     if (!deviceRequestList.isEmpty()) {
-      logger.info("r4/FhirBundleProcessor::getAndProcessDeviceRequests: DeviceRequest(s) found");
+      logger.info("r4/FhirBundleProcessor::processDeviceRequests: DeviceRequest(s) found");
 
       for (DeviceRequest deviceRequest : deviceRequestList) {
         if (idInSelectionsList(deviceRequest.getId())) {
@@ -56,11 +52,10 @@ public class FhirBundleProcessor {
     }
   }
 
-  public void processMedicationRequests() {
-    Bundle medicationRequestBundle = prefetch.getMedicationRequestBundle();
+  public void processMedicationRequests(Bundle medicationRequestBundle) {
     List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
     if (!medicationRequestList.isEmpty()) {
-      logger.info("r4/FhirBundleProcessor::getAndProcessMedicationRequests: MedicationRequest(s) found");
+      logger.info("r4/FhirBundleProcessor::processMedicationRequests: MedicationRequest(s) found");
 
       for (MedicationRequest medicationRequest : medicationRequestList) {
         if (idInSelectionsList(medicationRequest.getId())) {
@@ -71,11 +66,10 @@ public class FhirBundleProcessor {
     }
   }
 
-  public void processMedicationDispenses() {
-    Bundle medicationDispenseBundle = prefetch.getMedicationDispenseBundle();
+  public void processMedicationDispenses(Bundle medicationDispenseBundle) {
     List<MedicationDispense> medicationDispenseList = Utilities.getResourcesOfTypeFromBundle(MedicationDispense.class, medicationDispenseBundle);
     if (!medicationDispenseList.isEmpty()) {
-      logger.info("r4/FhirBundleProcessor::getAndProcessMedicationDispenses: MedicationDispense(s) found");
+      logger.info("r4/FhirBundleProcessor::processMedicationDispenses: MedicationDispense(s) found");
 
       List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class,
           medicationDispenseBundle);
@@ -89,11 +83,10 @@ public class FhirBundleProcessor {
     }
   }
 
-  public void processServiceRequests() {
-    Bundle serviceRequestBundle = prefetch.getServiceRequestBundle();
+  public void processServiceRequests(Bundle serviceRequestBundle) {
     List<ServiceRequest> serviceRequestList = Utilities.getResourcesOfTypeFromBundle(ServiceRequest.class, serviceRequestBundle);
     if (!serviceRequestList.isEmpty()) {
-      logger.info("r4/FhirBundleProcessor::getAndProcessServiceRequests: ServiceRequest(s) found");
+      logger.info("r4/FhirBundleProcessor::processServiceRequests: ServiceRequest(s) found");
 
       for (ServiceRequest serviceRequest : serviceRequestList) {
         if (idInSelectionsList(serviceRequest.getId())) {
@@ -104,11 +97,8 @@ public class FhirBundleProcessor {
     }
   }
 
-  public void processOrderSelectMedicationStatements() {
-    Bundle medicationRequestBundle = prefetch.getMedicationRequestBundle();
+  public void processOrderSelectMedicationStatements(Bundle medicationRequestBundle, Bundle medicationStatementBundle) {
     List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
-
-    Bundle medicationStatementBundle = prefetch.getMedicationStatementBundle();
     List<MedicationStatement> medicationStatementList = Utilities.getResourcesOfTypeFromBundle(MedicationStatement.class, medicationStatementBundle);
 
     if (!medicationRequestList.isEmpty()) {

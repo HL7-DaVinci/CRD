@@ -7,6 +7,7 @@ public class FhirResourceCriteria {
   private String name = null;
   private String id = null;
   private String url = null;
+  private String topic = null;
 
   public String getFhirVersion() { return fhirVersion; }
 
@@ -40,6 +41,13 @@ public class FhirResourceCriteria {
 
   public FhirResourceCriteria setUrl(String url) {
     this.url = url;
+    return this;
+  }
+
+  public String getTopic() { return topic; }
+
+  public FhirResourceCriteria setTopic(String topic) {
+    this.topic = topic;
     return this;
   }
 
@@ -89,6 +97,15 @@ public class FhirResourceCriteria {
         string = string + ", ";
       }
       string = string + "url=" + url;
+    }
+
+    if (topic != null) {
+      if (first) {
+        first = false;
+      } else {
+        string = string + ", ";
+      }
+      string = string + "topic=" + topic;
     }
     return string;
   }
