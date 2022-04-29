@@ -8,6 +8,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.DataRequirement;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Library;
 import org.hl7.fhir.r4.model.Parameters;
@@ -219,6 +220,26 @@ public class QuestionnairePackageOperation {
                     // recurse through the libraries...
                     addLibraryDependencies((Library)referencedLibraryResource, bundleContents, questionnaireBundle);
                 }
+            }
+        }
+
+        // grab all of the ValueSets in the DataRequirement
+        List<DataRequirement> dataRequirements = library.getDataRequirement();
+        for (DataRequirement dataRequirement : dataRequirements) {
+            List<DataRequirement.DataRequirementCodeFilterComponent> codeFilters = dataRequirement.getCodeFilter();
+            for (DataRequirement.DataRequirementCodeFilterComponent codeFilter : codeFilters) {
+                String valueSetUrl = codeFilter.getValueSet();
+                Resource valueSetResource = null;
+
+                // look in the map and retrieve it instead of looking it up on disk if found
+                if (libraries.containsKey(valueSetUrl)) {
+                    valueSetResource = libraries.get(valueSetUrl);
+                } else {
+                    valueSetResource = fileStore.getFhirResourceByUrlAsFhirResource("R4", "ValueSet", valueSetUrl, baseUrl);
+                    libraries.put(valueSetUrl, valueSetResource);
+                }
+
+                addResourceToBundle(valueSetResource, bundleContents, questionnaireBundle);
             }
         }
     }
