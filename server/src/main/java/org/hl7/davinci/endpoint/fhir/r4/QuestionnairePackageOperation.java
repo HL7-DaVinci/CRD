@@ -38,8 +38,8 @@ public class QuestionnairePackageOperation {
     FileStore fileStore;
     String baseUrl;
 
-    // map of Library Resources and ids/urls so that we can skip retrieving duplicates
-    HashMap<String, Resource> libraries = new HashMap<>();
+    // map of Resources and ids/urls so that we can skip retrieving duplicates
+    HashMap<String, Resource> resources = new HashMap<>();
 
     public QuestionnairePackageOperation(FileStore fileStore, String baseUrl) {
         this.fileStore = fileStore;
@@ -74,6 +74,12 @@ public class QuestionnairePackageOperation {
                 return null;
             }
 
+            // create a single new bundle for all of the resources
+            Bundle completeBundle = new Bundle();
+
+            // list of items in bundle to avoid duplicates
+            List<String> bundleContents = new ArrayList<>();
+
             // process the orders to find the topics
             FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
             fhirBundleProcessor.processDeviceRequests(orders);
@@ -89,13 +95,8 @@ public class QuestionnairePackageOperation {
                 Bundle bundle = fileStore.getFhirResourcesByTopicAsFhirBundle("R4", "Questionnaire", topic.toLowerCase(), baseUrl);
                 List<BundleEntryComponent> bundleEntries = bundle.getEntry();
                 for (BundleEntryComponent entry : bundleEntries) {
-                    // create a new bundle
-                    Bundle questionnaireBundle = new Bundle();
 
-                    // list of items in bundle to avoid duplicates
-                    List<String> bundleContents = new ArrayList<>();
-
-                    addResourceToBundle(entry.getResource(), bundleContents, questionnaireBundle);
+                    addResourceToBundle(entry.getResource(), bundleContents, completeBundle);
 
                     if (entry.getResource().fhirType().equalsIgnoreCase("Questionnaire")) {
                         Questionnaire questionnaire = (Questionnaire)entry.getResource();
@@ -108,29 +109,32 @@ public class QuestionnairePackageOperation {
                                 Resource libraryResource = null;
 
                                 // look in the map and retrieve it instead of looking it up on disk if found
-                                if (libraries.containsKey(url)) {
-                                    libraryResource = libraries.get(url);
+                                if (resources.containsKey(url)) {
+                                    libraryResource = resources.get(url);
                                 } else {
                                     libraryResource = fileStore.getFhirResourceByUrlAsFhirResource("R4", "Library", url, baseUrl);
-                                    libraries.put(url, libraryResource);
+                                    resources.put(url, libraryResource);
                                 }
 
-                                if (addResourceToBundle(libraryResource, bundleContents, questionnaireBundle)) {
+                                if (addResourceToBundle(libraryResource, bundleContents, completeBundle)) {
                                     // recursively add the depends-on libraries if added to bundle
-                                    addLibraryDependencies((Library)libraryResource, bundleContents, questionnaireBundle);
+                                    addLibraryDependencies((Library)libraryResource, bundleContents, completeBundle);
                                 }
                             }
                         }
                     }
-
-                    // add the bundle to the output parameters
-                    ParametersParameterComponent parameter = new ParametersParameterComponent();
-                    parameter.setName("return");
-                    parameter.setResource(questionnaireBundle);
-                    outputParameters.addParameter(parameter);
-
                 } // Questionnaires
             } // topics
+
+            // add the bundle to the output parameters if it contains any resources
+            if (!completeBundle.isEmpty()) {
+                ParametersParameterComponent parameter = new ParametersParameterComponent();
+                parameter.setName("return");
+                parameter.setResource(completeBundle);
+                outputParameters.addParameter(parameter);
+            } else {
+                logger.info("No matching Questionnaires found");
+            }
         }
 
         // if none found return null
@@ -153,13 +157,13 @@ public class QuestionnairePackageOperation {
     }
 
     private Bundle getAllResources(Parameters parameters, String name) {
-        Bundle resources = new Bundle();
+        Bundle foundResources = new Bundle();
         for (ParametersParameterComponent parameter : parameters.getParameter()) {
             if (parameter.getName().equals(name))
-                resources.addEntry(new BundleEntryComponent().setResource(parameter.getResource()));
+                foundResources.addEntry(new BundleEntryComponent().setResource(parameter.getResource()));
             }
 
-        return resources;
+        return foundResources;
     }
 
     private boolean addResourceToBundle(Resource resource, List<String> bundleContents, Bundle questionnaireBundle) {
@@ -203,11 +207,11 @@ public class QuestionnairePackageOperation {
                 Resource referencedLibraryResource = null;
 
                 // look in the map and retrieve it instead of looking it up on disk if found
-                if (libraries.containsKey(id)) {
-                    referencedLibraryResource = libraries.get(id);
+                if (resources.containsKey(id)) {
+                    referencedLibraryResource = resources.get(id);
                 } else {
                     referencedLibraryResource = fileStore.getFhirResourceByIdAsFhirResource("R4", "Library", id, baseUrl);
-                    libraries.put(id, referencedLibraryResource);
+                    resources.put(id, referencedLibraryResource);
                 }
 
                 // only add the library if not already in the bundle
@@ -232,11 +236,11 @@ public class QuestionnairePackageOperation {
                 Resource valueSetResource = null;
 
                 // look in the map and retrieve it instead of looking it up on disk if found
-                if (libraries.containsKey(valueSetUrl)) {
-                    valueSetResource = libraries.get(valueSetUrl);
+                if (resources.containsKey(valueSetUrl)) {
+                    valueSetResource = resources.get(valueSetUrl);
                 } else {
                     valueSetResource = fileStore.getFhirResourceByUrlAsFhirResource("R4", "ValueSet", valueSetUrl, baseUrl);
-                    libraries.put(valueSetUrl, valueSetResource);
+                    resources.put(valueSetUrl, valueSetResource);
                 }
 
                 addResourceToBundle(valueSetResource, bundleContents, questionnaireBundle);
