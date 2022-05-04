@@ -35,6 +35,7 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
   public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
+    CrdPrefetchTemplateElements.COVERAGE_PREFETCH_QUERY,
       CrdPrefetchTemplateElements.MEDICATION_STATEMENT_BUNDLE,
       CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE);
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();

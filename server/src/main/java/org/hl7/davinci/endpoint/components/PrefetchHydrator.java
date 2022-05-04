@@ -109,32 +109,30 @@ public class PrefetchHydrator {
       }
       if (!alreadyIncluded) {
         // check if the bundle actually has element
-        String[] prefetchQueries = cdsService.prefetch.get(prefetchKey);
-        for (String prefetchQuery : prefetchQueries) {
-          String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
-          // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
-          // e.g. this could be a query template for a medication order but we have a device request
-          if (hydratedPrefetchQuery != null) {
-            if (cdsRequest.getFhirServer() == null) {
-              throw new FatalRequestIncompleteException("Attempting to fill the prefetch, but no fhir "
-                  + "server provided. Either provide a full prefetch or provide a fhir server.");
+        String prefetchQuery = cdsService.prefetch.get(prefetchKey);
+        String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
+        // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
+        // e.g. this could be a query template for a medication order but we have a device request
+        if (hydratedPrefetchQuery != null) {
+          if (cdsRequest.getFhirServer() == null) {
+            throw new FatalRequestIncompleteException("Attempting to fill the prefetch, but no fhir "
+                + "server provided. Either provide a full prefetch or provide a fhir server.");
+          }
+          try {
+            Bundle bundle = (Bundle) PropertyUtils.getProperty(crdResponse, prefetchKey);
+            if (bundle == null) {
+              PropertyUtils
+                .setProperty(crdResponse, prefetchKey,
+                    prefetchElement.getReturnType().cast(
+                        FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
+            } else {
+              Bundle newBundle = (Bundle) prefetchElement.getReturnType().cast(
+                  FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET));
+              bundle.getEntry().addAll(newBundle.getEntry());
+              PropertyUtils.setProperty(crdResponse, prefetchKey, bundle);
             }
-            try {
-              Bundle bundle = (Bundle) PropertyUtils.getProperty(crdResponse, prefetchKey);
-              if (bundle == null) {
-                PropertyUtils
-                  .setProperty(crdResponse, prefetchKey,
-                      prefetchElement.getReturnType().cast(
-                          FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
-              } else {
-                Bundle newBundle = (Bundle) prefetchElement.getReturnType().cast(
-                    FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET));
-                bundle.getEntry().addAll(newBundle.getEntry());
-                PropertyUtils.setProperty(crdResponse, prefetchKey, bundle);
-              }
-            } catch (Exception e) {
-              logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
-            }
+          } catch (Exception e) {
+            logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
           }
         }
       }

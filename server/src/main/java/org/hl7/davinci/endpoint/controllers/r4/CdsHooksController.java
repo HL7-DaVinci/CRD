@@ -68,7 +68,7 @@ public class CdsHooksController {
    */
   @CrossOrigin
   @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderSignService.ID,
-      consumes = "application/json;charset=UTF-8")
+    consumes = "application/json;charset=UTF-8")
   public CdsResponse handleOrderSign(@Valid @RequestBody OrderSignRequest request, final HttpServletRequest httpServletRequest) {
     logger.info("r4/handleOrderSign");
     if (request.getPrefetch() == null) {

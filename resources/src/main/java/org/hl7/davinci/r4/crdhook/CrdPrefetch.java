@@ -18,6 +18,10 @@ public class CrdPrefetch {
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
   @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  private Bundle coverage;
+
+  @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle deviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
@@ -51,6 +55,14 @@ public class CrdPrefetch {
   @JsonSerialize(using = JacksonHapiSerializer.class)
   @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationStatementBundle;
+
+  public Bundle getCoverage() {
+    return coverage;
+  }
+
+  public void setCoverage(Bundle coverage) {
+    this.coverage = coverage;
+  }
 
   public Bundle getDeviceRequestBundle() {
     return deviceRequestBundle;
@@ -165,6 +177,8 @@ public class CrdPrefetch {
       entries = this.medicationRequestBundle.getEntry();
     } else if(this.supplyRequestBundle != null){
       entries = this.supplyRequestBundle.getEntry();
+    } else if(this.supplyRequestBundle != null){
+      entries = this.coverage.getEntry();
     }
     sb.append("[");
     for(BundleEntryComponent entry : entries) {

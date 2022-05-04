@@ -32,7 +32,6 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
-import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;

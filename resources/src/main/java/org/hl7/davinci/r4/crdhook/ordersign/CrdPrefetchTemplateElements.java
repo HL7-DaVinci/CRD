@@ -9,7 +9,10 @@ import org.hl7.fhir.r4.model.Bundle;
  */
 public class CrdPrefetchTemplateElements {
 
-  public static final String COVERAGE_PREFETCH_QUERY =  "Coverage?patient={{context.patientId}}";
+  public static final PrefetchTemplateElement COVERAGE_REQUEST_BUNDLE = new PrefetchTemplateElement(
+      "coverage",
+      Bundle.class,
+      "Coverage?patient={{context.patientId}}");
 
   public static final PrefetchTemplateElement DEVICE_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "deviceRequestBundle",
@@ -20,8 +23,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=DeviceRequest:requester"
           + "&_include=DeviceRequest:device"
           + "&_include:iterate=PractitionerRole:organization"
-          + "&_include:iterate=PractitionerRole:practitioner",
-          COVERAGE_PREFETCH_QUERY);
+          + "&_include:iterate=PractitionerRole:practitioner");
 
   public static final PrefetchTemplateElement MEDICATION_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "medicationRequestBundle",
@@ -32,8 +34,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=MedicationRequest:requester:PractitionerRole"
           + "&_include=MedicationRequest:medication"
           + "&_include:iterate=PractitionerRole:organization"
-          + "&_include:iterate=PractitionerRole:practitioner",
-          COVERAGE_PREFETCH_QUERY);
+          + "&_include:iterate=PractitionerRole:practitioner");
 
   public static final PrefetchTemplateElement NUTRITION_ORDER_BUNDLE = new PrefetchTemplateElement(
       "nutritionOrderBundle",
@@ -55,8 +56,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=ServiceRequest:performer"
           + "&_include=ServiceRequest:requester"
           + "&_include:iterate=PractitionerRole:organization"
-          + "&_include:iterate=PractitionerRole:practitioner",
-          COVERAGE_PREFETCH_QUERY);
+          + "&_include:iterate=PractitionerRole:practitioner");
 
   // public static final PrefetchTemplateElement SUPPLY_REQUEST_BUNDLE = new PrefetchTemplateElement(
   //     "supplyRequestBundle",
@@ -79,8 +79,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=Appointment:practitioner:PractitionerRole"
           + "&_include:iterate=PractitionerRole:organization"
           + "&_include:iterate=PractitionerRole:practitioner"
-          + "&_include=Appointment:location",
-      COVERAGE_PREFETCH_QUERY);
+          + "&_include=Appointment:location");
 
   public static final PrefetchTemplateElement ENCOUNTER_BUNDLE = new PrefetchTemplateElement(
       "encounterBundle",
@@ -89,8 +88,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include=Encounter:patient"
           + "&_include=Encounter:service-provider"
           + "&_include=Encounter:practitioner"
-          + "&_include=Encounter:location",
-      COVERAGE_PREFETCH_QUERY);
+          + "&_include=Encounter:location");
 
   //   public static final PrefetchTemplateElement MEDICATION_DISPENSE_BUNDLE = new PrefetchTemplateElement(
   //       "medicationDispenseBundle",

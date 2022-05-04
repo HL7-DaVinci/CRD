@@ -3,7 +3,7 @@ package org.hl7.davinci;
 public class PrefetchTemplateElement {
 
   private String key;
-  private String[] queries;
+  private String query;
   private Class returnType;
 
   /**
@@ -13,9 +13,9 @@ public class PrefetchTemplateElement {
    * @param query The query to execute against the fhir server.
    * @param returnType The type to cast the result of a successful query to (e.g. a Bundle)
    */
-  public PrefetchTemplateElement(String key, Class returnType, String...queries) {
+  public PrefetchTemplateElement(String key, Class returnType, String query) {
     this.key = key;
-    this.queries = queries;
+    this.query = query;
     this.returnType = returnType;
   }
 
@@ -23,8 +23,8 @@ public class PrefetchTemplateElement {
     return key;
   }
 
-  public String[] getQuery() {
-    return queries;
+  public String getQuery() {
+    return query;
   }
 
   public Class getReturnType() {
@@ -33,6 +33,6 @@ public class PrefetchTemplateElement {
 
   @Override
   public String toString(){
-    return "[" + key + ", " + queries + ", " + returnType + "]";
+    return "[" + key + ", " + query + ", " + returnType + "]";
   }
 }

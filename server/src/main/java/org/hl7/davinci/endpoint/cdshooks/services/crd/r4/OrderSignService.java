@@ -40,6 +40,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
   public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
+      CrdPrefetchTemplateElements.COVERAGE_REQUEST_BUNDLE,
       CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
       // CrdPrefetchTemplateElements.SUPPLY_REQUEST_BUNDLE,
       // CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
