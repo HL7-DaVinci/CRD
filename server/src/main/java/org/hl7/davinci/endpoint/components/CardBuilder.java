@@ -85,7 +85,8 @@ public class CardBuilder {
    * @return card with appropriate information
    */
   public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults, Boolean addLink) {
-    Card card = baseCard(cardType);
+    String requestId = Utilities.getIdFromIBaseResource(cqlResults.getRequest());
+    Card card = baseCard(cardType, requestId);
 
     if (addLink) {
       Link link = new Link();
@@ -152,7 +153,7 @@ public class CardBuilder {
    * @return valid card
    */
   public static Card summaryCard(CardTypes cardType, String summary) {
-    Card card = baseCard(cardType);
+    Card card = baseCard(cardType, "");
     card.setSummary(summary);
     return card;
   }
@@ -160,7 +161,8 @@ public class CardBuilder {
   public static Card alternativeTherapyCard(AlternativeTherapy alternativeTherapy, IBaseResource resource,
                                             FhirComponentsT fhirComponents) {
     logger.info("Build Alternative Therapy Card: " + alternativeTherapy.toString());
-    Card card = baseCard(CardTypes.THERAPY_ALTERNATIVES_OPT);
+    String requestId = Utilities.getIdFromIBaseResource(resource);
+    Card card = baseCard(CardTypes.THERAPY_ALTERNATIVES_OPT, requestId);
 
     card.setSummary("Alternative Therapy Suggested");
     card.setDetail(alternativeTherapy.getDisplay() + " (" + alternativeTherapy.getCode() + ") should be used instead.");
@@ -203,9 +205,10 @@ public class CardBuilder {
     return card;
   }
 
-  public static Card drugInteractionCard(DrugInteraction drugInteraction) {
+  public static Card drugInteractionCard(DrugInteraction drugInteraction, IBaseResource resource) {
     logger.info("Build Drug Interaction Card: " + drugInteraction.getSummary());
-    Card card = baseCard(CardTypes.CONTRAINDICATION);
+    String requestId = Utilities.getIdFromIBaseResource(resource);
+    Card card = baseCard(CardTypes.CONTRAINDICATION, requestId);
     card.setSummary(drugInteraction.getSummary());
     card.setDetail(drugInteraction.getDetail());
     card.setIndicator(Card.IndicatorEnum.WARNING);
@@ -383,10 +386,17 @@ public class CardBuilder {
     }
   }
 
-  private static Card baseCard(CardTypes cardType) {
+  private static Card baseCard(CardTypes cardType, String requestId) {
     Card card = new Card();
     card.setIndicator(Card.IndicatorEnum.INFO);
     card.setSource(createSource(cardType));
+
+    if (!requestId.isEmpty()) {
+      CardExtension cardExtension = new CardExtension();
+      cardExtension.addAssociatedResource(requestId);
+      card.setExtension(cardExtension);
+    }
+    
     return card;
   }
 }

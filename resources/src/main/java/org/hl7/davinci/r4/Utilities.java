@@ -189,6 +189,13 @@ public class Utilities {
     return parser.parseResource(resourceString);
   }
 
+  public static String getIdFromIBaseResource(IBaseResource baseResource) {
+    if (baseResource == null) {
+      return "";
+    }
+    return baseResource.getIdElement().getValue();
+  }
+
   public static FhirResourceInfo getFhirResourceInfo(IBaseResource baseResource) {
     String resourceType = baseResource.fhirType(); // grab the FHIR resource type out of the resource
     resourceType = resourceType.toLowerCase();
