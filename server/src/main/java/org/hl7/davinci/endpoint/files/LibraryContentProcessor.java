@@ -88,7 +88,7 @@ public class LibraryContentProcessor extends FhirResourceProcessor<Library> {
     Attachment attachment = new Attachment();
     try {
       // base64 encode
-      InputStream inputStream = fileResource.getResource().getInputStream();
+      InputStream inputStream = fileResource.getResource().getInputStream();  
       byte[] byteData = new byte[inputStream.available()];
       inputStream.read(byteData);
       String encodedData = Base64.encodeBase64String(byteData);
@@ -102,3 +102,5 @@ public class LibraryContentProcessor extends FhirResourceProcessor<Library> {
     return attachment;
   }
 }
+
+
