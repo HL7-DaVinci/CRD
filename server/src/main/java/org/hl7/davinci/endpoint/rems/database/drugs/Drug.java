@@ -1,7 +1,5 @@
 package org.hl7.davinci.endpoint.rems.database.drugs;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hl7.davinci.endpoint.rems.database.mapping.StringListConverter;
 import org.hl7.davinci.endpoint.rems.database.requirement.Requirement;
 
 import javax.persistence.*;
