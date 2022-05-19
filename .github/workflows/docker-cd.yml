@@ -24,4 +24,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: smalho01234/crd2:current
+        tags: smalho01234/crd2:latest
