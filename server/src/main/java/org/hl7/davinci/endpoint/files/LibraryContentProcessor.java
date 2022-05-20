@@ -49,7 +49,7 @@ public class LibraryContentProcessor extends FhirResourceProcessor<Library> {
 
               // content is CQL (assuming elm/json is actually CQL)
               String topic = urlParts[1];
-              String fhirVersion = urlParts[2];
+              String fhirVersion = urlParts[2].toUpperCase();
               String fileName = urlParts[3];
 
               List<Attachment> attachments = new ArrayList<>();
