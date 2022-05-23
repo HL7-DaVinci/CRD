@@ -24,7 +24,7 @@ public class Requirement {
     @Column(name = "description", nullable = true)
     private String description;
 
-    // this should be a reference to a FHIR resource
+    // FHIR resource which defines the requirement (task, questionnaire, etc)
     @JoinColumn(name = "requirement", nullable = false)
     @OneToOne
     private RemsFhir requirement;

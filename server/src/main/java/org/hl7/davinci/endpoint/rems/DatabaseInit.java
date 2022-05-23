@@ -58,10 +58,6 @@ class DatabaseInit {
             repository.save(turalio);
             requirement.setDrug(turalio);
             requirementRepository.save(requirement);
-
-
-//
-//            log.info("Preloading " + repository.save(new RemsFhir()));
         };
     }
 }
