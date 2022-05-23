@@ -7,7 +7,6 @@ import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.IResourceProvider;
-import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhir;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhirRepository;
 import org.hl7.davinci.r4.FhirComponents;
@@ -22,15 +21,15 @@ import java.util.UUID;
 
 @Component
 public class QuestionnaireProvider implements IResourceProvider {
-    /**
-     * Constructor
-     */
 
     @Autowired
     RemsFhirRepository remsFhirRepository;
 
     IParser jsonParser;
 
+    /**
+     * Constructor
+     */
     public QuestionnaireProvider() {
         FhirComponents fhirComponents = new FhirComponents();
         jsonParser = fhirComponents.getJsonParser();
@@ -47,9 +46,6 @@ public class QuestionnaireProvider implements IResourceProvider {
     @Read()
     public Questionnaire read(@IdParam IdType theId) {
         RemsFhir retVal = remsFhirRepository.findById(theId.getIdPart()).get();
-        if (retVal == null) {
-            throw new ResourceNotFoundException(theId);
-        }
         return (Questionnaire) jsonParser.parseResource(retVal.getResource());
     }
 

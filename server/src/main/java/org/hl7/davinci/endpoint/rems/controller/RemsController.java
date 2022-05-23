@@ -1,14 +1,9 @@
 package org.hl7.davinci.endpoint.rems.controller;
 
-import javassist.NotFoundException;
 import org.hl7.davinci.endpoint.Application;
-import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.rems.database.drugs.Drug;
 import org.hl7.davinci.endpoint.rems.database.drugs.DrugsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,14 +20,14 @@ import java.util.logging.Logger;
  */
 @RestController
 public class RemsController {
-    private static Logger logger = Logger.getLogger(Application.class.getName());
+    private static final Logger logger = Logger.getLogger(Application.class.getName());
 
     @Autowired
     private DrugsRepository drugsRepository;
 
     @GetMapping(value = "/rems/{id}")
     @CrossOrigin
-    public ResponseEntity<Drug> getRequirments(HttpServletRequest request, @PathVariable String id) throws IOException {
+    public ResponseEntity<Drug> getRequirements(HttpServletRequest request, @PathVariable String id) throws IOException {
         Drug drug = drugsRepository.findById(id).get();
         return processRequirements(drug);
     }

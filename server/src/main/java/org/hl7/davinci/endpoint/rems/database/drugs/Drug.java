@@ -58,4 +58,20 @@ public class Drug {
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
+
+    public String getCodeSystem() {
+        return codeSystem;
+    }
+
+    public void setCodeSystem(String codeSystem) {
+        this.codeSystem = codeSystem;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 }

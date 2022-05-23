@@ -1,8 +1,5 @@
 package org.hl7.davinci.endpoint.rems.database.fhir;
 
-import ca.uhn.fhir.model.api.IResource;
-import org.hl7.fhir.r4.model.IdType;
-
 /**
  * Outlines which methods the database will support.
  */
