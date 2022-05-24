@@ -7,6 +7,7 @@ import org.cdshooks.Hook;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.components.CardBuilder;
+import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.fhir.r4.model.Coding;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public abstract class CdsServiceRems<requestTypeT extends CdsRequest<?, ?>> exte
         CdsResponse response = new CdsResponse();
         List<Coding> medications = getMedications(request);
         for (Coding medication : medications) {
-            Card card = CardBuilder.summaryCard("");
+            Card card = CardBuilder.summaryCard(CardTypes.COVERAGE, "");
             if (isRemsDrug(medication)) {
                 card.setSummary(String.format("%s has REMS", medication.getDisplay()));
             } else {

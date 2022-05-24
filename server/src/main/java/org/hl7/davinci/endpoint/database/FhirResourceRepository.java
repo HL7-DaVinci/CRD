@@ -27,7 +27,7 @@ public interface FhirResourceRepository extends CrudRepository<FhirResource, Lon
       "SELECT r FROM FhirResource r WHERE "
           + "r.fhirVersion = :#{#criteria.fhirVersion} "
           + "and LOWER(r.resourceType) = :#{#criteria.resourceType} "
-          + "and r.name = :#{#criteria.name}")
+          + "and LOWER(r.name) = :#{#criteria.name}")
   List<FhirResource> findByName(
       @Param("criteria") FhirResourceCriteria criteria
   );
@@ -38,6 +38,15 @@ public interface FhirResourceRepository extends CrudRepository<FhirResource, Lon
           + "and LOWER(r.resourceType) = :#{#criteria.resourceType} "
           + "and r.url = :#{#criteria.url}")
   List<FhirResource> findByUrl(
+      @Param("criteria") FhirResourceCriteria criteria
+  );
+
+  @Query(
+      "SELECT r FROM FhirResource r WHERE "
+          + "r.fhirVersion = :#{#criteria.fhirVersion} "
+          + "and LOWER(r.resourceType) = :#{#criteria.resourceType} "
+          + "and LOWER(r.topic) = :#{#criteria.topic}")
+  List<FhirResource> findByTopic(
       @Param("criteria") FhirResourceCriteria criteria
   );
 

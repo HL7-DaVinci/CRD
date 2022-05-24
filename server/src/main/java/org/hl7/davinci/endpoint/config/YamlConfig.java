@@ -39,6 +39,8 @@ public class YamlConfig {
 
   private boolean urlEncodeAppContext;
 
+  private boolean queryBatchRequest;
+
   public boolean getCheckJwt() {
     return checkJwt;
   }
@@ -57,8 +59,16 @@ public class YamlConfig {
     this.checkPractitionerLocation = checkPractitionerLocation;
   }
 
+  public void setQueryBatchRequest(boolean queryBatchRequest) {
+    this.queryBatchRequest = queryBatchRequest;
+  }
+
   public boolean isCheckPractitionerLocation() {
     return checkPractitionerLocation;
+  }
+
+  public boolean isQueryBatchRequest() {
+    return this.queryBatchRequest;
   }
 
   public boolean isAppendParamsToSmartLaunchUrl() {
