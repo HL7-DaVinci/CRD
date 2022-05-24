@@ -7,6 +7,7 @@ import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.IResourceProvider;
+import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhir;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhirRepository;
 import org.hl7.davinci.r4.FhirComponents;
@@ -46,7 +47,7 @@ public class QuestionnaireProvider implements IResourceProvider {
     @Read()
     public Questionnaire read(@IdParam IdType theId) {
         RemsFhir retVal = remsFhirRepository.findById(theId.getIdPart()).get();
-        return (Questionnaire) jsonParser.parseResource(retVal.getResource());
+        return (Questionnaire) jsonParser.parseResource(retVal.getResource().toString());
     }
 
     @Create
@@ -56,7 +57,7 @@ public class QuestionnaireProvider implements IResourceProvider {
         String uuid = UUID.randomUUID().toString();
         theQuestionnaire.setId(uuid);
         resource.setId(uuid);
-        resource.setResource(jsonParser.encodeResourceToString(theQuestionnaire));
+        resource.setResource(JacksonUtil.toJsonNode(jsonParser.encodeResourceToString(theQuestionnaire)));
         remsFhirRepository.save(resource);
         MethodOutcome methodOutcome = new MethodOutcome();
         methodOutcome.setResource(theQuestionnaire);

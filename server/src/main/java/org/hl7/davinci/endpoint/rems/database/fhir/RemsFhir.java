@@ -1,5 +1,9 @@
 package org.hl7.davinci.endpoint.rems.database.fhir;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import org.hibernate.annotations.Type;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,9 +21,11 @@ public class RemsFhir {
     @Column(name = "timestamp", nullable = false)
     private String timestamp;
 
-    @Lob
-    @Column(name = "resource", nullable = false)
-    private String resource;
+    @Type(type = "json")
+    @Column(columnDefinition = "json", name = "complianceBundle", nullable = false, length = 10000000)
+    private JsonNode resource;
+
+
 
     public RemsFhir() {
         this.timestamp = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
@@ -34,11 +40,11 @@ public class RemsFhir {
         this.id = id;
     }
 
-    public String getResource() {
+    public JsonNode getResource() {
         return this.resource;
     }
 
-    public void setResource(String resource) {
+    public void setResource(JsonNode resource) {
         this.resource = resource;
     }
 

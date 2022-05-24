@@ -1,6 +1,8 @@
 package org.hl7.davinci.endpoint.rems;
 
 import ca.uhn.fhir.parser.IParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
 import org.hl7.davinci.endpoint.rems.database.drugs.Drug;
 import org.hl7.davinci.endpoint.rems.database.drugs.DrugsRepository;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhir;
@@ -8,6 +10,7 @@ import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhirRepository;
 import org.hl7.davinci.endpoint.rems.database.requirement.Requirement;
 import org.hl7.davinci.endpoint.rems.database.requirement.RequirementRepository;
 import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.fhir.r4.model.Questionnaire;
 import org.hl7.fhir.r4.model.ResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +51,8 @@ class DatabaseInit {
             Requirement requirement = new Requirement();
             RemsFhir remsFhir = new RemsFhir();
             remsFhir.setResourceType(ResourceType.Questionnaire.toString());
-            remsFhir.setResource(questionnaire);
+            JsonNode questionnaireResource = JacksonUtil.toJsonNode(questionnaire);
+            remsFhir.setResource(questionnaireResource);
             remsFhir.setId("q1");
             remsFhirRepository.save(remsFhir);
             requirement.setRequirement(remsFhir);
