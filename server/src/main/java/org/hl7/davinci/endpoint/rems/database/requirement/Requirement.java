@@ -15,8 +15,8 @@ public class Requirement {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "timestamp", nullable = false)
-    private String timestamp;
+    @Column(name = "createdAt", nullable = false)
+    private String createdAt;
 
     @Column(name = "completed", nullable = false)
     private boolean completed ;
@@ -35,7 +35,7 @@ public class Requirement {
     private Drug drug;
 
     public Requirement() {
-        this.timestamp = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
+        this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
         this.completed = false;
     }
 
@@ -47,12 +47,12 @@ public class Requirement {
         this.requirement = requirement;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
     public boolean isCompleted() {

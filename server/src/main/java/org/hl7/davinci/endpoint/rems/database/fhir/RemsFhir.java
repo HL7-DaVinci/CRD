@@ -18,8 +18,8 @@ public class RemsFhir {
     @Column(name = "resourceType", nullable = false)
     private String resourceType;
 
-    @Column(name = "timestamp", nullable = false)
-    private String timestamp;
+    @Column(name = "createdAt", nullable = false)
+    private String createdAt;
 
     @Type(type = "json")
     @Column(columnDefinition = "json", name = "complianceBundle", nullable = false, length = 10000000)
@@ -28,7 +28,7 @@ public class RemsFhir {
 
 
     public RemsFhir() {
-        this.timestamp = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
+        this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
 
     }
 
@@ -56,11 +56,11 @@ public class RemsFhir {
         this.resourceType = resourceType;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

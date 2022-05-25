@@ -21,14 +21,14 @@ public class Drug {
     @Column(name = "code", nullable = true)
     private String code;
 
-    @Column(name = "timestamp", nullable = false)
-    private String timestamp;
+    @Column(name = "createdAt", nullable = false)
+    private String createdAt;
 
     @OneToMany(mappedBy="drug")
     private List<Requirement> requirements = new ArrayList<>();
 
     public Drug() {
-        this.timestamp = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
+        this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
 
     }
 
@@ -51,12 +51,12 @@ public class Drug {
     public void addRequirement(Requirement requirement)  {
         this.requirements.add(requirement);
     }
-    public String getTimestamp() {
-        return timestamp;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getCodeSystem() {
