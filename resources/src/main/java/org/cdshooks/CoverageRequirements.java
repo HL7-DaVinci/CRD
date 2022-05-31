@@ -9,6 +9,7 @@ public class CoverageRequirements {
   private String infoLink;
   private String questionnaireOrderUri;
   private String questionnaireProviderEnrollmentUri;
+  private String questionnaireProviderKnowledgeAssessmentUri;
   private String questionnaireFaceToFaceUri;
   private String questionnaireLabUri;
   private String questionnaireProgressNoteUri;
@@ -76,6 +77,15 @@ public class CoverageRequirements {
 
   public String getQuestionnaireProviderEnrollmentUri() {
     return this.questionnaireProviderEnrollmentUri;
+  }
+
+  public CoverageRequirements setQuestionnaireProviderKnowledgeAssessmentUri(String questionnaireProviderKnowledgeAssessmentUri) {
+    this.questionnaireProviderKnowledgeAssessmentUri = questionnaireProviderKnowledgeAssessmentUri;
+    return this;
+  }
+
+  public String getQuestionnaireProviderKnowledgeAssessmentUri() {
+    return this.questionnaireProviderKnowledgeAssessmentUri;
   }
 
   public CoverageRequirements setQuestionnaireFaceToFaceUri(String questionnaireFaceToFaceUri) {
