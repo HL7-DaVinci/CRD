@@ -125,6 +125,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
           } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
             if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProviderEnrollmentUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
@@ -194,6 +195,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
           lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Patient Enrollment Form"));
+    }
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProviderEnrollmentUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          coverageRequirements.getQuestionnaireProviderEnrollmentUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Enrollment Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
