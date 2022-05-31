@@ -52,7 +52,7 @@ public class RemsController {
     @Autowired
     private RemsRepository remsRepository;
 
-    @GetMapping(value = "/rems/{id}")
+    @GetMapping(value = "/drug/{id}")
     @CrossOrigin
     public ResponseEntity<Drug> getRequirements(HttpServletRequest request, @PathVariable String id) throws IOException {
         Drug drug = drugsRepository.findById(id).get();
@@ -129,7 +129,7 @@ public class RemsController {
       }
     
       @CrossOrigin
-      @GetMapping("/api/rems/{id}")
+      @GetMapping("/rems/{id}")
       public ResponseEntity<Object> getRems(@PathVariable String id) {
         Rems rems = remsRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id + " not found"));
         return ResponseEntity.ok().body(rems);
