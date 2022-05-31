@@ -162,6 +162,14 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
       }
 
       try {
+        if (evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context) != null) {
+          coverageRequirements.setQuestionnaireProviderKnowledgeAssessmentUri(evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No Prescriber Knowledge Assessment defined");
+      }
+
+      try {
         if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null) {
           coverageRequirements.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString());
         }
