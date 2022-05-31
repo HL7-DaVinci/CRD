@@ -25,11 +25,11 @@ public class MetRequirement {
     private boolean completed ;
 
     // FHIR resource which defines the requirement (task, questionnaire, etc)
-    @JoinColumn(name = "completedRequirement", nullable = false)
-    @OneToOne
+    @JoinColumn(name = "completedRequirement", nullable = true)
+    @OneToOne(fetch = FetchType.LAZY)
     private RemsFhir completedRequirement;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="REQUIREMENT_ID")
     @JsonIgnore
     private Requirement requirement;
@@ -39,7 +39,7 @@ public class MetRequirement {
     @JsonIgnore
     private Rems remsRequest;
 
-    @OneToMany(mappedBy="parentMetRequirement")
+    @OneToMany(mappedBy="parentMetRequirement", fetch = FetchType.LAZY)
     private List<MetRequirement> childMetRequirements = new ArrayList<>();
 
     @ManyToOne

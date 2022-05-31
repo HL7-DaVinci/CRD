@@ -28,15 +28,18 @@ public class Requirement {
     @OneToOne
     private RemsFhir requirement;
 
+    @OneToMany(mappedBy="requirement")
+    private List<MetRequirement> metRequirements = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name="DRUG_ID")
     @JsonIgnore
     private Drug drug;
 
-    @OneToMany(mappedBy="parentRequirement")
+    @OneToMany(mappedBy="parentRequirement", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Requirement> childRequirements = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="PARENT_REQUIREMENT")
     @JsonIgnore
     private Requirement parentRequirement;
@@ -95,6 +98,18 @@ public class Requirement {
     
     public void setParent(Requirement requirement) {
         this.parentRequirement = requirement;
+    }
+
+    public List<MetRequirement> getMetRequirements() {
+        return this.metRequirements;
+    }
+    
+    public void setMetRequirements(List<MetRequirement> metRequirements) {
+        this.metRequirements = metRequirements;
+    }
+    
+    public void addChild(MetRequirement metRequirement)  {
+        this.metRequirements.add(metRequirement);
     }
 
 }

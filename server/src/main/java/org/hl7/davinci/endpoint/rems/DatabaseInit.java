@@ -47,6 +47,8 @@ class DatabaseInit {
             log.info("Preloading turalio");
             Drug turalio = new Drug();
             turalio.setId("turalio");
+            turalio.setCodeSystem("http://www.nlm.nih.gov/research/umls/rxnorm");
+            turalio.setCode("2183126");
 
             // patient enrollment form requirement
             String patientQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/fhir/Questionnaire-R4-DrugHasREMS.json", Charset.defaultCharset());
@@ -62,6 +64,18 @@ class DatabaseInit {
             patientEnrollmentRequirement.setDrug(turalio);
             turalio.addRequirement(patientEnrollmentRequirement);
 
+            // prescriber knowledge assessment / certification sub-requirement
+            String prescriberKnowledgeQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/fhir/Questionnaire-R4-DrugHasREMS.json", Charset.defaultCharset());
+            Requirement prescriberCertificationRequirement = new Requirement();
+            RemsFhir prescriberKnowledgeResource = new RemsFhir();
+            prescriberKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode prescriberKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(prescriberKnowledgeQuestionnaire);
+            prescriberKnowledgeResource.setResource(prescriberKnowledgeQuestionnaireResource);
+            prescriberKnowledgeResource.setId("turalio-prescriber-knowledge-check");
+            remsFhirRepository.save(prescriberKnowledgeResource);
+            prescriberCertificationRequirement.setRequirement(prescriberKnowledgeResource);
+            prescriberCertificationRequirement.setDescription("complete prescriber knowledge check");
+
              // prescriber enrollment form requirement
              String prescriberQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/fhir/Questionnaire-R4-DrugHasREMS.json", Charset.defaultCharset());
              Requirement prescriberEnrollmentRequirement = new Requirement();
@@ -74,28 +88,10 @@ class DatabaseInit {
              prescriberEnrollmentRequirement.setRequirement(prescriberEnrollmentResource);
              prescriberEnrollmentRequirement.setDescription("complete prescriber enrollment questionnaire");
              prescriberEnrollmentRequirement.setDrug(turalio);
+             prescriberEnrollmentRequirement.addChild(prescriberCertificationRequirement);
              turalio.addRequirement(prescriberEnrollmentRequirement);
 
-            // prescriber knowledge assessment / certification sub-requirement
-            String prescriberKnowledgeQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/fhir/Questionnaire-R4-DrugHasREMS.json", Charset.defaultCharset());
-            Requirement prescriberCertificationRequirement = new Requirement();
-            RemsFhir prescriberKnowledgeResource = new RemsFhir();
-            prescriberKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
-            JsonNode prescriberKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(prescriberKnowledgeQuestionnaire);
-            prescriberKnowledgeResource.setResource(prescriberKnowledgeQuestionnaireResource);
-            prescriberKnowledgeResource.setId("turalio-prescriber-knowledge-check");
-            remsFhirRepository.save(prescriberKnowledgeResource);
-            prescriberCertificationRequirement.setRequirement(prescriberKnowledgeResource);
-            prescriberCertificationRequirement.setDescription("complete prescriber knowledge check");
-            prescriberCertificationRequirement.setDrug(turalio);
-            prescriberCertificationRequirement.setParent(prescriberEnrollmentRequirement);
-            turalio.addRequirement(prescriberCertificationRequirement);
-
-            repository.save(turalio);
-            requirementRepository.save(patientEnrollmentRequirement);
-            requirementRepository.save(prescriberEnrollmentRequirement);
-            requirementRepository.save(prescriberCertificationRequirement);
-
+            repository.save(turalio);;
         };
     }
 }

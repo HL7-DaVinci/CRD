@@ -27,7 +27,11 @@ public class Rems {
   @Column(name = "status", nullable = false, length = 100)
   private String status;
 
-  @OneToMany(mappedBy="remsRequest")
+  @Type(type = "json")
+  @Column(columnDefinition = "json", name = "resource", nullable = false, length = 10000000)
+  private JsonNode resource;
+
+  @OneToMany(mappedBy="remsRequest", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<MetRequirement> metRequirements = new ArrayList<>();
 
   public void Rems() {}
@@ -52,11 +56,19 @@ public class Rems {
     return this.metRequirements;
 }
 
-public void setResource(List<MetRequirement> metRequirements) {
+public void setMetRequirement(List<MetRequirement> metRequirements) {
     this.metRequirements = metRequirements;
 }
 
 public void addMetRequirement(MetRequirement metRequirement)  {
     this.metRequirements.add(metRequirement);
+}
+
+public JsonNode getResource() {
+  return this.resource;
+}
+
+public void setResource(JsonNode resource) {
+  this.resource = resource;
 }
 }

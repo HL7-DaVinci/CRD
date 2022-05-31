@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
+import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirement;
+import org.hl7.davinci.endpoint.rems.database.requirement.Requirement;
 
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.rems.database.drugs.Drug;
@@ -85,16 +87,39 @@ public class RemsController {
         t.start();
       }
     
-      @PostMapping(value = "/api/rems")
+      @PostMapping(value = "/rems")
       @CrossOrigin
       public ResponseEntity<Object> postRems(@RequestBody String jsonData) {
         JsonNode remsObject = JacksonUtil.toJsonNode(jsonData);
         String id = UUID.randomUUID().toString().replace("-", "");
-    
+
+        JsonNode params = getResource(remsObject, remsObject.get("entry").get(0).get("resource").get("focus").get("parameters").get("reference").textValue());
+        
+        String prescriptionReference = "";
+        for (JsonNode param : params.get("parameter")) {
+            if (param.get("name").textValue().equals("prescription")) {
+                prescriptionReference = param.get("reference").textValue();
+            }
+        }
+
+        JsonNode presciption = getResource(remsObject, prescriptionReference);
+        String prescriptionSystem = presciption.get("medicationCodeableConcept").get("coding").get(0).get("system").textValue();
+        String prescriptionCode = presciption.get("medicationCodeableConcept").get("coding").get(0).get("code").textValue();
+        Drug drug = drugsRepository.findDrugByCode(prescriptionSystem, prescriptionCode).get(0);
+
+
+
         Rems remsRequest = new Rems();
         remsRequest.setCase_number(id);
         remsRequest.setStatus("Pending");
+        remsRequest.setResource(remsObject);
 
+        // sub requirements don't seem to be working, this loop will need to change to handle multiple levels of requirement conditions
+        for (Requirement requirement : drug.getRequirements()) {
+            MetRequirement metReq = new MetRequirement();
+            metReq.setRequirement(requirement);
+            remsRequest.addMetRequirement(metReq);
+        }
 
 
         remsRepository.save(remsRequest);
@@ -108,6 +133,20 @@ public class RemsController {
       public ResponseEntity<Object> getRems(@PathVariable String id) {
         Rems rems = remsRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id + " not found"));
         return ResponseEntity.ok().body(rems);
+      }
+
+      public JsonNode getResource(JsonNode bundle, String resourceReference) {
+        String[] temp = resourceReference.split("/");
+        String _resourceType = temp[0];
+        String _id = temp[1];
+      
+        for (int i = 0; i < bundle.get("entry").size(); i++) {
+          if ((bundle.get("entry").get(i).get("resource").get("resourceType").textValue().equals(_resourceType))
+            && (bundle.get("entry").get(i).get("resource").get("id").textValue().equals(_id))) {
+            return bundle.get("entry").get(i).get("resource");
+          }
+        }
+        return null;
       }
     
 }

@@ -24,7 +24,7 @@ public class Drug {
     @Column(name = "createdAt", nullable = false)
     private String createdAt;
 
-    @OneToMany(mappedBy="drug")
+    @OneToMany(mappedBy="drug", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Requirement> requirements = new ArrayList<>();
 
     public Drug() {
