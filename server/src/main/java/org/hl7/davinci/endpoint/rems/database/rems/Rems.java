@@ -1,4 +1,9 @@
-package org.hl7.davinci.endpoint.database;
+package  org.hl7.davinci.endpoint.rems.database.rems;
+import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirement;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.*;
+
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,12 +23,12 @@ public class Rems {
   @Column(name = "case_number", nullable = false, length = 100)
   private String case_number;
 
-  @Type(type = "json")
-  @Column(columnDefinition = "json", name = "complianceBundle", nullable = false, length = 10000000)
-  private JsonNode complianceBundle;
 
   @Column(name = "status", nullable = false, length = 100)
   private String status;
+
+  @OneToMany(mappedBy="remsRequest")
+  private List<MetRequirement> metRequirements = new ArrayList<>();
 
   public void Rems() {}
 
@@ -35,14 +40,6 @@ public class Rems {
     this.case_number = id;
   }
 
-  public JsonNode getComplianceBundle() {
-    return this.complianceBundle;
-  }
-
-  public void setComplianceBundle(JsonNode jsonParam) {
-    this.complianceBundle = jsonParam;
-  }
-
   public String getStatus() {
     return this.status;
   }
@@ -50,4 +47,16 @@ public class Rems {
   public void setStatus(String statusParam) {
     this.status = statusParam;
   }
+
+  public List<MetRequirement> getMetRequirements() {
+    return this.metRequirements;
+}
+
+public void setResource(List<MetRequirement> metRequirements) {
+    this.metRequirements = metRequirements;
+}
+
+public void addMetRequirement(MetRequirement metRequirement)  {
+    this.metRequirements.add(metRequirement);
+}
 }

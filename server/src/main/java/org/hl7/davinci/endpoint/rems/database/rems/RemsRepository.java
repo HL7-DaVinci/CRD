@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.database;
+package org.hl7.davinci.endpoint.rems.database.rems;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

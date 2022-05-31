@@ -2,6 +2,8 @@ package org.hl7.davinci.endpoint.rems.database.requirement;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hl7.davinci.endpoint.rems.database.drugs.Drug;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhir;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -18,9 +20,6 @@ public class Requirement {
     @Column(name = "createdAt", nullable = false)
     private String createdAt;
 
-    @Column(name = "completed", nullable = false)
-    private boolean completed ;
-
     @Column(name = "description", nullable = true)
     private String description;
 
@@ -34,9 +33,16 @@ public class Requirement {
     @JsonIgnore
     private Drug drug;
 
+    @OneToMany(mappedBy="parentRequirement")
+    private List<Requirement> childRequirements = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name="PARENT_REQUIREMENT")
+    @JsonIgnore
+    private Requirement parentRequirement;
+
     public Requirement() {
         this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
-        this.completed = false;
     }
 
     public RemsFhir getRequirement() {
@@ -55,15 +61,6 @@ public class Requirement {
         this.createdAt = createdAt;
     }
 
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
-
     public String getDescription() {
         return description;
     }
@@ -78,6 +75,26 @@ public class Requirement {
 
     public void setDrug(Drug drug) {
         this.drug = drug;
+    }
+
+    public List<Requirement> getChildren() {
+        return this.childRequirements;
+    }
+    
+    public void setChildren(List<Requirement> requirements) {
+        this.childRequirements = requirements;
+    }
+    
+    public void addChild(Requirement requirement)  {
+        this.childRequirements.add(requirement);
+    }
+
+    public Requirement getParent() {
+        return this.parentRequirement;
+    }
+    
+    public void setParent(Requirement requirement) {
+        this.parentRequirement = requirement;
     }
 
 }

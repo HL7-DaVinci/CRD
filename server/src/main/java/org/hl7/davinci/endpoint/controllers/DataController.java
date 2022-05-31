@@ -44,8 +44,8 @@ public class DataController {
   @Autowired
   private ClientRepository clientRepository;
 
-  @Autowired
-  private RemsRepository remsRepository;
+  // @Autowired
+  // private RemsRepository remsRepository;
 
   @Autowired
   private YamlConfig myConfig;
@@ -165,44 +165,4 @@ public class DataController {
     return new RedirectView(newUrl);
   }
 
-  public void updateComplianceBundleStatus(String uid) {
-    try {
-      TimeUnit.SECONDS.sleep(30);
-    }
-    catch(Exception e)
-    {
-        System.out.println(e);
-      }
-    Rems rems = remsRepository.findById(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, uid + " not found"));
-    rems.setStatus("Approved");
-    remsRepository.save(rems);
-  }
-
-  public void updateComplianceBundleStatusInBackground (final String uid) {
-    Thread t = new Thread(() -> updateComplianceBundleStatus(uid));
-    t.start();
-  }
-
-  @PostMapping(value = "/api/rems")
-  @CrossOrigin
-  public ResponseEntity<Object> postRems(@RequestBody String jsonData) {
-    JsonNode remsObject = JacksonUtil.toJsonNode(jsonData);
-    String id = UUID.randomUUID().toString().replace("-", "");
-
-    Rems complianceBundle = new Rems();
-    complianceBundle.setCase_number(id);
-    complianceBundle.setComplianceBundle(remsObject);
-    complianceBundle.setStatus("Pending");
-    remsRepository.save(complianceBundle);
-    updateComplianceBundleStatusInBackground(id);
-    return ResponseEntity.ok().body(complianceBundle);
-
-  }
-
-  @CrossOrigin
-  @GetMapping("/api/rems/{id}")
-  public ResponseEntity<Object> getRems(@PathVariable String id) {
-    Rems rems = remsRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id + " not found"));
-    return ResponseEntity.ok().body(rems);
-  }
 }

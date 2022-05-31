@@ -1,15 +1,37 @@
 package org.hl7.davinci.endpoint.rems.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
+
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.rems.database.drugs.Drug;
 import org.hl7.davinci.endpoint.rems.database.drugs.DrugsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import  org.hl7.davinci.endpoint.rems.database.rems.Rems;
+import  org.hl7.davinci.endpoint.rems.database.rems.RemsRepository;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.view.RedirectView;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -24,6 +46,9 @@ public class RemsController {
 
     @Autowired
     private DrugsRepository drugsRepository;
+
+    @Autowired
+    private RemsRepository remsRepository;
 
     @GetMapping(value = "/rems/{id}")
     @CrossOrigin
@@ -41,4 +66,48 @@ public class RemsController {
                 .contentType(MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE))
                 .body(drug);
     }
+
+    public void updateRemsRequestStatus(String uid) {
+        try {
+          TimeUnit.SECONDS.sleep(30);
+        }
+        catch(Exception e)
+        {
+            System.out.println(e);
+          }
+        Rems rems = remsRepository.findById(uid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, uid + " not found"));
+        rems.setStatus("Approved");
+        remsRepository.save(rems);
+      }
+    
+      public void updateRemsRequestStatusInBackground (final String uid) {
+        Thread t = new Thread(() -> updateRemsRequestStatus(uid));
+        t.start();
+      }
+    
+      @PostMapping(value = "/api/rems")
+      @CrossOrigin
+      public ResponseEntity<Object> postRems(@RequestBody String jsonData) {
+        JsonNode remsObject = JacksonUtil.toJsonNode(jsonData);
+        String id = UUID.randomUUID().toString().replace("-", "");
+    
+        Rems remsRequest = new Rems();
+        remsRequest.setCase_number(id);
+        remsRequest.setStatus("Pending");
+
+
+
+        remsRepository.save(remsRequest);
+        updateRemsRequestStatusInBackground(id);
+        return ResponseEntity.ok().body(remsRequest);
+    
+      }
+    
+      @CrossOrigin
+      @GetMapping("/api/rems/{id}")
+      public ResponseEntity<Object> getRems(@PathVariable String id) {
+        Rems rems = remsRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id + " not found"));
+        return ResponseEntity.ok().body(rems);
+      }
+    
 }
