@@ -1,0 +1,1177 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "TuralioRemsPatientEnrollment",
+  "name": "TuralioRemsPatientEnrollment",
+  "title": "Turalio Rems Patient Enrollment",
+  "status": "draft",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2020-05-20",
+  "publisher": "Da Vinci DTR",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+      "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/DrugHasREMS-prepopulation"
+    }
+  ],
+  "item": [
+    {
+      "linkId": "1",
+      "type": "group",
+      "text": "Patient Information",
+      "item": [
+        {
+          "linkId": "1.1",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+              "valueCanonical": "questionnaire/patient-info-base"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
+              "valueBoolean": true
+            }
+          ],
+          "type": "display"
+        },
+        {
+          "linkId": "1.2",
+          "text": "Address Line 1",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfoPrepopulation\".Line"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.3",
+          "text": "Address Line 2",
+          "type": "string",
+          "required": false
+        },
+        {
+          "linkId": "1.4",
+          "text": "City",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfoPrepopulation\".City"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.5",
+          "text": "State",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfoPrepopulation\".State"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.6",
+          "text": "Zip",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfoPrepopulation\".Zip"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.7",
+          "text": "Telephone",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfoPrepopulation\".Phone"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "1.8",
+          "text": "Email",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPatientInfoPrepopulation\".Email"
+              }
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+              "valueCoding": {
+                "display": "lbs"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"DrugHasREMSPrepopulation\".LatestWeightResult"
+              }
+            }
+          ],
+          "linkId": "1.9",
+          "code": [
+            {
+              "code": "29463-7",
+              "display": "Body weight",
+              "system": "http://loinc.org"
+            }
+          ],
+          "type": "decimal",
+          "text": "Body weight"
+        },
+        {
+          "linkId": "1.10",
+          "type": "group",
+          "text": "Body height",
+          "code": [
+            {
+              "code": "8302-2",
+              "display": "Body height",
+              "system": "http://loinc.org"
+            }
+          ],
+          "item": [
+            {
+              "type": "decimal",
+              "linkId": "1.10.1",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "display": "ft"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "decimal",
+              "linkId": "1.10.2",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                  "valueCoding": {
+                    "display": "in"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "1.11",
+          "text": "Race",
+          "type": "open-choice",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "American Indian or Alaskan Native",
+                "display": "American Indian or Alaskan Native"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Asian",
+                "display": "Asian"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Black or African American",
+                "display": "Black or African American"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "Native Hawaiian or Other Pacific Islander",
+                "display": "Native Hawaiian or Other Pacific Islander"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "White",
+                "display": "White"
+              }
+            }            
+          ]
+        },
+        {
+          "linkId": "1.12",
+          "text": "Is the patient currently taking pexidartinib (i.e., started prior to REMS enrollment)?",
+          "type": "boolean",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"DrugHasREMSPrepopulation\".TakingTuralio"
+              }
+            }
+          ],
+          "required": false,
+          "item": [
+            {
+              "type": "date",
+              "linkId": "1.12.1",
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".TuralioDate"
+                  }
+                }
+              ],
+              "text": "If yes: When did patient start pexidartinib? Date (MM/DD/YYYY):",
+              "enableWhen": [
+                {
+                  "question": "1.12",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            },
+            {
+              "type": "boolean",
+              "linkId": "1.12.2",
+              "text": "If yes: Was this part of a clinical study?",
+              "enableWhen": [
+                {
+                  "question": "1.12",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ],
+              "item": [
+                {
+                  "type": "string",
+                  "linkId": "1.12.3",
+                  "text": "Study Number",
+                  "enableWhen": [
+                    {
+                      "question": "1.12.2",
+                      "operator": "=",
+                      "answerBoolean": true
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "linkId": "1.12.4",
+                  "text": "Subject ID",
+                  "enableWhen": [
+                    {
+                      "question": "1.12.2",
+                      "operator": "=",
+                      "answerBoolean": true
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "linkId": "1.12.5",
+                  "text": "Comment"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "2",
+      "type": "group",
+      "text": "Prescriber Information",
+      "item": [
+        {
+          "linkId": "2.1",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+              "valueCanonical": "questionnaire/practitioner-info-base"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
+              "valueBoolean": true
+            }
+          ],
+          "type": "display"
+        },
+        {
+          "linkId": "2.2",
+          "text": "Practice/Facility Name (where you see this patient)",
+          "type": "string",
+          "required": false
+        },
+        {
+          "linkId": "2.3",
+          "text": "Address Line 1",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfoPrepopulation\".Line"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "2.4",
+          "text": "Address Line 2",
+          "type": "string",
+          "required": false
+        },
+        {
+          "linkId": "2.5",
+          "text": "City",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfoPrepopulation\".City"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "2.6",
+          "text": "State",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfoPrepopulation\".State"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "2.7",
+          "text": "Zip",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfoPrepopulation\".Zip"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "2.8",
+          "text": "Telephone",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfoPrepopulation\".Phone"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "2.9",
+          "text": "Email",
+          "type": "string",
+          "required": false,
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"BasicPractitionerInfoPrepopulation\".Email"
+              }
+            }
+          ]
+        },
+        {
+          "text": "Please visit www.turaliorems.com or contact the TURALIO REMS Coordinating Center at 1-833-TURALIO (833-887-2546) to designate up to two additional REMS certified prescribers who can view, edit, and submit REMS paperwork for your TURALIO patients.",
+          "type": "display",
+          "linkId": "2.10"
+        }
+      ]
+    },
+    {
+      "linkId": "3",
+      "type": "group",
+      "text": "Baseline Labs",
+      "item": [
+        {
+          "linkId": "3.1",
+          "text": "Assess the patient by obtaining liver tests as stated in the Prescribing Information. If Albumin or PT/INR were not obtained, indicate “not applicable.” Please provide the results below.",
+          "type": "group",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "gtable"
+                  }
+                ]
+              }
+            }
+          ],
+          "item" : [
+            {
+              "linkId": "3.1.1",
+              "text": "Laboratory Test",
+              "type": "string",
+              "initial": [{
+                "valueString": "AST or SGOT"
+              }],
+              "readOnly": true
+            },
+            {
+              "linkId": "3.1.2",
+              "text": "Baseline Value (units, reference range)",
+              "type": "string",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".ASTResult"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "3.1.3",
+              "text": "Date",
+              "type": "date",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".ASTDate"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.1",
+          "type": "group",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "gtable"
+                  }
+                ]
+              }
+            }
+          ],
+          "item" : [
+            {
+              "linkId": "3.1.1",
+              "text": "Laboratory Test",
+              "type": "string",
+              "initial": [{
+                "valueString": "ALT or SGPT"
+              }],
+              "readOnly": true
+            },
+            {
+              "linkId": "3.1.2",
+              "text": "Baseline Value (units, reference range)",
+              "type": "string",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".ALTResult"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "3.1.3",
+              "text": "Date",
+              "type": "date",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".ALTDate"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.1",
+          "type": "group",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "gtable"
+                  }
+                ]
+              }
+            }
+          ],
+          "item" : [
+            {
+              "linkId": "3.1.1",
+              "text": "Laboratory Test",
+              "type": "string",
+              "initial": [{
+                "valueString": "GGT"
+              }],
+              "readOnly": true
+            },
+            {
+              "linkId": "3.1.2",
+              "text": "Baseline Value (units, reference range)",
+              "type": "string",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".GGTResult"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "3.1.3",
+              "text": "Date",
+              "type": "date",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".GGTDate"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.1",
+          "type": "group",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "gtable"
+                  }
+                ]
+              }
+            }
+          ],
+          "item" : [
+            {
+              "linkId": "3.1.1",
+              "text": "Laboratory Test",
+              "type": "string",
+              "initial": [{
+                "valueString": "Total Bilirubin"
+              }],
+              "readOnly": true
+            },
+            {
+              "linkId": "3.1.2",
+              "text": "Baseline Value (units, reference range)",
+              "type": "string",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".TotalBilirubinResult"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "3.1.3",
+              "text": "Date",
+              "type": "date",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".TotalBilirubinDate"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.1",
+          "type": "group",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "gtable"
+                  }
+                ]
+              }
+            }
+          ],
+          "item" : [
+            {
+              "linkId": "3.1.1",
+              "text": "Laboratory Test",
+              "type": "string",
+              "initial": [{
+                "valueString": "Direct Bilirubin"
+              }],
+              "readOnly": true
+            },
+            {
+              "linkId": "3.1.2",
+              "text": "Baseline Value (units, reference range)",
+              "type": "string",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".DirectBilirubinResult"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "3.1.3",
+              "text": "Date",
+              "type": "date",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".DirectBilirubinDate"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.1",
+          "type": "group",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "gtable"
+                  }
+                ]
+              }
+            }
+          ],
+          "item" : [
+            {
+              "linkId": "3.1.1",
+              "text": "Laboratory Test",
+              "type": "string",
+              "initial": [{
+                "valueString": "Alkaline Phosphatase"
+              }],
+              "readOnly": true
+            },
+            {
+              "linkId": "3.1.2",
+              "text": "Baseline Value (units, reference range)",
+              "type": "string",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".ALPResult"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "3.1.3",
+              "text": "Date",
+              "type": "date",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".ALPDate"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.1",
+          "type": "group",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "gtable"
+                  }
+                ]
+              }
+            }
+          ],
+          "item" : [
+            {
+              "linkId": "3.1.1",
+              "text": "Laboratory Test",
+              "type": "string",
+              "initial": [{
+                "valueString": "Albumin"
+              }],
+              "readOnly": true
+            },
+            {
+              "linkId": "3.1.2",
+              "text": "Baseline Value (units, reference range)",
+              "type": "string",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".AlbuminResult"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "3.1.3",
+              "text": "Date",
+              "type": "date",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".AlbuminDate"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "3.1",
+          "type": "group",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "gtable"
+                  }
+                ]
+              }
+            }
+          ],
+          "item" : [
+            {
+              "linkId": "3.1.1",
+              "text": "Laboratory Test",
+              "type": "string",
+              "initial": [{
+                "valueString": "PT/INR"
+              }],
+              "readOnly": true
+            },
+            {
+              "linkId": "3.1.2",
+              "text": "Baseline Value (units, reference range)",
+              "type": "string",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".PTResult"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "3.1.3",
+              "text": "Date",
+              "type": "date",
+              "required": false,
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                  "valueExpression": {
+                    "language": "text/cql",
+                    "expression": "\"DrugHasREMSPrepopulation\".PTDate"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "4",
+      "type": "group",
+      "text": "Current Medication (including prescription, non-prescription and herbal or dietary supplements)",
+      "item": [
+        {
+          "linkId": "4.1",
+          "text": "Check box if there are no current medications",
+          "type": "boolean",
+          "required": false,
+          "initial": {
+            "value": false
+          },
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"DrugHasREMSPrepopulation\".TakingMeds"
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "4.2",
+          "text": "Medication",
+          "type": "string",
+          "required": false,
+          "enableWhen": [
+            {
+              "question": "4.1",
+              "operator": "=",
+              "answerBoolean": false
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"DrugHasREMSPrepopulation\".Meds"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "5",
+      "type": "group",
+      "text": "Hepatic Medical History",
+      "item": [
+        {
+          "linkId": "5.1",
+          "text": "Check box in this section if there is no hepatic medical history",
+          "type": "boolean",
+          "required": false,
+          "initial": {
+            "value": false
+          }
+        },
+        {
+          "linkId": "5.2",
+          "text": "Check all that apply",
+          "type": "choice",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+              "valueExpression": {
+                "language": "text/cql",
+                "expression": "\"DrugHasREMSPrepopulation\".MedicalHistory"
+              }
+            }
+          ],
+          "required": true,
+          "repeats": true,
+          "enableWhen": [
+            {
+              "question": "5.1",
+              "operator": "=",
+              "answerBoolean": false
+            }
+          ],
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "3738000",
+                "system": "http://snomed.info/sct",
+                "display": "Hepatitis Viral Status"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "85057007",
+                "system": "http://snomed.info/sct",
+                "display": "Hepatic Cyst"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "235877000",
+                "system": "http://snomed.info/sct",
+                "display": "Ischemic Hepatitis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "15167005",
+                "system": "http://snomed.info/sct",
+                "display": "Alcohol Abuse"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "266902008",
+                "system": "http://snomed.info/sct",
+                "display": "Family History of Liver Disease"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "408335007",
+                "system": "http://snomed.info/sct",
+                "display": "Autoimmune Hepatitis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "88518009",
+                "system": "http://snomed.info/sct",
+                "display": "Wilson’s Disease"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "26416006",
+                "system": "http://snomed.info/sct",
+                "display": "Drug Abuse"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "27503000",
+                "system": "http://snomed.info/sct",
+                "display": "Gilbert’s syndrome"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "363140000",
+                "system": "http://snomed.info/sct",
+                "display": "Hypolipoproteinemia"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "14783006",
+                "system": "http://snomed.info/sct",
+                "display": "Familial Hyperbilirubinemia"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "56882008",
+                "system": "http://snomed.info/sct",
+                "display": "Anorexia"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "105997008",
+                "system": "http://snomed.info/sct",
+                "display": "Biliary Tract Disorder"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "302870006",
+                "system": "http://snomed.info/sct",
+                "display": "Hypertriglyceridemia"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "19943007",
+                "system": "http://snomed.info/sct",
+                "display": "Cirrhosis"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "39621005",
+                "system": "http://snomed.info/sct",
+                "display": "Gallbladder Disease/ Gallstones/ Bile Duct Occlusion"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "73211009",
+                "system": "http://snomed.info/sct",
+                "display": "Diabetes"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "6",
+      "type": "group",
+      "text": "Prescriber Agreement",
+      "item": [
+        {
+          "linkId": "6.1",
+          "text": "I have reviewed and discussed the risks of TURALIO and the requirements of the TURALIO REMS with this patient.",
+          "type": "display"
+        },
+        {
+          "linkId": "6.2",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+              "valueCanonical": "questionnaire/provider-signature"
+            }
+          ],
+          "type": "display"
+        }
+      ]
+    },
+    {
+      "linkId": "7",
+      "type": "group",
+      "text": "Patient Attestation",
+      "item": [
+        {
+          "linkId": "7.1",
+          "text": "In order to receive TURALIO I must be enrolled in the TURALIO REMS. The TURALIO REMS will collect data to assess the risk of serious liver problems which can be severe and lead to death as described in the Patient Guide. \n • I agree to enroll in the Patient Registry. \n • I agree to review the Patient Guide. \n • I must get blood tests to test my liver as directed by my healthcare provider. \n • I agree to tell my healthcare provider if I have signs and/or symptoms of liver injury. \n • My personal information will be shared to enroll me in the Patient Registry so that my health and any liver injury can be evaluated while I am receiving TURALIO. \n • Daiichi Sankyo, Inc., and its agents, may contact me or my prescriber by phone, mail or email to manage the TURALIO REMS. \n • Daiichi Sankyo, Inc., and its agents, may use and share my personal health information, including lab tests and prescriptions as part of the TURALIO REMS. My information will be protected and will be used to enroll me into and manage the TURALIO REMS. My health information may be shared with the U.S. Food and Drug Administration (FDA) to evaluate the TURALIO REMS.",
+          "type": "display",
+          "readOnly": true
+        },
+        {
+          "linkId": "7.2",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+              "valueCanonical": "questionnaire/patient-signature"
+            }
+          ],
+          "type": "display"
+        },
+        {
+          "linkId": "7.3",
+          "type": "attachment",
+          "text": "Upload Supplemental Files"
+        }
+      ]
+    }
+  ]
+}
