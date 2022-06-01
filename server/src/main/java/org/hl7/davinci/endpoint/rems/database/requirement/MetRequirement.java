@@ -25,9 +25,9 @@ public class MetRequirement {
     private boolean completed ;
 
     // FHIR resource which defines the requirement (task, questionnaire, etc)
-    @JoinColumn(name = "completedRequirement", nullable = true)
+    @JoinColumn(name = "completedResource", nullable = true)
     @OneToOne(fetch = FetchType.LAZY)
-    private RemsFhir completedRequirement;
+    private RemsFhir completedResource;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="REQUIREMENT_ID")
@@ -52,12 +52,12 @@ public class MetRequirement {
         this.completed = false;
     }
 
-    public RemsFhir getCompletedRequirement() {
-        return this.completedRequirement;
+    public RemsFhir getCompletedResource() {
+        return this.completedResource;
     }
 
-    public void setCompletedRequirement(RemsFhir requirement) {
-        this.completedRequirement = requirement;
+    public void setCompletedResource(RemsFhir requirement) {
+        this.completedResource = requirement;
     }
 
     public String getCreatedAt() {

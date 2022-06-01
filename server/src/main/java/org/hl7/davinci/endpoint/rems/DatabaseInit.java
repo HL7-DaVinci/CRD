@@ -59,7 +59,7 @@ class DatabaseInit {
             patientEnrollmentResource.setResource(patientQuestionnaireResource);
             patientEnrollmentResource.setId("turalio-patient-enrollment");
             remsFhirRepository.save(patientEnrollmentResource);
-            patientEnrollmentRequirement.setRequirement(patientEnrollmentResource);
+            patientEnrollmentRequirement.setResource(patientEnrollmentResource);
             patientEnrollmentRequirement.setDescription("complete patient enrollment questionnaire");
             patientEnrollmentRequirement.setDrug(turalio);
             turalio.addRequirement(patientEnrollmentRequirement);
@@ -73,7 +73,7 @@ class DatabaseInit {
             prescriberKnowledgeResource.setResource(prescriberKnowledgeQuestionnaireResource);
             prescriberKnowledgeResource.setId("turalio-prescriber-knowledge-check");
             remsFhirRepository.save(prescriberKnowledgeResource);
-            prescriberCertificationRequirement.setRequirement(prescriberKnowledgeResource);
+            prescriberCertificationRequirement.setResource(prescriberKnowledgeResource);
             prescriberCertificationRequirement.setDescription("complete prescriber knowledge check");
 
              // prescriber enrollment form requirement
@@ -85,7 +85,7 @@ class DatabaseInit {
              prescriberEnrollmentResource.setResource(prescriberQuestionnaireResource);
              prescriberEnrollmentResource.setId("turalio-prescriber-enrollment");
              remsFhirRepository.save(prescriberEnrollmentResource);
-             prescriberEnrollmentRequirement.setRequirement(prescriberEnrollmentResource);
+             prescriberEnrollmentRequirement.setResource(prescriberEnrollmentResource);
              prescriberEnrollmentRequirement.setDescription("complete prescriber enrollment questionnaire");
              prescriberEnrollmentRequirement.setDrug(turalio);
              prescriberEnrollmentRequirement.addChild(prescriberCertificationRequirement);

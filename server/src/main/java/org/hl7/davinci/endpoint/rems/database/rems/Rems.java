@@ -3,6 +3,8 @@ import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 import javax.persistence.Column;
@@ -27,6 +29,9 @@ public class Rems {
   @Column(name = "status", nullable = false, length = 100)
   private String status;
 
+  @Column(name = "createdAt", nullable = false)
+  private String createdAt;
+
   @Type(type = "json")
   @Column(columnDefinition = "json", name = "resource", nullable = false, length = 10000000)
   private JsonNode resource;
@@ -34,7 +39,9 @@ public class Rems {
   @OneToMany(mappedBy="remsRequest", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<MetRequirement> metRequirements = new ArrayList<>();
 
-  public void Rems() {}
+  public void Rems() {
+    this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
+  }
 
   public String getCase_number() {
     return this.case_number;
@@ -62,6 +69,14 @@ public void setMetRequirement(List<MetRequirement> metRequirements) {
 
 public void addMetRequirement(MetRequirement metRequirement)  {
     this.metRequirements.add(metRequirement);
+}
+
+public String getCreatedAt() {
+  return createdAt;
+}
+
+public void setCreatedAt(String createdAt) {
+  this.createdAt = createdAt;
 }
 
 public JsonNode getResource() {
