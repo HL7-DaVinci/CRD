@@ -8,8 +8,8 @@ public class CoverageRequirements {
   private String details;
   private String infoLink;
   private String questionnaireOrderUri;
-  private String questionnaireProviderEnrollmentUri;
-  private String questionnaireProviderKnowledgeAssessmentUri;
+  private String questionnairePrescriberEnrollmentUri;
+  private String questionnairePrescriberKnowledgeAssessmentUri;
   private String questionnaireFaceToFaceUri;
   private String questionnaireLabUri;
   private String questionnaireProgressNoteUri;
@@ -70,22 +70,22 @@ public class CoverageRequirements {
     return this.questionnaireFaceToFaceUri;
   }
 
-  public CoverageRequirements setQuestionnairePrescriberEnrollmenteUri(String questionnaireProviderEnrollmentUri) {
-    this.questionnaireProviderEnrollmentUri = questionnaireProviderEnrollmentUri;
+  public CoverageRequirements setQuestionnairePrescriberEnrollmentUri(String questionnaireProviderEnrollmentUri) {
+    this.questionnairePrescriberEnrollmentUri = questionnaireProviderEnrollmentUri;
     return this;
   }
 
-  public String getQuestionnaireProviderEnrollmentUri() {
-    return this.questionnaireProviderEnrollmentUri;
+  public String getQuestionnairePrescriberEnrollmentUri() {
+    return this.questionnairePrescriberEnrollmentUri;
   }
 
-  public CoverageRequirements setQuestionnaireProviderKnowledgeAssessmentUri(String questionnaireProviderKnowledgeAssessmentUri) {
-    this.questionnaireProviderKnowledgeAssessmentUri = questionnaireProviderKnowledgeAssessmentUri;
+  public CoverageRequirements setQuestionnairePrescriberKnowledgeAssessmentUri(String questionnairePrescriberKnowledgeAssessmentUri) {
+    this.questionnairePrescriberKnowledgeAssessmentUri = questionnairePrescriberKnowledgeAssessmentUri;
     return this;
   }
 
-  public String getQuestionnaireProviderKnowledgeAssessmentUri() {
-    return this.questionnaireProviderKnowledgeAssessmentUri;
+  public String getQuestionnairePrescriberKnowledgeAssessmentUri() {
+    return this.questionnairePrescriberKnowledgeAssessmentUri;
   }
 
   public CoverageRequirements setQuestionnaireFaceToFaceUri(String questionnaireFaceToFaceUri) {

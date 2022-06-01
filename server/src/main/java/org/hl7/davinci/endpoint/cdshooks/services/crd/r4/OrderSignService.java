@@ -155,7 +155,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
 
       try {
         if (evaluateStatement("RESULT_QuestionnairePrescriberEnrollmentUri", context) != null) {
-          coverageRequirements.setQuestionnairePrescriberEnrollmenteUri(evaluateStatement("RESULT_QuestionnairePrescriberEnrollmentUri", context).toString());
+          coverageRequirements.setQuestionnairePrescriberEnrollmentUri(evaluateStatement("RESULT_QuestionnairePrescriberEnrollmentUri", context).toString());
         }
       } catch (Exception e) {
         logger.info("-- No Prescriber Enrollment defined");
@@ -163,7 +163,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
 
       try {
         if (evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context) != null) {
-          coverageRequirements.setQuestionnaireProviderKnowledgeAssessmentUri(evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context).toString());
+          coverageRequirements.setQuestionnairePrescriberKnowledgeAssessmentUri(evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context).toString());
         }
       } catch (Exception e) {
         logger.info("-- No Prescriber Knowledge Assessment defined");

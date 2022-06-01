@@ -16,7 +16,6 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
-import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,8 +124,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
           } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
             if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProviderEnrollmentUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProviderKnowledgeAssessmentUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
@@ -197,14 +196,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
           coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
           lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Patient Enrollment Form"));
     }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProviderEnrollmentUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireProviderEnrollmentUri(), coverageRequirements.getRequestId(),
+          coverageRequirements.getQuestionnairePrescriberEnrollmentUri(), coverageRequirements.getRequestId(),
           lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Enrollment Form"));
     }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProviderKnowledgeAssessmentUri())) {
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireProviderKnowledgeAssessmentUri(), coverageRequirements.getRequestId(),
+          coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri(), coverageRequirements.getRequestId(),
           lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Knowledge Assessment Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
