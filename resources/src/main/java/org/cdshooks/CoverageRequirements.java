@@ -70,8 +70,8 @@ public class CoverageRequirements {
     return this.questionnaireFaceToFaceUri;
   }
 
-  public CoverageRequirements setQuestionnairePrescriberEnrollmentUri(String questionnaireProviderEnrollmentUri) {
-    this.questionnairePrescriberEnrollmentUri = questionnaireProviderEnrollmentUri;
+  public CoverageRequirements setQuestionnairePrescriberEnrollmentUri(String questionnairePrescriberEnrollmentUri) {
+    this.questionnairePrescriberEnrollmentUri = questionnairePrescriberEnrollmentUri;
     return this;
   }
 
