@@ -17,43 +17,43 @@ import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 public class CrdPrefetch {
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle coverage;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle deviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle nutritionOrderBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle serviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle supplyRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle appointmentBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle encounterBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationDispenseBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationStatementBundle;
 
   public Bundle getCoverage() {

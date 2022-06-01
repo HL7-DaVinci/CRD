@@ -7,6 +7,7 @@ import org.hl7.davinci.endpoint.database.RuleMapping;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
+import org.hl7.davinci.r4.JacksonPrefetchDeserializer;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.fhir.r4.model.*;
@@ -18,10 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 public class FhirBundleProcessor {
   static final Logger logger = LoggerFactory.getLogger(FhirBundleProcessor.class);
 
   private FileStore fileStore;
+  @JsonDeserialize(using = JacksonPrefetchDeserializer.class)
   private CrdPrefetch prefetch;
   private String baseUrl;
   private List<String> selections;

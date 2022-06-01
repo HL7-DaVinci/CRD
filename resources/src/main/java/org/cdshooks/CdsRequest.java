@@ -1,7 +1,11 @@
 package org.cdshooks;
 
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import org.hl7.davinci.EncounterBasedServiceContext;
+import org.hl7.davinci.r4.JacksonPrefetchDeserializer;
 
 public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends EncounterBasedServiceContext> {
   @NotNull(message = "unsupported hook")
@@ -17,6 +21,7 @@ public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends Enco
   @NotNull
   private serviceContextTypeT context = null;
 
+  @JsonDeserialize(using = JacksonPrefetchDeserializer.class)
   private prefetchTypeT prefetch = null;
 
   private Extension extension = null;
