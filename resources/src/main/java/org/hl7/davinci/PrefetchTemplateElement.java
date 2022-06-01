@@ -30,4 +30,9 @@ public class PrefetchTemplateElement {
   public Class getReturnType() {
     return returnType;
   }
+
+  @Override
+  public String toString(){
+    return "[" + key + ", " + query + ", " + returnType + "]";
+  }
 }

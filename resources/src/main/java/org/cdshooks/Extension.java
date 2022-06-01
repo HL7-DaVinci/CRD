@@ -10,4 +10,8 @@ public class Extension {
   public Configuration getConfiguration() { return configuration; }
 
   public void setConfiguration(Configuration configuration) { this.configuration = configuration; }
+
+  public String toString(){
+    return "Extension configuration: " + configuration;
+  }
 }
