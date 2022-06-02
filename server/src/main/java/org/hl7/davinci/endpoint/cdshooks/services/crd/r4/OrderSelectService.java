@@ -13,9 +13,11 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
+import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.orderselect.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.fhir.r4.model.Coding;
@@ -46,8 +48,9 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
 
     List<String> selections = Arrays.asList(orderSelectRequest.getContext().getSelections());
 
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSelectRequest.getPrefetch(), fileStore, baseUrl, selections);
-    fhirBundleProcessor.processOrderSelectMedicationStatements();
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl, selections);
+    CrdPrefetch prefetch = orderSelectRequest.getPrefetch();
+    fhirBundleProcessor.processOrderSelectMedicationStatements(prefetch.getMedicationRequestBundle(), prefetch.getMedicationStatementBundle());
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {
@@ -112,5 +115,10 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
       codingList.add((Coding) obj);
     }
     return codingList.get(0);
+  }
+
+  @Override
+  protected void attempQueryBatchRequest(OrderSelectRequest request, QueryBatchRequest batchRequest) {
+    batchRequest.performQueryBatchRequest(request, request.getPrefetch());
   }
 }

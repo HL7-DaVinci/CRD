@@ -316,6 +316,7 @@ public class GitHubFileStore extends CommonFileStore {
 
   public FileResource getFile(String topic, String fileName, String fhirVersion, boolean convert) {
     FileResource fileResource = new FileResource();
+    fhirVersion = fhirVersion.toUpperCase();
     fileResource.setFilename(fileName);
 
     String rulePath = config.getGitHubConfig().getRulePath();

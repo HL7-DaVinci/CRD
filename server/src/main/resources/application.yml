@@ -52,7 +52,7 @@ urlEncodeAppContext: true
 # When this flag is true, the server will modify a FHIR Library when retrieved.
 # It will automatically retrieve, base64 encode, and embed the referenced (from url)
 # CQL into the data field of the content.
-embedCqlInLibrary: false
+embedCqlInLibrary: true
 
 cdsConnect:
   url: https://cdsconnect.ahrqstg.org
@@ -79,3 +79,5 @@ valueSetCachePath: ValueSetCache/
 
 hostOrg: default
 
+# Configure whether Query Batch Requests will be used to backfill potentially missing prefetch resources.
+queryBatchRequest: true

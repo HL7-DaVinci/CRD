@@ -1,22 +1,30 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
 
+import com.google.gson.Gson;
+
+import com.google.gson.Gson;
+
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
+import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
+import org.hl7.davinci.r4.CardTypes;
+import org.hl7.davinci.r4.CoverageGuidance;
+import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
-import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,17 +47,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
   @Autowired
   FileStore fileStore;
-  
+
   @Autowired
   private FhirResourceRepository fhirResourceRepository;
-  
+
   protected FhirComponentsT fhirComponents;
 
 
   public CdsService(String id, Hook hook, String title, String description,
       List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents,
       DiscoveryExtension extension) {
-    
+
     super(id, hook, title, description, prefetchElements, fhirComponents, extension);
     this.fhirComponents = fhirComponents;
   }
@@ -74,9 +82,19 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     // hydrated
     requestLog.advanceTimeline(requestService);
 
-    // logger.info("***** ***** request from requestLog: "+requestLog.toString() );
+    // Attempt a Query Batch Request to backfill missing attributes.
+    if (myConfig.isQueryBatchRequest()) {
+      QueryBatchRequest qbr = new QueryBatchRequest(this.fhirComponents);
+      this.attempQueryBatchRequest(request, qbr);
+    }
+
+    logger.info("***** ***** request from requestLog: " + requestLog.toString() );
 
     CdsResponse response = new CdsResponse();
+
+    Gson gson = new Gson();
+    final String jsonObject = gson.toJson(request.getPrefetch());
+    logger.info("Final populated CRDPrefetch: " + jsonObject);
 
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
@@ -84,8 +102,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
       lookupResults = this.createCqlExecutionContexts(request, fileStore, applicationBaseUrl.toString() + "/");
       requestLog.advanceTimeline(requestService);
     } catch (RequestIncompleteException e) {
+      logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
-      response.addCard(CardBuilder.summaryCard(e.getMessage()));
+      response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
       requestLog.setCardListFromCards(response.getCards());
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
@@ -125,6 +144,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
           } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
             if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())
+                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
@@ -133,7 +154,20 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
-              response.addCard(CardBuilder.transform(results, smartAppLinks));
+
+              if (coverageRequirements.isPriorAuthRequired()) {
+                Card card = CardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
+                card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                    "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                    true, CoverageGuidance.ADMIN));
+                response.addCard(card);
+              } else if (coverageRequirements.isDocumentationRequired()) {
+                Card card = CardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
+                card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                    "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                    true, CoverageGuidance.CLINICAL));
+                response.addCard(card);
+              }
 
               // add a card for an alternative therapy if there is one
               if (results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
@@ -146,15 +180,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
               }
             } else {
               logger.warn("Unspecified Questionnaire URI; summary card sent to client");
-              response.addCard(CardBuilder.transform(results));
+              response.addCard(CardBuilder.transform(CardTypes.COVERAGE, results));
             }
           } else {
             // no prior auth or documentation required
             logger.info("Add the no doc or prior auth required card");
-            Card card = CardBuilder.transform(results);
+            Card card = CardBuilder.transform(CardTypes.COVERAGE, results);
             card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                 "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
-                true));
+                true, CoverageGuidance.COVERED));
             card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
             response.addCard(card);
           }
@@ -174,9 +208,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
       if (!foundApplicableRule) {
         String msg = "No documentation rules found";
         logger.warn(msg + "; summary card sent to client");
-        response.addCard(CardBuilder.summaryCard(msg));
+        response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, msg));
       }
-      CardBuilder.errorCardIfNonePresent(response);
+      CardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
     }
 
     // Adding card to requestLog
@@ -194,6 +228,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
           lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Patient Enrollment Form"));
+    }
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          coverageRequirements.getQuestionnairePrescriberEnrollmentUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Enrollment Form"));
+    }
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri(), coverageRequirements.getRequestId(),
+          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Knowledge Assessment Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
@@ -257,4 +301,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
       FileStore fileStore, String baseUrl) throws RequestIncompleteException;
 
   protected abstract CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic);
+
+  /**
+   * Delegates query batch request to child classes based on their prefetch types.
+   */
+  protected abstract void attempQueryBatchRequest(requestTypeT request, QueryBatchRequest qbr);
+
 }

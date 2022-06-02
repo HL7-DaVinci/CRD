@@ -86,9 +86,14 @@ public class Metadata {
     questionnaire.addInteraction().setCode(TypeRestfulInteraction.READ);
     questionnaire.addInteraction().setCode(TypeRestfulInteraction.SEARCHTYPE);
     questionnaire.addInteraction().setCode(TypeRestfulInteraction.CREATE);
+    CapabilityStatementRestResourceOperationComponent questionnairePackageOperation = new CapabilityStatementRestResourceOperationComponent();
+    questionnairePackageOperation.setName("questionnaire-package");
+    questionnairePackageOperation.setDefinition("http://hl7.org/fhir/us/davinci-dtr/OperationDefinition/Questionnaire-package");
+    questionnairePackageOperation.setDocumentation("Retrieve the Questionnaire(s), Libraries, and Valuesets for a given order and coverage. This operation is to support HL7 DaVinci DTR.");
+    questionnaire.addOperation(questionnairePackageOperation);
     rest.addResource(questionnaire);
 
-    // QuestionnaireResponse REsource
+    // QuestionnaireResponse Resource
     CapabilityStatementRestResourceComponent questionnaireResponse = new CapabilityStatementRestResourceComponent();
     questionnaireResponse.setType("QuestionnaireResponse");
     questionnaireResponse.addInteraction().setCode(TypeRestfulInteraction.READ);

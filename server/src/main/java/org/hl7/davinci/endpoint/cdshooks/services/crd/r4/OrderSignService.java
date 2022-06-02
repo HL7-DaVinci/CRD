@@ -12,11 +12,13 @@ import org.hl7.ShortNameMaps;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
+import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.ConfigurationOption;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.ordersign.CrdExtensionConfigurationOptions;
 import org.hl7.davinci.r4.crdhook.ordersign.CrdPrefetchTemplateElements;
@@ -57,11 +59,12 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
 
   @Override
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore, String baseUrl) {
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSignRequest.getPrefetch(), fileStore, baseUrl);
-    fhirBundleProcessor.processDeviceRequests();
-    fhirBundleProcessor.processMedicationRequests();
-    fhirBundleProcessor.processServiceRequests();
-    fhirBundleProcessor.processMedicationDispenses();
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
+    CrdPrefetch prefetch = orderSignRequest.getPrefetch();
+    fhirBundleProcessor.processDeviceRequests(prefetch.getDeviceRequestBundle());
+    fhirBundleProcessor.processMedicationRequests(prefetch.getMedicationRequestBundle());
+    fhirBundleProcessor.processServiceRequests(prefetch.getServiceRequestBundle());
+    fhirBundleProcessor.processMedicationDispenses(prefetch.getMedicationDispenseBundle());
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {
@@ -154,6 +157,22 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
       }
 
       try {
+        if (evaluateStatement("RESULT_QuestionnairePrescriberEnrollmentUri", context) != null) {
+          coverageRequirements.setQuestionnairePrescriberEnrollmentUri(evaluateStatement("RESULT_QuestionnairePrescriberEnrollmentUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No Prescriber Enrollment defined");
+      }
+
+      try {
+        if (evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context) != null) {
+          coverageRequirements.setQuestionnairePrescriberKnowledgeAssessmentUri(evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context).toString());
+        }
+      } catch (Exception e) {
+        logger.info("-- No Prescriber Knowledge Assessment defined");
+      }
+
+      try {
         if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null) {
           coverageRequirements.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString());
         }
@@ -220,5 +239,10 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
     results.setDrugInteraction(drugInteraction);
 
     return results;
+  }
+
+  @Override
+  protected void attempQueryBatchRequest(OrderSignRequest orderSignRequest, QueryBatchRequest batchRequest) {
+    batchRequest.performQueryBatchRequest(orderSignRequest, orderSignRequest.getPrefetch());
   }
 }

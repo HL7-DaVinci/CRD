@@ -6,8 +6,9 @@ import org.hl7.fhir.r4.model.Base64BinaryType;
 import org.hl7.fhir.r4.model.Library;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
- 
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class LibraryContentProcessor extends FhirResourceProcessor<Library> {
 
               // content is CQL (assuming elm/json is actually CQL)
               String topic = urlParts[1];
-              String fhirVersion = urlParts[2];
+              String fhirVersion = urlParts[2].toUpperCase();
               String fileName = urlParts[3];
 
               List<Attachment> attachments = new ArrayList<>();
@@ -87,8 +88,9 @@ public class LibraryContentProcessor extends FhirResourceProcessor<Library> {
     Attachment attachment = new Attachment();
     try {
       // base64 encode
-      byte[] byteData = new byte[(int) fileResource.getResource().contentLength()];
-      fileResource.getResource().getInputStream().read(byteData, 0, byteData.length);
+      InputStream inputStream = fileResource.getResource().getInputStream();  
+      byte[] byteData = new byte[inputStream.available()];
+      inputStream.read(byteData);
       String encodedData = Base64.encodeBase64String(byteData);
       attachment.setContentType(mimeType);
       Base64BinaryType b64bType = new Base64BinaryType();
@@ -100,3 +102,5 @@ public class LibraryContentProcessor extends FhirResourceProcessor<Library> {
     return attachment;
   }
 }
+
+
