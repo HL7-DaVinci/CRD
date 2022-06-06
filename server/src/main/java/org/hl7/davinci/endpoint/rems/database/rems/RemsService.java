@@ -1,4 +1,4 @@
-package org.hl7.davinci.endpoint.database;
+package org.hl7.davinci.endpoint.rems.database.rems;
 
 public interface RemsService {
   Iterable<Rems> findAll();

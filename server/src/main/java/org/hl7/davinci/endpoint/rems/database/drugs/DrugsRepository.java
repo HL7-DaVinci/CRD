@@ -5,6 +5,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.data.repository.query.Param;
+
 
 import java.util.List;
 
@@ -18,5 +20,7 @@ public interface DrugsRepository extends CrudRepository<Drug, String> {
             "SELECT r FROM Drug r")
     List<Drug> findLogs();
 
+    @Query("SELECT r FROM Drug r where r.codeSystem = :system and r.code = :code")
+    List<Drug> findDrugByCode(@Param("system") String system, @Param("code") String code);
 }
 

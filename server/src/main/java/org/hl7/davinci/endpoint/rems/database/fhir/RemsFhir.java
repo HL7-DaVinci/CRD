@@ -22,7 +22,7 @@ public class RemsFhir {
     private String createdAt;
 
     @Type(type = "json")
-    @Column(columnDefinition = "json", name = "complianceBundle", nullable = false, length = 10000000)
+    @Column(columnDefinition = "json", name = "resource", nullable = false, length = 10000000)
     private JsonNode resource;
 
 
