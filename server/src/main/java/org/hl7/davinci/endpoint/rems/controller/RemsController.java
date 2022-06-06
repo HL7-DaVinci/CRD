@@ -125,12 +125,12 @@ public class RemsController {
             MetRequirement metReq = new MetRequirement();
             metReq.setRequirement(requirement);
             metReq.setRemsRequest(remsRequest);
+            remsRequest.addMetRequirement(metReq);
             metRequirementsRepository.save(metReq);
         }
-
-        Rems remsReturn = remsRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id + " not found"));
+        remsRepository.save(remsRequest);
         updateRemsRequestStatusInBackground(id);
-        return ResponseEntity.ok().body(remsReturn);
+        return ResponseEntity.ok().body(remsRequest);
     
       }
     
