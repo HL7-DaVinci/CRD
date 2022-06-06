@@ -31,7 +31,7 @@ public class Rems {
   @Column(columnDefinition = "json", name = "resource", nullable = false, length = 10000000)
   private JsonNode resource;
 
-  @OneToMany(mappedBy="remsRequest", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(mappedBy="remsRequest", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   private List<MetRequirement> metRequirements = new ArrayList<>();
 
   public void Rems() {}

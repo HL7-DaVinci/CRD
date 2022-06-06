@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
 import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirement;
+import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirementRepository;
 import org.hl7.davinci.endpoint.rems.database.requirement.Requirement;
 
 import org.hl7.davinci.endpoint.Application;
@@ -51,6 +52,9 @@ public class RemsController {
 
     @Autowired
     private RemsRepository remsRepository;
+
+    @Autowired
+    private MetRequirementRepository metRequirementsRepository;
 
     @GetMapping(value = "/drug/{id}")
     @CrossOrigin
@@ -113,18 +117,20 @@ public class RemsController {
         remsRequest.setCase_number(id);
         remsRequest.setStatus("Pending");
         remsRequest.setResource(remsObject);
+        remsRepository.save(remsRequest);
 
-        // sub requirements don't seem to be working, this loop will need to change to handle multiple levels of requirement conditions
+        // this loop needs to change to handle multiple levels of sub-requirement conditions
+        // this loop needs to also handle parsing out resources for each requirement - may need to be separate endpoints
         for (Requirement requirement : drug.getRequirements()) {
             MetRequirement metReq = new MetRequirement();
             metReq.setRequirement(requirement);
-            remsRequest.addMetRequirement(metReq);
+            metReq.setRemsRequest(remsRequest);
+            metRequirementsRepository.save(metReq);
         }
 
-
-        remsRepository.save(remsRequest);
+        Rems remsReturn = remsRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, id + " not found"));
         updateRemsRequestStatusInBackground(id);
-        return ResponseEntity.ok().body(remsRequest);
+        return ResponseEntity.ok().body(remsReturn);
     
       }
     

@@ -24,9 +24,9 @@ public class Requirement {
     private String description;
 
     // FHIR resource which defines the requirement (task, questionnaire, etc)
-    @JoinColumn(name = "requirement", nullable = false)
+    @JoinColumn(name = "resource", nullable = false)
     @OneToOne
-    private RemsFhir requirement;
+    private RemsFhir resource;
 
     @OneToMany(mappedBy="requirement")
     private List<MetRequirement> metRequirements = new ArrayList<>();
@@ -36,10 +36,10 @@ public class Requirement {
     @JsonIgnore
     private Drug drug;
 
-    @OneToMany(mappedBy="parentRequirement", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="parentRequirement", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Requirement> childRequirements = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="PARENT_REQUIREMENT")
     @JsonIgnore
     private Requirement parentRequirement;
@@ -48,12 +48,12 @@ public class Requirement {
         this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
     }
 
-    public RemsFhir getRequirement() {
-        return this.requirement;
+    public RemsFhir getResource() {
+        return this.resource;
     }
 
-    public void setRequirement(RemsFhir requirement) {
-        this.requirement = requirement;
+    public void setResource(RemsFhir resource) {
+        this.resource = resource;
     }
 
     public String getCreatedAt() {

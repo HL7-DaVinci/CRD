@@ -26,10 +26,10 @@ public class MetRequirement {
 
     // FHIR resource which defines the requirement (task, questionnaire, etc)
     @JoinColumn(name = "completedRequirement", nullable = true)
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private RemsFhir completedRequirement;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="REQUIREMENT_ID")
     @JsonIgnore
     private Requirement requirement;
@@ -39,7 +39,7 @@ public class MetRequirement {
     @JsonIgnore
     private Rems remsRequest;
 
-    @OneToMany(mappedBy="parentMetRequirement", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="parentMetRequirement", fetch = FetchType.EAGER)
     private List<MetRequirement> childMetRequirements = new ArrayList<>();
 
     @ManyToOne
@@ -49,7 +49,14 @@ public class MetRequirement {
 
     public MetRequirement() {
         this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
-        this.completed = false;
+        this.completed = false;    }
+
+    public Rems getRemsRequest() {
+        return this.remsRequest;
+    }
+
+    public void setRemsRequest(Rems request) {
+        this.remsRequest = request;
     }
 
     public RemsFhir getCompletedRequirement() {

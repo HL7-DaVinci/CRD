@@ -49,6 +49,8 @@ class DatabaseInit {
             turalio.setId("turalio");
             turalio.setCodeSystem("http://www.nlm.nih.gov/research/umls/rxnorm");
             turalio.setCode("2183126");
+            repository.save(turalio);;
+
 
             // patient enrollment form requirement
             String patientQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/fhir/Questionnaire-R4-DrugHasREMS.json", Charset.defaultCharset());
@@ -59,25 +61,13 @@ class DatabaseInit {
             patientEnrollmentResource.setResource(patientQuestionnaireResource);
             patientEnrollmentResource.setId("turalio-patient-enrollment");
             remsFhirRepository.save(patientEnrollmentResource);
-            patientEnrollmentRequirement.setRequirement(patientEnrollmentResource);
+            patientEnrollmentRequirement.setResource(patientEnrollmentResource);
             patientEnrollmentRequirement.setDescription("complete patient enrollment questionnaire");
             patientEnrollmentRequirement.setDrug(turalio);
-            turalio.addRequirement(patientEnrollmentRequirement);
-
-            // prescriber knowledge assessment / certification sub-requirement
-            String prescriberKnowledgeQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/fhir/Questionnaire-R4-DrugHasREMS.json", Charset.defaultCharset());
-            Requirement prescriberCertificationRequirement = new Requirement();
-            RemsFhir prescriberKnowledgeResource = new RemsFhir();
-            prescriberKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
-            JsonNode prescriberKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(prescriberKnowledgeQuestionnaire);
-            prescriberKnowledgeResource.setResource(prescriberKnowledgeQuestionnaireResource);
-            prescriberKnowledgeResource.setId("turalio-prescriber-knowledge-check");
-            remsFhirRepository.save(prescriberKnowledgeResource);
-            prescriberCertificationRequirement.setRequirement(prescriberKnowledgeResource);
-            prescriberCertificationRequirement.setDescription("complete prescriber knowledge check");
+            requirementRepository.save(patientEnrollmentRequirement);
 
              // prescriber enrollment form requirement
-             String prescriberQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/fhir/Questionnaire-R4-DrugHasREMS.json", Charset.defaultCharset());
+             String prescriberQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/Questionnaire-R4-Prescriber-Enrollment.json", Charset.defaultCharset());
              Requirement prescriberEnrollmentRequirement = new Requirement();
              RemsFhir prescriberEnrollmentResource = new RemsFhir();
              prescriberEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
@@ -85,13 +75,25 @@ class DatabaseInit {
              prescriberEnrollmentResource.setResource(prescriberQuestionnaireResource);
              prescriberEnrollmentResource.setId("turalio-prescriber-enrollment");
              remsFhirRepository.save(prescriberEnrollmentResource);
-             prescriberEnrollmentRequirement.setRequirement(prescriberEnrollmentResource);
+             prescriberEnrollmentRequirement.setResource(prescriberEnrollmentResource);
              prescriberEnrollmentRequirement.setDescription("complete prescriber enrollment questionnaire");
              prescriberEnrollmentRequirement.setDrug(turalio);
-             prescriberEnrollmentRequirement.addChild(prescriberCertificationRequirement);
-             turalio.addRequirement(prescriberEnrollmentRequirement);
+             requirementRepository.save(prescriberEnrollmentRequirement);
 
-            repository.save(turalio);;
+            // prescriber knowledge assessment / certification sub-requirement
+            String prescriberKnowledgeQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/Questionnaire-R4-Prescriber-Knowledge-Assessment.json", Charset.defaultCharset());
+            Requirement prescriberCertificationRequirement = new Requirement();
+            RemsFhir prescriberKnowledgeResource = new RemsFhir();
+            prescriberKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode prescriberKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(prescriberKnowledgeQuestionnaire);
+            prescriberKnowledgeResource.setResource(prescriberKnowledgeQuestionnaireResource);
+            prescriberKnowledgeResource.setId("turalio-prescriber-knowledge-check");
+            remsFhirRepository.save(prescriberKnowledgeResource);
+            prescriberCertificationRequirement.setResource(prescriberKnowledgeResource);
+            prescriberCertificationRequirement.setDescription("complete prescriber knowledge check");
+            prescriberCertificationRequirement.setParent(prescriberEnrollmentRequirement);
+            requirementRepository.save(prescriberCertificationRequirement);
+
         };
     }
 }
