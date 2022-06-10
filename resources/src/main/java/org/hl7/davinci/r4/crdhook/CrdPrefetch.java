@@ -3,12 +3,11 @@ package org.hl7.davinci.r4.crdhook;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.hl7.davinci.r4.JacksonBundleDeserializer;
 import org.hl7.davinci.r4.JacksonHapiSerializer;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.davinci.r4.Utilities;
 
 /**
  * Class that supports the representation of prefetch information in a CDS Hook request.
@@ -76,7 +75,9 @@ public class CrdPrefetch {
     return medicationRequestBundle;
   }
 
-  public void setMedicationRequestBundle(Bundle medicationRequestBundle) { this.medicationRequestBundle = medicationRequestBundle; }
+  public void setMedicationRequestBundle(Bundle medicationRequestBundle) {
+    this.medicationRequestBundle = medicationRequestBundle;
+  }
 
   public Bundle getMedicationDispenseBundle() {
     return medicationDispenseBundle;
@@ -103,6 +104,15 @@ public class CrdPrefetch {
   public Bundle getSupplyRequestBundle() {
     return supplyRequestBundle;
   }
+
+  public List<Organization> getCoveragePayors() {
+    Bundle coverageBundle = this.getCoverage();
+    List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class,
+        coverageBundle);
+    return payorList;
+  }
+
+
 
   public void setSupplyRequestBundle(Bundle supplyRequestBundle) {
     this.supplyRequestBundle = supplyRequestBundle;
@@ -191,4 +201,5 @@ public class CrdPrefetch {
     sb.append("]");
     return sb.toString();
   }
+
 }

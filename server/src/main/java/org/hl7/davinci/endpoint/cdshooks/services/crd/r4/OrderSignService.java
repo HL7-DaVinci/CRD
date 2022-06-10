@@ -86,9 +86,9 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
 
     String humanReadableTopic = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(topic), ' ');
 
-    coverageRequirements.setInfoLink(evaluateStatement("RESULT_InfoLink", context).toString())
-        .setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context))
-        .setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
+    coverageRequirements.setInfoLink(evaluateStatement("RESULT_InfoLink", context).toString());
+    coverageRequirements.setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context));
+    coverageRequirements.setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
 
     // if prior auth, supercede the documentation required
     if (coverageRequirements.isPriorAuthRequired()) {

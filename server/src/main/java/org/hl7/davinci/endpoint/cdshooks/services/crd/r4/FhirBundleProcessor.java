@@ -47,13 +47,14 @@ public class FhirBundleProcessor {
 
   public void processDeviceRequests() {
     Bundle deviceRequestBundle = prefetch.getDeviceRequestBundle();
+    List<Organization> payorList = prefetch.getCoveragePayors();
     List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(DeviceRequest.class, deviceRequestBundle);
     if (!deviceRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::getAndProcessDeviceRequests: DeviceRequest(s) found");
 
       for (DeviceRequest deviceRequest : deviceRequestList) {
         if (idInSelectionsList(deviceRequest.getId())) {
-          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest.getCodeCodeableConcept(), deviceRequest.getInsurance(), null);
+          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest.getCodeCodeableConcept(), deviceRequest.getInsurance(), payorList);
           buildExecutionContexts(criteriaList, (Patient) deviceRequest.getSubject().getResource(), "device_request", deviceRequest);
         }
       }
@@ -62,13 +63,14 @@ public class FhirBundleProcessor {
 
   public void processMedicationRequests() {
     Bundle medicationRequestBundle = prefetch.getMedicationRequestBundle();
+    List<Organization> payorList = prefetch.getCoveragePayors();
     List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
     if (!medicationRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::getAndProcessMedicationRequests: MedicationRequest(s) found");
 
       for (MedicationRequest medicationRequest : medicationRequestList) {
         if (idInSelectionsList(medicationRequest.getId())) {
-          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), null);
+          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), payorList);
           buildExecutionContexts(criteriaList, (Patient) medicationRequest.getSubject().getResource(), "medication_request", medicationRequest);
         }
       }
@@ -77,12 +79,13 @@ public class FhirBundleProcessor {
 
   public void processMedicationDispenses() {
     Bundle medicationDispenseBundle = prefetch.getMedicationDispenseBundle();
+    List<Organization> payorList = prefetch.getCoveragePayors();
     List<MedicationDispense> medicationDispenseList = Utilities.getResourcesOfTypeFromBundle(MedicationDispense.class, medicationDispenseBundle);
+    List<Organization> medicationPayorList = Utilities.getResourcesOfTypeFromBundle(Organization.class,
+        medicationDispenseBundle);
+    payorList.addAll(medicationPayorList);
     if (!medicationDispenseList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::getAndProcessMedicationDispenses: MedicationDispense(s) found");
-
-      List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class,
-          medicationDispenseBundle);
 
       for (MedicationDispense medicationDispense : medicationDispenseList) {
         if (idInSelectionsList(medicationDispense.getId())) {
@@ -95,13 +98,14 @@ public class FhirBundleProcessor {
 
   public void processServiceRequests() {
     Bundle serviceRequestBundle = prefetch.getServiceRequestBundle();
+    List<Organization> payorList = prefetch.getCoveragePayors();
     List<ServiceRequest> serviceRequestList = Utilities.getResourcesOfTypeFromBundle(ServiceRequest.class, serviceRequestBundle);
     if (!serviceRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::getAndProcessServiceRequests: ServiceRequest(s) found");
 
       for (ServiceRequest serviceRequest : serviceRequestList) {
         if (idInSelectionsList(serviceRequest.getId())) {
-          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(serviceRequest.getCode(), serviceRequest.getInsurance(), null);
+          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(serviceRequest.getCode(), serviceRequest.getInsurance(), payorList);
           buildExecutionContexts(criteriaList, (Patient) serviceRequest.getSubject().getResource(), "service_request", serviceRequest);
         }
       }
@@ -115,6 +119,8 @@ public class FhirBundleProcessor {
     Bundle medicationStatementBundle = prefetch.getMedicationStatementBundle();
     List<MedicationStatement> medicationStatementList = Utilities.getResourcesOfTypeFromBundle(MedicationStatement.class, medicationStatementBundle);
 
+    List<Organization> payorList = prefetch.getCoveragePayors();
+
     if (!medicationRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::processOrderSelectMedicationStatements: MedicationRequests(s) found");
 
@@ -126,7 +132,7 @@ public class FhirBundleProcessor {
           for (MedicationStatement medicationStatement : medicationStatementList) {
             logger.info("r4/FhirBundleProcessor::processOrderSelectMedicationStatements: MedicationStatement found: " + medicationStatement.getId());
 
-            List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), null);
+            List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), payorList);
 
             HashMap<String, Resource> cqlParams = new HashMap<>();
             cqlParams.put("Patient", (Patient) medicationRequest.getSubject().getResource());
@@ -155,9 +161,10 @@ public class FhirBundleProcessor {
             .map(reference -> (Coverage) reference.getResource()).collect(Collectors.toList());
         // Remove null coverages that may not have resolved.
         coverages = coverages.stream().filter(coverage -> coverage != null).collect(Collectors.toList());
-        payors = Utilities.getPayors(coverages);
-      } else if (payorList != null) {
-        payors = payorList;
+        payors.addAll(Utilities.getPayors(coverages));
+      }
+      if (payorList != null) {
+        payors.addAll(payorList);
       }
 
       if (payors.size() > 0) {
