@@ -5,6 +5,7 @@ import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.database.FhirResource;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
+import org.hl7.davinci.endpoint.fhir.r4.QuestionnaireNextQuestionOperation;
 import org.hl7.davinci.endpoint.fhir.r4.QuestionnairePackageOperation;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
@@ -259,5 +260,25 @@ public class FhirController {
 
     return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
           .body(resource);
+  }
+
+
+  @PostMapping(value = "/fhir/{fhirVersion}/Questionnaire/$next-question", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
+  public ResponseEntity<String> retrieveNextQuestion(HttpServletRequest request, HttpEntity<String> entity, @PathVariable String fhirVersion) {
+    fhirVersion = fhirVersion.toUpperCase();
+    
+    logger.info("POST /fhir/" + fhirVersion + "/Questionnaire/$next-question");
+
+    if (fhirVersion.equalsIgnoreCase("R4")) {
+      QuestionnaireNextQuestionOperation operation = new QuestionnaireNextQuestionOperation(fileStore);
+      return operation.getNextQuestionOperation(entity.getBody(), request);
+    } else {
+      logger.warning("unsupported FHIR version: " + fhirVersion + ", not storing");
+      HttpStatus status = HttpStatus.BAD_REQUEST;
+      MediaType contentType = MediaType.TEXT_PLAIN;
+
+      return ResponseEntity.status(status).contentType(contentType)
+          .body("Bad Request");
+    }
   }
 }

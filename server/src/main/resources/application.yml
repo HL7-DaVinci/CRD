@@ -68,8 +68,8 @@ gitHubConfig:
   useZipForReload: true
 
 localDb:
-  path: CDS-Library/CRD-DTR/
-  examplesPath: CDS-Library/Examples/
+  path: server/CDS-Library/CRD-DTR/
+  examplesPath: server/CDS-Library/Examples/
 
 valueSetCachePath: ValueSetCache/
 
