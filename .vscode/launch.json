@@ -13,12 +13,6 @@
         },
         {
             "type": "java",
-            "name": "Launch Java Program",
-            "request": "launch",
-            "mainClass": ""
-        },
-        {
-            "type": "java",
             "name": "Debug CRD (Local + Docker)",
             "request": "attach",
             "hostName": "localhost",
