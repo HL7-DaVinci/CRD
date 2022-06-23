@@ -17,6 +17,7 @@ import org.hl7.fhir.r4.model.CapabilityStatement.RestfulCapabilityMode;
 import org.hl7.fhir.r4.model.CapabilityStatement.TypeRestfulInteraction;
 import org.hl7.fhir.r4.model.Enumerations.FHIRVersion;
 import org.hl7.fhir.r4.model.Enumerations.PublicationStatus;
+import org.hl7.fhir.r5.model.CapabilityStatement2.CapabilityStatement2ImplementationComponent;
 
 
 /**
@@ -91,6 +92,11 @@ public class Metadata {
     questionnairePackageOperation.setDefinition("http://hl7.org/fhir/us/davinci-dtr/OperationDefinition/Questionnaire-package");
     questionnairePackageOperation.setDocumentation("Retrieve the Questionnaire(s), Libraries, and Valuesets for a given order and coverage. This operation is to support HL7 DaVinci DTR.");
     questionnaire.addOperation(questionnairePackageOperation);
+    CapabilityStatementRestResourceOperationComponent questionnaireNextQuestionOperation = new CapabilityStatementRestResourceOperationComponent();
+    questionnaireNextQuestionOperation.setName("next-question");
+    questionnaireNextQuestionOperation.setDefinition("http://hl7.org/fhir/uv/sdc/OperationDefinition/Questionnaire-next-question");
+    questionnaireNextQuestionOperation.setDocumentation("Retrieve the next question(s) for a given Questionnaire and the answer(s) to the current question(s).");
+    questionnaire.addOperation(questionnaireNextQuestionOperation);
     rest.addResource(questionnaire);
 
     // QuestionnaireResponse Resource
