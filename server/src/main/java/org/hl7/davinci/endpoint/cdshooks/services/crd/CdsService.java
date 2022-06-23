@@ -144,8 +144,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
           } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
             if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
@@ -154,7 +152,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
-
               if (coverageRequirements.isPriorAuthRequired()) {
                 Card card = CardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
                 card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
@@ -177,6 +174,12 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
                 } catch (RuntimeException e) {
                   logger.warn("Failed to process alternative therapy: " + e.getMessage());
                 }
+              }
+              if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())
+                      || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
+                Card prescriberCard = createPrescriberCard(request, applicationBaseUrl, lookupResult, results);
+                prescriberCard.setSummary("Prescriber forms");
+                response.addCard(prescriberCard);
               }
             } else {
               logger.warn("Unspecified Questionnaire URI; summary card sent to client");
@@ -220,6 +223,35 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     return response;
   }
 
+  private Card createPrescriberCard(requestTypeT request, URL applicationBaseUrl,
+                                           CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
+    List<Link> listOfLinks = new ArrayList<>();
+    CoverageRequirements coverageRequirements = results.getCoverageRequirements();
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+              coverageRequirements.getQuestionnairePrescriberEnrollmentUri(), coverageRequirements.getRequestId(),
+              lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Enrollment Form"));
+    }
+    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+              coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri(), coverageRequirements.getRequestId(),
+              lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Knowledge Assessment Form"));
+    }
+
+    Card card;
+    if (coverageRequirements.isPriorAuthRequired()) {
+      card = CardBuilder.transform(CardTypes.PRIOR_AUTH, results, listOfLinks);
+      card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+              "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+              true, CoverageGuidance.ADMIN));
+    } else {
+      card = CardBuilder.transform(CardTypes.DTR_CLIN, results, listOfLinks);
+      card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+              "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+              true, CoverageGuidance.CLINICAL));
+    }
+    return card;
+  }
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
       CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
@@ -228,16 +260,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
           coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
           lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Patient Enrollment Form"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePrescriberEnrollmentUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Enrollment Form"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Knowledge Assessment Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
