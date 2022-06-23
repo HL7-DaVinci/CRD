@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.files.QuestionnaireEmbeddedCQLProcessor;
@@ -272,7 +271,7 @@ public class QuestionnaireNextQuestionOperation {
      * @param request
      * @return
      */
-    public ResponseEntity<String> getNextQuestionOperation(String body, HttpServletRequest request) {
+    public ResponseEntity<String> execute(String body, HttpServletRequest request) {
         logger.info("POST /Questionnaire/$next-question fhir+");
 
         FhirContext ctx = new FhirComponents().getFhirContext();

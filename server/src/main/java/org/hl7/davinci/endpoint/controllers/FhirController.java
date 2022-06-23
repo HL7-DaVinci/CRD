@@ -271,7 +271,7 @@ public class FhirController {
 
     if (fhirVersion.equalsIgnoreCase("R4")) {
       QuestionnaireNextQuestionOperation operation = new QuestionnaireNextQuestionOperation(fileStore);
-      return operation.getNextQuestionOperation(entity.getBody(), request);
+      return operation.execute(entity.getBody(), request);
     } else {
       logger.warning("unsupported FHIR version: " + fhirVersion + ", not storing");
       HttpStatus status = HttpStatus.BAD_REQUEST;
