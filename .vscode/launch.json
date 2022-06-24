@@ -6,10 +6,17 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Debug CRD (Local + Docker)", // gradle bootRun -Pdebug,
+            "name": "Launch Application",
+            "request": "launch",
+            "mainClass": "org.hl7.davinci.endpoint.Application",
+            "projectName": "server"
+        },
+        {
+            "type": "java",
+            "name": "Debug CRD (Local + Docker)",
             "request": "attach",
             "hostName": "localhost",
-            "port": 8091,
+            "port": 8091
         }
     ]
 } 

@@ -1,22 +1,4 @@
-package org.hl7.davinci.endpoint.controllers;
-
-import org.hl7.davinci.endpoint.Application;
-import org.hl7.davinci.endpoint.files.FileResource;
-import org.hl7.davinci.endpoint.files.FileStore;
-import org.hl7.fhir.instance.model.api.IDomainResource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import ca.uhn.fhir.context.FhirContext;
-import org.hl7.davinci.r4.FhirComponents;
-
-import ca.uhn.fhir.parser.DataFormatException;
-import ca.uhn.fhir.parser.IParser;
+package org.hl7.davinci.endpoint.fhir.r4;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,17 +12,30 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.hl7.davinci.endpoint.files.FileResource;
+import org.hl7.davinci.endpoint.files.FileStore;
+import org.hl7.davinci.endpoint.files.QuestionnaireEmbeddedCQLProcessor;
+import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.QuestionnaireResponse;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.ResourceType;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemAnswerOptionComponent;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
+import org.hl7.fhir.r4.model.QuestionnaireResponse;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseStatus;
 import org.hl7.fhir.r4.model.Reference;
-import org.hl7.davinci.endpoint.files.QuestionnaireEmbeddedCQLProcessor;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ResourceType;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
+import ca.uhn.fhir.parser.IParser;
+
 
 // --- ORDER OF RESPONSE-REQUEST OPERATIONS
 // (REQUEST) External user sends the initial QuestionnaireResponse JSON that contains which questionnaire it would like to trigger as n element the "contained" field.
@@ -50,17 +45,19 @@ import org.hl7.davinci.endpoint.files.QuestionnaireEmbeddedCQLProcessor;
 // Repeat intil QuestionnaireController reaches a leaf-node, then it sets the status to "completed" from "in-progress"
 // Ultimately, The QuestionnaireController responses add ONLY to the QuestionnaireResponse.contained.item[]. The external requester adds answers to QuestionnaireResponse.item[] and includes the associated linkid and text.
 
-@CrossOrigin
-@RestController
-@RequestMapping("/Questionnaire")
-public class QuestionnaireController {
-
-    @Autowired
-    private FileStore fileStore;
+public class QuestionnaireNextQuestionOperation {
+    
+    FileStore fileStore;
 
     private QuestionnaireEmbeddedCQLProcessor questionnaireEmbeddedCQLProcessor;
 
-    public QuestionnaireController() {
+     // Logger.
+     private static Logger logger = Logger.getLogger(QuestionnaireNextQuestionOperation.class.getName());
+     // Trees that track the current and next questions. Is key-value mappng of: Map<Questionnaire ID -> AdaptiveQuestionnaireTree>
+     private static final Map<String, AdaptiveQuestionnaireTree> questionnaireTrees = new HashMap<String, AdaptiveQuestionnaireTree>();
+
+    public QuestionnaireNextQuestionOperation(FileStore fileStore) {
+        this.fileStore = fileStore;
         this.questionnaireEmbeddedCQLProcessor = new QuestionnaireEmbeddedCQLProcessor();
     }
 
@@ -267,29 +264,14 @@ public class QuestionnaireController {
         }
     }
 
-    // Logger.
-    private static Logger logger = Logger.getLogger(Application.class.getName());
-    // Trees that track the current and next questions. Is key-value mappng of: Map<Questionnaire ID -> AdaptiveQuestionnaireTree>
-    private static final Map<String, AdaptiveQuestionnaireTree> questionnaireTrees = new HashMap<String, AdaptiveQuestionnaireTree>();
-
-    /**
-     * Retrieves the next question based on the request.
-     * @param request
-     * @param entity
-     * @return
-     */
-    @PostMapping(value = "/$next-question", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
-    public ResponseEntity<String> retrieveNextQuestion(HttpServletRequest request, HttpEntity<String> entity) {
-        return getNextQuestionOperation(entity.getBody(), request);
-    }
-
-    /**
+    
+     /**
      * Returns the next question based on the request.
      * @param body
      * @param request
      * @return
      */
-    private ResponseEntity<String> getNextQuestionOperation(String body, HttpServletRequest request) {
+    public ResponseEntity<String> execute(String body, HttpServletRequest request) {
         logger.info("POST /Questionnaire/$next-question fhir+");
 
         FhirContext ctx = new FhirComponents().getFhirContext();
@@ -348,7 +330,7 @@ public class QuestionnaireController {
                 // Pull the resulting next question that the recieved responses and answers point to from the tree without including its children.
                 List<QuestionnaireItemComponent> nextQuestionSetResults = currentTree.getNextQuestionsForAnswers(allResponses, inputQuestionnaireResponse);
                 // Add the next set of questions to the response.
-                QuestionnaireController.addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, nextQuestionSetResults);
+                QuestionnaireNextQuestionOperation.addQuestionSetToQuestionnaireResponse(inputQuestionnaireResponse, nextQuestionSetResults);
                 // Check that there no duplicates in the set of questions.
                 if ((new HashSet(((Questionnaire) inputQuestionnaireResponse.getContained().get(0)).getItem().stream().map(item -> item.getLinkId()).collect(Collectors.toList()))).size() != ((Questionnaire) inputQuestionnaireResponse.getContained().get(0)).getItem().size()){
                     throw new RuntimeException("Attempted to send a set of questions with duplicates. Question IDs are: " + (((Questionnaire) inputQuestionnaireResponse.getContained().get(0)).getItem().stream().map(item -> item.getLinkId()).collect(Collectors.toList())));
