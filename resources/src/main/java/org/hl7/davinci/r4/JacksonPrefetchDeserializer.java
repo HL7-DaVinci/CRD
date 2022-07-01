@@ -64,7 +64,6 @@ public class JacksonPrefetchDeserializer extends StdDeserializer<CrdPrefetch> {
    */
   public static void addToCrdPrefetchRequest(CrdPrefetch crdPrefetch, String prefetchKey, Resource resource) {
     ResourceType resourceType = resource.getResourceType();
-    System.out.println("Resource type: " + resourceType);
     switch (prefetchKey) {
       case "deviceRequestBundle":
         if (crdPrefetch.getDeviceRequestBundle() == null) {
