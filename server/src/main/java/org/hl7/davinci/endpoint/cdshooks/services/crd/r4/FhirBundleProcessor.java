@@ -7,7 +7,6 @@ import org.hl7.davinci.endpoint.database.RuleMapping;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
-import org.hl7.davinci.r4.JacksonPrefetchDeserializer;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.fhir.r4.model.*;
 import org.slf4j.Logger;
@@ -18,14 +17,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 public class FhirBundleProcessor {
   static final Logger logger = LoggerFactory.getLogger(FhirBundleProcessor.class);
 
   private FileStore fileStore;
-  @JsonDeserialize(using = JacksonPrefetchDeserializer.class)
-  private CrdPrefetch prefetch;
 
   private String baseUrl;
   private List<String> selections;
@@ -44,11 +39,11 @@ public class FhirBundleProcessor {
 
   public List<CoverageRequirementRuleResult> getResults() { return results; }
 
-  public void processDeviceRequests(Bundle deviceRequestBundle) {
+  public void processDeviceRequests(Bundle deviceRequestBundle, Bundle coverageBundle) {
     List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(DeviceRequest.class, deviceRequestBundle);
     List<Patient> patients = Utilities.getResourcesOfTypeFromBundle(Patient.class, deviceRequestBundle);
     logger.info("r4/FhirBundleProcessor::processDeviceRequests: Found " + patients.size() + " patients.");
-    List<Organization> payorList = prefetch.getCoveragePayors();  // TODO - do something with the coverage.
+    List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class, coverageBundle); // TODO - do something with the coverage.
     if (deviceRequestList.isEmpty()) return;
     
     logger.info("r4/FhirBundleProcessor::getAndProcessDeviceRequests: " + deviceRequestList.size() + " DeviceRequest(s) found");
@@ -73,10 +68,10 @@ public class FhirBundleProcessor {
     }
   }
 
-  public void processMedicationRequests(Bundle medicationRequestBundle) {
+  public void processMedicationRequests(Bundle medicationRequestBundle, Bundle coverageBundle) {
     List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
     List<Patient> patients = Utilities.getResourcesOfTypeFromBundle(Patient.class, medicationRequestBundle);
-    List<Organization> payorList = prefetch.getCoveragePayors();
+    List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class, coverageBundle);
     if (medicationRequestList.isEmpty()) return;
 
     logger.info("r4/FhirBundleProcessor::getAndProcessMedicationRequests: MedicationRequest(s) found");
@@ -100,10 +95,10 @@ public class FhirBundleProcessor {
     }
   }
 
-  public void processMedicationDispenses(Bundle medicationDispenseBundle) {
+  public void processMedicationDispenses(Bundle medicationDispenseBundle, Bundle coverageBundle) {
     List<MedicationDispense> medicationDispenseList = Utilities.getResourcesOfTypeFromBundle(MedicationDispense.class, medicationDispenseBundle);
     List<Patient> patients = Utilities.getResourcesOfTypeFromBundle(Patient.class, medicationDispenseBundle);
-    List<Organization> payorList = prefetch.getCoveragePayors();
+    List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class, coverageBundle);
     List<Organization> medicationPayorList = Utilities.getResourcesOfTypeFromBundle(Organization.class,
         medicationDispenseBundle);
     payorList.addAll(medicationPayorList);
@@ -129,8 +124,8 @@ public class FhirBundleProcessor {
     }
   }
 
-  public void processServiceRequests(Bundle serviceRequestBundle) {
-    List<Organization> payorList = prefetch.getCoveragePayors();
+  public void processServiceRequests(Bundle serviceRequestBundle, Bundle coverageBundle) {
+    List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class, coverageBundle);
     List<ServiceRequest> serviceRequestList = Utilities.getResourcesOfTypeFromBundle(ServiceRequest.class, serviceRequestBundle);
     List<Patient> patients = Utilities.getResourcesOfTypeFromBundle(Patient.class, serviceRequestBundle);
     if (serviceRequestList.isEmpty()) return;
@@ -155,12 +150,12 @@ public class FhirBundleProcessor {
     }
   }
 
-  public void processOrderSelectMedicationStatements(Bundle medicationRequestBundle, Bundle medicationStatementBundle) {
+  public void processOrderSelectMedicationStatements(Bundle medicationRequestBundle, Bundle medicationStatementBundle, Bundle coverageBundle) {
     List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
     List<MedicationStatement> medicationStatementList = Utilities.getResourcesOfTypeFromBundle(MedicationStatement.class, medicationStatementBundle);
 
     List<Patient> medStatementPatients = Utilities.getResourcesOfTypeFromBundle(Patient.class, medicationStatementBundle);
-    List<Organization> payorList = prefetch.getCoveragePayors();
+    List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class, coverageBundle);
 
     if (medicationRequestList.isEmpty()) return;
 

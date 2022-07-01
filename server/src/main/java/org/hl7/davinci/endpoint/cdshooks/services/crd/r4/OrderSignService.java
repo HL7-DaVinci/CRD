@@ -24,6 +24,7 @@ import org.hl7.davinci.r4.crdhook.ordersign.CrdExtensionConfigurationOptions;
 import org.hl7.davinci.r4.crdhook.ordersign.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
 import org.json.simple.JSONObject;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.opencds.cqf.cql.engine.runtime.Code;
@@ -62,10 +63,11 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore, String baseUrl) {
     FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
     CrdPrefetch prefetch = orderSignRequest.getPrefetch();
-    fhirBundleProcessor.processDeviceRequests(prefetch.getDeviceRequestBundle());
-    fhirBundleProcessor.processMedicationRequests(prefetch.getMedicationRequestBundle());
-    fhirBundleProcessor.processServiceRequests(prefetch.getServiceRequestBundle());
-    fhirBundleProcessor.processMedicationDispenses(prefetch.getMedicationDispenseBundle());
+    Bundle coverageBundle = prefetch.getCoverageBundle(); // TODO - do something with coverage.
+    fhirBundleProcessor.processDeviceRequests(prefetch.getDeviceRequestBundle(), coverageBundle);
+    fhirBundleProcessor.processMedicationRequests(prefetch.getMedicationRequestBundle(), coverageBundle);
+    fhirBundleProcessor.processServiceRequests(prefetch.getServiceRequestBundle(), coverageBundle);
+    fhirBundleProcessor.processMedicationDispenses(prefetch.getMedicationDispenseBundle(), coverageBundle);
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {

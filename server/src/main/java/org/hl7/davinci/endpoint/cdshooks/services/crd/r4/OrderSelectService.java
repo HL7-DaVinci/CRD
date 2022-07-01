@@ -53,7 +53,7 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
 
     FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl, selections);
     CrdPrefetch prefetch = orderSelectRequest.getPrefetch();
-    fhirBundleProcessor.processOrderSelectMedicationStatements(prefetch.getMedicationRequestBundle(), prefetch.getMedicationStatementBundle());
+    fhirBundleProcessor.processOrderSelectMedicationStatements(prefetch.getMedicationRequestBundle(), prefetch.getMedicationStatementBundle(), prefetch.getCoverageBundle());
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {
