@@ -17,9 +17,12 @@ import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.orderselect.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Coding;
+import org.json.simple.JSONObject;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +51,9 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
 
     List<String> selections = Arrays.asList(orderSelectRequest.getContext().getSelections());
 
-    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(orderSelectRequest.getPrefetch(), fileStore, baseUrl, selections);
-    fhirBundleProcessor.processOrderSelectMedicationStatements();
+    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl, selections);
+    CrdPrefetch prefetch = orderSelectRequest.getPrefetch();
+    fhirBundleProcessor.processOrderSelectMedicationStatements(prefetch.getMedicationRequestBundle(), prefetch.getMedicationStatementBundle());
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {
@@ -68,6 +72,13 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
 
     CoverageRequirements coverageRequirements = new CoverageRequirements();
     coverageRequirements.setApplies(false);
+
+    if (evaluateStatement("RESULT_requestId", context) != null) {
+      results.setRequest((IBaseResource) evaluateStatement("RESULT_requestId", context));
+      coverageRequirements.setRequestId(JSONObject.escape(fhirComponents.getFhirContext().newJsonParser()
+          .encodeResourceToString(results.getRequest())));
+    }
+
     results.setCoverageRequirements(coverageRequirements);
 
     AlternativeTherapy alternativeTherapy = new AlternativeTherapy();

@@ -12,16 +12,23 @@ import org.hl7.davinci.endpoint.database.*;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.vsac.ValueSetCache;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
+
+import javax.annotation.processing.Filer;
 
 public abstract class CommonFileStore implements FileStore {
 
@@ -67,47 +74,66 @@ public abstract class CommonFileStore implements FileStore {
 
   protected abstract String readFhirResourceFromFile(FhirResource fhirResource, String fhirVersion);
 
+  protected FileResource readFhirResourceFromFiles(FhirResource fhirResource, String fhirVersion,
+      String baseUrl) {
+    String fileString = null;
+
+    // grab the data from the database directly if it is there
+    String data = fhirResource.getData();
+    if (data != null) {
+      fileString = data;
+    } else {
+      fileString = readFhirResourceFromFile(fhirResource, fhirVersion);
+    }
+
+    if (fileString != null) {
+      String partialUrl = baseUrl + "fhir/" + fhirVersion + "/";
+
+      // replace <server-path> with the proper path
+      fileString = fileString.replace("<server-path>", partialUrl);
+      byte[] fileData = fileString.getBytes(Charset.defaultCharset());
+
+      FileResource fileResource = new FileResource();
+      fileResource.setFilename(fhirResource.getFilename());
+      fileResource.setResource(new ByteArrayResource(fileData));
+      return fileResource;
+    } else {
+      logger.warn("CommonFhirStore::readFhirResourceFromFiles() empty fileString");
+      return null;
+    }
+  }
+
   protected FileResource readFhirResourceFromFiles(List<FhirResource> fhirResourceList, String fhirVersion,
       String baseUrl) {
     if (!fhirResourceList.isEmpty()) {
       // just return the first matched resource
       FhirResource fhirResource = fhirResourceList.get(0);
-      String fileString = null;
-
-      // grab the data from the database directly if it is there
-      String data = fhirResource.getData();
-      if (data != null) {
-        fileString = data;
-      } else {
-        fileString = readFhirResourceFromFile(fhirResource, fhirVersion);
-      }
-
-      if (fileString != null) {
-        String partialUrl = baseUrl + "fhir/" + fhirVersion + "/";
-
-        // replace <server-path> with the proper path
-        fileString = fileString.replace("<server-path>", partialUrl);
-        byte[] fileData = fileString.getBytes(Charset.defaultCharset());
-
-        FileResource fileResource = new FileResource();
-        fileResource.setFilename(fhirResource.getFilename());
-        fileResource.setResource(new ByteArrayResource(fileData));
-        return fileResource;
-      } else {
-        logger.warn("CommonFhirStore::readFhirResourceFromFiles() empty fileString");
-        return null;
-      }
-
+      return readFhirResourceFromFiles(fhirResource, fhirVersion, baseUrl);
     } else {
       logger.warn("CommonFileStore::readFhirResourceFromFiles() empty file resource list");
       return null;
     }
   }
 
-  public FileResource getFhirResourceByTopic(String fhirVersion, String resourceType, String name, String baseUrl) {
+  protected List<FileResource> readFhirResourcesFromFiles(List<FhirResource> fhirResourceList, String fhirVersion,
+      String baseUrl) {
+    List<FileResource> fileResources = new ArrayList<>();
+
+    // read all of the resources from the list from the file store
+    for (FhirResource fhirResource : fhirResourceList) {
+      FileResource fileResource = readFhirResourceFromFiles(fhirResource, fhirVersion, baseUrl);
+      if (fileResource != null) {
+        fileResources.add(fileResource);
+      }
+    }
+
+    return fileResources;
+  }
+
+  public FileResource getFhirResourceByName(String fhirVersion, String resourceType, String name, String baseUrl) {
     FhirResourceCriteria criteria = new FhirResourceCriteria();
     criteria.setFhirVersion(fhirVersion).setResourceType(resourceType.toLowerCase()).setName(name);
-    logger.info("CommonFileStore::getFhirResourceByTopic(): " + criteria.toString());
+    logger.info("CommonFileStore::getFhirResourceByName(): " + criteria.toString());
 
     List<FhirResource> fhirResourceList = fhirResources.findByName(criteria);
     FileResource resource = readFhirResourceFromFiles(fhirResourceList, fhirVersion, baseUrl);
@@ -179,6 +205,106 @@ public abstract class CommonFileStore implements FileStore {
     }
 
     return resource;
+  }
+
+
+  private Resource convertFileResourceToFhirResource(FileResource fileResource) {
+    if (fileResource == null) {
+      return null;
+    } else {
+      Resource resource = null;
+      try {
+        // convert the file resource into the fhir resource
+        resource = (Resource) parser.parseResource(fileResource.getResource().getInputStream());
+      } catch(IOException ioe) {
+        logger.error("Issue parsing FHIR file resource when retrieving by URL.", ioe);
+      }
+      return resource;
+    }
+  }
+
+  public Resource getFhirResourceByIdAsFhirResource(String fhirVersion, String resourceType, String id, String baseUrl) {
+    FileResource fileResource = getFhirResourceById(fhirVersion, resourceType, id, baseUrl);
+    return convertFileResourceToFhirResource(fileResource);
+  }
+
+  public Resource getFhirResourceByUrlAsFhirResource(String fhirVersion, String resourceType, String url, String baseUrl) {
+    FileResource fileResource = getFhirResourceByUrl(fhirVersion, resourceType, url, baseUrl);
+    return convertFileResourceToFhirResource(fileResource);
+  }
+
+  public List<FileResource> getFhirResourcesByTopic(String fhirVersion, String resourceType, String topic, String baseUrl) {
+    FhirResourceCriteria criteria = new FhirResourceCriteria();
+    criteria.setFhirVersion(fhirVersion).setResourceType(resourceType.toLowerCase()).setTopic(topic);
+    logger.info("CommonFileStore::getFhirResourcesByTopic(): " + criteria.toString());
+
+    List<FhirResource> fhirResourceList = fhirResources.findByTopic(criteria);
+    List<FileResource> resources = readFhirResourcesFromFiles(fhirResourceList, fhirVersion, baseUrl);
+    List<FileResource> outputResources = new ArrayList<>();
+
+    if (!resources.isEmpty()) {
+      for (FileResource resource : resources) {
+        if ((resource != null) && fhirVersion.equalsIgnoreCase("r4")) {
+          FileResource processedResource = resource;
+
+          if (resourceType.equalsIgnoreCase("Questionnaire")) {
+            // If this is a questionnaire, run it through the processor to modify it before returning.
+            // We do not handle nested sub-questionnaire at this time.
+            processedResource = this.subQuestionnaireProcessor.processResource(resource, this, baseUrl);
+            processedResource = this.questionnaireValueSetProcessor.processResource(processedResource, this, baseUrl);
+            processedResource = this.questionnaireEmbeddedCQLProcessor.processResource(processedResource, null, null);
+
+          } else if (resourceType.equalsIgnoreCase("Library")) {
+            // If this is a library, process it by replacing the content url with a base64
+            // encoded version of the cql
+            // When requested via topic, do this even if flag is not set in config (embedCqlInLibrary)
+            processedResource = this.libraryContentProcessor.processResource(resource, this, baseUrl);
+          }
+
+          // add the resource to the output list
+          outputResources.add(processedResource);
+        }
+
+      }
+    }
+
+    return outputResources;
+  }
+
+  public Bundle getFhirResourcesByTopicAsFhirBundle(String fhirVersion, String resourceType, String topic, String baseUrl) {
+    List<FileResource> fileResources = getFhirResourcesByTopic(fhirVersion, resourceType, topic, baseUrl);
+    Bundle bundle = new Bundle();
+    if (fileResources != null && !fileResources.isEmpty()) {
+      for (FileResource fileResource : fileResources) {
+        if (fileResource != null) {
+          Resource resource = null;
+          try {
+            // convert the file resource into the fhir resource
+            resource = (Resource) parser.parseResource(fileResource.getResource().getInputStream());
+            BundleEntryComponent entry = new BundleEntryComponent().setResource(resource);
+            bundle.addEntry(entry);
+          } catch(IOException ioe) {
+            logger.error("Issue parsing FHIR file resource for preprocessing.", ioe);
+            return null;
+          }
+        }
+      }
+    }
+    
+    return bundle;
+  }
+
+  public FileResource getFhirResourcesByTopicAsBundle(String fhirVersion, String resourceType, String topic, String baseUrl) {
+    Bundle bundle = getFhirResourcesByTopicAsFhirBundle(fhirVersion, resourceType, topic, baseUrl);
+    if (bundle.isEmpty()) {
+      return null;
+    }
+    
+    byte[] resourceData = parser.encodeResourceToString(bundle).getBytes(Charset.defaultCharset());
+    FileResource outputFileResource = new FileResource();
+    outputFileResource.setResource(new ByteArrayResource(resourceData));
+    outputFileResource.setFilename("bundle.json");
+    return outputFileResource;
   }
 
   // from RuleFinder
