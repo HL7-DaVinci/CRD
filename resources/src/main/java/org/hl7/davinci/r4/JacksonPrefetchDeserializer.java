@@ -72,11 +72,11 @@ public class JacksonPrefetchDeserializer extends StdDeserializer<CrdPrefetch> {
         }
         addNonDuplicateResourcesToBundle(crdPrefetch.getDeviceRequestBundle(), resource);
         break;
-      case "coverage":
-        if (crdPrefetch.getCoverage() == null) {
+      case "coverageBundle":
+        if (crdPrefetch.getCoverageBundle() == null) {
           crdPrefetch.setCoverage(new Bundle());
         }
-        addNonDuplicateResourcesToBundle(crdPrefetch.getCoverage(), resource);
+        addNonDuplicateResourcesToBundle(crdPrefetch.getCoverageBundle(), resource);
         break;
       case "medicationRequestBundle":
         if (crdPrefetch.getMedicationRequestBundle() == null) {

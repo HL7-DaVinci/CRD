@@ -16,51 +16,41 @@ import org.hl7.davinci.r4.Utilities;
 public class CrdPrefetch {
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle coverage;
+  private Bundle coverageBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle deviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle nutritionOrderBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle serviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle supplyRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle appointmentBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle encounterBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationDispenseBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  // @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationStatementBundle;
 
-  public Bundle getCoverage() {
-    return coverage;
+  public Bundle getCoverageBundle() {
+    return coverageBundle;
   }
 
   public void setCoverage(Bundle coverage) {
-    this.coverage = coverage;
+    this.coverageBundle = coverage;
   }
 
   public Bundle getDeviceRequestBundle() {
@@ -106,7 +96,7 @@ public class CrdPrefetch {
   }
 
   public List<Organization> getCoveragePayors() {
-    Bundle coverageBundle = this.getCoverage();
+    Bundle coverageBundle = this.getCoverageBundle();
     List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class,
         coverageBundle);
     return payorList;
@@ -184,8 +174,8 @@ public class CrdPrefetch {
       entries.addAll(this.medicationRequestBundle.getEntry());
     } if(this.supplyRequestBundle != null){
       entries.addAll(this.supplyRequestBundle.getEntry());
-    } if(this.coverage != null) {
-      entries.addAll(this.coverage.getEntry());
+    } if(this.coverageBundle != null) {
+      entries.addAll(this.coverageBundle.getEntry());
     }
     StringBuilder sb = new StringBuilder();
     sb.append("[");
