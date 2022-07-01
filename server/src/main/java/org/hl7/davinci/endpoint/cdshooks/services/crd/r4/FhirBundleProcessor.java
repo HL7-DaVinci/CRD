@@ -49,13 +49,31 @@ public class FhirBundleProcessor {
     Bundle deviceRequestBundle = prefetch.getDeviceRequestBundle();
     List<Organization> payorList = prefetch.getCoveragePayors();
     List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(DeviceRequest.class, deviceRequestBundle);
+    List<Patient> patients = Utilities.getResourcesOfTypeFromBundle(Patient.class, deviceRequestBundle);
+    logger.info("r4/FhirBundleProcessor::processDeviceRequests: Found " + patients.size() + " patients.");
+
     if (!deviceRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::getAndProcessDeviceRequests: DeviceRequest(s) found");
 
       for (DeviceRequest deviceRequest : deviceRequestList) {
         if (idInSelectionsList(deviceRequest.getId())) {
           List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest.getCodeCodeableConcept(), deviceRequest.getInsurance(), payorList);
-          buildExecutionContexts(criteriaList, (Patient) deviceRequest.getSubject().getResource(), "device_request", deviceRequest);
+          
+          String patientReference = deviceRequest.getSubject().getReference();
+          List<Patient> deviceRequestPrefetchedPatients = patients.stream().filter((patient) -> {
+            String patientId = patient.getId();
+            return patientId.contains(patientReference) || patientReference.contains(patientId);
+          }).collect(Collectors.toList());
+
+          logger.info("r4/FhirBundleProcessor::processDeviceRequests: DeviceRequest Subject - " + deviceRequest.getSubject());
+          logger.info("r4/FhirBundleProcessor::processDeviceRequests: DeviceRequest Subject Resource - " + deviceRequest.getSubject().getResource());
+          logger.info("r4/FhirBundleProcessor::processDeviceRequests: DeviceRequest Subject Reference - " + deviceRequest.getSubject().getReference());
+          if (deviceRequestPrefetchedPatients.size() < 1) {
+            logger.error("r4/FhirBundleProcessor::processDeviceRequests: ERROR - Device Request '" + deviceRequest.getId() + "'' does not contain a refernence to any of the prefetched patients. Device request contains patient reference '" + patientReference + "' and prefetch contains patients " + patients.stream().map(patient -> patient.getId()).collect(Collectors.toSet()) + ".");
+          }
+          Patient patientToUse = deviceRequestPrefetchedPatients.get(0);
+          logger.info("r4/FhirBundleProcessor::processDeviceRequests: Found Patient '" + patientToUse + "'.");
+          buildExecutionContexts(criteriaList, patientToUse, "device_request", deviceRequest);
         }
       }
     }
@@ -194,6 +212,7 @@ public class FhirBundleProcessor {
   }
 
   private void buildExecutionContexts(List<CoverageRequirementRuleCriteria> criteriaList, Patient patient, String requestType, DomainResource request) {
+    System.out.println("buildExecutionContexts::PATIENT: " + patient);
     HashMap<String, Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     cqlParams.put(requestType, request);
