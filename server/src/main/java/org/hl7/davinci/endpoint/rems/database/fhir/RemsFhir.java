@@ -49,7 +49,7 @@ public class RemsFhir {
     }
 
     public String getResourceType() {
-        return resourceType;
+        return this.resourceType;
     }
 
     public void setResourceType(String resourceType) {
@@ -57,7 +57,7 @@ public class RemsFhir {
     }
 
     public String getCreatedAt() {
-        return createdAt;
+        return this.createdAt;
     }
 
     public void setCreatedAt(String createdAt) {

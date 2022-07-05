@@ -118,14 +118,21 @@ public class RemsController {
         remsRequest.setStatus("Pending");
         remsRequest.setResource(remsObject);
         remsRepository.save(remsRequest);
-
+        
         for (Requirement requirement : drug.getRequirements()) {
             MetRequirement metReq = new MetRequirement();
             metReq.setRequirement(requirement);
             metReq.setRemsRequest(remsRequest);
             remsRequest.addMetRequirement(metReq);
+
+            //logic to set requirement as met or not, for now hard code only patient enrollment form
+            if (requirement.getName().equals("Patient Enrollment")) {
+              metReq.setCompleted(true);
+            }
+
             metRequirementsRepository.save(metReq);
 
+            // only handle one level of sub requirements for now
             for (Requirement subRequirement : requirement.getChildRequirements()) {
               MetRequirement subMetReq = new MetRequirement();
               subMetReq.setRequirement(subRequirement);

@@ -78,7 +78,7 @@ public class MetRequirement {
     }
 
     public String getCreatedAt() {
-        return createdAt;
+        return this.createdAt;
     }
 
     public void setCreatedAt(String createdAt) {
@@ -86,7 +86,7 @@ public class MetRequirement {
     }
 
     public Boolean getCompleted() {
-        return completed;
+        return this.completed;
     }
 
     public void setCompleted(Boolean completed) {
@@ -94,7 +94,7 @@ public class MetRequirement {
     }
 
     public Requirement getRequirement() {
-        return requirement;
+        return this.requirement;
     }
 
     public void setRequirement(Requirement requirement) {

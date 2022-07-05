@@ -25,6 +25,9 @@ public class Requirement {
     @Column(name = "description", nullable = true)
     private String description;
 
+    @Column(name = "name", nullable = true)
+    private String name;
+
     // FHIR resource which defines the requirement (task, questionnaire, etc)
     @JoinColumn(name = "resource", nullable = true)
     @OneToOne
@@ -69,7 +72,7 @@ public class Requirement {
     }
 
     public String getCreatedAt() {
-        return createdAt;
+        return this.createdAt;
     }
 
     public void setCreatedAt(String createdAt) {
@@ -77,11 +80,19 @@ public class Requirement {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Drug getDrug() {
