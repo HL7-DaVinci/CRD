@@ -196,7 +196,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
         // apply the DrugInteractions
         if (results.getDrugInteraction().getApplies()) {
-          response.addCard(CardBuilder.drugInteractionCard(results.getDrugInteraction()));
+          response.addCard(CardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
         }
       }
     }

@@ -16,6 +16,7 @@ public class Card {
   private List<Suggestion> suggestions = null;
   private SelectionBehaviorEnum selectionBehavior = null;
   private List<Link> links = null;
+  private CardExtension extension = null;
 
   public Card() { this.uuid = UUID.randomUUID().toString(); }
 
@@ -99,6 +100,14 @@ public class Card {
 
   public void setLinks(List<Link> links) {
     this.links = links;
+  }
+
+  public CardExtension getExtension() {
+    return this.extension;
+  }
+
+  public void setExtension(CardExtension extension) {
+    this.extension = extension;
   }
 
   public enum IndicatorEnum {
