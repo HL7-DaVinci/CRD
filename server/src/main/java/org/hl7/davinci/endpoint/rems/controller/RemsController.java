@@ -136,9 +136,9 @@ public class RemsController {
             for (Requirement subRequirement : requirement.getChildRequirements()) {
               MetRequirement subMetReq = new MetRequirement();
               subMetReq.setRequirement(subRequirement);
-              subMetReq.setRemsRequest(remsRequest);
+              // subMetReq.setRemsRequest(remsRequest);
               subMetReq.setParentMetRequirement(metReq);
-              remsRequest.addMetRequirement(subMetReq);
+              // remsRequest.addMetRequirement(subMetReq);
               metRequirementsRepository.save(subMetReq);
             }
         }
