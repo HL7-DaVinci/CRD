@@ -91,7 +91,8 @@ class DatabaseInit {
             remsFhirRepository.save(prescriberKnowledgeResource);
             prescriberCertificationRequirement.setResource(prescriberKnowledgeResource);
             prescriberCertificationRequirement.setDescription("complete prescriber knowledge check");
-            prescriberCertificationRequirement.setParent(prescriberEnrollmentRequirement);
+            prescriberCertificationRequirement.setParentRequirement(prescriberEnrollmentRequirement);
+            prescriberCertificationRequirement.setDrug(turalio);
             requirementRepository.save(prescriberCertificationRequirement);
 
         };

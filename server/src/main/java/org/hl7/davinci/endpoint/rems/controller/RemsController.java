@@ -119,14 +119,21 @@ public class RemsController {
         remsRequest.setResource(remsObject);
         remsRepository.save(remsRequest);
 
-        // this loop needs to change to handle multiple levels of sub-requirement conditions
-        // this loop needs to also handle parsing out resources for each requirement - may need to be separate endpoints
         for (Requirement requirement : drug.getRequirements()) {
             MetRequirement metReq = new MetRequirement();
             metReq.setRequirement(requirement);
             metReq.setRemsRequest(remsRequest);
             remsRequest.addMetRequirement(metReq);
             metRequirementsRepository.save(metReq);
+
+            for (Requirement subRequirement : requirement.getChildRequirements()) {
+              MetRequirement subMetReq = new MetRequirement();
+              subMetReq.setRequirement(subRequirement);
+              subMetReq.setRemsRequest(remsRequest);
+              subMetReq.setParentMetRequirement(metReq);
+              remsRequest.addMetRequirement(subMetReq);
+              metRequirementsRepository.save(subMetReq);
+            }
         }
         remsRepository.save(remsRequest);
         updateRemsRequestStatusInBackground(id);
