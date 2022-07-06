@@ -139,8 +139,11 @@ public class RemsController {
               // subMetReq.setRemsRequest(remsRequest);
               subMetReq.setParentMetRequirement(metReq);
               // remsRequest.addMetRequirement(subMetReq);
+              metReq.addChildMetRequirements(subMetReq);
               metRequirementsRepository.save(subMetReq);
             }
+
+
         }
         remsRepository.save(remsRequest);
         updateRemsRequestStatusInBackground(id);
