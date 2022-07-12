@@ -1,5 +1,6 @@
 package  org.hl7.davinci.endpoint.rems.database.rems;
 import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirement;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
@@ -32,6 +33,7 @@ public class Rems {
   private JsonNode resource;
 
   @OneToMany(mappedBy="remsRequest", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JsonManagedReference
   private List<MetRequirement> metRequirements = new ArrayList<>();
 
   public void Rems() {}

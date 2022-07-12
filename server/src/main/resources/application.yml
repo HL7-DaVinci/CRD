@@ -2,8 +2,11 @@
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation: true
 
 spring:
-  h2: 
-    console.enabled: true
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
   thymeleaf:
     cache: false
   datasource:

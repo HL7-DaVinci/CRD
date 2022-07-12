@@ -1,5 +1,7 @@
 package org.hl7.davinci.endpoint.rems.database.requirement;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hl7.davinci.endpoint.rems.database.drugs.Drug;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhir;
 import java.util.ArrayList;
@@ -23,12 +25,16 @@ public class Requirement {
     @Column(name = "description", nullable = true)
     private String description;
 
+    @Column(name = "name", nullable = true)
+    private String name;
+
     // FHIR resource which defines the requirement (task, questionnaire, etc)
-    @JoinColumn(name = "resource", nullable = false)
+    @JoinColumn(name = "resource", nullable = true)
     @OneToOne
     private RemsFhir resource;
 
     @OneToMany(mappedBy="requirement")
+    @JsonIgnore
     private List<MetRequirement> metRequirements = new ArrayList<>();
 
     @ManyToOne
@@ -37,15 +43,24 @@ public class Requirement {
     private Drug drug;
 
     @OneToMany(mappedBy="parentRequirement", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Requirement> childRequirements = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="PARENT_REQUIREMENT")
-    @JsonIgnore
+    @JoinColumn(name="PARENT_REQUIREMENT", nullable = true)
+    @JsonBackReference
     private Requirement parentRequirement;
 
     public Requirement() {
         this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
+    }
+
+    public Integer getId() {
+        return this.id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public RemsFhir getResource() {
@@ -57,7 +72,7 @@ public class Requirement {
     }
 
     public String getCreatedAt() {
-        return createdAt;
+        return this.createdAt;
     }
 
     public void setCreatedAt(String createdAt) {
@@ -65,11 +80,19 @@ public class Requirement {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Drug getDrug() {
@@ -80,23 +103,23 @@ public class Requirement {
         this.drug = drug;
     }
 
-    public List<Requirement> getChildren() {
+    public List<Requirement> getChildRequirements() {
         return this.childRequirements;
     }
     
-    public void setChildren(List<Requirement> requirements) {
+    public void setChildRequirements(List<Requirement> requirements) {
         this.childRequirements = requirements;
     }
     
-    public void addChild(Requirement requirement)  {
+    public void addChildRequirements(Requirement requirement)  {
         this.childRequirements.add(requirement);
     }
 
-    public Requirement getParent() {
+    public Requirement getParentRequirement () {
         return this.parentRequirement;
     }
     
-    public void setParent(Requirement requirement) {
+    public void setParentRequirement(Requirement requirement) {
         this.parentRequirement = requirement;
     }
 

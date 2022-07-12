@@ -118,15 +118,32 @@ public class RemsController {
         remsRequest.setStatus("Pending");
         remsRequest.setResource(remsObject);
         remsRepository.save(remsRequest);
-
-        // this loop needs to change to handle multiple levels of sub-requirement conditions
-        // this loop needs to also handle parsing out resources for each requirement - may need to be separate endpoints
+        
         for (Requirement requirement : drug.getRequirements()) {
             MetRequirement metReq = new MetRequirement();
             metReq.setRequirement(requirement);
             metReq.setRemsRequest(remsRequest);
             remsRequest.addMetRequirement(metReq);
+
+            //logic to set requirement as met or not, for now hard code only patient enrollment form
+            if (requirement.getName().equals("Patient Enrollment")) {
+              metReq.setCompleted(true);
+            }
+
             metRequirementsRepository.save(metReq);
+
+            // only handle one level of sub requirements for now
+            for (Requirement subRequirement : requirement.getChildRequirements()) {
+              MetRequirement subMetReq = new MetRequirement();
+              subMetReq.setRequirement(subRequirement);
+              // subMetReq.setRemsRequest(remsRequest);
+              subMetReq.setParentMetRequirement(metReq);
+              // remsRequest.addMetRequirement(subMetReq);
+              metReq.addChildMetRequirements(subMetReq);
+              metRequirementsRepository.save(subMetReq);
+            }
+
+
         }
         remsRepository.save(remsRequest);
         updateRemsRequestStatusInBackground(id);

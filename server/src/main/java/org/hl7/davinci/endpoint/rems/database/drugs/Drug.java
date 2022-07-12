@@ -44,7 +44,7 @@ public class Drug {
         return this.requirements;
     }
 
-    public void setResource(List<Requirement> requirements) {
+    public void setRequirements(List<Requirement> requirements) {
         this.requirements = requirements;
     }
 
@@ -52,7 +52,7 @@ public class Drug {
         this.requirements.add(requirement);
     }
     public String getCreatedAt() {
-        return createdAt;
+        return this.createdAt;
     }
 
     public void setCreatedAt(String createdAt) {
@@ -60,7 +60,7 @@ public class Drug {
     }
 
     public String getCodeSystem() {
-        return codeSystem;
+        return this.codeSystem;
     }
 
     public void setCodeSystem(String codeSystem) {
@@ -68,7 +68,7 @@ public class Drug {
     }
 
     public String getCode() {
-        return code;
+        return this.code;
     }
 
     public void setCode(String code) {
