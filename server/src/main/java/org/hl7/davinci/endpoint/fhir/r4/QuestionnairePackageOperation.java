@@ -66,9 +66,9 @@ public class QuestionnairePackageOperation {
             //TODO: handle multiple FHIR Coverage Resources
             Coverage coverage = (Coverage) getResource(parameters, "coverage");
 
+            System.out.println(coverage);
             // list of all of the orders
             Bundle orders = getAllResources(parameters, "order");
-
             if (coverage == null || orders.isEmpty()) {
                 logger.error("Failed to find order or coverage within parameters");
                 return null;
@@ -87,7 +87,7 @@ public class QuestionnairePackageOperation {
             fhirBundleProcessor.processServiceRequests(orders);
             fhirBundleProcessor.processMedicationDispenses(orders);
             List<String> topics = createTopicList(fhirBundleProcessor);
-
+            System.out.println(topics);
             for (String topic : topics) {
                 logger.info("--> process topic: " + topic);
 

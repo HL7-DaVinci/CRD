@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 public class FhirController {
-  private static Logger logger = Logger.getLogger(Application.class.getName());
+  private static Logger logger = Logger.getLogger(FhirController.class.getName());
 
   @Autowired
   private FileStore fileStore;
