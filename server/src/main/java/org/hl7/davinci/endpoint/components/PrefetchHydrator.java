@@ -40,7 +40,7 @@ public class PrefetchHydrator {
    *
    * @param cdsService The service that is processing the request.
    * @param cdsRequest The request in question, the prefetch will be hydrated if possible. Note that
-   *                   this object gets modified
+   *                   this object gets modified.
    * @param fhirComponents The fhir components object.
    */
   public PrefetchHydrator(CdsService cdsService, CdsRequest cdsRequest,

@@ -1,7 +1,6 @@
 package org.cdshooks;
 
 import javax.validation.constraints.NotNull;
-
 import org.hl7.davinci.EncounterBasedServiceContext;
 
 public abstract class CdsRequest<prefetchTypeT, serviceContextTypeT extends EncounterBasedServiceContext> {
