@@ -3,12 +3,13 @@ package org.hl7.davinci.r4.crdhook;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import org.hl7.davinci.r4.JacksonBundleDeserializer;
 import org.hl7.davinci.r4.JacksonHapiSerializer;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.davinci.r4.Utilities;
 
@@ -16,6 +17,7 @@ import org.hl7.davinci.r4.Utilities;
  * Class that supports the representation of prefetch information in a CDS Hook request.
  * It appears that for CRD, prefetch information will be the same, regardless of hook type.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CrdPrefetch {
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
@@ -62,8 +64,8 @@ public class CrdPrefetch {
     return coverageBundle;
   }
 
-  public void setCoverage(Bundle coverage) {
-    this.coverageBundle = coverage;
+  public void setCoverageBundle(Bundle coverageBundle) {
+    this.coverageBundle = coverageBundle;
   }
 
   public Bundle getDeviceRequestBundle() {
