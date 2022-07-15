@@ -9,15 +9,20 @@ import org.hl7.fhir.r4.model.Bundle;
 public class CrdPrefetchTemplateElements {
 
   public static final PrefetchTemplateElement COVERAGE_PREFETCH_QUERY = new PrefetchTemplateElement(
-      "coverage",
+      "coverageBundle",
       Bundle.class,
       "Coverage?patient={{context.patient}}");
 
   public static final PrefetchTemplateElement MEDICATION_STATEMENT_BUNDLE = new PrefetchTemplateElement(
       "medicationStatementBundle",
       Bundle.class,
-      "MedicationStatement?subject={{context.patientId}}"
-          + "&_include=MedicationStatement:patient");
+      "MedicationRequest?_id={{context.medications.MedicationRequest.id}}"
+          + "&_include=MedicationRequest:patient"
+          + "&_include=MedicationRequest:intended-dispenser"
+          + "&_include=MedicationRequest:requester:PractitionerRole"
+          + "&_include=MedicationRequest:medication"
+          + "&_include:iterate=PractitionerRole:organization"
+          + "&_include:iterate=PractitionerRole:practitioner");
 
   public static final PrefetchTemplateElement MEDICATION_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "medicationRequestBundle",
@@ -25,12 +30,8 @@ public class CrdPrefetchTemplateElements {
       "MedicationRequest?_id={{context.draftOrders.MedicationRequest.id}}"
           + "&_include=MedicationRequest:patient"
           + "&_include=MedicationRequest:intended-dispenser"
-          + "&_include=MedicationRequest:intended-performer"
-          + "&_include=MedicationRequest:performer"
-          + "&_include:recurse=PractitionerRole:location"
           + "&_include=MedicationRequest:requester:PractitionerRole"
           + "&_include=MedicationRequest:medication"
-          + "&_include=PractitionerRole:organization"
-          + "&_include=PractitionerRole:practitioner"
-          + "&_include=MedicationRequest:insurance:Coverage");
+          + "&_include:iterate=PractitionerRole:organization"
+          + "&_include:iterate=PractitionerRole:practitioner");
 }

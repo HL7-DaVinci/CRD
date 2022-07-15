@@ -143,7 +143,7 @@ public class FhirBundleProcessor {
 
         }
         List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(serviceRequest.getCode(), serviceRequest.getInsurance(), payorList);
-        Patient patientToUse = referencedPrefetechedPatients.get(0);
+        Patient patientToUse = referencedPrefetechedPatients.iterator().next();
         logger.info("r4/FhirBundleProcessor::processMedicationDispenses: Found Patient '" + patientToUse + "'.");
         buildExecutionContexts(criteriaList, patientToUse, "service_request", serviceRequest);
       }
@@ -163,7 +163,7 @@ public class FhirBundleProcessor {
 
     // process each of the MedicationRequests
     for (MedicationRequest medicationRequest : medicationRequestList) {
-      if (!idInSelectionsList(medicationRequest.getId())) {
+      if (idInSelectionsList(medicationRequest.getId())) {
 
         // run on each of the MedicationStatements
         for (MedicationStatement medicationStatement : medicationStatementList) {
@@ -302,9 +302,9 @@ public class FhirBundleProcessor {
    * @return  The list of resources with the given Id.
    */
   private static <R extends Resource> List<R> extractReferencedResources(List<R> resources, String resourceId) {
-    return resources.stream().filter((patient) -> {
-      String patientId = patient.getId();
-      return patientId.contains(resourceId) || resourceId.contains(patientId);
+    return resources.stream().filter((currentResource) -> {
+      String currentId = currentResource.getId();
+      return currentId != null && (currentId.contains(resourceId) || resourceId.contains(currentId));
     }).collect(Collectors.toList());
   }
 
