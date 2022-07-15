@@ -3,7 +3,10 @@ package org.hl7.davinci.r4.crdhook;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import org.hl7.davinci.r4.JacksonBundleDeserializer;
 import org.hl7.davinci.r4.JacksonHapiSerializer;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -16,33 +19,43 @@ import org.hl7.davinci.r4.Utilities;
 public class CrdPrefetch {
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle coverageBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle deviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle nutritionOrderBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle serviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle supplyRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle appointmentBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle encounterBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationDispenseBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationStatementBundle;
 
   public Bundle getCoverageBundle() {

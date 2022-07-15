@@ -53,7 +53,6 @@ public class QueryBatchRequest {
   public void performQueryBatchRequest(CdsRequest<?, ?> cdsRequest, CrdPrefetch crdPrefetch) {
     logger.info("***** ***** Performing Query Batch Request.");
     CrdPrefetch crdResponse = crdPrefetch;
-
     // The list of references that should be queried in the batch request.
     List<String> requiredReferences = new ArrayList<String>();
 
