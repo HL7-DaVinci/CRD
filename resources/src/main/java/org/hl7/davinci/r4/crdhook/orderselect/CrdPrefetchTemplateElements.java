@@ -8,14 +8,20 @@ import org.hl7.fhir.r4.model.Bundle;
  */
 public class CrdPrefetchTemplateElements {
 
+  public static final PrefetchTemplateElement COVERAGE_PREFETCH_QUERY = new PrefetchTemplateElement(
+      "coverage",
+      Bundle.class,
+      "Coverage?patient={{context.patient}}");
+
   public static final PrefetchTemplateElement MEDICATION_STATEMENT_BUNDLE = new PrefetchTemplateElement(
       "medicationStatementBundle",
+      Bundle.class,
       "MedicationStatement?subject={{context.patientId}}"
-          + "&_include=MedicationStatement:patient",
-      Bundle.class);
+          + "&_include=MedicationStatement:patient");
 
   public static final PrefetchTemplateElement MEDICATION_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "medicationRequestBundle",
+      Bundle.class,
       "MedicationRequest?_id={{context.draftOrders.MedicationRequest.id}}"
           + "&_include=MedicationRequest:patient"
           + "&_include=MedicationRequest:intended-dispenser"
@@ -26,6 +32,5 @@ public class CrdPrefetchTemplateElements {
           + "&_include=MedicationRequest:medication"
           + "&_include=PractitionerRole:organization"
           + "&_include=PractitionerRole:practitioner"
-          + "&_include=MedicationRequest:insurance:Coverage",
-      Bundle.class);
+          + "&_include=MedicationRequest:insurance:Coverage");
 }
