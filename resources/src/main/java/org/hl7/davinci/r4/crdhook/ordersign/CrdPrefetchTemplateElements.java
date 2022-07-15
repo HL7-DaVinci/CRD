@@ -10,7 +10,7 @@ import org.hl7.fhir.r4.model.Bundle;
 public class CrdPrefetchTemplateElements {
 
   public static final PrefetchTemplateElement COVERAGE_REQUEST_BUNDLE = new PrefetchTemplateElement(
-      "coverage",
+      "coverageBundle",
       Bundle.class,
       "Coverage?patient={{context.patientId}}");
 

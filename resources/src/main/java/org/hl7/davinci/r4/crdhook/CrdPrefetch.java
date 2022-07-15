@@ -18,6 +18,10 @@ public class CrdPrefetch {
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
   @JsonDeserialize(using = JacksonBundleDeserializer.class)
+  private Bundle coverageBundle;
+
+  @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle deviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
@@ -51,6 +55,14 @@ public class CrdPrefetch {
   @JsonSerialize(using = JacksonHapiSerializer.class)
   @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationStatementBundle;
+
+  public Bundle getCoverageBundle() {
+    return coverageBundle;
+  }
+
+  public void setCoverageBundle(Bundle coverageBundle) {
+    this.coverageBundle = coverageBundle;
+  }
 
   public Bundle getDeviceRequestBundle() {
     return deviceRequestBundle;
@@ -114,7 +126,8 @@ public class CrdPrefetch {
    * @return
    */
   public boolean containsRequestResourceId(String id) {
-    return this.bundleContainsResourceId(this.deviceRequestBundle, id)
+    return this.bundleContainsResourceId(this.coverageBundle, id)
+        || this.bundleContainsResourceId(this.deviceRequestBundle, id)
         || this.bundleContainsResourceId(this.medicationRequestBundle, id)
         || this.bundleContainsResourceId(this.nutritionOrderBundle, id)
         || this.bundleContainsResourceId(this.serviceRequestBundle, id)
@@ -145,31 +158,33 @@ public class CrdPrefetch {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
     List<BundleEntryComponent> entries = new ArrayList<>();
-    if(this.deviceRequestBundle != null){
-      entries = this.deviceRequestBundle.getEntry();
-    } else if(this.nutritionOrderBundle != null){
-      entries = this.nutritionOrderBundle.getEntry();
-    } else if(this.serviceRequestBundle != null){
-      entries = this.serviceRequestBundle.getEntry();
-    } else if(this.medicationDispenseBundle != null){
-      entries = this.medicationDispenseBundle.getEntry();
-    } else if(this.medicationStatementBundle != null){
-      entries = this.medicationStatementBundle.getEntry();
-    } else if(this.encounterBundle != null){
-      entries = this.encounterBundle.getEntry();
-    } else if(this.appointmentBundle != null){
-      entries = this.appointmentBundle.getEntry();
-    } else if(this.medicationRequestBundle != null){
-      entries = this.medicationRequestBundle.getEntry();
-    } else if(this.supplyRequestBundle != null){
-      entries = this.supplyRequestBundle.getEntry();
+    if(this.deviceRequestBundle != null) {
+    entries.addAll(this.deviceRequestBundle.getEntry());
+    } if(this.nutritionOrderBundle != null){
+      entries.addAll(this.nutritionOrderBundle.getEntry());
+    } if(this.serviceRequestBundle != null){
+      entries.addAll(this.serviceRequestBundle.getEntry());
+    } if(this.medicationDispenseBundle != null){
+      entries.addAll(this.medicationDispenseBundle.getEntry());
+    } if(this.medicationStatementBundle != null){
+      entries.addAll(this.medicationStatementBundle.getEntry());
+    } if(this.encounterBundle != null){
+      entries.addAll(this.encounterBundle.getEntry());
+    } if(this.appointmentBundle != null){
+      entries.addAll(this.appointmentBundle.getEntry());
+    } if(this.medicationRequestBundle != null){
+      entries.addAll(this.medicationRequestBundle.getEntry());
+    } if(this.supplyRequestBundle != null){
+      entries.addAll(this.supplyRequestBundle.getEntry());
+    } if(this.coverageBundle != null) {
+      entries.addAll(this.coverageBundle.getEntry());
     }
+    StringBuilder sb = new StringBuilder();
     sb.append("[");
     for(BundleEntryComponent entry : entries) {
       sb.append(entry.getResource());
-      sb.append("-");
+      sb.append("~");
       sb.append(entry.getResource().getId());
       sb.append(",");
     }
