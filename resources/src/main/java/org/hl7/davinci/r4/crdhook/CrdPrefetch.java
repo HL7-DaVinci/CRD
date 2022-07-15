@@ -57,6 +57,9 @@ public class CrdPrefetch {
   private Bundle medicationStatementBundle;
 
   public Bundle getCoverageBundle() {
+    if (coverageBundle == null) {
+      this.coverageBundle = new Bundle();
+    }
     return coverageBundle;
   }
 
