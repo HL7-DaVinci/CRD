@@ -21,7 +21,8 @@ public class CardBuilderTest {
     coverageRequirements.setInfoLink("http://some.link");
     coverageRequirements.setSummary("The summary!");
     cardResults.setCoverageRequirements(coverageRequirements);
-    Card card = CardBuilder.transform(CardTypes.COVERAGE, cardResults);
+    CardBuilder cardBuilder = new CardBuilder();
+    Card card = cardBuilder.transform(CardTypes.COVERAGE, cardResults);
     assertEquals("The summary!", card.getSummary());
     assertEquals("Some details.", card.getDetail());
     assertEquals("http://some.link", card.getLinks().get(0).getUrl());
