@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 public class CardBuilder {
   static final Logger logger = LoggerFactory.getLogger(CardBuilder.class);
 
+  public boolean deidentifiedResourcesContainPhi = false;
+
   public static class CqlResultsForCard {
     private Boolean ruleApplies;
 
@@ -77,6 +79,10 @@ public class CardBuilder {
     }
   }
 
+  public void setDeidentifiedResourcesContainsPhi(boolean deidentifiedResourcesContainPhi) {
+    this.deidentifiedResourcesContainPhi = deidentifiedResourcesContainPhi;
+  }
+
   /**
    * Transforms a result from the database into a card.
    *
@@ -84,7 +90,7 @@ public class CardBuilder {
    * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults, Boolean addLink) {
+  public Card transform(CardTypes cardType, CqlResultsForCard cqlResults, Boolean addLink) {
     String requestId = Utilities.getIdFromIBaseResource(cqlResults.getRequest());
     Card card = baseCard(cardType, requestId);
 
@@ -97,7 +103,7 @@ public class CardBuilder {
     }
 
     card.setSummary(cqlResults.getCoverageRequirements().getSummary());
-    card.setDetail(cqlResults.getCoverageRequirements().getDetails());
+    card.addDetail(cqlResults.getCoverageRequirements().getDetails());
 
     return card;
   }
@@ -109,7 +115,7 @@ public class CardBuilder {
    * @param cqlResults
    * @return card with appropriate information
    */
-  public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults) {
+  public Card transform(CardTypes cardType, CqlResultsForCard cqlResults) {
     return transform(cardType, cqlResults, true);
   }
 
@@ -121,7 +127,7 @@ public class CardBuilder {
    * @param smartAppLaunchLink smart app launch Link
    * @return card with appropriate information
    */
-  public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults, Link smartAppLaunchLink) {
+  public Card transform(CardTypes cardType, CqlResultsForCard cqlResults, Link smartAppLaunchLink) {
     Card card = transform(cardType, cqlResults);
     List<Link> links = new ArrayList<Link>(card.getLinks());
     links.add(smartAppLaunchLink);
@@ -137,7 +143,7 @@ public class CardBuilder {
    * @param smartAppLaunchLinks a list of links
    * @return card to be returned
    */
-  public static Card transform(CardTypes cardType, CqlResultsForCard cqlResults, List<Link> smartAppLaunchLinks) {
+  public Card transform(CardTypes cardType, CqlResultsForCard cqlResults, List<Link> smartAppLaunchLinks) {
     Card card = transform(cardType, cqlResults);
     List<Link> links = new ArrayList<Link>(card.getLinks());
     links.addAll(smartAppLaunchLinks);
@@ -152,20 +158,20 @@ public class CardBuilder {
    * @param summary The desired summary for the card
    * @return valid card
    */
-  public static Card summaryCard(CardTypes cardType, String summary) {
+  public Card summaryCard(CardTypes cardType, String summary) {
     Card card = baseCard(cardType, "");
     card.setSummary(summary);
     return card;
   }
 
-  public static Card alternativeTherapyCard(AlternativeTherapy alternativeTherapy, IBaseResource resource,
+  public Card alternativeTherapyCard(AlternativeTherapy alternativeTherapy, IBaseResource resource,
                                             FhirComponentsT fhirComponents) {
     logger.info("Build Alternative Therapy Card: " + alternativeTherapy.toString());
     String requestId = Utilities.getIdFromIBaseResource(resource);
     Card card = baseCard(CardTypes.THERAPY_ALTERNATIVES_OPT, requestId);
 
     card.setSummary("Alternative Therapy Suggested");
-    card.setDetail(alternativeTherapy.getDisplay() + " (" + alternativeTherapy.getCode() + ") should be used instead.");
+    card.addDetail(alternativeTherapy.getDisplay() + " (" + alternativeTherapy.getCode() + ") should be used instead.");
 
     List<Suggestion> suggestionList = new ArrayList<>();
     Suggestion alternativeTherapySuggestion = new Suggestion();
@@ -205,17 +211,17 @@ public class CardBuilder {
     return card;
   }
 
-  public static Card drugInteractionCard(DrugInteraction drugInteraction, IBaseResource resource) {
+  public Card drugInteractionCard(DrugInteraction drugInteraction, IBaseResource resource) {
     logger.info("Build Drug Interaction Card: " + drugInteraction.getSummary());
     String requestId = Utilities.getIdFromIBaseResource(resource);
     Card card = baseCard(CardTypes.CONTRAINDICATION, requestId);
     card.setSummary(drugInteraction.getSummary());
-    card.setDetail(drugInteraction.getDetail());
+    card.addDetail(drugInteraction.getDetail());
     card.setIndicator(Card.IndicatorEnum.WARNING);
     return card;
   }
 
-  public static Card priorAuthCard(CqlResultsForCard cqlResults,
+  public Card priorAuthCard(CqlResultsForCard cqlResults,
                                    IBaseResource request,
                                    FhirComponentsT fhirComponents,
                                    String priorAuthId,
@@ -264,7 +270,7 @@ public class CardBuilder {
     return card;
   }
 
-  public static Suggestion createSuggestionWithResource(IBaseResource request,
+  public Suggestion createSuggestionWithResource(IBaseResource request,
                                                         IBaseResource resource,
                                                         FhirComponentsT fhirComponents,
                                                         String label,
@@ -291,7 +297,7 @@ public class CardBuilder {
     return suggestion;
   }
 
-  public static Suggestion createSuggestionWithNote(Card card,
+  public Suggestion createSuggestionWithNote(Card card,
                                                     IBaseResource request,
                                                     FhirComponentsT fhirComponents,
                                                     String label,
@@ -360,7 +366,7 @@ public class CardBuilder {
     return requestWithNoteSuggestion;
   }
 
-  private static Source createSource(CardTypes cardType) {
+  private Source createSource(CardTypes cardType) {
     Source source = new Source();
     source.setLabel("Da Vinci CRD Reference Implementation");
     source.setTopic(cardType.getCoding());
@@ -374,11 +380,10 @@ public class CardBuilder {
    * @param cardType
    * @param response The response to check and add cards to
    */
-  public static void errorCardIfNonePresent(CardTypes cardType, CdsResponse response) {
+  public void errorCardIfNonePresent(CardTypes cardType, CdsResponse response) {
     if (response.getCards() == null || response.getCards().size() == 0) {
-      Card card = new Card();
+      Card card = baseCard(cardType, "");
       card.setIndicator(Card.IndicatorEnum.WARNING);
-      card.setSource(createSource(cardType));
       String msg = "Unable to process hook request from provided information.";
       card.setSummary(msg);
       response.addCard(card);
@@ -386,7 +391,7 @@ public class CardBuilder {
     }
   }
 
-  private static Card baseCard(CardTypes cardType, String requestId) {
+  private Card baseCard(CardTypes cardType, String requestId) {
     Card card = new Card();
     card.setIndicator(Card.IndicatorEnum.INFO);
     card.setSource(createSource(cardType));
@@ -395,6 +400,10 @@ public class CardBuilder {
       CardExtension cardExtension = new CardExtension();
       cardExtension.addAssociatedResource(requestId);
       card.setExtension(cardExtension);
+    }
+
+    if (deidentifiedResourcesContainPhi) {
+      card.setDetail("Note: de-identified resources provided in request contain Protected Health Information (PHI). Please notify administrator.");
     }
     
     return card;

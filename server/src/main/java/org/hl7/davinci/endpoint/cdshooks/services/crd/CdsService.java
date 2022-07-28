@@ -32,7 +32,6 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
-import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
@@ -170,6 +169,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     final String jsonObject = gson.toJson(request.getPrefetch());
     logger.info("Final populated CRDPrefetch: " + jsonObject);
 
+    CardBuilder cardBuilder = new CardBuilder();
+
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
     try {
@@ -178,7 +179,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (RequestIncompleteException e) {
       logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
-      response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
+      response.addCard(cardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
       requestLog.setCardListFromCards(response.getCards());
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
@@ -203,6 +204,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       requestLog.addTopic(requestService, lookupResult.getTopic());
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext(), lookupResult.getTopic());
       CoverageRequirements coverageRequirements = results.getCoverageRequirements();
+      cardBuilder.setDeidentifiedResourcesContainsPhi(lookupResult.getDeidentifiedResourceContainsPhi());
 
       if (results.ruleApplies()) {
         foundApplicableRule = true;
@@ -211,7 +213,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
           // if prior auth already approved
           if (coverageRequirements.isPriorAuthApproved()) {
-            response.addCard(CardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
+            response.addCard(cardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
                 request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
                 applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
                 fhirResourceRepository));
@@ -228,14 +230,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
 
               if (coverageRequirements.isPriorAuthRequired()) {
-                Card card = CardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
-                card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents, 
+                Card card = cardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
+                card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents, 
                     "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                     true, CoverageGuidance.ADMIN));
                 response.addCard(card);
               } else if (coverageRequirements.isDocumentationRequired()) {
-                Card card = CardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
-                card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents, 
+                Card card = cardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
+                card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents, 
                     "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                     true, CoverageGuidance.CLINICAL));
                 response.addCard(card);
@@ -244,7 +246,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               // add a card for an alternative therapy if there is one
               if (results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
                 try {
-                  response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
+                  response.addCard(cardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
                       results.getRequest(), fhirComponents));
                 } catch (RuntimeException e) {
                   logger.warn("Failed to process alternative therapy: " + e.getMessage());
@@ -252,13 +254,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
               }
             } else {
               logger.warn("Unspecified Questionnaire URI; summary card sent to client");
-              response.addCard(CardBuilder.transform(CardTypes.COVERAGE, results));
+              response.addCard(cardBuilder.transform(CardTypes.COVERAGE, results));
             }
           } else {
             // no prior auth or documentation required
             logger.info("Add the no doc or prior auth required card");
-            Card card = CardBuilder.transform(CardTypes.COVERAGE, results);
-            card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+            Card card = cardBuilder.transform(CardTypes.COVERAGE, results);
+            card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                 "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                 true, CoverageGuidance.COVERED));
             card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
@@ -268,7 +270,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
         // apply the DrugInteractions
         if (results.getDrugInteraction().getApplies()) {
-          response.addCard(CardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
+          response.addCard(cardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
         }
       }
     }
@@ -280,9 +282,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       if (!foundApplicableRule) {
         String msg = "No documentation rules found";
         logger.warn(msg + "; summary card sent to client");
-        response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, msg));
+        response.addCard(cardBuilder.summaryCard(CardTypes.COVERAGE, msg));
       }
-      CardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
+      cardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
     }
 
     // Ading card to requestLog

@@ -15,7 +15,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import java.util.Date;
 
 public class FhirBundleProcessor {
   static final Logger logger = LoggerFactory.getLogger(FhirBundleProcessor.class);
@@ -24,6 +27,8 @@ public class FhirBundleProcessor {
   private String baseUrl;
   private List<String> selections;
   private List<CoverageRequirementRuleResult> results = new ArrayList<>();
+
+  private boolean deidentifiedResourcesContainPhi = false;
 
 
   public FhirBundleProcessor(FileStore fileStore, String baseUrl, List<String> selections) {
@@ -38,10 +43,96 @@ public class FhirBundleProcessor {
 
   public List<CoverageRequirementRuleResult> getResults() { return results; }
 
+  public boolean getDeidentifiedResourceContainsPhi() { return deidentifiedResourcesContainPhi; }
+
+  private boolean validateField(boolean empty, String field) {
+    if (!empty) {
+      logger.warn("Instance is claiming to be deidentified but found information in the " + field + " field.");
+    }
+    return empty;
+  }
+
+  public boolean verifyDeidentifiedPatient(Bundle bundle) {
+    boolean invalid = false;
+    List<Patient> patientList = Utilities.getResourcesOfTypeFromBundle(Patient.class, bundle);
+    for (Patient patient: patientList) {
+      Meta meta = patient.getMeta();
+      for (CanonicalType profile : meta.getProfile()) {
+        if (profile.equals("http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-patient-deident")) {
+          invalid |= validateField(patient.getText().isEmpty(), "patient.text");
+          invalid |= validateField(patient.getIdentifier().isEmpty(), "patient.identifier");
+          invalid |= validateField(patient.getName().isEmpty(), "patient.name");
+          invalid |= validateField(patient.getTelecom().isEmpty(), "patient.telecom");
+          invalid |= validateField(patient.getDeceased() == null, "patient.deceased");
+          invalid |= validateField(patient.getMultipleBirth() == null, "patient.multipleBirth");
+          invalid |= validateField(patient.getPhoto().isEmpty(), "patient.photo");
+          invalid |= validateField(patient.getContact().isEmpty(), "patient.contact");
+          invalid |= validateField(patient.getLink().isEmpty(), "patient.link");
+
+          // check the address
+          for (Address address : patient.getAddress()) {
+            invalid |= validateField(address.getText() == null, "patient.address[].text");
+            invalid |= validateField(address.getLine().isEmpty(), "patient.address[].line");
+            invalid |= validateField(address.getCity() == null, "patient.address[].city");
+            invalid |= validateField(address.getDistrict() == null, "patient.address[].district");
+            invalid |= validateField(address.getPostalCode() == null, "patient.address[].postalCode");
+            invalid |= validateField(address.getPeriod().isEmpty(), "patient.address[].period");
+          }
+          
+          // check the birthdate
+          Date now = new Date();
+          long diffInMs = Math.abs(now.getTime() - patient.getBirthDate().getTime());
+          long diffInDays = TimeUnit.DAYS.convert(diffInMs, TimeUnit.MILLISECONDS);
+          String birthDateStr = patient.getBirthDateElement().asStringValue();
+
+          // if age is less than 2 years then there should be a year and month
+          if (diffInDays < (265 * 2)) {
+            invalid |= validateField(birthDateStr.length() <= 7, "patient.birthDate day (" + birthDateStr + ")");
+          } else {
+            // otherwise there should only be a year
+            invalid |= validateField(birthDateStr.length() <= 4, "patient.birthDate month (" + birthDateStr + ")");
+          }
+        }
+      }
+    }
+    return invalid;
+  }
+  public boolean verifyDeidentifiedCoverage(Bundle bundle) {
+    boolean invalid = false;
+    List<Coverage> coverageList = Utilities.getResourcesOfTypeFromBundle(Coverage.class, bundle);
+    for (Coverage coverage: coverageList) {
+      Meta meta = coverage.getMeta();
+      for (CanonicalType profile : meta.getProfile()) {
+        if (profile.equals("http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-coverage-deident")) {
+          invalid |= validateField(coverage.getText().isEmpty(), "coverage.text");
+          invalid |= validateField(coverage.getIdentifier().isEmpty(), "coverage.identifier");
+          invalid |= validateField(coverage.getPolicyHolder().isEmpty(), "coverage.policyHolder");
+          invalid |= validateField(coverage.getSubscriber().isEmpty(), "coverage.subscriber");
+          invalid |= validateField(coverage.getSubscriberId() == null, "coverage.subscriberId");
+          invalid |= validateField(coverage.getDependent() == null, "coverage.dependent");
+          invalid |= validateField(coverage.getRelationship().isEmpty(), "coverage.relationship");
+          invalid |= validateField(coverage.getOrder() <= 0, "coverage.order");
+          invalid |= validateField(coverage.getNetwork() == null, "coverage.network");
+          invalid |= validateField(coverage.getCostToBeneficiary().isEmpty(), "coverage.costToBeneficiary");
+          invalid |= validateField(coverage.getContract().isEmpty(), "coverage.contract");
+        }
+      }
+    }
+    return invalid;
+  }
+
+  public boolean verifyDeidentifiedResources(Bundle bundle) {
+    boolean invalid = verifyDeidentifiedPatient(bundle);
+    invalid |= verifyDeidentifiedCoverage(bundle);
+    deidentifiedResourcesContainPhi |= invalid;
+    return invalid;
+  }
+
   public void processDeviceRequests(Bundle deviceRequestBundle) {
     List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(DeviceRequest.class, deviceRequestBundle);
     if (!deviceRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::processDeviceRequests: DeviceRequest(s) found");
+      verifyDeidentifiedResources(deviceRequestBundle);
 
       for (DeviceRequest deviceRequest : deviceRequestList) {
         if (idInSelectionsList(deviceRequest.getId())) {
@@ -56,6 +147,7 @@ public class FhirBundleProcessor {
     List<MedicationRequest> medicationRequestList = Utilities.getResourcesOfTypeFromBundle(MedicationRequest.class, medicationRequestBundle);
     if (!medicationRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::processMedicationRequests: MedicationRequest(s) found");
+      verifyDeidentifiedResources(medicationRequestBundle);
 
       for (MedicationRequest medicationRequest : medicationRequestList) {
         if (idInSelectionsList(medicationRequest.getId())) {
@@ -70,6 +162,7 @@ public class FhirBundleProcessor {
     List<MedicationDispense> medicationDispenseList = Utilities.getResourcesOfTypeFromBundle(MedicationDispense.class, medicationDispenseBundle);
     if (!medicationDispenseList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::processMedicationDispenses: MedicationDispense(s) found");
+      verifyDeidentifiedResources(medicationDispenseBundle);
 
       List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class,
           medicationDispenseBundle);
@@ -87,6 +180,7 @@ public class FhirBundleProcessor {
     List<ServiceRequest> serviceRequestList = Utilities.getResourcesOfTypeFromBundle(ServiceRequest.class, serviceRequestBundle);
     if (!serviceRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::processServiceRequests: ServiceRequest(s) found");
+      verifyDeidentifiedResources(serviceRequestBundle);
 
       for (ServiceRequest serviceRequest : serviceRequestList) {
         if (idInSelectionsList(serviceRequest.getId())) {
@@ -103,6 +197,8 @@ public class FhirBundleProcessor {
 
     if (!medicationRequestList.isEmpty()) {
       logger.info("r4/FhirBundleProcessor::processOrderSelectMedicationStatements: MedicationRequests(s) found");
+      verifyDeidentifiedResources(medicationRequestBundle);
+      verifyDeidentifiedResources(medicationStatementBundle);
 
       // process each of the MedicationRequests
       for (MedicationRequest medicationRequest : medicationRequestList) {
@@ -176,6 +272,7 @@ public class FhirBundleProcessor {
     HashMap<String, Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     cqlParams.put(requestType, request);
+
     buildExecutionContexts(criteriaList, cqlParams);
   }
 
@@ -194,6 +291,7 @@ public class FhirBundleProcessor {
           //get the CqlRule
           CqlRule cqlRule = fileStore.getCqlRule(rule.getTopic(), rule.getFhirVersion());
           result.setContext(CqlExecutionContextBuilder.getExecutionContext(cqlRule, cqlParams, baseUrl));
+          result.setDeidentifiedResourceContainsPhi(deidentifiedResourcesContainPhi);
           results.add(result);
         } catch (Exception e) {
           logger.info("r4/FhirBundleProcessor::buildExecutionContexts: failed processing cql bundle: " + e.getMessage());
