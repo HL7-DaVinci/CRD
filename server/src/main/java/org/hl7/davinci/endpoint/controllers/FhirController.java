@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.controllers;
 
+import org.aspectj.weaver.patterns.TypePatternQuestions;
 import org.hl7.davinci.FhirResourceInfo;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.Utils;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
@@ -228,7 +230,24 @@ public class FhirController {
   @PostMapping(path = "/fhir/{fhirVersion}/Questionnaire/$questionnaire-package", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
   public ResponseEntity<String> questionnaireForOrderOperation(HttpServletRequest request, HttpEntity<String> entity,
                                                    @PathVariable String fhirVersion) {
+    return handleQuestionnaireOperation(request, entity, fhirVersion, null);
+  }
 
+  /**
+   * FHIR Operation to retrieve a Questionnaire and CQL files associated with a given request.
+   * @param fhirVersion (converted to uppercase)
+   * @return FHIR Bundle
+   * @throws IOException
+   */
+  @PostMapping(path = "/fhir/{fhirVersion}/Questionnaire/{questionnaireId}/$questionnaire-package", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
+  public ResponseEntity<String> questionnaireForOrderOperationScoped(HttpServletRequest request, HttpEntity<String> entity,
+                                                               @PathVariable String fhirVersion, @PathVariable String questionnaireId) {
+    return handleQuestionnaireOperation(request, entity, fhirVersion, questionnaireId);
+  }
+
+  private ResponseEntity<String> handleQuestionnaireOperation(HttpServletRequest request, HttpEntity<String> entity,
+                                                              String fhirVersion, String questionnaireId) {
+    System.out.println(questionnaireId);
     fhirVersion = fhirVersion.toUpperCase();
     String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 
@@ -237,15 +256,15 @@ public class FhirController {
     String resource = null;
     if (fhirVersion.equalsIgnoreCase("R4")) {
       QuestionnairePackageOperation operation = new QuestionnairePackageOperation(fileStore, baseUrl);
-      resource = operation.execute(entity.getBody());
+      resource = operation.execute(entity.getBody(), questionnaireId);
 
       if (resource == null) {
         logger.warning("bad parameters");
         HttpStatus status = HttpStatus.BAD_REQUEST;
         MediaType contentType = MediaType.TEXT_PLAIN;
-        
+
         return ResponseEntity.status(status).contentType(contentType)
-            .body("Bad Parameters");
+                .body("Bad Parameters");
       }
 
     } else {
@@ -254,10 +273,10 @@ public class FhirController {
       MediaType contentType = MediaType.TEXT_PLAIN;
 
       return ResponseEntity.status(status).contentType(contentType)
-          .body("Bad Request");
+              .body("Bad Request");
     }
 
     return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
-          .body(resource);
+            .body(resource);
   }
 }

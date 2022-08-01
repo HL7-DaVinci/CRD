@@ -49,7 +49,7 @@ public class QuestionnairePackageOperation {
     /*
      * Do the work retrieving all of the Questionnaire, Library and Valueset Resources.
      */
-    public String execute(String resourceString) {
+    public String execute(String resourceString, String questionnaireId) {
         Parameters outputParameters = new Parameters();    
         IBaseResource resource = null;
 
@@ -90,40 +90,20 @@ public class QuestionnairePackageOperation {
             System.out.println(topics);
             for (String topic : topics) {
                 logger.info("--> process topic: " + topic);
-
-                // get all of the Quesionnaires for the topic
-                Bundle bundle = fileStore.getFhirResourcesByTopicAsFhirBundle("R4", "Questionnaire", topic.toLowerCase(), baseUrl);
-                List<BundleEntryComponent> bundleEntries = bundle.getEntry();
-                for (BundleEntryComponent entry : bundleEntries) {
-
-                    addResourceToBundle(entry.getResource(), bundleContents, completeBundle);
-
-                    if (entry.getResource().fhirType().equalsIgnoreCase("Questionnaire")) {
-                        Questionnaire questionnaire = (Questionnaire)entry.getResource();
-
-                        List<Extension> extensions = questionnaire.getExtension();
-                        for (Extension extension : extensions) {
-                            if (extension.getUrl().endsWith("cqf-library")) {
-                                CanonicalType data = (CanonicalType)extension.getValue();
-                                String url = data.asStringValue();
-                                Resource libraryResource = null;
-
-                                // look in the map and retrieve it instead of looking it up on disk if found
-                                if (resources.containsKey(url)) {
-                                    libraryResource = resources.get(url);
-                                } else {
-                                    libraryResource = fileStore.getFhirResourceByUrlAsFhirResource("R4", "Library", url, baseUrl);
-                                    resources.put(url, libraryResource);
-                                }
-
-                                if (addResourceToBundle(libraryResource, bundleContents, completeBundle)) {
-                                    // recursively add the depends-on libraries if added to bundle
-                                    addLibraryDependencies((Library)libraryResource, bundleContents, completeBundle);
-                                }
-                            }
-                        }
+                if (questionnaireId == null) {
+                    // get all of the Quesionnaires for the topic
+                    Bundle bundle = fileStore.getFhirResourcesByTopicAsFhirBundle("R4", "Questionnaire", topic.toLowerCase(), baseUrl);
+                    List<BundleEntryComponent> bundleEntries = bundle.getEntry();
+                    for (BundleEntryComponent entry : bundleEntries) {
+                        processResource(entry.getResource(), bundleContents, completeBundle);
+                    } // Questionnaires
+                } else {
+                    // get only the specified Questionnaire
+                    Resource questionnaireResource = fileStore.getFhirResourceByIdAsFhirResource("R4", "Questionnaire", questionnaireId, baseUrl);
+                    if (questionnaireResource != null) {
+                        processResource(questionnaireResource, bundleContents, completeBundle);
                     }
-                } // Questionnaires
+                }
             } // topics
 
             // add the bundle to the output parameters if it contains any resources
@@ -191,6 +171,36 @@ public class QuestionnairePackageOperation {
             }
         }
         return topics;
+    }
+
+    private void processResource(Resource resource, List<String> bundleContents, Bundle completeBundle) {
+        addResourceToBundle(resource, bundleContents, completeBundle);
+
+        if (resource.fhirType().equalsIgnoreCase("Questionnaire")) {
+            Questionnaire questionnaire = (Questionnaire)resource;
+
+            List<Extension> extensions = questionnaire.getExtension();
+            for (Extension extension : extensions) {
+                if (extension.getUrl().endsWith("cqf-library")) {
+                    CanonicalType data = (CanonicalType)extension.getValue();
+                    String url = data.asStringValue();
+                    Resource libraryResource = null;
+
+                    // look in the map and retrieve it instead of looking it up on disk if found
+                    if (resources.containsKey(url)) {
+                        libraryResource = resources.get(url);
+                    } else {
+                        libraryResource = fileStore.getFhirResourceByUrlAsFhirResource("R4", "Library", url, baseUrl);
+                        resources.put(url, libraryResource);
+                    }
+
+                    if (addResourceToBundle(libraryResource, bundleContents, completeBundle)) {
+                        // recursively add the depends-on libraries if added to bundle
+                        addLibraryDependencies((Library)libraryResource, bundleContents, completeBundle);
+                    }
+                }
+            }
+        }
     }
 
     /*
