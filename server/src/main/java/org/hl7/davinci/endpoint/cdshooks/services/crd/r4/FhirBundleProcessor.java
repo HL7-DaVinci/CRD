@@ -86,7 +86,7 @@ public class FhirBundleProcessor {
           String birthDateStr = patient.getBirthDateElement().asStringValue();
 
           // if age is less than 2 years then there should be a year and month
-          if (diffInDays < (265 * 2)) {
+          if (diffInDays < (365 * 2)) {
             invalid |= validateField(birthDateStr.length() <= 7, "patient.birthDate day (" + birthDateStr + ")");
           } else {
             // otherwise there should only be a year
