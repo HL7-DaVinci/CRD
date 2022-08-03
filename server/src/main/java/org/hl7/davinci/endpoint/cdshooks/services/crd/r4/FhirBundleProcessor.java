@@ -175,7 +175,6 @@ public class FhirBundleProcessor {
 
           List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), payorList);
           Patient patientToUse = referencedPrefetechedPatients.get(0);
-          logger.info("r4/FhirBundleProcessor::processMedicationStatements: Found Patient '" + patientToUse + "'.");
 
           HashMap<String, Resource> cqlParams = new HashMap<>();
           cqlParams.put("Patient", (Patient) patientToUse);
