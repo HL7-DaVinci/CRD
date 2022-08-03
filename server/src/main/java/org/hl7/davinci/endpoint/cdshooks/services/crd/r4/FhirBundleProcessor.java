@@ -46,7 +46,7 @@ public class FhirBundleProcessor {
     List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class, coverageBundle); // TODO - do something with the coverage.
     if (deviceRequestList.isEmpty()) return;
     
-    logger.info("r4/FhirBundleProcessor::getAndProcessDeviceRequests: " + deviceRequestList.size() + " DeviceRequest(s) found");
+    logger.info("r4/FhirBundleProcessor::processDeviceRequests: " + deviceRequestList.size() + " DeviceRequest(s) found");
 
     for (DeviceRequest deviceRequest : deviceRequestList) {
       if (idInSelectionsList(deviceRequest.getId())) {
@@ -62,7 +62,6 @@ public class FhirBundleProcessor {
         }
 
         Patient patientToUse = referencedPrefetechedPatients.get(0);
-        logger.info("r4/FhirBundleProcessor::processDeviceRequests: Found Patient '" + patientToUse + "'.");
         buildExecutionContexts(criteriaList, patientToUse, "device_request", deviceRequest);
       }
     }
@@ -74,7 +73,7 @@ public class FhirBundleProcessor {
     List<Organization> payorList = Utilities.getResourcesOfTypeFromBundle(Organization.class, coverageBundle);
     if (medicationRequestList.isEmpty()) return;
 
-    logger.info("r4/FhirBundleProcessor::getAndProcessMedicationRequests: MedicationRequest(s) found");
+    logger.info("r4/FhirBundleProcessor::processMedicationRequests: MedicationRequest(s) found");
 
     for (MedicationRequest medicationRequest : medicationRequestList) {
       if (idInSelectionsList(medicationRequest.getId())) {
@@ -89,7 +88,6 @@ public class FhirBundleProcessor {
         
         List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), payorList);
         Patient patientToUse = referencedPrefetechedPatients.get(0);
-        logger.info("r4/FhirBundleProcessor::processMedicationRequests: Found Patient '" + patientToUse + "'.");
         buildExecutionContexts(criteriaList, patientToUse, "medication_request", medicationRequest);
       }
     }
@@ -104,7 +102,7 @@ public class FhirBundleProcessor {
     payorList.addAll(medicationPayorList);
     if (medicationDispenseList.isEmpty()) return;
 
-    logger.info("r4/FhirBundleProcessor::getAndProcessMedicationDispenses: MedicationDispense(s) found");
+    logger.info("r4/FhirBundleProcessor::processMedicationDispenses: MedicationDispense(s) found");
 
     for (MedicationDispense medicationDispense : medicationDispenseList) {
       if (idInSelectionsList(medicationDispense.getId())) {
@@ -118,7 +116,6 @@ public class FhirBundleProcessor {
         }
         List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationDispense.getMedicationCodeableConcept(), null, payorList);
         Patient patientToUse = referencedPrefetechedPatients.get(0);
-        logger.info("r4/FhirBundleProcessor::processMedicationDispenses: Found Patient '" + patientToUse + "'.");
         buildExecutionContexts(criteriaList,patientToUse, "medication_dispense", medicationDispense);
       }
     }
