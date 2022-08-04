@@ -1,8 +1,10 @@
 package org.hl7.davinci.r4;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 import org.cdshooks.Hook;
@@ -11,9 +13,26 @@ import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectContext;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignContext;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
-import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Address.AddressUse;
+import org.hl7.fhir.r4.model.Address;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.Device;
+import org.hl7.fhir.r4.model.Enumerations;
+import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.MedicationRequest;
+import org.hl7.fhir.r4.model.MedicationStatement;
+import org.hl7.fhir.r4.model.Organization;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.PractitionerRole;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.ServiceRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +44,7 @@ public class CrdRequestCreator {
   static final Logger logger = LoggerFactory.getLogger(CrdRequestCreator.class);
 
   /**
-   * Generate a order select request that contains a DeviceRequest.
+   * Generate a order select request that contains a MedicationRequest.
    *
    * @param patientGender Desired gender of the patient in the request
    * @param patientBirthdate Desired birth date of the patient in the request
@@ -55,10 +74,14 @@ public class CrdRequestCreator {
       mr.setPerformer(new Reference(p));
       mr.addInsurance(new Reference(c));
     };
-    mr.setSubject(new Reference(patient));
+    Reference patientReference = new Reference(patient);
+    patientReference.setReference(patient.getId());
+    mr.setSubject(patientReference);
+    mr.getSubject().setId(patient.getId());
     Practitioner provider = createPractitioner();
-    Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
-
+    Map<String, Bundle> prefetchBundles = createPrefetchBundles(patient, provider, callback, providerAddressState);
+    Bundle prefetchBundleMedicationRequest = prefetchBundles.get("nonCoverage");
+    Bundle prefetchBundleCoverage = prefetchBundles.get("coverage");
 
     mr.setMedication(new CodeableConcept().addCoding(requestCoding));
     Bundle orderBundle = new Bundle();
@@ -67,7 +90,7 @@ public class CrdRequestCreator {
     orderBundle.addEntry(bec);
     Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
     pfDrBec.setResource(mr);
-    prefetchBundle.addEntry(pfDrBec);
+    prefetchBundleMedicationRequest.addEntry(pfDrBec);
     context.setDraftOrders(orderBundle);
     context.setSelections(new String[] {"123"});
 
@@ -80,14 +103,17 @@ public class CrdRequestCreator {
     MedicationStatement ms = new MedicationStatement();
     ms.setId("MedciationStatement/12345");
     ms.setMedication(new CodeableConcept().addCoding(statementCoding));
+    ms.setSubject(patientReference);
+    ms.getSubject().setId(patient.getId());
     bec.setResource(ms);
     prefetchMedicationStatementBundle.addEntry(bec);
 
 
     // add the prefetch into the request
     CrdPrefetch prefetch = new CrdPrefetch();
-    prefetch.setMedicationRequestBundle(prefetchBundle);
+    prefetch.setMedicationRequestBundle(prefetchBundleMedicationRequest);
     prefetch.setMedicationStatementBundle(prefetchMedicationStatementBundle);
+    prefetch.setCoverageBundle(prefetchBundleCoverage);
     request.setPrefetch(prefetch);
 
     return request;
@@ -115,16 +141,21 @@ public class CrdRequestCreator {
 
     ServiceRequest sr = new ServiceRequest();
     sr.setStatus(ServiceRequest.ServiceRequestStatus.DRAFT);
-    sr.setId("DeviceRequest/123");
+    sr.setId("ServiceRequest/123");
     sr.setIntent(ServiceRequest.ServiceRequestIntent.ORDER);
 
     PrefetchCallback callback = (p, c) -> {
       sr.addPerformer(new Reference(p));
       sr.addInsurance(new Reference(c));
     };
-    sr.setSubject(new Reference(patient));
+    Reference patientReference = new Reference(patient);
+    patientReference.setReference(patient.getId());
+    sr.setSubject(patientReference);
+    // sr.getSubject().setId(patient.getId());
     Practitioner provider = createPractitioner();
-    Bundle prefetchBundle = createPrefetchBundle(patient, provider, callback, providerAddressState);
+    Map<String, Bundle> prefetchBundles = createPrefetchBundles(patient, provider, callback, providerAddressState);
+    Bundle prefetchBundleServiceRequest = prefetchBundles.get("nonCoverage");
+    Bundle prefetchBundleCoverage = prefetchBundles.get("coverage");
 
     Coding oxygen = new Coding().setCode("A0426")
         .setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
@@ -136,33 +167,34 @@ public class CrdRequestCreator {
     orderBundle.addEntry(bec);
     Bundle.BundleEntryComponent pfDrBec = new Bundle.BundleEntryComponent();
     pfDrBec.setResource(sr);
-    prefetchBundle.addEntry(pfDrBec);
+    prefetchBundleServiceRequest.addEntry(pfDrBec);
     context.setDraftOrders(orderBundle);
 
     Device device = new Device();
     device.setType(new CodeableConcept().addCoding(oxygen));
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(device);
-    prefetchBundle.addEntry(bec);
+    prefetchBundleServiceRequest.addEntry(bec);
 
     CrdPrefetch prefetch = new CrdPrefetch();
-    prefetch.setServiceRequestBundle(prefetchBundle);
+    prefetch.setServiceRequestBundle(prefetchBundleServiceRequest);
+    prefetch.setCoverageBundle(prefetchBundleCoverage);
     request.setPrefetch(prefetch);
 
     return request;
   }
 
-  private static Bundle createPrefetchBundle(Patient patient, Practitioner provider,
+  private static Map<String, Bundle> createPrefetchBundles(Patient patient, Practitioner provider,
       PrefetchCallback cb, String providerAddressState) {
-    Bundle prefetchBundle = new Bundle();
+    Bundle prefetchBundleServiceRequest = new Bundle();
 
     Bundle.BundleEntryComponent bec = new Bundle.BundleEntryComponent();
     bec.setResource(patient);
-    prefetchBundle.addEntry(bec);
+    prefetchBundleServiceRequest.addEntry(bec);
 
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(provider);
-    prefetchBundle.addEntry(bec);
+    prefetchBundleServiceRequest.addEntry(bec);
 
     // create an Organization object with ID and Name set
     Organization insurer = new Organization();
@@ -170,7 +202,7 @@ public class CrdRequestCreator {
     insurer.setName("Centers for Medicare and Medicaid Services");
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(insurer);
-    prefetchBundle.addEntry(bec);
+    prefetchBundleServiceRequest.addEntry(bec);
 
     // create a Location Object
     Location facility = new Location();
@@ -181,7 +213,7 @@ public class CrdRequestCreator {
         .setPostalCode("01730"));
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(facility);
-    prefetchBundle.addEntry(bec);
+    prefetchBundleServiceRequest.addEntry(bec);
 
     PractitionerRole pr = new PractitionerRole();
     pr.setId(idString());
@@ -190,9 +222,10 @@ public class CrdRequestCreator {
 
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(pr);
-    prefetchBundle.addEntry(bec);
+    prefetchBundleServiceRequest.addEntry(bec);
 
-    // create a Coverage object with ID set
+    // create a Coverage prefetch with ID set
+    Bundle prefetchBundleCoverage = new Bundle();
     Coverage coverage = new Coverage();
     coverage.setId(idString());
     Coding planCode = new Coding().setCode("plan").setSystem("http://hl7.org/fhir/coverage-class");
@@ -206,10 +239,14 @@ public class CrdRequestCreator {
     coverage.addPayor(new Reference(insurer));
     bec = new Bundle.BundleEntryComponent();
     bec.setResource(coverage);
-    prefetchBundle.addEntry(bec);
+    prefetchBundleCoverage.addEntry(bec);
     cb.callback(pr, coverage);
 
-    return prefetchBundle;
+    Map<String, Bundle> prefetchMap = new HashMap<>();
+    prefetchMap.put("nonCoverage", prefetchBundleServiceRequest);
+    prefetchMap.put("coverage", prefetchBundleCoverage);
+
+    return prefetchMap;
   }
 
   private static Patient createPatient(Enumerations.AdministrativeGender patientGender,
