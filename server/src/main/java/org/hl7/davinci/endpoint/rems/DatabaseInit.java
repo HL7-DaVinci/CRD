@@ -8,7 +8,9 @@ import org.hl7.davinci.endpoint.rems.database.drugs.DrugsRepository;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhir;
 import org.hl7.davinci.endpoint.rems.database.fhir.RemsFhirRepository;
 import org.hl7.davinci.endpoint.rems.database.requirement.Requirement;
+import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirement;
 import org.hl7.davinci.endpoint.rems.database.requirement.RequirementRepository;
+import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirementRepository;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.fhir.r4.model.Questionnaire;
 import org.hl7.fhir.r4.model.ResourceType;
@@ -39,7 +41,7 @@ class DatabaseInit {
 
 
     @Bean
-    CommandLineRunner initDatabase(DrugsRepository repository, RemsFhirRepository remsFhirRepository, RequirementRepository requirementRepository) {
+    CommandLineRunner initDatabase(DrugsRepository repository, RemsFhirRepository remsFhirRepository, RequirementRepository requirementRepository, MetRequirementRepository metRequirementRepository) {
         FhirComponents fhirComponents = new FhirComponents();
         IParser jsonParser = fhirComponents.getJsonParser();
 
@@ -114,7 +116,7 @@ class DatabaseInit {
              pharmacistEnrollmentRequirement.setDrug(turalio);
              requirementRepository.save(pharmacistEnrollmentRequirement);
 
-            // pharmacist knowledge assessment / certification sub-requirement
+            /* pharmacist knowledge assessment / certification sub-requirement
             // change form below to pharmacist knowledge assessment once form is translated
             String pharmacistKnowledgeQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/Questionnaire-R4-Prescriber-Knowledge-Assessment.json", Charset.defaultCharset());
             Requirement pharmacistCertificationRequirement = new Requirement();
@@ -129,7 +131,27 @@ class DatabaseInit {
             pharmacistCertificationRequirement.setDescription("Submit Pharmacist Knowledge Assessment Form to REMS Administrator to receive certification");
             pharmacistCertificationRequirement.setParentRequirement(pharmacistEnrollmentRequirement);
             // pharmacistCertificationRequirement.setDrug(turalio); 
-            requirementRepository.save(pharmacistCertificationRequirement);
+            requirementRepository.save(pharmacistCertificationRequirement); */
+
+
+            /*-------------------------------------------------- MET REQUIREMENTS --------------------------------------------------*/
+
+
+            // pharmacist knowledge assessment / certification sub-requirement
+            // change form below to pharmacist knowledge assessment once form is translated
+            String pharmacistOrganization = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/Pharmacist-Organization.json", Charset.defaultCharset());
+            MetRequirement pharmacistEnrollmentMetRequirement = new MetRequirement();
+            RemsFhir pharmacistCredentialsResource = new RemsFhir();
+            pharmacistCredentialsResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode pharmacistOrganizationResource = JacksonUtil.toJsonNode(pharmacistOrganization);
+            pharmacistCredentialsResource.setResource(pharmacistOrganizationResource);
+            pharmacistCredentialsResource.setId("turalio-pharmacist-organization");
+            remsFhirRepository.save(pharmacistCredentialsResource);
+            pharmacistEnrollmentMetRequirement.setCompleted(true);
+            pharmacistEnrollmentMetRequirement.setRequirement(pharmacistEnrollmentRequirement);
+            pharmacistEnrollmentMetRequirement.setCompletedRequirement(pharmacistCredentialsResource);
+            metRequirementRepository.save(pharmacistEnrollmentMetRequirement);
+
 
         };
     }
