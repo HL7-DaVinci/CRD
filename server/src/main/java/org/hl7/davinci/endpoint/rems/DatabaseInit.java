@@ -47,13 +47,21 @@ class DatabaseInit {
 
         return args -> {
             log.info("Preloading turalio");
-            Drug turalio = new Drug();
+            Drug turalio = new Drug(), tirf = new Drug();
             turalio.setId("turalio");
             turalio.setCodeSystem("http://www.nlm.nih.gov/research/umls/rxnorm");
             turalio.setCode("2183126");
             repository.save(turalio);;
 
+            tirf.setId("TIRF");
+            tirf.setCodeSystem("http://www.nlm.nih.gov/research/umls/rxnorm");
+            tirf.setCode("1237051");
+            repository.save(tirf);
 
+
+            /*-------------------------------------------------- TURALIO --------------------------------------------------*/
+
+            
             // patient enrollment form requirement
             String patientQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/fhir/Questionnaire-R4-DrugHasREMS.json", Charset.defaultCharset());
             Requirement patientEnrollmentRequirement = new Requirement();
@@ -116,42 +124,136 @@ class DatabaseInit {
              pharmacistEnrollmentRequirement.setDrug(turalio);
              requirementRepository.save(pharmacistEnrollmentRequirement);
 
-            /* pharmacist knowledge assessment / certification sub-requirement
-            // change form below to pharmacist knowledge assessment once form is translated
-            String pharmacistKnowledgeQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/Questionnaire-R4-Prescriber-Knowledge-Assessment.json", Charset.defaultCharset());
-            Requirement pharmacistCertificationRequirement = new Requirement();
-            RemsFhir pharmacistKnowledgeResource = new RemsFhir();
-            pharmacistKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
-            JsonNode pharmacistKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(pharmacistKnowledgeQuestionnaire);
-            pharmacistKnowledgeResource.setResource(pharmacistKnowledgeQuestionnaireResource);
-            pharmacistKnowledgeResource.setId("turalio-pharmacist-knowledge-check");
-            remsFhirRepository.save(pharmacistKnowledgeResource);
-            pharmacistCertificationRequirement.setName("Pharmacist Knowledge Assessment");
-            pharmacistCertificationRequirement.setResource(pharmacistKnowledgeResource);
-            pharmacistCertificationRequirement.setDescription("Submit Pharmacist Knowledge Assessment Form to REMS Administrator to receive certification");
-            pharmacistCertificationRequirement.setParentRequirement(pharmacistEnrollmentRequirement);
-            // pharmacistCertificationRequirement.setDrug(turalio); 
-            requirementRepository.save(pharmacistCertificationRequirement); */
+
+            /*-------------------------------------------------- TIRF --------------------------------------------------*/
 
 
-            /*-------------------------------------------------- MET REQUIREMENTS --------------------------------------------------*/
+            // patient enrollment form requirement
+            String TIRFPatientQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/TIRF/Questionnaire-R4-PrescriberEnrollment-TIRF.json", Charset.defaultCharset());
+            Requirement TIRFPatientEnrollmentRequirement = new Requirement();
+            RemsFhir TIRFPatientEnrollmentResource = new RemsFhir();
+            TIRFPatientEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode TIRFPatientQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPatientQuestionnaire);
+            TIRFPatientEnrollmentResource.setResource(TIRFPatientQuestionnaireResource);
+            TIRFPatientEnrollmentResource.setId("TIRF-patient-enrollment");
+            remsFhirRepository.save(TIRFPatientEnrollmentResource);
+            TIRFPatientEnrollmentRequirement.setName("Patient Enrollment");
+            TIRFPatientEnrollmentRequirement.setResource(TIRFPatientEnrollmentResource);
+            TIRFPatientEnrollmentRequirement.setDescription("Submit Patient Enrollment form to the REMS Administrator");
+            TIRFPatientEnrollmentRequirement.setDrug(tirf);
+            requirementRepository.save(TIRFPatientEnrollmentRequirement);
 
+            // prescriber enrollment form requirement
+            String TIRFPrescriberQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/TIRF/Questionnaire-R4-PrescriberEnrollment-TIRF.json", Charset.defaultCharset());
+            Requirement TIRFPrescriberEnrollmentRequirement = new Requirement();
+            RemsFhir TIRFPrescriberEnrollmentResource = new RemsFhir();
+            TIRFPrescriberEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode TIRFPrescriberQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPrescriberQuestionnaire);
+            TIRFPrescriberEnrollmentResource.setResource(TIRFPrescriberQuestionnaireResource);
+            TIRFPrescriberEnrollmentResource.setId("TIRF-prescriber-enrollment");
+            remsFhirRepository.save(TIRFPrescriberEnrollmentResource);
+            TIRFPrescriberEnrollmentRequirement.setName("Prescriber Enrollment");
+            TIRFPrescriberEnrollmentRequirement.setResource(TIRFPrescriberEnrollmentResource);
+            TIRFPrescriberEnrollmentRequirement.setDescription("Submit Prescriber Enrollment form to the REMS Administrator");
+            TIRFPrescriberEnrollmentRequirement.setDrug(tirf);
+            requirementRepository.save(TIRFPrescriberEnrollmentRequirement);
+
+            // prescriber knowledge assessment / certification sub-requirement
+            String TIRFPrescriberKnowledgeQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/TIRF/Questionnaire-R4-Prescriber-Knowledge-Assessment-TIRF.json", Charset.defaultCharset());
+            Requirement TIRFPrescriberCertificationRequirement = new Requirement();
+            RemsFhir TIRFPrescriberKnowledgeResource = new RemsFhir();
+            TIRFPrescriberKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode TIRFPrescriberKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPrescriberKnowledgeQuestionnaire);
+            TIRFPrescriberKnowledgeResource.setResource(TIRFPrescriberKnowledgeQuestionnaireResource);
+            TIRFPrescriberKnowledgeResource.setId("TIRF-prescriber-knowledge-check");
+            remsFhirRepository.save(TIRFPrescriberKnowledgeResource);
+            TIRFPrescriberCertificationRequirement.setName("Prescriber Knowledge Assessment");
+            TIRFPrescriberCertificationRequirement.setResource(TIRFPrescriberKnowledgeResource);
+            TIRFPrescriberCertificationRequirement.setDescription("Submit Prescriber Knowledge Assessment form to the REMS Administrator to receive certification");
+            TIRFPrescriberCertificationRequirement.setParentRequirement(TIRFPrescriberEnrollmentRequirement);
+            //TIRFPrescriberCertificationRequirement.setDrug(tirf);
+            requirementRepository.save(TIRFPrescriberCertificationRequirement);
+
+            // pharmacist enrollment form requirement
+            // change form below to pharmacist enrollment once form is translated
+            String TIRFPharmacistQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/TIRF/Questionnaire-R4-PrescriberEnrollment-TIRF.json", Charset.defaultCharset());
+            Requirement TIRFPharmacistEnrollmentRequirement = new Requirement();
+            RemsFhir TIRFPharmacistEnrollmentResource = new RemsFhir();
+            TIRFPharmacistEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode TIRFPharmacistQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPharmacistQuestionnaire);
+            TIRFPharmacistEnrollmentResource.setResource(TIRFPharmacistQuestionnaireResource);
+            TIRFPharmacistEnrollmentResource.setId("TIRF-pharmacist-enrollment");
+            remsFhirRepository.save(TIRFPharmacistEnrollmentResource);
+            TIRFPharmacistEnrollmentRequirement.setName("Pharmacist Enrollment");
+            TIRFPharmacistEnrollmentRequirement.setResource(TIRFPharmacistEnrollmentResource);
+            TIRFPharmacistEnrollmentRequirement.setDescription("Submit Pharmacist Enrollment form to the REMS Administrator");
+            TIRFPharmacistEnrollmentRequirement.setDrug(tirf);
+            requirementRepository.save(TIRFPharmacistEnrollmentRequirement);
 
             // pharmacist knowledge assessment / certification sub-requirement
-            // change form below to pharmacist knowledge assessment once form is translated
-            String pharmacistOrganization = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Turalio/Pharmacist-Organization.json", Charset.defaultCharset());
+            // change form below to pharmacist enrollment once form is translated
+            String TIRFPharmacistKnowledgeQuestionnaire = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/TIRF/Questionnaire-R4-PrescriberEnrollment-TIRF.json", Charset.defaultCharset());
+            Requirement TIRFPharmacistCertificationRequirement = new Requirement();
+            RemsFhir TIRFPharmacistKnowledgeResource = new RemsFhir();
+            TIRFPharmacistKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode TIRFPharmacistKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPharmacistKnowledgeQuestionnaire);
+            TIRFPharmacistKnowledgeResource.setResource(TIRFPharmacistKnowledgeQuestionnaireResource);
+            TIRFPharmacistKnowledgeResource.setId("TIRF-pharmacist-knowledge-check");
+            remsFhirRepository.save(TIRFPharmacistKnowledgeResource);
+            TIRFPharmacistCertificationRequirement.setName("Pharmacist Knowledge Assessment");
+            TIRFPharmacistCertificationRequirement.setResource(TIRFPharmacistKnowledgeResource);
+            TIRFPharmacistCertificationRequirement.setDescription("Submit Pharmacist Knowledge Assessment form to the REMS Administrator to receive certification");
+            TIRFPharmacistCertificationRequirement.setParentRequirement(TIRFPharmacistEnrollmentRequirement);
+            //TIRFPharmacistCertificationRequirement.setDrug(tirf);
+            requirementRepository.save(TIRFPharmacistCertificationRequirement);
+
+
+
+            /*########################################################## MET REQUIREMENTS ##########################################################*/
+
+
+
+            /*-------------------------------------------------- TURALIO --------------------------------------------------*/
+
+
+            // pharmacist enrollment form requirement
+            String pharmacistOrganization = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Pharmacist-Organization.json", Charset.defaultCharset());
             MetRequirement pharmacistEnrollmentMetRequirement = new MetRequirement();
             RemsFhir pharmacistCredentialsResource = new RemsFhir();
             pharmacistCredentialsResource.setResourceType(ResourceType.Questionnaire.toString());
             JsonNode pharmacistOrganizationResource = JacksonUtil.toJsonNode(pharmacistOrganization);
             pharmacistCredentialsResource.setResource(pharmacistOrganizationResource);
-            pharmacistCredentialsResource.setId("turalio-pharmacist-organization");
+            pharmacistCredentialsResource.setId("Turalio-pharmacist-organization");
             remsFhirRepository.save(pharmacistCredentialsResource);
             pharmacistEnrollmentMetRequirement.setCompleted(true);
             pharmacistEnrollmentMetRequirement.setRequirement(pharmacistEnrollmentRequirement);
             pharmacistEnrollmentMetRequirement.setCompletedRequirement(pharmacistCredentialsResource);
             metRequirementRepository.save(pharmacistEnrollmentMetRequirement);
 
+
+            /*-------------------------------------------------- TIRF --------------------------------------------------*/
+            
+
+            // pharmacist enrollment assessment
+            String TIRFPharmacistOrganization = readFile("src/main/java/org/hl7/davinci/endpoint/rems/resources/Pharmacist-Organization.json", Charset.defaultCharset());
+            MetRequirement TIRFPharmacistEnrollmentMetRequirement = new MetRequirement();
+            RemsFhir TIRFPharmacistCredentialsResource = new RemsFhir();
+            TIRFPharmacistCredentialsResource.setResourceType(ResourceType.Questionnaire.toString());
+            JsonNode TIRFPharmacistOrganizationResource = JacksonUtil.toJsonNode(TIRFPharmacistOrganization);
+            TIRFPharmacistCredentialsResource.setResource(TIRFPharmacistOrganizationResource);
+            TIRFPharmacistCredentialsResource.setId("TIRF-pharmacist-organization");
+            remsFhirRepository.save(TIRFPharmacistCredentialsResource);
+            TIRFPharmacistEnrollmentMetRequirement.setCompleted(true);
+            TIRFPharmacistEnrollmentMetRequirement.setRequirement(TIRFPharmacistEnrollmentRequirement);
+            TIRFPharmacistEnrollmentMetRequirement.setCompletedRequirement(TIRFPharmacistCredentialsResource);
+            metRequirementRepository.save(TIRFPharmacistEnrollmentMetRequirement);
+
+            // pharmacist knowledge form requirement
+            MetRequirement TIRFPharmacistCertificationMetRequirement = new MetRequirement();
+            TIRFPharmacistCertificationMetRequirement.setCompleted(true);
+            TIRFPharmacistCertificationMetRequirement.setRequirement(TIRFPharmacistCertificationRequirement);
+            TIRFPharmacistCertificationMetRequirement.setParentMetRequirement(TIRFPharmacistEnrollmentMetRequirement);
+            metRequirementRepository.save(TIRFPharmacistCertificationMetRequirement);
 
         };
     }
