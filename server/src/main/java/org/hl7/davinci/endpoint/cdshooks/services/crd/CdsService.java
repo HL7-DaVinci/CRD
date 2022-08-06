@@ -164,11 +164,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );
 
     CdsResponse response = new CdsResponse();
-
-    Gson gson = new Gson();
-    final String jsonObject = gson.toJson(request.getPrefetch());
-    logger.info("Final populated CRDPrefetch: " + jsonObject);
-
     CardBuilder cardBuilder = new CardBuilder();
 
     // CQL Fetched

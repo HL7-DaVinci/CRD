@@ -82,10 +82,11 @@ public class QuestionnairePackageOperation {
 
             // process the orders to find the topics
             FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
-            fhirBundleProcessor.processDeviceRequests(orders);
-            fhirBundleProcessor.processMedicationRequests(orders);
-            fhirBundleProcessor.processServiceRequests(orders);
-            fhirBundleProcessor.processMedicationDispenses(orders);
+            Bundle coverageBundle = new Bundle(); // TODO - No coverages here, so an empty bundle.
+            fhirBundleProcessor.processDeviceRequests(orders, coverageBundle);
+            fhirBundleProcessor.processMedicationRequests(orders, coverageBundle);
+            fhirBundleProcessor.processServiceRequests(orders, coverageBundle);
+            fhirBundleProcessor.processMedicationDispenses(orders, coverageBundle);
             List<String> topics = createTopicList(fhirBundleProcessor);
 
             for (String topic : topics) {

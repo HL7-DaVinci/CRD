@@ -1,10 +1,12 @@
 package org.hl7.davinci;
 
+import org.hl7.fhir.instance.model.api.IBaseResource;
+
 public class PrefetchTemplateElement {
 
   private String key;
   private String query;
-  private Class returnType;
+  private Class<? extends IBaseResource> returnType;
 
   /**
    * Describes a prefetch element. Note that the key and query are exposed in the service
@@ -13,7 +15,7 @@ public class PrefetchTemplateElement {
    * @param query The query to execute against the fhir server.
    * @param returnType The type to cast the result of a successful query to (e.g. a Bundle)
    */
-  public PrefetchTemplateElement(String key, String query, Class returnType) {
+  public PrefetchTemplateElement(String key, Class<? extends IBaseResource> returnType, String query) {
     this.key = key;
     this.query = query;
     this.returnType = returnType;
@@ -27,7 +29,7 @@ public class PrefetchTemplateElement {
     return query;
   }
 
-  public Class getReturnType() {
+  public Class<? extends IBaseResource> getReturnType() {
     return returnType;
   }
 
