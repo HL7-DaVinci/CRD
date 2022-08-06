@@ -50,7 +50,7 @@ public class FhirBundleProcessor {
     if (!empty) {
       logger.warn("Instance is claiming to be deidentified but found information in the " + field + " field.");
     }
-    return empty;
+    return !empty;
   }
 
   public boolean verifyDeidentifiedPatient(Bundle bundle) {
