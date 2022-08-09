@@ -46,10 +46,15 @@ public abstract class CdsServiceRems<requestTypeT extends CdsRequest<?, ?>> exte
                 .setCode("1053648")
                 .setSystem("http://www.nlm.nih.gov/research/umls/rxnorm")
                 .setDisplay("Abstral");
+        Coding TIRF = new Coding()
+                .setCode("1237051")
+                .setSystem("http://www.nlm.nih.gov/research/umls/rxnorm")
+                .setDisplay("TIRF");      
         remsDrugs.add(turalio);
         remsDrugs.add(iPledge);
         remsDrugs.add(revlimid);
         remsDrugs.add(abstral);
+        remsDrugs.add(TIRF);
     }
 
     /**
