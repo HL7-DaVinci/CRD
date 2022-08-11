@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hl7.davinci.endpoint.Utils.idInSelectionsList;
+
 public class FhirBundleProcessor {
   static final Logger logger = LoggerFactory.getLogger(FhirBundleProcessor.class);
 

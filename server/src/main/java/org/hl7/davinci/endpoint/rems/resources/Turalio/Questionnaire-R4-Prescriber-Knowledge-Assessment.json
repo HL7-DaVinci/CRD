@@ -1,0 +1,333 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "TuralioPrescriberKnowledgeAssessment",
+    "name": "TuralioPrescriberKnowledgeAssessment",
+    "title": "Turalio REMS Prescriber Knowledge Assessment",
+    "status": "draft",
+    "subjectType": [
+        "Prescriber"
+    ],
+    "date": "2022-05-28",
+    "publisher": "FDA-REMS",
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+        "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicPractitionerInfo-prepopulation"
+      }
+    ],
+    "item": [
+        {
+            "linkId": "1",
+            "type": "group",
+            "text": "Prescriber Information",
+            "item": [
+                {
+                    "linkId": "1.1",
+                    "text": "First Name",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                        "valueExpression": {
+                          "language": "text/cql",
+                          "expression": "\"BasicClinicalInfoPrepopulation\".EncounterProviderFirstName"
+                        }
+                      },
+                      {
+                        "url" : "http://hl7.org/fhir/StructureDefinition/minLength",
+                        "valueInteger": 2
+                      }
+                    ]
+                },
+                {
+                    "linkId": "1.2",
+                    "text": "Last Name",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                        "valueExpression": {
+                          "language": "text/cql",
+                          "expression": "\"BasicClinicalInfoPrepopulation\".EncounterProviderLastName"
+                        }
+                      },
+                      {
+                        "url" : "http://hl7.org/fhir/StructureDefinition/minLength",
+                        "valueInteger": 2
+                      }
+                    ]
+                },
+                {
+                    "linkId": "1.3",
+                    "text": "Middle Initial",
+                    "type": "string",
+                    "required": false,
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                        "valueExpression": {
+                          "language": "text/cql",
+                          "expression": "\"BasicClinicalInfoPrepopulation\".EncounterProviderMiddleInitial"
+                        }
+                      }
+                    ]
+                },
+                {
+                    "linkId": "1.4",
+                    "text": "National Provider Identifier (NPI) #",
+                    "type": "string",
+                    "required": true,
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                        "valueExpression": {
+                          "language": "text/cql",
+                          "expression": "\"BasicClinicalInfoPrepopulation\".EncounterProviderNPI"
+                        }
+                      }
+                    ]
+                },
+                {
+                    "linkId": "1.5",
+                    "text": "Phone Number",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.6",
+                    "text": "Fax Number",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.7",
+                    "text": "Email",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "linkId": "2",
+            "type": "group",
+            "text": "Knowledge Assessment: Questions 1-9",
+            "item": [
+                {
+                    "linkId": "2.1",
+                    "text": "1. TURALIO is indicated for the treatment of adult patients with symptomatic tenosynovial giant cell tumor (TGCT) associated with severe morbidity or functional limitations and not amenable to improvement with surgery.",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "true",
+                            "display": "True"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "false",
+                            "display": "False"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.2",
+                    "text": "2. TURALIO is contraindicated in patients with hepatic impairment.",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "true",
+                            "display": "True"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "false",
+                            "display": "False"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.3",
+                    "text": "3. To prescribe TURALIO, I must enroll each patient in the TURALIO REMS by completing a Patient Enrollment Form with the patient and submitting it to the TURALIO REMS.",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "true",
+                            "display": "True"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "false",
+                            "display": "False"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.4",
+                    "text": "4. Before treating each patient with TURALIO, I must",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "Become certified in the TURALIO REMS",
+                            "display": "Become certified in the TURALIO REMS"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "Counsel the patient regarding the risk of serious and potentially fatal liver injury associated with TURALIO",
+                            "display": "Counsel the patient regarding the risk of serious and potentially fatal liver injury associated with TURALIO"
+                          }
+                        },
+                        {
+                            "valueCoding": {
+                              "code": "Obtain and review baseline liver tests",
+                              "display": "Obtain and review baseline liver tests"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                              "code": "All of the above",
+                              "display": "All of the above"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.5",
+                    "text": "5. One of the primary counseling messages I must tell my patients before prescribing TURALIO is",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "Do not take TURALIO if you have vision issues",
+                            "display": "Do not take TURALIO if you have vision issues"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "Patients with renal impairment should not start TURALIO at a reduced dose",
+                            "display": "Patients with renal impairment should not start TURALIO at a reduced dose"
+                          }
+                        },
+                        {
+                            "valueCoding": {
+                              "code": "There is a risk of liver injury associated with TURALIO and liver monitoring is required prior to treatment initiation and periodically while taking TURALIO",
+                              "display": "There is a risk of liver injury associated with TURALIO and liver monitoring is required prior to treatment initiation and periodically while taking TURALIO"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                              "code": "None of the above",
+                              "display": "None of the above"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.6",
+                    "text": "6. I am required to educate my patients on the signs and symptoms of liver injury and the need to notify me should they experience them.",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "true",
+                            "display": "True"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "false",
+                            "display": "False"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.7",
+                    "text": "7. If any dose modifications are required, they must be done in increments of 200 mg.",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "true",
+                            "display": "True"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "false",
+                            "display": "False"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.8",
+                    "text": "8. After treatment initiation, I need to monitor liver tests weekly for the first 8 weeks of treatment, every 2 weeks for the next month, and every 3 months thereafter.",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "true",
+                            "display": "True"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "false",
+                            "display": "False"
+                          }
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.9",
+                    "text": "9. I must complete a Patient Status Form for each patient taking TURALIO and submit it to the TURALIO REMS:",
+                    "type": "open-choice",
+                    "answerOption": [
+                        {
+                          "valueCoding": {
+                            "code": "Every month during treatment",
+                            "display": "Every month during treatment"
+                          }
+                        },
+                        {
+                          "valueCoding": {
+                            "code": "Weekly for 8 weeks of treatment, every 2 weeks for the next month, and every 3 months thereafter",
+                            "display": "Weekly for 8 weeks of treatment, every 2 weeks for the next month, and every 3 months thereafter"
+                          }
+                        },
+                        {
+                            "valueCoding": {
+                              "code": "Every month for the first 3 months of treatment, month 6, month 9, and month 12 of treatment, and every 6 months thereafter",
+                              "display": "Every month for the first 3 months of treatment, month 6, month 9, and month 12 of treatment, and every 6 months thereafter"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                              "code": "Every month for the first 6 months of treatment and every 6 months thereafter",
+                              "display": "Every month for the first 6 months of treatment and every 6 months thereafter"
+                            }
+                        },
+                        {
+                            "valueCoding": {
+                              "code": "None of the above",
+                              "display": "None of the above"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

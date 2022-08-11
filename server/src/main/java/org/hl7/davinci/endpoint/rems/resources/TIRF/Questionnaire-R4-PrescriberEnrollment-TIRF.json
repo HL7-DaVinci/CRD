@@ -1,0 +1,425 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "TIRFPrescriberEnrollmentForm",
+    "name": "TIRFPrescriberEnrollmentForm",
+    "title": "TIRF REMS Prescriber Enrollment Form",
+    "status": "draft",
+    "subjectType": [
+      "Practitioner"
+    ],
+    "date": "2022-05-28",
+    "publisher": "FDA-REMS",
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+        "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/TIRFPrescriberEnrollment-prepopulation"
+      }
+    ],
+    "item": [
+      {
+        "linkId": "1",
+        "type": "group",
+        "text": "Prescriber Information",
+        "item": [
+          {
+            "linkId": "1.1",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                "valueCanonical": "questionnaire/practitioner-info-base"
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
+                "valueBoolean": true
+              }
+            ],
+            "type": "display"
+          },
+          {
+            "linkId": "1.2",
+            "text": "Clinic/Practice Name",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"TIRFPrescriberEnrollmentPrepopulation\".OrgName"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.3",
+            "text": "Specialty",
+            "type": "open-choice",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"TIRFPrescriberEnrollmentPrepopulation\".Specialty"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.4",
+            "text": "Credentials",
+            "type": "open-choice",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"TIRFPrescriberEnrollmentPrepopulation\".Credentials"
+                }
+              }
+            ],
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0360|2.7",
+                  "display": "MD"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "NP",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0360|2.7",
+                  "display": "NP"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "PA",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0360|2.7",
+                  "display": "PA"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "DO",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0360|2.7",
+                  "display": "DO"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Other",
+                  "display": "Other"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.5",
+            "text": "Address",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Line"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.6",
+            "text": "City",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".City"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.7",
+            "text": "State",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".State"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.8",
+            "text": "Zip",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Zip"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.9",
+            "text": "Phone",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Phone"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.10",
+            "text": "Ext",
+            "type": "string",
+            "required": false
+          },
+          {
+            "linkId": "1.11",
+            "text": "Fax",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Fax"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.12",
+            "text": "Email Address",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Email"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.13",
+            "text": "Preferred Time of Contact",
+            "type": "choice",
+            "required": false,
+            "answerOption": [
+              {
+                "valueString": "Morning"
+              },
+              {
+                "valueString": "Afternnon"
+              },
+              {
+                "valueString": "Evening"
+              }
+            ]
+          },
+          {
+            "linkId": "1.14",
+            "text": "Preferred Method of Contact",
+            "type": "open-choice",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"TIRFPrescriberEnrollmentPrepopulation\".PreferredCommunication"
+                }
+              }
+            ],
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "sms",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Text to Mobile #"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "email",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Email"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "phone",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Phone Call"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "linkId": "2",
+        "type": "group",
+        "text": "Office Contact Information",
+        "item": [
+          {
+            "linkId": "2.1",
+            "text": "First and Last Name",
+            "type": "string",
+            "required": false
+          },
+          {
+            "linkId": "2.2",
+            "text": "Phone",
+            "type": "string",
+            "required": false
+          },
+          {
+            "linkId": "2.3",
+            "text": "Fax",
+            "type": "string",
+            "required": false
+          },
+          {
+            "linkId": "2.4",
+            "text": "Email Address",
+            "type": "string",
+            "required": false
+          },
+          {
+            "linkId": "2.5",
+            "text": "Preferred Time of Contact",
+            "type": "choice",
+            "required": false,
+            "answerOption": [
+              {
+                "valueString": "Morning"
+              },
+              {
+                "valueString": "Afternnon"
+              },
+              {
+                "valueString": "Evening"
+              }
+            ]
+          },
+          {
+            "linkId": "2.6",
+            "text": "Preferred Method of Contact",
+            "type": "choice",
+            "required": false,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "sms",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Text to Mobile #"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "email",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Email"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "phone",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Phone Call"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "linkId": "3",
+        "type": "group",
+        "text": "Prescriber Certification (if applicable)",
+        "item": [
+          {
+            "linkId": "3.1",
+            "text": "Prescriber Certification Type",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"TIRFPrescriberEnrollmentPrepopulation\".ThirdPartyCredentials"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "3.2",
+            "text": "Prescriber Certification Issuer",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"TIRFPrescriberEnrollmentPrepopulation\".ThirdPartyIssuer"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "linkId": "4",
+        "type": "group",
+        "text": "Prescriber Attestation",
+        "item": [
+          {
+            "linkId": "4.1",
+            "text": "By signing below, you attest to the following: I have: • Reviewed each drug's Prescribing Information • Reviewed the Prescriber Education • Successfully completed the Prescriber Knowledge Assessment and submitted it to the REMS. Before treatment initiation, I must: • Assess the patient for rish factors of opioid addition, abuse, and misuse including personal and family history of substance abuse or mental illness • Counsel the patient on the safe use of TIRF medicines using the Medication Guide for the prescribed TIRF medicine and the Patient Counseling Guide • Provide a copy of the materials to the patient • Assess the patient's opioid tolerance • Document the patient's opioid tolerace using the Patient Enrollment Form and submit to the REMS • Enroll the patient by completing and submitting the Patient Enrollment Form to the TIRF REMS. During treatment, and before each prescription, I must: • Assess the patient's health status for opioid tolerance, appropriateness of dose, misuse, abuse, addiction, and overdose • Document and submit this information to the REMS using the Patient Status and Opioid Tolerance Form. During treatment, every 2 years, I must: • Counsel the patient on the safe use of TIRF medicines using the Medication Guide for the prescribed TIRF medicine, and the Patient Counseling Guide • Provide a copy of the materials to the patient • Re-enroll the patient in the REMS by completing the Patient Enrollment Form and submitting it to the REMS. Before treatment re-initiation, after a lapse in treatment of 6 months or longer, I must: • Counsel the Patient on the safe use of TIRF medicines using the Medication Guide for the prescribed TIRF medicine and the Patient Counseling Guide • Provide a copy of the materials to the patient. At all times, I must: • Counsel the patient using the Medication Guide for any new TIRF medicine not previously prescribed and provide a copy to the patient • Report serious adverse events of accidental exposure, misuse, abuse, addiction, and overdose to the REMS using the Adverse Events of Special Interest Reporting Form • Report treatment discontinuation to the REMS using the Patient Discontinuation Form. To maintain certification to prescribe, every 2 years, I must: • Review each drug's Prescribing Information • Review the Prescriber Education • Successfully complete the Prescriber Knowledge Assessment and submit it to the REMS • Re-enroll in the REMS by completing the Prescriber Enrollment Form",
+            "type": "display",
+            "readOnly": true
+          },
+          {
+            "linkId": "4.2",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                "valueCanonical": "questionnaire/provider-signature"
+              }
+            ],
+            "type": "display"
+          }
+        ]
+      }
+    ]
+}

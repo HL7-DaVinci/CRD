@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.internal.JacksonUtil;
 import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.*;
@@ -16,7 +18,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.util.Arrays;
 
 import java.io.IOException;
@@ -37,6 +43,9 @@ public class DataController {
 
   @Autowired
   private ClientRepository clientRepository;
+
+  // @Autowired
+  // private RemsRepository remsRepository;
 
   @Autowired
   private YamlConfig myConfig;

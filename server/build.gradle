@@ -28,7 +28,7 @@ bootRun {
     if (project.hasProperty('debug')) { 
         jvmArgs=["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8091"]
     }
-} 
+}
 
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -46,6 +46,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-validation')
 
     implementation('com.h2database:h2')
+    implementation("com.vladmihalcea:hibernate-types-52:2.14.1")
 
     implementation("io.jsonwebtoken:jjwt:0.7.0")
 
@@ -58,6 +59,7 @@ dependencies {
 
     implementation 'ca.uhn.hapi.fhir:hapi-fhir-base:5.3.0'
     implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.3.0'
+    implementation 'ca.uhn.hapi.fhir:hapi-fhir-server:5.3.0'
 
     implementation 'com.jayway.jsonpath:json-path:2.4.0'
     implementation 'joda-time:joda-time:2.10.5'
@@ -149,7 +151,7 @@ void cloneCdsLibraryScript(branch) {
     println "GIT: clone CDS-Library branch " + branch
     exec {
         workingDir './'
-        commandLine 'git', 'clone', 'https://github.com/HL7-DaVinci/CDS-Library.git', 'CDS-Library'
+        commandLine 'git', 'clone', 'https://github.com/mcode/CDS-Library.git', 'CDS-Library'
     }
     checkoutCdsLibraryScript(branch)
 }
