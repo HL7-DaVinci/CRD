@@ -33,8 +33,11 @@ public class EndToEndRequestPrefetchTest {
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(9089);
-  private String deviceRequestFullPrefetch = FileUtils
+  private String deviceRequestFullPrefetchNoCoverage = FileUtils
       .readFileToString(new ClassPathResource("deviceRequestFullPrefetch_r4.json").getFile(),
+          Charset.defaultCharset());
+  private String deviceRequestFullPrefetchWithCoverage = FileUtils
+      .readFileToString(new ClassPathResource("deviceRequestFullPrefetchWithCoverage_r4.json").getFile(),
           Charset.defaultCharset());
   private String deviceRequestEmptyPrefetchJson = FileUtils
       .readFileToString(new ClassPathResource("deviceRequestEmptyPrefetch_r4.json").getFile(),
@@ -42,7 +45,14 @@ public class EndToEndRequestPrefetchTest {
   private String deviceRequestPrefetchResponseJson = FileUtils
       .readFileToString(new ClassPathResource("deviceRequestPrefetchResponse_r4.json").getFile(),
           Charset.defaultCharset());
-  private String prefetchUrlMatcher = "\\/DeviceRequest\\?_id=123.*";
+  private String prefetchUrlMatcher = "\\/DeviceRequest\\?_id=123"
+      + "&_include=DeviceRequest:patient"
+      + "&_include=DeviceRequest:performer"
+      + "&_include=DeviceRequest:requester"
+      + "&_include=DeviceRequest:device"
+      + "&_include:iterate=PractitionerRole:organization"
+      + "&_include:iterate=PractitionerRole:practitioner(.*?)"
+      +"|\\/Coverage\\?patient=c2f0f972-5f84-4518-948f-63d00a1fa5a0";
 
   @LocalServerPort
   private int port;
@@ -55,10 +65,22 @@ public class EndToEndRequestPrefetchTest {
   }
 
   @Test
-  public void shouldRunSuccessfully() {
+  public void shouldRunSuccessfullyWithoutCoverage() {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<String> entity = new HttpEntity<String>(deviceRequestFullPrefetch, headers);
+    HttpEntity<String> entity = new HttpEntity<String>(deviceRequestFullPrefetchNoCoverage, headers);
+    JsonNode cards = restTemplate
+        .postForObject("http://localhost:" + port + "/r4/cds-services/order-sign-crd", entity,
+            JsonNode.class);
+
+    assertEquals(1, cards.get("cards").size());
+  }
+
+  @Test
+  public void shouldRunSuccessfullyWithCoverage() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    HttpEntity<String> entity = new HttpEntity<String>(deviceRequestFullPrefetchWithCoverage, headers);
     JsonNode cards = restTemplate
         .postForObject("http://localhost:" + port + "/r4/cds-services/order-sign-crd", entity,
             JsonNode.class);

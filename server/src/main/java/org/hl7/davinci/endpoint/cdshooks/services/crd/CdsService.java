@@ -22,7 +22,6 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
-import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.opencds.cqf.cql.engine.execution.Context;
@@ -91,10 +90,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );
 
     CdsResponse response = new CdsResponse();
-
-    Gson gson = new Gson();
-    final String jsonObject = gson.toJson(request.getPrefetch());
-    logger.info("Final populated CRDPrefetch: " + jsonObject);
 
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
