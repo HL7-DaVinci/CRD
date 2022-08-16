@@ -247,7 +247,6 @@ public class FhirController {
 
   private ResponseEntity<String> handleQuestionnaireOperation(HttpServletRequest request, HttpEntity<String> entity,
                                                               String fhirVersion, String questionnaireId) {
-    System.out.println(questionnaireId);
     fhirVersion = fhirVersion.toUpperCase();
     String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
 

@@ -298,8 +298,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
     List<Pair<String, String>> linksToAdd = new ArrayList<>();
-    System.out.println(lookupResult.getCriteria().getPayor());
-    System.out.println(lookupResult.getCriteria().getPayorId());
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
       linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireOrderUri(), "Order Form"));
