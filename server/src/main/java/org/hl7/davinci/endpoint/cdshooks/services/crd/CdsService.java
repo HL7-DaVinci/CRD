@@ -229,27 +229,28 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
   private Card createPrescriberCard(requestTypeT request, URL applicationBaseUrl,
                                            CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
+    CardBuilder cardBuilder = new CardBuilder();
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
               coverageRequirements.getQuestionnairePrescriberEnrollmentUri(), coverageRequirements.getRequestId(),
-              lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Enrollment Form"));
+              results.getRequest(), "Prescriber Enrollment Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
               coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri(), coverageRequirements.getRequestId(),
-              lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Knowledge Assessment Form"));
+              results.getRequest(), "Prescriber Knowledge Assessment Form"));
     }
 
     Card card;
     if (coverageRequirements.isPriorAuthRequired()) {
-      card = CardBuilder.transform(CardTypes.PRIOR_AUTH, results, listOfLinks);
-      card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+      card = cardBuilder.transform(CardTypes.PRIOR_AUTH, results, listOfLinks);
+      card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
               "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
               true, CoverageGuidance.ADMIN));
     } else {
-      card = CardBuilder.transform(CardTypes.DTR_CLIN, results, listOfLinks);
-      card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+      card = cardBuilder.transform(CardTypes.DTR_CLIN, results, listOfLinks);
+      card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
               "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
               true, CoverageGuidance.CLINICAL));
     }

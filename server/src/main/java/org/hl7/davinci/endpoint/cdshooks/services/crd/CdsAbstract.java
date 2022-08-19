@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +97,7 @@ public abstract class CdsAbstract<requestTypeT extends CdsRequest<?, ?>>{
     }
 
     protected Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri,
-                                  String reqResourceId, CoverageRequirementRuleCriteria criteria, boolean priorAuthRequired, String label) {
+                                    String reqResourceId, IBaseResource request, String label) {
         URI configLaunchUri = myConfig.getLaunchUrl();
         questionnaireUri = applicationBaseUrl + "/fhir/r4/" + questionnaireUri;
 
@@ -125,13 +127,9 @@ public abstract class CdsAbstract<requestTypeT extends CdsRequest<?, ?>>{
         // request is the ID of the device request or medrec (not the full URI like the
         // IG says, since it should be taken from fhirBase
 
-        String filepath = "../../getfile/" + criteria.getQueryString();
 
-        String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
-        appContext = appContext + "&fhirpath=" + applicationBaseUrl + "/fhir/";
+        String appContext = "questionnaire=" + questionnaireUri + "&order=" + reqResourceId + "&coverage=" + FhirRequestProcessor.getCoverageFromRequest(request).getReference();
 
-        appContext = appContext + "&priorauth=" + (priorAuthRequired ? "true" : "false");
-        appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
         if (myConfig.getUrlEncodeAppContext()) {
             logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
             appContext = URLEncoder.encode(appContext, StandardCharsets.UTF_8).toString();

@@ -65,9 +65,10 @@ public abstract class CdsServiceRems<requestTypeT extends CdsRequest<?, ?>> exte
      */
     public CdsResponse handleRequest(@Valid @RequestBody requestTypeT request, URL applicationBaseUrl) {
         CdsResponse response = new CdsResponse();
+        CardBuilder cardBuilder = new CardBuilder();
         List<Coding> medications = getMedications(request);
         for (Coding medication : medications) {
-            Card card = CardBuilder.summaryCard(CardTypes.COVERAGE, "");
+            Card card = cardBuilder.summaryCard(CardTypes.COVERAGE, "");
             if (isRemsDrug(medication)) {
                 card.setSummary(String.format("%s has REMS", medication.getDisplay()));
             } else {
