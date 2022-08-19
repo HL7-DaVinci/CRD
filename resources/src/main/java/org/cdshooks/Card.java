@@ -39,6 +39,15 @@ public class Card {
   public void setDetail(String detail) {
     this.detail = detail;
   }
+  
+  // Add details to what already exists
+  public void addDetail(String detail) {
+    if (this.detail == null) {
+      setDetail(detail);
+    } else {
+      this.detail = detail + "\n" + this.detail;
+    }
+  }
 
   public IndicatorEnum getIndicator() {
     return indicator;
