@@ -13,6 +13,7 @@ import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -104,7 +105,7 @@ public class PrefetchHydrator {
         alreadyIncluded = (PropertyUtils.getProperty(crdResponse, prefetchKey) != null);
       } catch (Exception e) {
         throw new RuntimeException("System error: Mismatch in prefetch keys between the "
-            + "CrdPrefetch and the key templates set in the service.", e);
+            + "CrdPrefetch and the key templates set in the service. Given prefetch key '" + prefetchKey + "''.", e);
       }
       if (!alreadyIncluded) {
         // check if the bundle actually has element
@@ -118,10 +119,18 @@ public class PrefetchHydrator {
                 + "server provided. Either provide a full prefetch or provide a fhir server.");
           }
           try {
-            PropertyUtils
+            Bundle bundle = (Bundle) PropertyUtils.getProperty(crdResponse, prefetchKey);
+            if (bundle == null) {
+              PropertyUtils
                 .setProperty(crdResponse, prefetchKey,
-                    prefetchElement.getReturnType().cast(FhirRequestProcessor.executeFhirQueryUrl(
-                      hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
+                    prefetchElement.getReturnType().cast(
+                        FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
+            } else {
+              Bundle newBundle = (Bundle) prefetchElement.getReturnType().cast(
+                  FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET));
+              bundle.getEntry().addAll(newBundle.getEntry());
+              PropertyUtils.setProperty(crdResponse, prefetchKey, bundle);
+            }
           } catch (Exception e) {
             logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
           }

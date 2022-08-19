@@ -348,6 +348,7 @@ public class FhirRequestProcessor {
         if(!patients.isEmpty()){
           medicationRequest.getSubject().setResource(patients.get(0));
         }
+        break;
       case MedicationDispense:
         MedicationDispense dispense = (MedicationDispense) resource;
         // MedicationDispense does not have an insurance field.
