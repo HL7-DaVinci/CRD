@@ -32,7 +32,7 @@ import java.util.List;
 //TODO: handle operation being passed one or more canonicals specifying the URL and, optionally, the version of the Questionnaire(s) to retrieve
 
 public class QuestionnairePackageOperation {
-    
+
     static final Logger logger = LoggerFactory.getLogger(QuestionnairePackageOperation.class);
 
     FileStore fileStore;
@@ -50,7 +50,7 @@ public class QuestionnairePackageOperation {
      * Do the work retrieving all of the Questionnaire, Library and Valueset Resources.
      */
     public String execute(String resourceString, String questionnaireId) {
-        Parameters outputParameters = new Parameters();    
+        Parameters outputParameters = new Parameters();
         IBaseResource resource = null;
 
         try {
@@ -61,7 +61,7 @@ public class QuestionnairePackageOperation {
         }
 
         if (resource.fhirType().equalsIgnoreCase("Parameters")) {
-            Parameters parameters = (Parameters)resource;
+            Parameters parameters = (Parameters) resource;
 
             //TODO: handle multiple FHIR Coverage Resources
             Coverage coverage = (Coverage) getResource(parameters, "coverage");
@@ -78,32 +78,32 @@ public class QuestionnairePackageOperation {
 
             // list of items in bundle to avoid duplicates
             List<String> bundleContents = new ArrayList<>();
-
-            // process the orders to find the topics
-            FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
-            Bundle coverageBundle = new Bundle(); // TODO - No coverages here, so an empty bundle.
-            fhirBundleProcessor.processDeviceRequests(orders, coverageBundle);
-            fhirBundleProcessor.processMedicationRequests(orders, coverageBundle);
-            fhirBundleProcessor.processServiceRequests(orders, coverageBundle);
-            fhirBundleProcessor.processMedicationDispenses(orders, coverageBundle);
-            List<String> topics = createTopicList(fhirBundleProcessor);
-            for (String topic : topics) {
-                logger.info("--> process topic: " + topic);
-                if (questionnaireId == null) {
+            if (questionnaireId == null) {
+                // process the orders to find the topics
+                FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
+                Bundle coverageBundle = new Bundle(); // TODO - No coverages here, so an empty bundle.
+                fhirBundleProcessor.processDeviceRequests(orders, coverageBundle);
+                fhirBundleProcessor.processMedicationRequests(orders, coverageBundle);
+                fhirBundleProcessor.processServiceRequests(orders, coverageBundle);
+                fhirBundleProcessor.processMedicationDispenses(orders, coverageBundle);
+                List<String> topics = createTopicList(fhirBundleProcessor);
+                for (String topic : topics) {
+                    logger.info("--> process topic: " + topic);
                     // get all of the Quesionnaires for the topic
                     Bundle bundle = fileStore.getFhirResourcesByTopicAsFhirBundle("R4", "Questionnaire", topic.toLowerCase(), baseUrl);
                     List<BundleEntryComponent> bundleEntries = bundle.getEntry();
                     for (BundleEntryComponent entry : bundleEntries) {
                         processResource(entry.getResource(), bundleContents, completeBundle);
                     } // Questionnaires
-                } else {
-                    // get only the specified Questionnaire
-                    Resource questionnaireResource = fileStore.getFhirResourceByIdAsFhirResource("R4", "Questionnaire", questionnaireId, baseUrl);
-                    if (questionnaireResource != null) {
-                        processResource(questionnaireResource, bundleContents, completeBundle);
-                    }
+                } // topics
+            } else {
+                // get only the specified Questionnaire
+                Resource questionnaireResource = fileStore.getFhirResourceByIdAsFhirResource("R4", "Questionnaire", questionnaireId, baseUrl);
+                if (questionnaireResource != null) {
+                    processResource(questionnaireResource, bundleContents, completeBundle);
                 }
-            } // topics
+            }
+
 
             // add the bundle to the output parameters if it contains any resources
             if (!completeBundle.isEmpty()) {
@@ -140,7 +140,7 @@ public class QuestionnairePackageOperation {
         for (ParametersParameterComponent parameter : parameters.getParameter()) {
             if (parameter.getName().equals(name))
                 foundResources.addEntry(new BundleEntryComponent().setResource(parameter.getResource()));
-            }
+        }
 
         return foundResources;
     }
@@ -176,12 +176,12 @@ public class QuestionnairePackageOperation {
         addResourceToBundle(resource, bundleContents, completeBundle);
 
         if (resource.fhirType().equalsIgnoreCase("Questionnaire")) {
-            Questionnaire questionnaire = (Questionnaire)resource;
+            Questionnaire questionnaire = (Questionnaire) resource;
 
             List<Extension> extensions = questionnaire.getExtension();
             for (Extension extension : extensions) {
                 if (extension.getUrl().endsWith("cqf-library")) {
-                    CanonicalType data = (CanonicalType)extension.getValue();
+                    CanonicalType data = (CanonicalType) extension.getValue();
                     String url = data.asStringValue();
                     Resource libraryResource = null;
 
@@ -195,7 +195,7 @@ public class QuestionnairePackageOperation {
 
                     if (addResourceToBundle(libraryResource, bundleContents, completeBundle)) {
                         // recursively add the depends-on libraries if added to bundle
-                        addLibraryDependencies((Library)libraryResource, bundleContents, completeBundle);
+                        addLibraryDependencies((Library) libraryResource, bundleContents, completeBundle);
                     }
                 }
             }
@@ -203,8 +203,8 @@ public class QuestionnairePackageOperation {
     }
 
     /*
-    * Recursively add all of the libraries dependencies related by the "depends-on" type.
-    */
+     * Recursively add all of the libraries dependencies related by the "depends-on" type.
+     */
     private void addLibraryDependencies(Library library, List<String> bundleContents, Bundle questionnaireBundle) {
         List<RelatedArtifact> relatedArtifacts = library.getRelatedArtifact();
         for (RelatedArtifact relatedArtifact : relatedArtifacts) {
@@ -231,7 +231,7 @@ public class QuestionnairePackageOperation {
                     bundleContents.add(referencedLibraryResource.getId());
 
                     // recurse through the libraries...
-                    addLibraryDependencies((Library)referencedLibraryResource, bundleContents, questionnaireBundle);
+                    addLibraryDependencies((Library) referencedLibraryResource, bundleContents, questionnaireBundle);
                 }
             }
         }
