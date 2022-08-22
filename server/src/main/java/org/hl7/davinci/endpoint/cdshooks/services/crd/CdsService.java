@@ -366,9 +366,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     }
 
     // PARAMS:
-    // template is the uri of the questionnaire
-    // request is the ID of the device request or medrec (not the full URI like the
-    // IG says, since it should be taken from fhirBase
+    // questionnaire is the canonical uri of the questionnaire resource
+    // order is the request (DeviceRequest, ServiceRequest, MedicationRequest, MedicationDispense, etc)
+    // coverage is the insurance information
+    // can optionally include a "response" parameter for a QuestionnaireResponse resource to relaunch from
 
     String appContext = "questionnaire=" + questionnaireUri + "&order=" + reqResourceId + "&coverage=" + FhirRequestProcessor.getCoverageFromRequest(request).getReference();
 
