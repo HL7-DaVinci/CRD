@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import java.util.Date;
 
+
 public class FhirBundleProcessor {
   static final Logger logger = LoggerFactory.getLogger(FhirBundleProcessor.class);
 

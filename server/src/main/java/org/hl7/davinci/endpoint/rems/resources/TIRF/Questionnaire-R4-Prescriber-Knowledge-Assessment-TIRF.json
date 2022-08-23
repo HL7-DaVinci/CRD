@@ -1,0 +1,378 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "TIRFPrescriberKnowledgeAssessment",
+    "name": "TIRFPrescriberKnowledgeAssessment",
+    "title": "TIRF REMS Prescriber Knowledge Assessment",
+    "status": "draft",
+    "subjectType": [
+        "Prescriber"
+    ],
+    "date": "2022-05-28",
+    "publisher": "FDA-REMS",
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/cqf-library",
+        "valueCanonical": "http://hl7.org/fhir/us/davinci-dtr/Library/BasicPractitionerInfo-prepopulation"
+      }
+    ],
+    "item": [
+      {
+        "linkId": "1",
+        "type": "group",
+        "text": "Prescriber Information",
+        "item": [
+          {
+            "linkId": "1.1",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                "valueCanonical": "questionnaire/practitioner-info-base"
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
+                "valueBoolean": true
+              }
+            ],
+            "type": "display"
+          },
+          {
+            "linkId": "1.2",
+            "text": "Address",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Line"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.3",
+            "text": "City",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".City"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.4",
+            "text": "State",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".State"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.5",
+            "text": "Zip",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Zip"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.6",
+            "text": "Phone",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Phone"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.7",
+            "text": "Ext",
+            "type": "string",
+            "required": false
+          },
+          {
+            "linkId": "1.8",
+            "text": "Fax",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Fax"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.9",
+            "text": "Email Address",
+            "type": "string",
+            "required": false,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Email"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "linkId": "2",
+        "type": "group",
+        "text": "Knowledge Assessment",
+        "item": [
+          {
+            "linkId": "2.1.1",
+            "type": "choice",
+            "text": "1. The patients described are all experiencing breakthrough cancer pain, but ONE is not an appropriate patient for a TIRF medicine. Which patient should not receive a TIRF medicine? Select one option",
+            "answerOption": [
+              {
+                "valueString": "12-year-old sarcoma patient, using transdermal fentanyl for her underlying persistent cancer pain"
+              },
+              {
+                "valueString": "Adult female with advanced breast cancer; on 60 mg of oral morphine daily for the past 4 weeks"
+              },
+              {
+                "valueString": "Adult male with advanced lung cancer, his underlying persistent pain is managed with 25 mcg/hour transdermal fentanyl patches for the past 3 months"
+              },
+              {
+                "valueString": "Adult male with multiple myeloma who has bone pain currently managed with 50 mg oral oxymorphone daily for the last 2 weeks"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.2",
+            "type": "choice",
+            "text": "2. The patients described are experiencing breakthrough cancer pain. A TIRF medicine is NOT appropriate for one of them. Which patient should not receive a TIRF medicine? Select one option",
+            "answerOption": [
+              {
+                "valueString": "Adult male with advanced lung cancer; underlying persistent cancer pain managed with 25 mcg/hour transdermal fentanyl patches for the past 2 months"
+              },
+              {
+                "valueString": "Adult female with localized breast cancer; just completed a mastectomy and reconstructive surgery; persistent cancer pain managed with 30 mg oral morphine daily for the past 6 weeks"
+              },
+              {
+                "valueString": "Adult male patient with advanced prostate cancer who, over the last 2 weeks, has been prescribed 100 mg oral morphine daily for pain due to bone metastasis"
+              },
+              {
+                "valueString": "Adult female with advanced sarcoma who has been taking a daily dose of 12 mg oral hydromorphone for the last 3 weeks"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.3",
+            "type": "choice",
+            "text": "3. Certain factors may increase the risk of abuse and/or diversion of opioid medications. Which of the following is most accurate? Select one option",
+            "answerOption": [
+              {
+                "valueString": "A history of alcohol abuse with the patient or close family members"
+              },
+              {
+                "valueString": "The patient has a household member with a street drug abuse problem"
+              },
+              {
+                "valueString": "The patient has a history of prescription drug misuse"
+              },
+              {
+                "valueString": "All of the above"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.4",
+            "type": "choice",
+            "text": "4. A patient is already taking a TIRF medicine but wants to change their medicine. His/her doctor decides to prescribe a different TIRF medicine (that is not a bioequivalent generic version of a branded product) in its place. How should the prescriber proceed? Select one option",
+            "answerOption": [
+              {
+                "valueString": "The prescriber can safely convert to the equivalent dosage of the new TIRF medicine as it has the same effect as other TIRF medicines"
+              },
+              {
+                "valueString": "The prescriber must not convert from the first TIRF medicine dose to another TIRF medicine at the equivalent dose. The different TIRF medicines have different absorption and bioavailability profiles, and conversion to an equivalent dose of a second TIRF product could result in a fentanyl overdose"
+              },
+              {
+                "valueString": "Convert from the other TIRF medicine to the new TIRF medicine at half of the dose"
+              },
+              {
+                "valueString": "The prescriber should base the starting dose of the newly prescribed TIRF medicine on the dose of the opioid medicine used for their underlying persistent cancer pain"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.5",
+            "type": "choice",
+            "text": "5. A patient is starting titration with a TIRF medicine. What dose must they start with? Select one option",
+            "answerOption": [
+              {
+                "valueString": "An appropriate dose based on the dose of the opioid medicine used for underlying persistent cancer pain"
+              },
+              {
+                "valueString": "The dose that the prescriber believes is appropriate based on their clinical experience"
+              },
+              {
+                "valueString": "The lowest available dose, unless individual product Prescribing Information provides product-specific guidance"
+              },
+              {
+                "valueString": "The median available dose"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.6",
+            "type": "choice",
+            "text": "6. A prescriber has started titrating a patient with the lowest dose of a TIRF medicine. However, after 30 minutes, the breakthrough cancer pain has not been sufficiently relieved. What should they advise the patient to do? Select one option",
+            "answerOption": [
+              {
+                "valueString": "Take another (identical) dose of the TIRF medicine immediately"
+              },
+              {
+                "valueString": "Take a dose of an alternative rescue medicine"
+              },
+              {
+                "valueString": "Provide guidance based on the product-specific Prescribing Information because the instructions are not the same for all TIRF medicines"
+              },
+              {
+                "valueString": "Double the dose and take immediately"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.7",
+            "type": "choice",
+            "text": "7. A patient is taking a TIRF medicine and the doctor would like to prescribe erythromycin, a CYP3A4 inhibitor. Which of the following statements is TRUE? Select one option",
+            "answerOption": [
+              {
+                "valueString": "The patient can’t be prescribed erythromycin, because using it at the same time as a TIRF medicine could be fatal"
+              },
+              {
+                "valueString": "Use of a TIRF medicine with a CYP3A4 inhibitor may require dosage adjustment of the TIRF medicine; carefully monitor the patient for opioid toxicity, otherwise such use may cause serious life threatening, and/or fatal respiratory depression"
+              },
+              {
+                "valueString": "There is no possible drug interaction between CYP3A4 inhibitors and TIRF medicines"
+              },
+              {
+                "valueString": "The dose of the TIRF medicine must be reduced by one half if a CYP3A4 inhibitor is prescribed in the same patient"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.8",
+            "type": "choice",
+            "text": "8. Before initiating treatment with a TIRF medicine, prescribers must review the Medication Guide and Patient Counseling Guide with the patient. Which of the following counseling statements is FALSE? Select one option",
+            "answerOption": [
+              {
+                "valueString": "TIRF medicines contain fentanyl in an amount that could be fatal to children of all ages, in individuals for whom they were not prescribed, and in those who are not opioid tolerant"
+              },
+              {
+                "valueString": "Inform patients that TIRF medicines must not be used to treat acute or postoperative pain, including headache/migraine, dental pain or acute pain in the emergency department"
+              },
+              {
+                "valueString": "Instruct patients that, if they stop taking their around-the-clock opioid medicine, they can continue to take their TIRF medicine"
+              },
+              {
+                "valueString": "Instruct patients to never share their TIRF medicine with anyone else, even if that person has the same symptoms"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.9",
+            "type": "choice",
+            "text": "9. There is a risk of fatal overdose with inappropriate use of TIRF medicines. Which one of the following answers is most accurate? Select one option",
+            "answerOption": [
+              {
+                "valueString": "TIRF medicines can be fatal if taken by children"
+              },
+              {
+                "valueString": "TIRF medicines can be fatal if taken by anyone for whom it is not prescribed"
+              },
+              {
+                "valueString": "TIRF medicines can be fatal if taken by anyone who is not opioid-tolerant"
+              },
+              {
+                "valueString": "All of the above"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.10",
+            "type": "choice",
+            "text": "10. Which one of the following statements is most accurate regarding the safe storage and disposal of TIRF medicines? Select one option",
+            "answerOption": [
+              {
+                "valueString": "TIRF medicines should be kept in in a safe and secure place, out of sight and out of reach of all others, especially children"
+              },
+              {
+                "valueString": "TIRF medicines should be protected from theft"
+              },
+              {
+                "valueString": "Dispose of partially used or unneeded TIRF medicine by following the TIRF medicine-specific procedure specified in the Medication Guide"
+              },
+              {
+                "valueString": "All of the above"
+              }
+            ]
+          },
+          {
+            "linkId": "2.1.11",
+            "type": "choice",
+            "text": "11. Which of the following statements is FALSE? Select one option",
+            "answerOption": [
+              {
+                "valueString": "The TIRF REMS mitigates the risk of overdose by: Educating prescribers, pharmacist and patients that respiratory depression is more common in patients who are not opioid tolerant"
+              },
+              {
+                "valueString": "The TIRF REMS mitigates the risk of overdose by: Requiring that patients remain opioid-tolerant throughout their treatment with TIRF medicines"
+              },
+              {
+                "valueString": "The TIRF REMS mitigates the risk of overdose by: Requiring inpatient pharmacies to verify opioid tolerance in inpatients who require TIRF medicine while hospitalized"
+              },
+              {
+                "valueString": "The TIRF REMS mitigates the risk of overdose by: Requiring documentation of opioid tolerance with only the initial prescription of a TIRF medicine"
+              }
+            ]
+          },
+          {
+            "linkId": "2.2",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                "valueCanonical": "questionnaire/provider-signature"
+              }
+            ],
+            "type": "display"
+          }
+        ]
+      }
+    ]
+}

@@ -20,6 +20,8 @@ spring:
 +corsOrigins:
   - "http://localhost:8080"
   - "http://localhost:3000"
+  - "http://localhost:3010"
+  - "http://pharmacy-information-system:3010"
   - "http://localhost:3002"
 
 keycloak:

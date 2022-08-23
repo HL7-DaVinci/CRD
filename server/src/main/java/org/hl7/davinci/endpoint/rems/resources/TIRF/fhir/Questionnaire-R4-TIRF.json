@@ -1,0 +1,814 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "TIRFRemsPatientEnrollment",
+    "name": "TIRFRemsPatientEnrollment",
+    "title": "TIRF Rems Patient Enrollment",
+    "status": "draft",
+    "subjectType": [
+      "Patient"
+    ],
+    "date": "2020-05-20",
+    "publisher": "Da Vinci DTR",
+    "item": [
+      {
+        "linkId": "1",
+        "type": "group",
+        "text": "Patient Information",
+        "item": [
+          {
+            "linkId": "1.1",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                "valueCanonical": "questionnaire/patient-info-base"
+              },
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire-expand",
+                "valueBoolean": true
+              }
+            ],
+            "type": "display"
+          },
+          {
+            "linkId": "1.2",
+            "text": "Race",
+            "type": "open-choice",
+            "required": false,
+            "repeats": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "White",
+                  "display": "White"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Asian",
+                  "display": "Asian"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Black or African American",
+                  "display": "Black or African American"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "American Indian or Alaskan Native",
+                  "display": "American Indian or Alaskan Native"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Native Hawaiian or Other Pacific Islander",
+                  "display": "Native Hawaiian or Other Pacific Islander"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.3",
+            "text": "Ethnicity",
+            "type": "group",
+            "required": true,
+            "item": [
+              {
+                "linkId": "1.3.1",
+                "text": "Are you Hispanic or Latino?",
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "linkId": "1.4",
+            "text": "Address",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPatientInfoPrepopulation\".Line"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.5",
+            "text": "City",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPatientInfoPrepopulation\".City"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.6",
+            "text": "State",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPatientInfoPrepopulation\".State"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.7",
+            "text": "Zip",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPatientInfoPrepopulation\".Zip"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.8",
+            "text": "Phone",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "1.9",
+            "text": "Email Address",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "1.10",
+            "text": "Preferred Time of Contact",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueString": "Morning"
+              },
+              {
+                "valueString": "Afternnon"
+              },
+              {
+                "valueString": "Evening"
+              }
+            ]
+          },
+          {
+            "linkId": "1.11",
+            "text": "Preferred Method of Contact",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "sms",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Text to Mobile #"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "email",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Email"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "phone",
+                  "system": "http://hl7.org/fhir/contact-point-system",
+                  "display": "Phone Call"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "other",
+                  "system": "http://hl7.org/fhir/ValueSet/contact-point-system",
+                  "display": "Postal Mail"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "1.12",
+            "text": "Is there a child in the home or are you a caregiver of small children?",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "linkId": "1.13",
+            "text": "Do you have a safe and secure place to store your medicine?",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      {
+        "linkId": "2",
+        "type": "group",
+        "text": "Patient Representative (if required)",
+        "item": [
+          {
+            "linkId": "2.1",
+            "text": "First Name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "2.2",
+            "text": "Last Name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "2.3",
+            "text": "Relationship to Patient",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "2.4",
+            "text": "Phone",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "2.5",
+            "text": "Email Address",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      {
+        "linkId": "3",
+        "type": "group",
+        "text": "Patient Attestation",
+        "item": [
+          {
+            "linkId": "3.1",
+            "text": "TIRF Medicines can cause your breathing to stop - which can lead to death. Safety Rules for TIRF Medicines You have agreed to take a TIRF Medicine and to follow all the safety rules to make it less likely you or others will experience serious harm • My healthcare provider has talked to me about the safe use of TIRF medicines using the Medication Guide and Patient Counseling Guide • I will only use this medicine if I am regularly using another opioid, around-the-clock, for constant pain • If I stop taking my around-the-clock-opioid pain medicine, I MUST stop taking my TIRF medicine • I will never share or give my TIRF medicine to anyone else, even if they have the same symptoms • My TIRF medicine could cause harm to others or even death. A dose that is okay for me could cause an overdose and death for someone else • I will store my TIRF medicine in a safe and secure place away from children. I understand that accidental use by a child, or anyone for whom the medicine was not prescribed, can cause death • I have been told how to properly dispose of my partially used or unneeded TIRF medicine remaining from my prescription. I will dispose of my TIRF medicine properly as soon as I no longer need it • I will contact my healthcare provider if my TIRF medicine does not relieve my pain. I will not change the dose of my TIRF medicine myself or take it more often than my healthcare provider has directed • I must enroll in the TIRF REMS and Patient Registry by completing the Patient Enrollment Form with my healthcare provider • I understand that the TIRF REMS and its agents may use and share my personal information to manage the program, and that information about patients who get TIRF medicines will be stored in a private and secure database. My health information may be shared with the U.S. Food and Drug Administration (FDA) to evaluate the TIRF REMS. However, my name will not be shared • I give permission for the TIRF REMS and its agents or vendors to contact me by phone, mail, or email to support the administration of the TIRF REMS Program • I will tell my healthcare provider if I, or anyone else, experience an adverse event of accidental exposure, abuse, misuse, addiction, and overdose • I will re-enroll in the TIRF REMS by completing the Patient Enrollment Form with my healthcare provider every two years during treatment.",
+            "type": "display",
+            "readOnly": true
+          },
+          {
+            "linkId": "3.2",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                "valueCanonical": "questionnaire/patient-signature"
+              }
+            ],
+            "type": "display"
+          }
+        ]
+      },
+      {
+        "linkId": "4",
+        "type": "group",
+        "text": "Prescriber Information",
+        "item": [
+          {
+            "linkId": "4.1",
+            "text": "First Name",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".FirstName"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.2",
+            "text": "Last Name",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".LastName"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.3",
+            "text": "Address",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Line"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.4",
+            "text": "City",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".City"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.5",
+            "text": "State",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".State"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.6",
+            "text": "Zip",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Zip"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.7",
+            "text": "Phone",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Phone"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.8",
+            "text": "Fax",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Fax"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.9",
+            "text": "Individual NPI #",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".NPI"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "4.10",
+            "text": "Email Address",
+            "type": "string",
+            "required": true,
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+                "valueExpression": {
+                  "language": "text/cql",
+                  "expression": "\"BasicPractitionerInfoPrepopulation\".Email"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "linkId": "5",
+        "type": "group",
+        "text": "Medical Information",
+        "item": [
+          {
+            "linkId": "5.1",
+            "text": "Prior TIRF Use within the last 6 months",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "linkId": "5.2",
+            "text": "TIRF Product Name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "5.3",
+            "text": "Strength",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "5.4",
+            "text": "Dose",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "5.5",
+            "text": "Frequency",
+            "type": "string",
+            "required": true
+          },
+          {
+            "linkId": "5.6",
+            "text": "Type of Pain",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "Cancer",
+                  "display": "Cancer"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Non-cancer Pain",
+                  "display": "Non-cancer Pain"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "linkId": "6",
+        "type": "group",
+        "text": "Verify Opioid Tolerance",
+        "required": true,
+        "item": [
+          {
+            "linkId": "6.1",
+            "type": "group",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/questionnaire-item-control",
+                      "code": "gtable"
+                    }
+                  ]
+                }
+              }
+            ],
+            "item": [
+              {
+                "linkId": "6.1.1",
+                "text": "Moiety",
+                "type": "string",
+                "required": true
+              },
+              {
+                "linkId": "6.1.2",
+                "text": "Formulation",
+                "type": "string",
+                "required": true
+              },
+              {
+                "linkId": "6.1.3",
+                "text": "Strength",
+                "type": "string",
+                "required": true
+              },
+              {
+                "linkId": "6.1.4",
+                "text": "Route",
+                "type": "string",
+                "required": true
+              },
+              {
+                "linkId": "6.1.5",
+                "text": "Dose",
+                "type": "string",
+                "required": true
+              },
+              {
+                "linkId": "6.1.6",
+                "text": "Frequency",
+                "type": "string",
+                "required": true
+              }
+            ]
+          },
+          {
+            "linkId": "6.2",
+            "type": "group",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/questionnaire-item-control",
+                      "code": "gtable"
+                    }
+                  ]
+                }
+              }
+            ],
+            "item": [
+              {
+                "linkId": "6.2.1",
+                "text": "Moiety",
+                "type": "string"
+              },
+              {
+                "linkId": "6.2.2",
+                "text": "Formulation",
+                "type": "string"
+              },
+              {
+                "linkId": "6.2.3",
+                "text": "Strength",
+                "type": "string"
+              },
+              {
+                "linkId": "6.2.4",
+                "text": "Route",
+                "type": "string"
+              },
+              {
+                "linkId": "6.2.5",
+                "text": "Dose",
+                "type": "string"
+              },
+              {
+                "linkId": "6.2.6",
+                "text": "Frequency",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "linkId": "6.3",
+            "type": "group",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/questionnaire-item-control",
+                      "code": "gtable"
+                    }
+                  ]
+                }
+              }
+            ],
+            "item": [
+              {
+                "linkId": "6.3.1",
+                "text": "Moiety",
+                "type": "string"
+              },
+              {
+                "linkId": "6.3.2",
+                "text": "Formulation",
+                "type": "string"
+              },
+              {
+                "linkId": "6.3.3",
+                "text": "Strength",
+                "type": "string"
+              },
+              {
+                "linkId": "6.3.4",
+                "text": "Route",
+                "type": "string"
+              },
+              {
+                "linkId": "6.3.5",
+                "text": "Dose",
+                "type": "string"
+              },
+              {
+                "linkId": "6.3.6",
+                "text": "Frequency",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "linkId": "6.4",
+            "text": "Patients must remain on around-the-clock opioids while taking a TIRF medicine. This patient is opioid tolerant because he/she is currently prescribed (exclusive of a TIRF medicine) one or more of the following opioid regimens daily and has been prescribed this regimen(s) for one week or longer (check all that apply)",
+            "type": "choice",
+            "required": true,
+            "repeats": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "≥ 60 mg oral morphine/day",
+                  "display": "≥ 60 mg oral morphine/day"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "≥ 25 micrograms transdermal fentanyl/hour",
+                  "display": "≥ 25 micrograms transdermal fentanyl/hour"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "≥ 30 mg oral oxycodone/day",
+                  "display": "≥ 30 mg oral oxycodone/day"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "≥ 8 mg oral hydromorphone/day",
+                  "display": "≥ 8 mg oral hydromorphone/day"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "≥ 25 mg oral oxymorphone/day",
+                  "display": "≥ 25 mg oral oxymorphone/day"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "≥ 60 mg oral hydrocodone/day",
+                  "display": "≥ 60 mg oral hydrocodone/day"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "an equianalgesic dose of another opioid",
+                  "display": "an equianalgesic dose of another opioid"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "linkId": "7",
+        "type": "group",
+        "text": "Concomitant Medications",
+        "item": [
+          {
+            "linkId": "7.1",
+            "text": "Concomitant Medications (check all that apply)",
+            "type": "choice",
+            "required": true,
+            "repeats": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "Benzodiazepines",
+                  "display": "Benzodiazepines"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Gabapentinoids",
+                  "display": "Gabapentinoids"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Sedative Hypnotics",
+                  "display": "Sedative Hypnotics"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Tranquilizers",
+                  "display": "Tranquilizers"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Muscle Relaxants",
+                  "display": "Muscle Relaxants"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Barbiturates",
+                  "display": "Barbiturates"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Antipsychotics",
+                  "display": "Antipsychotics"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Sodium Oxybate",
+                  "display": "Sodium Oxybate"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Alcohol",
+                  "display": "Alcohol"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Prescription Cannabinoids",
+                  "display": "Prescription Cannabinoids"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Prescription Insomnia Medications",
+                  "display": "Prescription Insomnia Medications"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "Other CNS depressant",
+                  "display": "Other CNS depressant"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "None",
+                  "display": "None"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "7.2",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                "valueCanonical": "questionnaire/provider-signature"
+              }
+            ],
+            "type": "display"
+          }
+        ]
+      }      
+    ]
+}

@@ -1,0 +1,330 @@
+{
+    "resourceType": "Questionnaire",
+    "id": "TuralioPrescriberEnrollmentForm",
+    "name": "TuralioPrescriberEnrollmentForm",
+    "title": "Turalio REMS Prescriber Enrollment Form",
+    "status": "draft",
+    "subjectType": [
+        "Practitioner"
+    ],
+    "date": "2022-05-28",
+    "publisher": "FDA-REMS",
+    "item": [
+        {
+            "linkId": "1",
+            "type": "group",
+            "text": "Prescriber Information",
+            "item": [
+                {
+                    "linkId": "1.1",
+                    "text": "First Name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.2",
+                    "text": "Last Name",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.3",
+                    "text": "Middle Initial",
+                    "type": "string",
+                    "required": false
+                },
+                {
+                    "linkId": "1.4",
+                    "text": "Credentials",
+                    "type": "open-choice",
+                    "required": true,
+                    "answerOption": [
+                      {
+                        "valueCoding": {
+                          "code": "MD",
+                          "display": "MD"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "DO",
+                          "display": "DO"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "NP",
+                          "display": "NP"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "PA",
+                          "display": "PA"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "Other",
+                          "display": "Other"
+                        }
+                      }
+                    ]
+                },
+                {
+                    "linkId": "1.5",
+                    "text": "Specialty",
+                    "type": "open-choice",
+                    "required": true,
+                    "answerOption": [
+                      {
+                        "valueCoding": {
+                          "code": "Oncolgy",
+                          "display": "Oncology"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "Orthopedics",
+                          "display": "Orthopedics"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "Other",
+                          "display": "Other"
+                        }
+                      }
+                    ]
+                },
+                {
+                    "linkId": "1.6",
+                    "text": "National Provider Identifier (NPI) #",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                  "linkId": "1.7",
+                  "text": "State License #",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                    "linkId": "1.8",
+                    "text": "Practice/Facility Name",
+                    "type": "string",
+                    "required": false
+                },
+                {
+                    "linkId": "1.9",
+                    "text": "Street Address",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.10",
+                    "text": "City",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.11",
+                    "text": "State",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.12",
+                    "text": "ZIP Code",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.13",
+                    "text": "Office Phone Number",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.14",
+                    "text": "Office Fax Number",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.15",
+                    "text": "E-Mail",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "linkId": "1.16",
+                    "text": "Perfered Method of Communication",
+                    "type": "open-choice",
+                    "required": false,
+                    "answerOption": [
+                      {
+                        "valueCoding": {
+                          "code": "Fax",
+                          "display": "Fax"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "Email",
+                          "display": "Email"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "Phone",
+                          "display": "Phone"
+                        }
+                      }
+                    ]
+                },
+                {
+                    "linkId": "1.17",
+                    "text": "Perferred Time of Contact",
+                    "type": "open-choice",
+                    "required": false,
+                    "answerOption": [
+                      {
+                        "valueCoding": {
+                          "code": "AM",
+                          "display": "AM"
+                        }
+                      },
+                      {
+                        "valueCoding": {
+                          "code": "PM",
+                          "display": "PM"
+                        }
+                      }
+                    ]
+                }
+
+            ]
+        },
+        {
+            "linkId": "2",
+            "type": "group",
+            "text": "Office Contact Information",
+            "item": [
+                {
+                    "linkId": "2.1",
+                    "text": "Prescribers may grant administrative rights to two (2) Office Contacts which allow them to view, edit, and initiate paperwork related to the TURALIO REMS via the REMS Portal.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "2.2",
+                    "text": "I, the prescriber, grant administrative rights to the office contact(s) listed below and understand that I must review all paperwork and sign prior to submitting to the REMS.",
+                    "type": "display"
+                },
+                {
+                    "linkId": "2.3",
+                    "type": "group",
+                    "text": "Office Contact #1 (Optional)",
+                    "item": [
+                        {
+                            "linkId": "2.3.1",
+                            "text": "First Name",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "linkId": "2.3.2",
+                            "text": "Last Name",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "linkId": "2.3.3",
+                            "text": "Office Phone Number",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "linkId": "2.3.4",
+                            "text": "Office Fax Number",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "linkId": "2.3.5",
+                            "text": "Email",
+                            "type": "string",
+                            "required": false
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.4",
+                    "type": "group",
+                    "text": "Office Contact #2 (Optional)",
+                    "item": [
+                        {
+                            "linkId": "2.4.1",
+                            "text": "First Name",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "linkId": "2.4.2",
+                            "text": "Last Name",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "linkId": "2.4.3",
+                            "text": "Office Phone Number",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "linkId": "2.4.4",
+                            "text": "Office Fax Number",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "linkId": "2.4.5",
+                            "text": "Email",
+                            "type": "string",
+                            "required": false
+                        }
+                    ]
+                },
+                {
+                    "linkId": "2.5",
+                    "text": "Office Contacts can be updated by visiting www.turaliorems.com or contacting the TURALIO REMS Coordinating Center at 1-833-TURALIO (833-887-2546).",
+                    "type": "display"
+                }
+            ]
+        },
+        {
+            "linkId": "3",
+            "type": "group",
+            "text": "Prescriber Attestations",
+            "item": [
+                {
+                    "linkId": "3.1",
+                    "text": "By signing this form, I agree TURALIO is only available through the TURALIO REMS and I agree to comply with the following TURALIO REMS requirements: \n\n I have: \n - Reviewed the Prescribing Information, Program Overview and Prescriber Training. \n - Successfully completed the Prescriber Knowledge Assessment and submitted it to the TURALIO REMS. \n\n Before treatment initiation and with the first dose of TURALIO: \n - I understand that I should counsel the patient on the risk of serious and potentially fatal liver injury, and liver test monitoring at baseline and periodically during treatment. \n - I must assess the patient by obtaining baseline liver tests. I must submit the results of the assessment on the Patient Enrollment Form. \n - I must enroll patients in the TURALIO REMS by completing and submitting the Patient Enrollment Form. \n\n During treatment with TURALIO: \n - I must assess the patient by obtaining liver tests weekly for the first 8 weeks, then every 2 weeks for 1 month, then every 3 months and modify the dose of TURALIO as needed in accordance with the Prescribing Information. \n - I must prescribe no more than a 30 days supply for each of the first 3 months of treatment. \n - I must complete the Patient Status Form every month for the first 3 months of treatment, at months 6, 9, and 12 and then every 6 months thereafter while the patient receives TURALIO. \n\n At all times: \n - I must report adverse events of serious and potentially fatal liver injury by submitting the Liver Adverse Event Reporting Form. \n - I understand that Daiichi Sankyo, Inc. and/or its agents may contact me by phone, mail or email to provide or obtain additional information related to the REMS program, including details regarding any reported liver adverse events. \n",
+                    "type": "display",
+                    "readOnly": true
+                  },
+                  {
+                    "linkId": "3.2",
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/sub-questionnaire",
+                        "valueCanonical": "questionnaire/provider-signature"
+                      }
+                    ],
+                    "type": "display"
+                  }
+               
+            ]
+        }
+    ]
+}

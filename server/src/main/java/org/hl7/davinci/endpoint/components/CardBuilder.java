@@ -333,7 +333,41 @@ public class CardBuilder {
 
       Extension coverageExtension = new Extension();
       Reference coverageReference = new Reference();
-      
+
+      //TODO: get the coverage from the prefetch and pass it into here instead of retrieving it from the request
+      coverageReference.setReference(FhirRequestProcessor.getCoverageFromRequest(request).getReference());
+
+      coverageExtension.setUrl("coverage")
+          .setValue(coverageReference);
+      extension.addExtension(coverageExtension);
+
+      Extension date = new Extension();
+      date.setUrl("date")
+          .setValue(new DateType().setValue(now));
+      extension.addExtension(date);
+      Extension identifier = new Extension();
+      String id = UUID.randomUUID().toString();
+      identifier.setUrl("identifier")
+          .setValue(new StringType(id));
+      extension.addExtension(identifier);
+      resource = FhirRequestProcessor.addExtensionToRequest(resource, extension);
+    } catch (NoCoverageException e) {
+      logger.warn("No Coverage, discrete coverage extension will not be included: " + e.getMessage());
+    }
+
+    try {
+      // build the Extension with the coverage information
+      Extension extension = new Extension();
+      extension.setUrl("http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-coverage-information");
+
+      Extension coverageInfo = new Extension();
+      coverageInfo.setUrl("coverageInfo")
+          .setValue(coverageGuidance.getCoding());
+      extension.addExtension(coverageInfo);
+
+      Extension coverageExtension = new Extension();
+      Reference coverageReference = new Reference();
+
       //TODO: get the coverage from the prefetch and pass it into here instead of retrieving it from the request
       coverageReference.setReference(FhirRequestProcessor.getCoverageFromRequest(request).getReference());
 
