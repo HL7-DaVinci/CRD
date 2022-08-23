@@ -19,6 +19,9 @@ import java.util.function.Consumer;
 
 public class JacksonCrdPrefetchDeserializer extends StdDeserializer<CrdPrefetch> {
 
+  // [any]?_id={{[any]}}[any]
+  private static final String PREFETCH_REGEX = "\\w?_id={{\\w}}\\w";
+
   public JacksonCrdPrefetchDeserializer() {
     this(CrdPrefetch.class);
   }
@@ -51,14 +54,18 @@ public class JacksonCrdPrefetchDeserializer extends StdDeserializer<CrdPrefetch>
       Entry<String, JsonNode> prefetchPair = prefetchFields.next();
       String prefetchKey = prefetchPair.getKey();
       JsonNode prefetchVal = prefetchPair.getValue();
-      System.out.println("l:"+mapper.writeValueAsString(prefetchVal));
-
-      Bundle prefetchBundle = (Bundle) fhirComponents.getJsonParser().parseResource(mapper.writeValueAsString(prefetchVal));
-      // Map the bundle to the prefetch.
-      deserializeMap.get(prefetchKey).accept(prefetchBundle);
+      String prefetchStr = mapper.writeValueAsString(prefetchVal);
+      System.out.println("l:"+prefetchStr);
+      // TODO - find a better regex way to check if this is a prefetch query rather than a resource.
+      if  (prefetchStr.contains("{{") && prefetchStr.contains("}}")) {
+        // This prefetch matches the prefetch token format, so we need to store it to execute later.
+        prefetch.addPrefetchQuery(prefetchKey, prefetchStr);
+      } else {
+        Bundle prefetchBundle = (Bundle) fhirComponents.getJsonParser().parseResource(prefetchStr);
+        // Map the bundle to the prefetch.
+        deserializeMap.get(prefetchKey).accept(prefetchBundle);
+      }
     }
-
-    System.out.println("Parsed Prefetch: " + prefetch);
 
     return prefetch;
   }

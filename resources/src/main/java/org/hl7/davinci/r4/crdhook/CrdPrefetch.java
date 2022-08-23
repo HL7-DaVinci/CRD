@@ -2,8 +2,11 @@ package org.hl7.davinci.r4.crdhook;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.r4.JacksonCrdPrefetchDeserializer;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -25,6 +28,16 @@ public class CrdPrefetch {
   private Bundle encounterBundle;
   private Bundle medicationDispenseBundle;
   private Bundle medicationStatementBundle;
+  // The list of prefetch queries to execute.
+  private List<PrefetchTemplateElement> prefetchQueries;
+
+  public CrdPrefetch(){
+    this.prefetchQueries = new ArrayList<>();
+  }
+
+  public List<PrefetchTemplateElement> getAdditionalPrefetchQueries() {
+    return this.prefetchQueries;
+  }
 
   public Bundle getCoverageBundle() {
     if (coverageBundle == null) {
@@ -132,38 +145,54 @@ public class CrdPrefetch {
 
   @Override
   public String toString() {
-    List<BundleEntryComponent> entries = new ArrayList<>();
-    if(this.deviceRequestBundle != null) {
-    entries.addAll(this.deviceRequestBundle.getEntry());
-    } if(this.nutritionOrderBundle != null){
-      entries.addAll(this.nutritionOrderBundle.getEntry());
-    } if(this.serviceRequestBundle != null){
-      entries.addAll(this.serviceRequestBundle.getEntry());
-    } if(this.medicationDispenseBundle != null){
-      entries.addAll(this.medicationDispenseBundle.getEntry());
-    } if(this.medicationStatementBundle != null){
-      entries.addAll(this.medicationStatementBundle.getEntry());
-    } if(this.encounterBundle != null){
-      entries.addAll(this.encounterBundle.getEntry());
-    } if(this.appointmentBundle != null){
-      entries.addAll(this.appointmentBundle.getEntry());
-    } if(this.medicationRequestBundle != null){
-      entries.addAll(this.medicationRequestBundle.getEntry());
-    } if(this.supplyRequestBundle != null){
-      entries.addAll(this.supplyRequestBundle.getEntry());
-    } if(this.coverageBundle != null) {
-      entries.addAll(this.coverageBundle.getEntry());
-    }
+
     StringBuilder sb = new StringBuilder();
     sb.append("[");
-    for(BundleEntryComponent entry : entries) {
-      sb.append(entry.getResource());
-      sb.append("~");
-      sb.append(entry.getResource().getId());
-      sb.append(",");
+    BiConsumer<String, Bundle> bundlesPrinter = (key, bundle) -> {
+      sb.append(key).append(":{");
+      for(BundleEntryComponent entry : bundle.getEntry()) {
+        sb.append(entry.getResource());
+        sb.append("~");
+        sb.append(entry.getResource().getId());
+        sb.append(",");
+      }
+      sb.append("}");
+    };
+
+    if(this.deviceRequestBundle != null) {
+      bundlesPrinter.accept("deviceRequestBundle", deviceRequestBundle);
+    } if(this.nutritionOrderBundle != null){
+      bundlesPrinter.accept("nutritionOrderBundle", nutritionOrderBundle);
+    } if(this.serviceRequestBundle != null){
+      bundlesPrinter.accept("serviceRequestBundle", serviceRequestBundle);
+    } if(this.medicationDispenseBundle != null){
+      bundlesPrinter.accept("medicationDispenseBundle", medicationDispenseBundle);
+    } if(this.medicationStatementBundle != null){
+      bundlesPrinter.accept("medicationStatementBundle", medicationStatementBundle);
+    } if(this.encounterBundle != null){
+      bundlesPrinter.accept("encounterBundle", encounterBundle);
+    } if(this.appointmentBundle != null){
+      bundlesPrinter.accept("appointmentBundle", appointmentBundle);
+    } if(this.medicationRequestBundle != null){
+      bundlesPrinter.accept("medicationRequestBundle", medicationRequestBundle);
+    } if(this.supplyRequestBundle != null){
+      bundlesPrinter.accept("supplyRequestBundle", supplyRequestBundle);
+    } if(this.coverageBundle != null) {
+      bundlesPrinter.accept("coverageBundle", coverageBundle);
     }
-    sb.setLength(sb.length()-1);
+
     sb.append("]");
     return sb.toString();
   }
+
+  /**
+   * Adds the given prefetch query to the list of prefetch queries to execute.
+   * @param prefetchKey
+   * @param prefetchQuery
+   */
+  public void addPrefetchQuery(String prefetchKey, String prefetchQuery) {
+    PrefetchTemplateElement prefetchTemplate = new PrefetchTemplateElement(prefetchKey, Bundle.class, prefetchQuery.replaceAll("\"", ""));
+    this.prefetchQueries.add(prefetchTemplate);
+  }
+
 }

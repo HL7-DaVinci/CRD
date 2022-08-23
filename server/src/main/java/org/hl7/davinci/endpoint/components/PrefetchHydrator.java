@@ -10,7 +10,6 @@ import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FatalRequestIncompleteException;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
@@ -26,10 +25,10 @@ public class PrefetchHydrator {
   private static final String PREFETCH_TOKEN_DELIM_OPEN = "{{";
   private static final String PREFETCH_TOKEN_DELIM_CLOSE = "}}";
 
-  private CdsService<?> cdsService;
   private CdsRequest<?, ?> cdsRequest;
   private Object dataForPrefetchToken;
   private FhirComponentsT fhirComponents;
+  private List<PrefetchTemplateElement> prefetchElements;
 
   private String currentlyResolvingPrefetchToken;
 
@@ -42,11 +41,11 @@ public class PrefetchHydrator {
    *                   this object gets modified.
    * @param fhirComponents The fhir components object.
    */
-  public PrefetchHydrator(CdsService cdsService, CdsRequest cdsRequest,
+  public PrefetchHydrator(CdsRequest cdsRequest, List<PrefetchTemplateElement> prefetchElements, 
       FhirComponentsT fhirComponents) {
-    this.cdsService = cdsService;
     this.cdsRequest = cdsRequest;
     this.dataForPrefetchToken = cdsRequest.getDataForPrefetchToken();
+    this.prefetchElements = prefetchElements;
     this.fhirComponents = fhirComponents;
   }
 
@@ -59,7 +58,6 @@ public class PrefetchHydrator {
       elementList.add(object.toString());
       return;
     }
-
 
     // if a resource exists but has no id, throw an error rather than continuing
     if (pathList.get(0).equals("id")) {
@@ -97,7 +95,7 @@ public class PrefetchHydrator {
    */
   public void hydrate() {
     Object crdResponse = cdsRequest.getPrefetch();
-    for (PrefetchTemplateElement prefetchElement : cdsService.getPrefetchElements()) {
+    for (PrefetchTemplateElement prefetchElement : this.prefetchElements) {
       String prefetchKey = prefetchElement.getKey();
       //check if the prefetch has already been populated with that key
       Boolean alreadyIncluded = false;
@@ -109,7 +107,8 @@ public class PrefetchHydrator {
       }
       if (!alreadyIncluded) {
         // check if the bundle actually has element
-        String prefetchQuery = cdsService.prefetch.get(prefetchKey);
+        // String prefetchQuery = cdsService.prefetch.get(prefetchKey);
+        String prefetchQuery = prefetchElement.getQuery();
         String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
         // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
         // e.g. this could be a query template for a medication order but we have a device request
