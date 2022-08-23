@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.hl7.davinci.r4.JacksonBundleDeserializer;
-import org.hl7.davinci.r4.JacksonHapiSerializer;
+import org.hl7.davinci.r4.JacksonCrdPrefetchDeserializer;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 
@@ -14,46 +12,18 @@ import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
  * Class that supports the representation of prefetch information in a CDS Hook request.
  * It appears that for CRD, prefetch information will be the same, regardless of hook type.
  */
+@JsonDeserialize(using = JacksonCrdPrefetchDeserializer.class)
 public class CrdPrefetch {
 
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle coverageBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle deviceRequestBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationRequestBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle nutritionOrderBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle serviceRequestBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle supplyRequestBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle appointmentBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle encounterBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationDispenseBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationStatementBundle;
 
   public Bundle getCoverageBundle() {
@@ -129,16 +99,16 @@ public class CrdPrefetch {
    * @return
    */
   public boolean containsRequestResourceId(String id) {
-    return this.bundleContainsResourceId(this.coverageBundle, id)
-        || this.bundleContainsResourceId(this.deviceRequestBundle, id)
-        || this.bundleContainsResourceId(this.medicationRequestBundle, id)
-        || this.bundleContainsResourceId(this.nutritionOrderBundle, id)
-        || this.bundleContainsResourceId(this.serviceRequestBundle, id)
-        || this.bundleContainsResourceId(this.supplyRequestBundle, id)
-        || this.bundleContainsResourceId(this.appointmentBundle, id)
-        || this.bundleContainsResourceId(this.encounterBundle, id)
-        || this.bundleContainsResourceId(this.medicationDispenseBundle, id)
-        || this.bundleContainsResourceId(this.medicationStatementBundle, id);
+    return bundleContainsResourceId(this.coverageBundle, id)
+        || bundleContainsResourceId(this.deviceRequestBundle, id)
+        || bundleContainsResourceId(this.medicationRequestBundle, id)
+        || bundleContainsResourceId(this.nutritionOrderBundle, id)
+        || bundleContainsResourceId(this.serviceRequestBundle, id)
+        || bundleContainsResourceId(this.supplyRequestBundle, id)
+        || bundleContainsResourceId(this.appointmentBundle, id)
+        || bundleContainsResourceId(this.encounterBundle, id)
+        || bundleContainsResourceId(this.medicationDispenseBundle, id)
+        || bundleContainsResourceId(this.medicationStatementBundle, id);
   }
 
   /**
@@ -147,7 +117,7 @@ public class CrdPrefetch {
    * @param id
    * @return
    */
-  private boolean bundleContainsResourceId(Bundle bundle, String id) {
+  private static boolean bundleContainsResourceId(Bundle bundle, String id) {
     if (bundle == null) {
       return false;
     }
@@ -156,7 +126,8 @@ public class CrdPrefetch {
       id = splitId[splitId.length-1];
     }
     final String idToCheck = id;
-    return bundle.getEntry().stream().anyMatch(entry -> entry.getResource().getId().contains(idToCheck));
+    return bundle.getEntry().stream()
+        .anyMatch(entry -> entry.getResource().getId().contains(idToCheck));
   }
 
   @Override

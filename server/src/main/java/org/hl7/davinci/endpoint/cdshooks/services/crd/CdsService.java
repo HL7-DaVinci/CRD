@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import javax.validation.Valid;
 
-import com.google.gson.Gson;
-
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
