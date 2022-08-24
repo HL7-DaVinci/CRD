@@ -1,6 +1,12 @@
 package  org.hl7.davinci.endpoint.rems.database.rems;
 import org.hl7.davinci.endpoint.rems.database.requirement.MetRequirement;
+import org.hl7.davinci.endpoint.rems.database.drugs.Drug;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
@@ -28,11 +34,17 @@ public class Rems {
   @Column(name = "status", nullable = false, length = 100)
   private String status;
 
+  // @ManyToOne
+  // @JoinColumn(name="drug", nullable = true)
+  // // @JsonBackReference
+  // @JsonIgnore
+  // private Drug drug;
+
   @Type(type = "json")
   @Column(columnDefinition = "json", name = "resource", nullable = false, length = 10000000)
   private JsonNode resource;
 
-  @OneToMany(mappedBy="remsRequest", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @ManyToMany
   @JsonManagedReference
   private List<MetRequirement> metRequirements = new ArrayList<>();
 
@@ -65,6 +77,14 @@ public void setMetRequirement(List<MetRequirement> metRequirements) {
 public void addMetRequirement(MetRequirement metRequirement)  {
     this.metRequirements.add(metRequirement);
 }
+
+// public Drug getDrug() {
+//   return this.drug;
+// }
+
+// public void setDrug(Drug drug) {
+//   this.drug = drug;
+// }
 
 public JsonNode getResource() {
   return this.resource;
