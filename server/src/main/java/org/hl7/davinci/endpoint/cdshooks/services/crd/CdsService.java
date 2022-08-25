@@ -4,16 +4,17 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd;
 import com.google.gson.Gson;
 
 import com.google.gson.Gson;
-
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
+import org.hl7.davinci.endpoint.components.PrefetchHydrator;
 import org.hl7.davinci.endpoint.components.QueryBatchRequest;
+import org.hl7.davinci.endpoint.config.YamlConfig;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
 import org.hl7.davinci.endpoint.database.RequestLog;
 import org.hl7.davinci.endpoint.database.RequestService;
@@ -21,18 +22,24 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
-import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -80,7 +87,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
     // hydrated
     requestLog.advanceTimeline(requestService);
-
     // Attempt a Query Batch Request to backfill missing attributes.
     if (myConfig.isQueryBatchRequest()) {
       QueryBatchRequest qbr = new QueryBatchRequest(this.fhirComponents);
@@ -90,6 +96,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );
 
     CdsResponse response = new CdsResponse();
+    CardBuilder cardBuilder = new CardBuilder();
 
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
@@ -99,7 +106,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     } catch (RequestIncompleteException e) {
       logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
-      response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
+      response.addCard(cardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
       requestLog.setCardListFromCards(response.getCards());
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
@@ -124,6 +131,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
       requestLog.addTopic(requestService, lookupResult.getTopic());
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext(), lookupResult.getTopic());
       CoverageRequirements coverageRequirements = results.getCoverageRequirements();
+      cardBuilder.setDeidentifiedResourcesContainsPhi(lookupResult.getDeidentifiedResourceContainsPhi());
 
       if (results.ruleApplies()) {
         foundApplicableRule = true;
@@ -132,7 +140,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
           // if prior auth already approved
           if (coverageRequirements.isPriorAuthApproved()) {
-            response.addCard(CardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
+            response.addCard(cardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
                 request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
                 applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
                 fhirResourceRepository));
@@ -148,14 +156,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
                 || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
               if (coverageRequirements.isPriorAuthRequired()) {
-                Card card = CardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
-                card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                Card card = cardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
+                card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                     "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                     true, CoverageGuidance.ADMIN));
                 response.addCard(card);
               } else if (coverageRequirements.isDocumentationRequired()) {
-                Card card = CardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
-                card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                Card card = cardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
+                card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                     "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                     true, CoverageGuidance.CLINICAL));
                 response.addCard(card);
@@ -164,7 +172,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
               // add a card for an alternative therapy if there is one
               if (results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
                 try {
-                  response.addCard(CardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
+                  response.addCard(cardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
                       results.getRequest(), fhirComponents));
                 } catch (RuntimeException e) {
                   logger.warn("Failed to process alternative therapy: " + e.getMessage());
@@ -178,13 +186,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
               }
             } else {
               logger.warn("Unspecified Questionnaire URI; summary card sent to client");
-              response.addCard(CardBuilder.transform(CardTypes.COVERAGE, results));
+              response.addCard(cardBuilder.transform(CardTypes.COVERAGE, results));
             }
           } else {
             // no prior auth or documentation required
             logger.info("Add the no doc or prior auth required card");
-            Card card = CardBuilder.transform(CardTypes.COVERAGE, results);
-            card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+            Card card = cardBuilder.transform(CardTypes.COVERAGE, results);
+            card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                 "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                 true, CoverageGuidance.COVERED));
             card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
@@ -194,7 +202,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
 
         // apply the DrugInteractions
         if (results.getDrugInteraction().getApplies()) {
-          response.addCard(CardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
+          response.addCard(cardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
         }
       }
     }
@@ -206,9 +214,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
       if (!foundApplicableRule) {
         String msg = "No documentation rules found";
         logger.warn(msg + "; summary card sent to client");
-        response.addCard(CardBuilder.summaryCard(CardTypes.COVERAGE, msg));
+        response.addCard(cardBuilder.summaryCard(CardTypes.COVERAGE, msg));
       }
-      CardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
+      cardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
     }
 
     // Adding card to requestLog
@@ -221,27 +229,28 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
   private Card createPrescriberCard(requestTypeT request, URL applicationBaseUrl,
                                            CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
+    CardBuilder cardBuilder = new CardBuilder();
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
               coverageRequirements.getQuestionnairePrescriberEnrollmentUri(), coverageRequirements.getRequestId(),
-              lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Enrollment Form"));
+              results.getRequest(), "Prescriber Enrollment Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
       listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
               coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri(), coverageRequirements.getRequestId(),
-              lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Prescriber Knowledge Assessment Form"));
+              results.getRequest(), "Prescriber Knowledge Assessment Form"));
     }
 
     Card card;
     if (coverageRequirements.isPriorAuthRequired()) {
-      card = CardBuilder.transform(CardTypes.PRIOR_AUTH, results, listOfLinks);
-      card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+      card = cardBuilder.transform(CardTypes.PRIOR_AUTH, results, listOfLinks);
+      card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
               "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
               true, CoverageGuidance.ADMIN));
     } else {
-      card = CardBuilder.transform(CardTypes.DTR_CLIN, results, listOfLinks);
-      card.addSuggestionsItem(CardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+      card = cardBuilder.transform(CardTypes.DTR_CLIN, results, listOfLinks);
+      card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
               "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
               true, CoverageGuidance.CLINICAL));
     }
@@ -250,51 +259,36 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
       CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
+    List<Pair<String, String>> linksToAdd = new ArrayList<>();
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Patient Enrollment Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireOrderUri(), "Patient Enrollment Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireFaceToFaceUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Face to Face Encounter Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireFaceToFaceUri(), "Face to Face Encounter Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireLabUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Lab Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireLabUri(),"Lab Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Patient Status Update Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireProgressNoteUri(),"Patient Status Update Form"));
     }
-
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "PA Request"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnairePARequestUri(),"PA Request"));
     }
-
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnairePlanOfCareUri(),"Plan of Care/Certification"));
     }
-
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Dispense Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireDispenseUri(),"Dispense Form"));
     }
-
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireAdditionalUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Additional Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireAdditionalUri(),"Additional Form"));
     }
+    linksToAdd.forEach((e) -> {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          e.getFirst(), coverageRequirements.getRequestId(), results.getRequest(), e.getSecond()));
+    });
     return listOfLinks;
   }
 
