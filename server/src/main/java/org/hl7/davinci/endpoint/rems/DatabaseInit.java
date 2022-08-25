@@ -69,12 +69,14 @@ class DatabaseInit {
             TuralioPatientEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
             JsonNode TuralioPatientQuestionnaireResource = JacksonUtil.toJsonNode(TuralioPatientQuestionnaire);
             TuralioPatientEnrollmentResource.setResource(TuralioPatientQuestionnaireResource);
-            TuralioPatientEnrollmentResource.setId("turalio-patient-enrollment");
+            TuralioPatientEnrollmentResource.setId("TuralioRemsPatientEnrollment");
             remsFhirRepository.save(TuralioPatientEnrollmentResource);
             TuralioPatientEnrollmentRequirement.setName("Patient Enrollment");
+            TuralioPatientEnrollmentRequirement.setCreateNewCase(true);
             TuralioPatientEnrollmentRequirement.setResource(TuralioPatientEnrollmentResource);
             TuralioPatientEnrollmentRequirement.setDescription("Submit Patient Enrollment form to the REMS Administrator");
             TuralioPatientEnrollmentRequirement.setDrug(turalio);
+            TuralioPatientEnrollmentRequirement.setStakeholder("patient");
             requirementRepository.save(TuralioPatientEnrollmentRequirement);
 
              // prescriber enrollment form requirement
@@ -84,12 +86,14 @@ class DatabaseInit {
              TuralioPrescriberEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
              JsonNode TuralioPrescriberQuestionnaireResource = JacksonUtil.toJsonNode(TuralioPrescriberQuestionnaire);
              TuralioPrescriberEnrollmentResource.setResource(TuralioPrescriberQuestionnaireResource);
-             TuralioPrescriberEnrollmentResource.setId("turalio-prescriber-enrollment");
+             TuralioPrescriberEnrollmentResource.setId("TuralioPrescriberEnrollmentForm");
              remsFhirRepository.save(TuralioPrescriberEnrollmentResource);
              TuralioPrescriberEnrollmentRequirement.setName("Prescriber Enrollment");
+             TuralioPrescriberEnrollmentRequirement.setCreateNewCase(false);
              TuralioPrescriberEnrollmentRequirement.setResource(TuralioPrescriberEnrollmentResource);
              TuralioPrescriberEnrollmentRequirement.setDescription("Submit Prescriber Enrollment form and training certification to the REMS Administrator");
              TuralioPrescriberEnrollmentRequirement.setDrug(turalio);
+             TuralioPrescriberEnrollmentRequirement.setStakeholder("prescriber");
              requirementRepository.save(TuralioPrescriberEnrollmentRequirement);
 
             // prescriber knowledge assessment / certification sub-requirement
@@ -99,12 +103,14 @@ class DatabaseInit {
             TuralioPrescriberKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
             JsonNode TuralioPrescriberKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(TuralioPrescriberKnowledgeQuestionnaire);
             TuralioPrescriberKnowledgeResource.setResource(TuralioPrescriberKnowledgeQuestionnaireResource);
-            TuralioPrescriberKnowledgeResource.setId("turalio-prescriber-knowledge-check");
+            TuralioPrescriberKnowledgeResource.setId("TuralioPrescriberKnowledgeAssessment");
             remsFhirRepository.save(TuralioPrescriberKnowledgeResource);
             TuralioPrescriberCertificationRequirement.setName("Prescriber Knowledge Assessment");
+            TuralioPrescriberCertificationRequirement.setCreateNewCase(false);
             TuralioPrescriberCertificationRequirement.setResource(TuralioPrescriberKnowledgeResource);
             TuralioPrescriberCertificationRequirement.setDescription("Submit Prescriber Knowledge Assessment Form to REMS Administrator to receive certification");
             TuralioPrescriberCertificationRequirement.setParentRequirement(TuralioPrescriberEnrollmentRequirement);
+            TuralioPrescriberCertificationRequirement.setStakeholder("prescriber");
             // prescriberCertificationRequirement.setDrug(turalio); 
             requirementRepository.save(TuralioPrescriberCertificationRequirement);
 
@@ -116,12 +122,14 @@ class DatabaseInit {
              TuralioPharmacistEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
              JsonNode TuralioPharmacistQuestionnaireResource = JacksonUtil.toJsonNode(TuralioPharmacistQuestionnaire);
              TuralioPharmacistEnrollmentResource.setResource(TuralioPharmacistQuestionnaireResource);
-             TuralioPharmacistEnrollmentResource.setId("turalio-pharmacist-enrollment");
+             TuralioPharmacistEnrollmentResource.setId("TuralioPharmacistEnrollment");
              remsFhirRepository.save(TuralioPharmacistEnrollmentResource);
              TuralioPharmacistEnrollmentRequirement.setName("Pharmacist Enrollment");
+             TuralioPharmacistEnrollmentRequirement.setCreateNewCase(false);
              TuralioPharmacistEnrollmentRequirement.setResource(TuralioPharmacistEnrollmentResource);
              TuralioPharmacistEnrollmentRequirement.setDescription("Submit Pharmacist Enrollment form and training certification to the REMS Administrator");
              TuralioPharmacistEnrollmentRequirement.setDrug(turalio);
+             TuralioPharmacistEnrollmentRequirement.setStakeholder("pharmacist");
              requirementRepository.save(TuralioPharmacistEnrollmentRequirement);
 
 
@@ -135,12 +143,14 @@ class DatabaseInit {
             TIRFPatientEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
             JsonNode TIRFPatientQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPatientQuestionnaire);
             TIRFPatientEnrollmentResource.setResource(TIRFPatientQuestionnaireResource);
-            TIRFPatientEnrollmentResource.setId("TIRF-patient-enrollment");
+            TIRFPatientEnrollmentResource.setId("TIRFRemsPatientEnrollment");
             remsFhirRepository.save(TIRFPatientEnrollmentResource);
             TIRFPatientEnrollmentRequirement.setName("Patient Enrollment");
+            TIRFPatientEnrollmentRequirement.setCreateNewCase(true);
             TIRFPatientEnrollmentRequirement.setResource(TIRFPatientEnrollmentResource);
             TIRFPatientEnrollmentRequirement.setDescription("Submit Patient Enrollment form to the REMS Administrator");
             TIRFPatientEnrollmentRequirement.setDrug(tirf);
+            TIRFPatientEnrollmentRequirement.setStakeholder("patient");
             requirementRepository.save(TIRFPatientEnrollmentRequirement);
 
             // prescriber enrollment form requirement
@@ -150,12 +160,14 @@ class DatabaseInit {
             TIRFPrescriberEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
             JsonNode TIRFPrescriberQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPrescriberQuestionnaire);
             TIRFPrescriberEnrollmentResource.setResource(TIRFPrescriberQuestionnaireResource);
-            TIRFPrescriberEnrollmentResource.setId("TIRF-prescriber-enrollment");
+            TIRFPrescriberEnrollmentResource.setId("TIRFPrescriberEnrollmentForm");
             remsFhirRepository.save(TIRFPrescriberEnrollmentResource);
             TIRFPrescriberEnrollmentRequirement.setName("Prescriber Enrollment");
+            TIRFPrescriberEnrollmentRequirement.setCreateNewCase(false);
             TIRFPrescriberEnrollmentRequirement.setResource(TIRFPrescriberEnrollmentResource);
             TIRFPrescriberEnrollmentRequirement.setDescription("Submit Prescriber Enrollment form to the REMS Administrator");
             TIRFPrescriberEnrollmentRequirement.setDrug(tirf);
+            TIRFPrescriberEnrollmentRequirement.setStakeholder("prescriber");
             requirementRepository.save(TIRFPrescriberEnrollmentRequirement);
 
             // prescriber knowledge assessment / certification sub-requirement
@@ -165,12 +177,14 @@ class DatabaseInit {
             TIRFPrescriberKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
             JsonNode TIRFPrescriberKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPrescriberKnowledgeQuestionnaire);
             TIRFPrescriberKnowledgeResource.setResource(TIRFPrescriberKnowledgeQuestionnaireResource);
-            TIRFPrescriberKnowledgeResource.setId("TIRF-prescriber-knowledge-check");
+            TIRFPrescriberKnowledgeResource.setId("TIRFPrescriberKnowledgeAssessment");
             remsFhirRepository.save(TIRFPrescriberKnowledgeResource);
             TIRFPrescriberCertificationRequirement.setName("Prescriber Knowledge Assessment");
+            TIRFPrescriberCertificationRequirement.setCreateNewCase(false);
             TIRFPrescriberCertificationRequirement.setResource(TIRFPrescriberKnowledgeResource);
             TIRFPrescriberCertificationRequirement.setDescription("Submit Prescriber Knowledge Assessment form to the REMS Administrator to receive certification");
             TIRFPrescriberCertificationRequirement.setParentRequirement(TIRFPrescriberEnrollmentRequirement);
+            TIRFPrescriberCertificationRequirement.setStakeholder("prescriber");
             //TIRFPrescriberCertificationRequirement.setDrug(tirf);
             requirementRepository.save(TIRFPrescriberCertificationRequirement);
 
@@ -182,12 +196,14 @@ class DatabaseInit {
             TIRFPharmacistEnrollmentResource.setResourceType(ResourceType.Questionnaire.toString());
             JsonNode TIRFPharmacistQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPharmacistQuestionnaire);
             TIRFPharmacistEnrollmentResource.setResource(TIRFPharmacistQuestionnaireResource);
-            TIRFPharmacistEnrollmentResource.setId("TIRF-pharmacist-enrollment");
+            TIRFPharmacistEnrollmentResource.setId("TIRFPharmacistEnrollmentForm");
             remsFhirRepository.save(TIRFPharmacistEnrollmentResource);
             TIRFPharmacistEnrollmentRequirement.setName("Pharmacist Enrollment");
+            TIRFPharmacistEnrollmentRequirement.setCreateNewCase(false);
             TIRFPharmacistEnrollmentRequirement.setResource(TIRFPharmacistEnrollmentResource);
             TIRFPharmacistEnrollmentRequirement.setDescription("Submit Pharmacist Enrollment form to the REMS Administrator");
             TIRFPharmacistEnrollmentRequirement.setDrug(tirf);
+            TIRFPharmacistEnrollmentRequirement.setStakeholder("pharmacist");
             requirementRepository.save(TIRFPharmacistEnrollmentRequirement);
 
             // pharmacist knowledge assessment / certification sub-requirement
@@ -198,12 +214,14 @@ class DatabaseInit {
             TIRFPharmacistKnowledgeResource.setResourceType(ResourceType.Questionnaire.toString());
             JsonNode TIRFPharmacistKnowledgeQuestionnaireResource = JacksonUtil.toJsonNode(TIRFPharmacistKnowledgeQuestionnaire);
             TIRFPharmacistKnowledgeResource.setResource(TIRFPharmacistKnowledgeQuestionnaireResource);
-            TIRFPharmacistKnowledgeResource.setId("TIRF-pharmacist-knowledge-check");
+            TIRFPharmacistKnowledgeResource.setId("TIRFPharmacistKnowledgeAssessment");
             remsFhirRepository.save(TIRFPharmacistKnowledgeResource);
             TIRFPharmacistCertificationRequirement.setName("Pharmacist Knowledge Assessment");
+            TIRFPharmacistCertificationRequirement.setCreateNewCase(false);
             TIRFPharmacistCertificationRequirement.setResource(TIRFPharmacistKnowledgeResource);
             TIRFPharmacistCertificationRequirement.setDescription("Submit Pharmacist Knowledge Assessment form to the REMS Administrator to receive certification");
             TIRFPharmacistCertificationRequirement.setParentRequirement(TIRFPharmacistEnrollmentRequirement);
+            TIRFPharmacistCertificationRequirement.setStakeholder("pharmacist");
             //TIRFPharmacistCertificationRequirement.setDrug(tirf);
             requirementRepository.save(TIRFPharmacistCertificationRequirement);
 
@@ -226,6 +244,8 @@ class DatabaseInit {
             TuralioPharmacistCredentialsResource.setId("Turalio-pharmacist-organization");
             remsFhirRepository.save(TuralioPharmacistCredentialsResource);
             TuralioPharmacistEnrollmentMetRequirement.setCompleted(true);
+            String turalioFunctionalId = TuralioPharmacistOrganizationResource.get("resourceType").textValue() + "/" + TuralioPharmacistOrganizationResource.get("id").textValue();
+            TuralioPharmacistEnrollmentMetRequirement.setFunctionalId(turalioFunctionalId);
             TuralioPharmacistEnrollmentMetRequirement.setRequirement(TuralioPharmacistEnrollmentRequirement);
             TuralioPharmacistEnrollmentMetRequirement.setCompletedRequirement(TuralioPharmacistCredentialsResource);
             metRequirementRepository.save(TuralioPharmacistEnrollmentMetRequirement);
@@ -244,6 +264,8 @@ class DatabaseInit {
             TIRFPharmacistCredentialsResource.setId("TIRF-pharmacist-organization");
             remsFhirRepository.save(TIRFPharmacistCredentialsResource);
             TIRFPharmacistEnrollmentMetRequirement.setCompleted(true);
+            String TIRFFunctionalId = TIRFPharmacistOrganizationResource.get("resourceType").textValue() + "/" + TIRFPharmacistOrganizationResource.get("id").textValue();
+            TIRFPharmacistEnrollmentMetRequirement.setFunctionalId(TIRFFunctionalId);
             TIRFPharmacistEnrollmentMetRequirement.setRequirement(TIRFPharmacistEnrollmentRequirement);
             TIRFPharmacistEnrollmentMetRequirement.setCompletedRequirement(TIRFPharmacistCredentialsResource);
             metRequirementRepository.save(TIRFPharmacistEnrollmentMetRequirement);
@@ -251,6 +273,7 @@ class DatabaseInit {
             // pharmacist knowledge form requirement
             MetRequirement TIRFPharmacistCertificationMetRequirement = new MetRequirement();
             TIRFPharmacistCertificationMetRequirement.setCompleted(true);
+            TIRFPharmacistCertificationMetRequirement.setFunctionalId(TIRFFunctionalId);
             TIRFPharmacistCertificationMetRequirement.setRequirement(TIRFPharmacistCertificationRequirement);
             TIRFPharmacistCertificationMetRequirement.setParentMetRequirement(TIRFPharmacistEnrollmentMetRequirement);
             metRequirementRepository.save(TIRFPharmacistCertificationMetRequirement);

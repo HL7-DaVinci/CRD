@@ -1,6 +1,9 @@
 package org.hl7.davinci.endpoint.rems.database.drugs;
 
 import org.hl7.davinci.endpoint.rems.database.requirement.Requirement;
+import org.hl7.davinci.endpoint.rems.database.rems.Rems;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -27,6 +30,10 @@ public class Drug {
     @OneToMany(mappedBy="drug", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Requirement> requirements = new ArrayList<>();
 
+    // ToDo: Revist this relationship mapping between drug and rems, currently broken
+    // @OneToMany(mappedBy="drug", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    // private List<Rems> rems = new ArrayList<>();
+
     public Drug() {
         this.createdAt = ZonedDateTime.now().format(DateTimeFormatter.ofPattern( "uuuu.MM.dd.HH.mm.ss" ));
 
@@ -51,6 +58,20 @@ public class Drug {
     public void addRequirement(Requirement requirement)  {
         this.requirements.add(requirement);
     }
+
+    // ToDo: Revist this relationship mapping between drug and rems, currently broken
+    // public List<Rems> getRems() {
+    //     return this.rems;
+    // }
+
+    // public void setRems(List<Rems> rems) {
+    //     this.rems = rems;
+    // }
+
+    // public void addRems(Rems rem)  {
+    //     this.rems.add(rem);
+    // }
+
     public String getCreatedAt() {
         return this.createdAt;
     }

@@ -23,6 +23,9 @@ public class MetRequirement {
     @Column(name = "createdAt", nullable = false)
     private String createdAt;
 
+    @Column(name = "functionalId", nullable = false)
+    private String functionalId;
+
     @Column(name = "completed", nullable = false)
     private Boolean completed ;
 
@@ -35,11 +38,11 @@ public class MetRequirement {
     @JoinColumn(name="REQUIREMENT_ID")
     private Requirement requirement;
 
-    @ManyToOne
-    @JoinColumn(name="REMS_REQUEST")
+    @ManyToMany
+    // @JoinColumn(name="REMS_REQUEST")
     @JsonBackReference
-    private Rems remsRequest;
-
+    private List<Rems> remsRequest = new ArrayList<>();
+    
     @OneToMany(mappedBy="parentMetRequirement", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<MetRequirement> childMetRequirements = new ArrayList<>();
@@ -61,12 +64,16 @@ public class MetRequirement {
         this.id = id;
     }
 
-    public Rems getRemsRequest() {
+    public List<Rems> getRemsRequest() {
         return this.remsRequest;
     }
 
-    public void setRemsRequest(Rems request) {
-        this.remsRequest = request;
+    public void setRemsRequest(List<Rems> requests) {
+        this.remsRequest = requests;
+    }
+
+    public void addRemsRequest(Rems request)  {
+        this.remsRequest.add(request);
     }
 
     public RemsFhir getCompletedRequirement() {
@@ -83,6 +90,14 @@ public class MetRequirement {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getFunctionalId() {
+        return this.functionalId;
+    }
+
+    public void setFunctionalId(String id) {
+        this.functionalId = id;
     }
 
     public Boolean getCompleted() {

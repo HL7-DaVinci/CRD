@@ -28,6 +28,12 @@ public class Requirement {
     @Column(name = "name", nullable = true)
     private String name;
 
+    @Column(name = "stakeholder", nullable = false)
+    private String stakeholder;
+
+    @Column(name = "createNewCase")
+    private Boolean createNewCase ;
+
     // FHIR resource which defines the requirement (task, questionnaire, etc)
     @JoinColumn(name = "resource", nullable = true)
     @OneToOne
@@ -71,12 +77,23 @@ public class Requirement {
         this.resource = resource;
     }
 
+    
+
     public String getCreatedAt() {
         return this.createdAt;
     }
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+
+    public Boolean getCreateNewCase() {
+        return this.createNewCase;
+    }
+
+    public void setCreateNewCase(Boolean createNewCase) {
+        this.createNewCase = createNewCase;
     }
 
     public String getDescription() {
@@ -95,8 +112,16 @@ public class Requirement {
         this.name = name;
     }
 
+    public String getStakeholder() {
+        return this.stakeholder;
+    }
+
+    public void setStakeholder(String stakeholder) {
+        this.stakeholder = stakeholder;
+    }
+
     public Drug getDrug() {
-        return drug;
+        return this.drug;
     }
 
     public void setDrug(Drug drug) {
