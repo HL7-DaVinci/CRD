@@ -282,6 +282,35 @@ public class RemsController {
                   // submittedMetReq.setCompletedRequirement(remsObject);
                   submittedMetReq.setFunctionalId(reqStakeholderReference5);
                   metRequirementsRepository.save(submittedMetReq);
+
+                  for (Requirement childRequirement2 : requirement.getChildRequirements()) {
+                    Boolean foundMetReq6 = false;
+                    for (MetRequirement possibleMetRequirement6 : childRequirement2.getMetRequirements()) {
+                      if ((possibleMetRequirement6.getFunctionalId().equals(pharmacistReference) && childRequirement2.getStakeholder().equals("pharmacist"))
+                      || (possibleMetRequirement6.getFunctionalId().equals(practitionerReference) && childRequirement2.getStakeholder().equals("prescriber"))
+                      || (possibleMetRequirement6.getFunctionalId().equals(patientReference) && childRequirement2.getStakeholder().equals("patient"))) {
+                        
+                        foundMetReq6 = true;
+                        possibleMetRequirement6.setParentMetRequirement(submittedMetReq);
+                        submittedMetReq.addChildMetRequirements(possibleMetRequirement6);
+                        metRequirementsRepository.save(possibleMetRequirement6);
+                      }
+                    }
+    
+                    if (!foundMetReq6) {
+                      String reqStakeholder6 = childRequirement2.getStakeholder();
+                      String reqStakeholderReference6 = reqStakeholder6.equals("prescriber") ? practitionerReference : (reqStakeholder6.equals("pharmacist") ? pharmacistReference : patientReference);
+    
+                      MetRequirement submittedMetReqChild = new MetRequirement();
+                      submittedMetReqChild.setRequirement(childRequirement2);
+                      submittedMetReqChild.setCompleted(false);
+                      submittedMetReqChild.setFunctionalId(reqStakeholderReference6);
+                      submittedMetReqChild.setParentMetRequirement(submittedMetReq);
+                      submittedMetReq.addChildMetRequirements(submittedMetReqChild);
+                      metRequirementsRepository.save(submittedMetReqChild);
+                    }
+                  }
+                  metRequirementsRepository.save(submittedMetReq);
                   returnMetReq = submittedMetReq;
                 }
 
