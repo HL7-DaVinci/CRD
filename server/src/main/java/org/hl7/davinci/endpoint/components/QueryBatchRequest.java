@@ -52,18 +52,22 @@ public class QueryBatchRequest {
    */
   public void performQueryBatchRequest(CdsRequest<?, ?> cdsRequest, CrdPrefetch crdPrefetch) {
     logger.info("***** ***** Performing Query Batch Request.");
-    CrdPrefetch crdResponse = crdPrefetch;
-    // The list of references that should be queried in the batch request.
-    List<String> requiredReferences = new ArrayList<String>();
-
     // Get the IDs of references in the request's draft orders.
     Bundle draftOrdersBundle = cdsRequest.getContext().getDraftOrders();
-    // This assumes that only the first draft order is relevant.
-    Resource initialRequestResource = draftOrdersBundle.getEntry().get(0).getResource();
-    ResourceType requestType = initialRequestResource.getResourceType();
+
+    // Perform the query batch request for each of the draft orders.
+    for(BundleEntryComponent bec : draftOrdersBundle.getEntry()) {
+      this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, cdsRequest);
+    }
+  }
+
+  private void performBundleQueryBatchRequest(Resource resource, CrdPrefetch crdResponse, CdsRequest<?, ?> cdsRequest) {
+    ResourceType requestType = resource.getResourceType();
+    // The list of references that should be queried in the batch request.
+    List<String> requiredReferences = new ArrayList<String>();
     // Extract the references by iterating through the JSON.
     Gson gson = new Gson();
-    final JsonObject jsonObject = gson.toJsonTree(initialRequestResource).getAsJsonObject();
+    final JsonObject jsonObject = gson.toJsonTree(resource).getAsJsonObject();
     for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
       FhirRequestProcessor.extractReferenceIds(requiredReferences, entry.getValue());
     }
@@ -106,7 +110,7 @@ public class QueryBatchRequest {
     // standard prefetch, but not here so we're doing it manually.
     List<Coverage> coverages = FhirRequestProcessor.extractCoverageFromBundle(queryResponseBundle);
     List<Patient> patients = FhirRequestProcessor.extractPatientsFromBundle(queryResponseBundle);
-    FhirRequestProcessor.addInsuranceAndSubject(initialRequestResource, patients, coverages);
+    FhirRequestProcessor.addInsuranceAndSubject(resource, patients, coverages);
 
     // Add the query batch response resources to the CRD Prefetch request.
     logger.info("Query Batch Response Entries: " + queryResponseBundle.getEntry());
