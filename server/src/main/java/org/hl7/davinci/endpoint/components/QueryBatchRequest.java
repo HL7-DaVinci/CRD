@@ -107,9 +107,6 @@ public class QueryBatchRequest {
     List<Coverage> coverages = FhirRequestProcessor.extractCoverageFromBundle(queryResponseBundle);
     List<Patient> patients = FhirRequestProcessor.extractPatientsFromBundle(queryResponseBundle);
     FhirRequestProcessor.addInsuranceAndSubject(initialRequestResource, patients, coverages);
-    BundleEntryComponent newEntry = new BundleEntryComponent();
-    newEntry.setResource(initialRequestResource);
-    queryResponseBundle.addEntry(newEntry);
 
     // Add the query batch response resources to the CRD Prefetch request.
     logger.info("Query Batch Response Entries: " + queryResponseBundle.getEntry());
