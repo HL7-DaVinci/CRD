@@ -30,6 +30,7 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Component
-public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
+public abstract class CdsService<requestTypeT extends CdsRequest<? extends CrdPrefetch, ?>> {
   static final Logger logger = LoggerFactory.getLogger(CdsService.class);
 
   /**
@@ -147,7 +148,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Parsed request
     requestLog.advanceTimeline(requestService);
 
-    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(this, request, this.fhirComponents);
+    // This prefetch hydrator hydrates prefetch queries that were sent unfilled to CRD. For example, instead of sending a resource, it could send:
+    // "DeviceRequest?_id={{context.draftOrders.DeviceRequest.id}}&_include=DeviceRequest:patient&_include=DeviceRequest:performer&_include=DeviceRequest:requester&_include=DeviceRequest:device&_include:iterate=PractitionerRole:organization&_include:iterate=PractitionerRole:practitioner".
+    // This hydrator executes these additional prefetches and populates the prefetch.
+    // http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#additional-prefetch-capabilities
+    PrefetchHydrator addPrefetchQueriesHydrator = new PrefetchHydrator(request, request.getPrefetch().getAdditionalPrefetchQueries(), this.fhirComponents);
+    addPrefetchQueriesHydrator.hydrate();
+
+    PrefetchHydrator prefetchHydrator = new PrefetchHydrator(request, this.getPrefetchElements(), this.fhirComponents);
     prefetchHydrator.hydrate();
 
     // hydrated

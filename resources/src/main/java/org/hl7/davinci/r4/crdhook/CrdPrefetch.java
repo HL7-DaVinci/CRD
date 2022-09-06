@@ -2,11 +2,12 @@ package org.hl7.davinci.r4.crdhook;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.hl7.davinci.r4.JacksonBundleDeserializer;
-import org.hl7.davinci.r4.JacksonHapiSerializer;
+
+import org.hl7.davinci.PrefetchTemplateElement;
+import org.hl7.davinci.r4.JacksonCrdPrefetchDeserializer;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 
@@ -14,47 +15,29 @@ import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
  * Class that supports the representation of prefetch information in a CDS Hook request.
  * It appears that for CRD, prefetch information will be the same, regardless of hook type.
  */
+@JsonDeserialize(using = JacksonCrdPrefetchDeserializer.class)
 public class CrdPrefetch {
 
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle coverageBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle deviceRequestBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationRequestBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle nutritionOrderBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle serviceRequestBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle supplyRequestBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle appointmentBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle encounterBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationDispenseBundle;
-
-  @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
   private Bundle medicationStatementBundle;
+  // The list of prefetch queries to execute.
+  private List<PrefetchTemplateElement> prefetchQueries;
+
+  public CrdPrefetch(){
+    this.prefetchQueries = new ArrayList<>();
+  }
+
+  public List<PrefetchTemplateElement> getAdditionalPrefetchQueries() {
+    return this.prefetchQueries;
+  }
 
   public Bundle getCoverageBundle() {
     if (coverageBundle == null) {
@@ -129,16 +112,16 @@ public class CrdPrefetch {
    * @return
    */
   public boolean containsRequestResourceId(String id) {
-    return this.bundleContainsResourceId(this.coverageBundle, id)
-        || this.bundleContainsResourceId(this.deviceRequestBundle, id)
-        || this.bundleContainsResourceId(this.medicationRequestBundle, id)
-        || this.bundleContainsResourceId(this.nutritionOrderBundle, id)
-        || this.bundleContainsResourceId(this.serviceRequestBundle, id)
-        || this.bundleContainsResourceId(this.supplyRequestBundle, id)
-        || this.bundleContainsResourceId(this.appointmentBundle, id)
-        || this.bundleContainsResourceId(this.encounterBundle, id)
-        || this.bundleContainsResourceId(this.medicationDispenseBundle, id)
-        || this.bundleContainsResourceId(this.medicationStatementBundle, id);
+    return bundleContainsResourceId(this.coverageBundle, id)
+        || bundleContainsResourceId(this.deviceRequestBundle, id)
+        || bundleContainsResourceId(this.medicationRequestBundle, id)
+        || bundleContainsResourceId(this.nutritionOrderBundle, id)
+        || bundleContainsResourceId(this.serviceRequestBundle, id)
+        || bundleContainsResourceId(this.supplyRequestBundle, id)
+        || bundleContainsResourceId(this.appointmentBundle, id)
+        || bundleContainsResourceId(this.encounterBundle, id)
+        || bundleContainsResourceId(this.medicationDispenseBundle, id)
+        || bundleContainsResourceId(this.medicationStatementBundle, id);
   }
 
   /**
@@ -147,7 +130,7 @@ public class CrdPrefetch {
    * @param id
    * @return
    */
-  private boolean bundleContainsResourceId(Bundle bundle, String id) {
+  private static boolean bundleContainsResourceId(Bundle bundle, String id) {
     if (bundle == null) {
       return false;
     }
@@ -156,43 +139,60 @@ public class CrdPrefetch {
       id = splitId[splitId.length-1];
     }
     final String idToCheck = id;
-    return bundle.getEntry().stream().anyMatch(entry -> entry.getResource().getId().contains(idToCheck));
+    return bundle.getEntry().stream()
+        .anyMatch(entry -> entry.getResource().getId().contains(idToCheck));
   }
 
   @Override
   public String toString() {
-    List<BundleEntryComponent> entries = new ArrayList<>();
-    if(this.deviceRequestBundle != null) {
-    entries.addAll(this.deviceRequestBundle.getEntry());
-    } if(this.nutritionOrderBundle != null){
-      entries.addAll(this.nutritionOrderBundle.getEntry());
-    } if(this.serviceRequestBundle != null){
-      entries.addAll(this.serviceRequestBundle.getEntry());
-    } if(this.medicationDispenseBundle != null){
-      entries.addAll(this.medicationDispenseBundle.getEntry());
-    } if(this.medicationStatementBundle != null){
-      entries.addAll(this.medicationStatementBundle.getEntry());
-    } if(this.encounterBundle != null){
-      entries.addAll(this.encounterBundle.getEntry());
-    } if(this.appointmentBundle != null){
-      entries.addAll(this.appointmentBundle.getEntry());
-    } if(this.medicationRequestBundle != null){
-      entries.addAll(this.medicationRequestBundle.getEntry());
-    } if(this.supplyRequestBundle != null){
-      entries.addAll(this.supplyRequestBundle.getEntry());
-    } if(this.coverageBundle != null) {
-      entries.addAll(this.coverageBundle.getEntry());
-    }
+
     StringBuilder sb = new StringBuilder();
     sb.append("[");
-    for(BundleEntryComponent entry : entries) {
-      sb.append(entry.getResource());
-      sb.append("~");
-      sb.append(entry.getResource().getId());
-      sb.append(",");
+    BiConsumer<String, Bundle> bundlesPrinter = (key, bundle) -> {
+      sb.append(key).append(":{");
+      for(BundleEntryComponent entry : bundle.getEntry()) {
+        sb.append(entry.getResource());
+        sb.append("~");
+        sb.append(entry.getResource().getId());
+        sb.append(",");
+      }
+      sb.append("}");
+    };
+
+    if(this.deviceRequestBundle != null) {
+      bundlesPrinter.accept("deviceRequestBundle", deviceRequestBundle);
+    } if(this.nutritionOrderBundle != null){
+      bundlesPrinter.accept("nutritionOrderBundle", nutritionOrderBundle);
+    } if(this.serviceRequestBundle != null){
+      bundlesPrinter.accept("serviceRequestBundle", serviceRequestBundle);
+    } if(this.medicationDispenseBundle != null){
+      bundlesPrinter.accept("medicationDispenseBundle", medicationDispenseBundle);
+    } if(this.medicationStatementBundle != null){
+      bundlesPrinter.accept("medicationStatementBundle", medicationStatementBundle);
+    } if(this.encounterBundle != null){
+      bundlesPrinter.accept("encounterBundle", encounterBundle);
+    } if(this.appointmentBundle != null){
+      bundlesPrinter.accept("appointmentBundle", appointmentBundle);
+    } if(this.medicationRequestBundle != null){
+      bundlesPrinter.accept("medicationRequestBundle", medicationRequestBundle);
+    } if(this.supplyRequestBundle != null){
+      bundlesPrinter.accept("supplyRequestBundle", supplyRequestBundle);
+    } if(this.coverageBundle != null) {
+      bundlesPrinter.accept("coverageBundle", coverageBundle);
     }
-    sb.setLength(sb.length()-1);
+
     sb.append("]");
     return sb.toString();
   }
+
+  /**
+   * Adds the given prefetch query to the list of prefetch queries to execute.
+   * @param prefetchKey
+   * @param prefetchQuery
+   */
+  public void addPrefetchQuery(String prefetchKey, String prefetchQuery) {
+    PrefetchTemplateElement prefetchTemplate = new PrefetchTemplateElement(prefetchKey, Bundle.class, prefetchQuery.replaceAll("\"", ""));
+    this.prefetchQueries.add(prefetchTemplate);
+  }
+
 }
