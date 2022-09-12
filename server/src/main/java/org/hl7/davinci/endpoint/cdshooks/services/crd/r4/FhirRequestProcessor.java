@@ -192,6 +192,12 @@ public class FhirRequestProcessor {
   public static void addToCrdPrefetchRequest(CrdPrefetch crdResponse, ResourceType requestType,
       List<BundleEntryComponent> resourcesToAdd) {
     switch (requestType) {
+      case Coverage:
+        if (crdResponse.getCoverageBundle() == null) {
+          crdResponse.setCoverageBundle(new Bundle());
+        }
+        addNonDuplicateResourcesToBundle(crdResponse.getCoverageBundle(), resourcesToAdd);
+        break;
       case DeviceRequest:
         if (crdResponse.getDeviceRequestBundle() == null) {
           crdResponse.setDeviceRequestBundle(new Bundle());
