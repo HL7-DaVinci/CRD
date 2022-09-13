@@ -242,6 +242,7 @@ public class FhirBundleProcessor {
     HashMap<String, Resource> cqlParams = new HashMap<>();
     cqlParams.put("Patient", patient);
     if(coverages.size() > 0) {
+      // In this case, we're just using the first coverage. But in a payer implementation, it should find and use the correct relevant coverage(s).
       cqlParams.put("Coverage", coverages.get(0));
     }
     cqlParams.put(requestType, request);
