@@ -7,6 +7,7 @@ public class CoverageRequirementRuleResult {
   private Context context;
   private CoverageRequirementRuleCriteria criteria;
   private String topic;
+  private boolean deidentifiedResourceContainsPhi;
 
   public Context getContext() { return context; }
 
@@ -26,6 +27,13 @@ public class CoverageRequirementRuleResult {
 
   public CoverageRequirementRuleResult setTopic(String topic) {
     this.topic = topic;
+    return this;
+  }
+
+  public boolean getDeidentifiedResourceContainsPhi() { return deidentifiedResourceContainsPhi; }
+
+  public CoverageRequirementRuleResult setDeidentifiedResourceContainsPhi(boolean deidentifiedResourceContainsPhi) {
+    this.deidentifiedResourceContainsPhi = deidentifiedResourceContainsPhi;
     return this;
   }
 }
