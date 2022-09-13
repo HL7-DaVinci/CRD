@@ -152,10 +152,10 @@ public class FhirBundleProcessor {
         logger.warn("r4/FhirBundleProcessor::processDeviceRequests: WARNING - Device Request '"
             + deviceRequest.getId() + "' does not contain a reference to any prefetched patients. Resource contains patient reference '"
             + patientReference + "' and prefetch contains patients " + patients.stream().map(patient -> patient.getId()).collect(Collectors.toSet()) + ".");
-        buildExecutionContexts(criteriaList, null, "device_request", deviceRequest);
+        buildExecutionContexts(criteriaList, null, coverageList, "device_request", deviceRequest);
       } else {
         Patient patientToUse = referencedPrefetechedPatients.get(0);
-        buildExecutionContexts(criteriaList, patientToUse, "device_request", deviceRequest);
+        buildExecutionContexts(criteriaList, patientToUse, coverageList, "device_request", deviceRequest);
       }
     }
   }
@@ -182,10 +182,10 @@ public class FhirBundleProcessor {
         logger.warn("r4/FhirBundleProcessor::processMedicationRequests: WARNING - Medication Request '"
             + medicationRequest.getId() + "' does not contain a reference to any prefetched patients. Resource contains patient reference '"
             + patientReference + "' and prefetch contains patients " + patients.stream().map(patient -> patient.getId()).collect(Collectors.toSet()) + ".");
-        buildExecutionContexts(criteriaList, null, "medication_request", medicationRequest);
+        buildExecutionContexts(criteriaList, null, coverageList, "medication_request", medicationRequest);
       } else {
         Patient patientToUse = referencedPrefetechedPatients.get(0);
-        buildExecutionContexts(criteriaList, patientToUse, "medication_request", medicationRequest);
+        buildExecutionContexts(criteriaList, patientToUse, coverageList, "medication_request", medicationRequest);
       }
     }
   }
@@ -214,10 +214,10 @@ public class FhirBundleProcessor {
         logger.warn("r4/FhirBundleProcessor::processMedicationDispenses: WARNING - Medication Dispense '"
             + medicationDispense.getId() + "' does not contain a reference to any prefetched patients. Resource contains patient reference '"
             + patientReference + "' and prefetch contains patients " + patients.stream().map(patient -> patient.getId()).collect(Collectors.toSet()) + ".");
-        buildExecutionContexts(criteriaList,null, "medication_dispense", medicationDispense);
+        buildExecutionContexts(criteriaList,null, coverageList, "medication_dispense", medicationDispense);
       } else {
         Patient patientToUse = referencedPrefetechedPatients.get(0);
-        buildExecutionContexts(criteriaList,patientToUse, "medication_dispense", medicationDispense);
+        buildExecutionContexts(criteriaList,patientToUse, coverageList, "medication_dispense", medicationDispense);
       }
     }
   }
@@ -244,11 +244,11 @@ public class FhirBundleProcessor {
         logger.warn("r4/FhirBundleProcessor::processServiceRequests: WARNING - Service Request '"
             + serviceRequest.getId() + "' does not contain a reference to any prefetched patients. Resource contains patient reference '"
             + patientReference + "' and prefetch contains patients " + patients.stream().map(patient -> patient.getId()).collect(Collectors.toSet()) + ".");
-        buildExecutionContexts(criteriaList, null, "service_request", serviceRequest);
+        buildExecutionContexts(criteriaList, null, coverageList, "service_request", serviceRequest);
       } else {
         Patient patientToUse = referencedPrefetechedPatients.iterator().next();
         logger.info("r4/FhirBundleProcessor::processMedicationDispenses: Found Patient '" + patientToUse + "'.");
-        buildExecutionContexts(criteriaList, patientToUse, "service_request", serviceRequest);
+        buildExecutionContexts(criteriaList, patientToUse, coverageList, "service_request", serviceRequest);
       }
     }
   }
@@ -275,24 +275,20 @@ public class FhirBundleProcessor {
         String patientReference = medicationStatement.getSubject().getReference();
         List<Patient> referencedPrefetechedPatients = extractReferencedResources(medStatementPatients, patientReference);
         List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), payorList);
+        HashMap<String, Resource> cqlParams = new HashMap<>();
         if (referencedPrefetechedPatients.size() < 1) {
           logger.warn("r4/FhirBundleProcessor::processMedicationStatements: WARNING - Medication Statement '"
               + medicationStatement.getId() + "' does not contain a reference to any prefetched patients. Resource contains patient reference '"
               + patientReference + "' and prefetch contains patients " + medStatementPatients.stream().map(patient -> patient.getId()).collect(Collectors.toSet()) + ".");
-          HashMap<String, Resource> cqlParams = new HashMap<>();
           cqlParams.put("Patient", null);
-          cqlParams.put("medication_request", medicationRequest);
-          cqlParams.put("medication_statement", medicationStatement);
-          buildExecutionContexts(criteriaList, cqlParams);
         } else {
           Patient patientToUse = referencedPrefetechedPatients.get(0);
-          HashMap<String, Resource> cqlParams = new HashMap<>();
           cqlParams.put("Patient", (Patient) patientToUse);
-          cqlParams.put("medication_request", medicationRequest);
-          cqlParams.put("medication_statement", medicationStatement);
-          List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(medicationRequest.getMedicationCodeableConcept(), medicationRequest.getInsurance(), payorList);
-          buildExecutionContexts(criteriaList, cqlParams);
         }
+
+        cqlParams.put("medication_request", medicationRequest);
+        cqlParams.put("medication_statement", medicationStatement);
+        buildExecutionContexts(criteriaList, cqlParams);
       }
     }
   }
