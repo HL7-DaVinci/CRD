@@ -1,42 +1,45 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
+import com.google.gson.Gson;
+import org.apache.commons.lang.StringUtils;
+import org.cdshooks.*;
+import org.hl7.davinci.FhirComponentsT;
+import org.hl7.davinci.PrefetchTemplateElement;
+import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.davinci.endpoint.components.CardBuilder;
+import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
+import org.hl7.davinci.endpoint.components.PrefetchHydrator;
+import org.hl7.davinci.endpoint.components.QueryBatchRequest;
+import org.hl7.davinci.endpoint.config.YamlConfig;
+import org.hl7.davinci.endpoint.database.FhirResourceRepository;
+import org.hl7.davinci.endpoint.database.RequestLog;
+import org.hl7.davinci.endpoint.database.RequestService;
+import org.hl7.davinci.endpoint.files.FileStore;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
+import org.hl7.davinci.r4.CardTypes;
+import org.hl7.davinci.r4.CoverageGuidance;
+import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
+import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.opencds.cqf.cql.engine.execution.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
-import javax.validation.Valid;
-
-import org.apache.commons.lang.StringUtils;
-import org.cdshooks.*;
-import org.hl7.davinci.FhirComponentsT;
-import org.hl7.davinci.PrefetchTemplateElement;
-import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.endpoint.config.YamlConfig;
-import org.hl7.davinci.endpoint.components.CardBuilder;
-import org.hl7.davinci.endpoint.components.PrefetchHydrator;
-import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
-import org.hl7.davinci.endpoint.components.QueryBatchRequest;
-import org.hl7.davinci.endpoint.database.FhirResourceRepository;
-import org.hl7.davinci.endpoint.database.RequestLog;
-import org.hl7.davinci.endpoint.database.RequestService;
-import org.hl7.davinci.endpoint.files.FileStore;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
-import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
-import org.hl7.davinci.r4.CardTypes;
-import org.hl7.davinci.r4.CoverageGuidance;
-import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
-import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
-import org.opencds.cqf.cql.engine.execution.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
+import java.util.List;
 
 @Component
 public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
@@ -152,7 +155,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     // hydrated
     requestLog.advanceTimeline(requestService);
-
     // Attempt a Query Batch Request to backfill missing attributes.
     if (myConfig.isQueryBatchRequest()) {
       QueryBatchRequest qbr = new QueryBatchRequest(this.fhirComponents);
@@ -290,51 +292,36 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
       CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
+    List<Pair<String, String>> linksToAdd = new ArrayList<>();
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireOrderUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Order Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireOrderUri(), "Order Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireFaceToFaceUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Face to Face Encounter Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireFaceToFaceUri(), "Face to Face Encounter Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireLabUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Lab Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireLabUri(),"Lab Form"));
     }
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireProgressNoteUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Progress Note"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireProgressNoteUri(),"Progress Note"));
     }
-
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePARequestUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "PA Request"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnairePARequestUri(),"PA Request"));
     }
-
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnairePlanOfCareUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Plan of Care/Certification"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnairePlanOfCareUri(),"Plan of Care/Certification"));
     }
-
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireDispenseUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Dispense Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireDispenseUri(),"Dispense Form"));
     }
-
     if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          coverageRequirements.getQuestionnaireAdditionalUri(), coverageRequirements.getRequestId(),
-          lookupResult.getCriteria(), coverageRequirements.isPriorAuthRequired(), "Additional Form"));
+      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireAdditionalUri(),"Additional Form"));
     }
+    linksToAdd.forEach((e) -> {
+      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+          e.getFirst(), coverageRequirements.getRequestId(), results.getRequest(), e.getSecond()));
+    });
     return listOfLinks;
   }
 
@@ -352,7 +339,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri,
-      String reqResourceId, CoverageRequirementRuleCriteria criteria, boolean priorAuthRequired, String label) {
+                                String reqResourceId, IBaseResource request, String label) {
     URI configLaunchUri = myConfig.getLaunchUrl();
     questionnaireUri = applicationBaseUrl + "/fhir/r4/" + questionnaireUri;
 
@@ -379,15 +366,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     }
 
     // PARAMS:
-    // template is the uri of the questionnaire
-    // request is the ID of the device request or medrec (not the full URI like the
-    // IG says, since it should be taken from fhirBase
+    // questionnaire is the canonical uri of the questionnaire resource
+    // order is the request (DeviceRequest, ServiceRequest, MedicationRequest, MedicationDispense, etc)
+    // coverage is the insurance information
+    // can optionally include a "response" parameter for a QuestionnaireResponse resource to relaunch from
 
-    String appContext = "template=" + questionnaireUri + "&request=" + reqResourceId;
-    appContext = appContext + "&fhirpath=" + applicationBaseUrl + "/fhir/";
+    String appContext = "questionnaire=" + questionnaireUri + "&order=" + reqResourceId + "&coverage=" + FhirRequestProcessor.getCoverageFromRequest(request).getReference();
 
-    appContext = appContext + "&priorauth=" + (priorAuthRequired ? "true" : "false");
-    appContext = appContext + "&filepath=" + applicationBaseUrl + "/";
     if (myConfig.getUrlEncodeAppContext()) {
       logger.info("CdsService::smartLinkBuilder: URL encoding appcontext");
       try {
