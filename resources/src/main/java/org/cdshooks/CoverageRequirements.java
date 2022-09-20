@@ -1,5 +1,6 @@
 package org.cdshooks;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class CoverageRequirements {
@@ -7,22 +8,19 @@ public class CoverageRequirements {
   private String summary;
   private String details;
   private String infoLink;
-  private String questionnaireOrderUri;
-  private String questionnairePrescriberEnrollmentUri;
-  private String questionnairePrescriberKnowledgeAssessmentUri;
-  private String questionnaireFaceToFaceUri;
-  private String questionnaireLabUri;
-  private String questionnaireProgressNoteUri;
-  private String questionnairePARequestUri;
-  private String questionnairePlanOfCareUri;
-  private String questionnaireDispenseUri;
-  private String questionnaireAdditionalUri;
+  private ArrayList<Requirement> patientRequirements;
+  private ArrayList<Requirement> prescriberRequirements;
   private String requestId;
   private boolean priorAuthRequired;
   private boolean documentationRequired;
 
   private boolean priorAuthApproved;
   private String priorAuthId;
+
+  public CoverageRequirements() {
+    this.patientRequirements = new ArrayList<>();
+    this.prescriberRequirements = new ArrayList<>();
+  }
 
   public boolean getApplies() { return applies; }
 
@@ -33,6 +31,27 @@ public class CoverageRequirements {
 
   public String getSummary() {
     return summary;
+  }
+
+  public ArrayList<Requirement> getPatientRequirements() {
+    return patientRequirements;
+  }
+
+  public void addPatientRequirement(Requirement patientRequirement) {
+    if(patientRequirement.getUrl() != null) {
+      this.patientRequirements.add(patientRequirement);
+    }
+  }
+
+
+  public ArrayList<Requirement> getPrescriberRequirements() {
+    return prescriberRequirements;
+  }
+
+  public void addPrescriberRequirement(Requirement prescriberRequirement) {
+    if(prescriberRequirement.getUrl() != null) {
+      this.prescriberRequirements.add(prescriberRequirement);
+    }
   }
 
   public CoverageRequirements setSummary(String summary) {
@@ -55,86 +74,6 @@ public class CoverageRequirements {
 
   public CoverageRequirements setInfoLink(String infoLink) {
     this.infoLink = infoLink;
-    return this;
-  }
-  public String getQuestionnaireOrderUri() {
-    return questionnaireOrderUri;
-  }
-
-  public CoverageRequirements setQuestionnaireOrderUri(String questionnaireOrderUri) {
-    this.questionnaireOrderUri = questionnaireOrderUri;
-    return this;
-  }
-
-  public String getQuestionnaireFaceToFaceUri() {
-    return this.questionnaireFaceToFaceUri;
-  }
-
-  public CoverageRequirements setQuestionnairePrescriberEnrollmentUri(String questionnairePrescriberEnrollmentUri) {
-    this.questionnairePrescriberEnrollmentUri = questionnairePrescriberEnrollmentUri;
-    return this;
-  }
-
-  public String getQuestionnairePrescriberEnrollmentUri() {
-    return this.questionnairePrescriberEnrollmentUri;
-  }
-
-  public CoverageRequirements setQuestionnairePrescriberKnowledgeAssessmentUri(String questionnairePrescriberKnowledgeAssessmentUri) {
-    this.questionnairePrescriberKnowledgeAssessmentUri = questionnairePrescriberKnowledgeAssessmentUri;
-    return this;
-  }
-
-  public String getQuestionnairePrescriberKnowledgeAssessmentUri() {
-    return this.questionnairePrescriberKnowledgeAssessmentUri;
-  }
-
-  public CoverageRequirements setQuestionnaireFaceToFaceUri(String questionnaireFaceToFaceUri) {
-    this.questionnaireFaceToFaceUri = questionnaireFaceToFaceUri;
-    return this;
-  }
-
-  public String getQuestionnaireLabUri() {
-    return questionnaireLabUri;
-  }
-
-  public CoverageRequirements setQuestionnaireLabUri(String questionnaireLabUri) {
-    this.questionnaireLabUri = questionnaireLabUri;
-    return this;
-  }
-
-  public String getQuestionnaireProgressNoteUri() {
-    return questionnaireProgressNoteUri;
-  }
-
-  public CoverageRequirements setQuestionnaireProgressNoteUri(String questionnaireProgressNoteUri) {
-    this.questionnaireProgressNoteUri = questionnaireProgressNoteUri;
-    return this;
-  }
-
-  public String getQuestionnairePARequestUri() {
-    return questionnairePARequestUri;
-  }
-
-  public CoverageRequirements setQuestionnairePARequestUri(String questionnairePARequestUri) {
-    this.questionnairePARequestUri = questionnairePARequestUri;
-    return this;
-  }
-
-  public String getQuestionnairePlanOfCareUri() {
-    return questionnairePlanOfCareUri;
-  }
-
-  public CoverageRequirements setQuestionnairePlanOfCareUri(String questionnairePlanOfCareUri) {
-    this.questionnairePlanOfCareUri = questionnairePlanOfCareUri;
-    return this;
-  }
-
-  public String getQuestionnaireDispenseUri() {
-    return questionnaireDispenseUri;
-  }
-
-  public CoverageRequirements setQuestionnaireDispenseUri(String questionnaireDispenseUri) {
-    this.questionnaireDispenseUri = questionnaireDispenseUri;
     return this;
   }
 
@@ -185,11 +124,4 @@ public class CoverageRequirements {
     return this;
   }
 
-  public String getQuestionnaireAdditionalUri() {
-    return questionnaireAdditionalUri;
-  }
-
-  public void setQuestionnaireAdditionalUri(String questionnaireAdditionalUri) {
-    this.questionnaireAdditionalUri = questionnaireAdditionalUri;
-  }
 }

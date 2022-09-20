@@ -7,6 +7,7 @@ import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSignService;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
 import org.hl7.davinci.endpoint.components.PrefetchHydrator;
@@ -40,6 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends CdsAbstract<requestTypeT> {
@@ -143,14 +145,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
                 fhirResourceRepository));
 
           } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
-            if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
+            if (coverageRequirements.getPatientRequirements().size() > 0) {
               List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
               if (coverageRequirements.isPriorAuthRequired()) {
                 Card card = cardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
@@ -175,8 +170,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
                   logger.warn("Failed to process alternative therapy: " + e.getMessage());
                 }
               }
-              if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())
-                      || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
+              if (coverageRequirements.getPrescriberRequirements().size() > 0 ) {
                 Card prescriberCard = createPrescriberCard(request, applicationBaseUrl, lookupResult, results);
                 prescriberCard.setSummary("Prescriber forms");
                 response.addCard(prescriberCard);
@@ -228,16 +222,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
     List<Link> listOfLinks = new ArrayList<>();
     CardBuilder cardBuilder = new CardBuilder();
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberEnrollmentUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-              coverageRequirements.getQuestionnairePrescriberEnrollmentUri(), coverageRequirements.getRequestId(),
-              results.getRequest(), "Prescriber Enrollment Form"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri())) {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-              coverageRequirements.getQuestionnairePrescriberKnowledgeAssessmentUri(), coverageRequirements.getRequestId(),
-              results.getRequest(), "Prescriber Knowledge Assessment Form"));
-    }
+    coverageRequirements.getPrescriberRequirements().forEach(e -> {
+      if(Objects.equals(e.getType(), OrderSignService.SMART_LINK_TYPE)) {
+        listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+                e.getUrl(), coverageRequirements.getRequestId(),
+                results.getRequest(), e.getLabel()));
+      } else {
+        listOfLinks.add(makeAbsoluteLink(e.getLabel(), e.getUrl()));
+      }
+
+    });
 
     Card card;
     if (coverageRequirements.isPriorAuthRequired()) {
@@ -256,37 +250,25 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> extends 
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
       CoverageRequirementRuleResult lookupResult, CqlResultsForCard results) {
     List<Link> listOfLinks = new ArrayList<>();
-    List<Pair<String, String>> linksToAdd = new ArrayList<>();
     CoverageRequirements coverageRequirements = results.getCoverageRequirements();
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())) {
-      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireOrderUri(), "Patient Enrollment Form"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())) {
-      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireFaceToFaceUri(), "Face to Face Encounter Form"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())) {
-      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireLabUri(),"Lab Form"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())) {
-      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireProgressNoteUri(),"Patient Status Update Form"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())) {
-      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnairePARequestUri(),"PA Request"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())) {
-      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnairePlanOfCareUri(),"Plan of Care/Certification"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())) {
-      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireDispenseUri(),"Dispense Form"));
-    }
-    if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
-      linksToAdd.add(Pair.of(coverageRequirements.getQuestionnaireAdditionalUri(),"Additional Form"));
-    }
-    linksToAdd.forEach((e) -> {
-      listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
-          e.getFirst(), coverageRequirements.getRequestId(), results.getRequest(), e.getSecond()));
+    ArrayList<Requirement> requirementLinks = coverageRequirements.getPatientRequirements();
+    requirementLinks.forEach(e -> {
+      if(Objects.equals(e.getType(), OrderSignService.SMART_LINK_TYPE)) {
+        listOfLinks.add(smartLinkBuilder(request.getContext().getPatientId(), request.getFhirServer(), applicationBaseUrl,
+                e.getUrl(), coverageRequirements.getRequestId(), results.getRequest(), e.getLabel()));
+      } else {
+        listOfLinks.add(makeAbsoluteLink(e.getLabel(), e.getUrl()));
+      }
     });
     return listOfLinks;
+  }
+
+  protected Link makeAbsoluteLink(String label, String url) {
+    Link link = new Link();
+    link.setUrl(url);
+    link.setType("absolute");
+    link.setLabel(label);
+    return link;
   }
 
   protected Object evaluateStatement(String statement, Context context) {
