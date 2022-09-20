@@ -2,12 +2,10 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
-import org.cdshooks.AlternativeTherapy;
-import org.cdshooks.CoverageRequirements;
-import org.cdshooks.DrugInteraction;
-import org.cdshooks.Hook;
+import org.cdshooks.*;
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
@@ -35,7 +33,11 @@ import org.springframework.stereotype.Component;
 
 @Component("r4_OrderSignService")
 public class OrderSignService extends CdsService<OrderSignRequest> {
-
+  public static final String SMART_LINK_TYPE = "smart";
+  public static final String INFO_LINK_TYPE = "absolute";
+  public static final String INFO_LINK_TITLE = "INFO";
+  public static final String INFO_LINK_PATIENT = "PATIENT";
+  public static final String INFO_LINK_PRESCRIBER = "PRESCRIBER";
   public static final String ID = "order-sign-crd";
   public static final String TITLE = "order-sign Coverage Requirements Discovery";
   public static final Hook HOOK = Hook.ORDER_SIGN;
@@ -78,7 +80,6 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
 
   protected CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
     CqlResultsForCard results = new CqlResultsForCard();
-
     results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES", context));
     if (!results.ruleApplies()) {
       logger.warn("rule does not apply");
@@ -137,84 +138,77 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
           .encodeResourceToString(results.getRequest())));
 
       // only display the dispense form for MedicationDispense request
-      try {
-        if (evaluateStatement("RESULT_QuestionnaireDispenseUri", context) != null) {
-          coverageRequirements.setQuestionnaireDispenseUri(evaluateStatement("RESULT_QuestionnaireDispenseUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No Dispense questionnaire defined");
-      }
+      coverageRequirements.addPatientRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnaireDispenseUri", context),
+              "Dispense Form",
+              SMART_LINK_TYPE
+      ));
     }
     else // not a MedicationDispense
     {
-      if (evaluateStatement("RESULT_QuestionnaireOrderUri", context) != null) {
-        coverageRequirements.setQuestionnaireOrderUri(evaluateStatement("RESULT_QuestionnaireOrderUri", context).toString());
-      }
-
-      try {
-        if (evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context) != null) {
-          coverageRequirements.setQuestionnaireFaceToFaceUri(evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context).toString());
+      context.getCurrentLibrary().getStatements().getDef().forEach(def -> {
+        String name = def.getName();
+        String[] parts =  name.split("_");
+        if(Objects.equals(parts[0], INFO_LINK_TITLE)) {
+          Requirement req = new Requirement(
+                  evaluateStatement(name, context),
+                  StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(parts[2]), " "),
+                  INFO_LINK_TYPE
+          );
+          if(Objects.equals(parts[1], INFO_LINK_PATIENT)) {
+            coverageRequirements.addPatientRequirement(req);
+          } else if(Objects.equals(parts[1], INFO_LINK_PRESCRIBER)) {
+            coverageRequirements.addPrescriberRequirement(req);
+          }
         }
-      } catch (Exception e) {
-        logger.info("-- No face to face questionnaire defined");
-      }
+      });
 
-      try {
-        if (evaluateStatement("RESULT_QuestionnairePrescriberEnrollmentUri", context) != null) {
-          coverageRequirements.setQuestionnairePrescriberEnrollmentUri(evaluateStatement("RESULT_QuestionnairePrescriberEnrollmentUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No Prescriber Enrollment defined");
-      }
+      coverageRequirements.addPatientRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnaireOrderUri", context),
+              "Patient Enrollment Form",
+              SMART_LINK_TYPE
+      ));
+      coverageRequirements.addPatientRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnaireFaceToFaceUri", context),
+              "Face to Face Encounter Form",
+              SMART_LINK_TYPE
+      ));
 
-      try {
-        if (evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context) != null) {
-          coverageRequirements.setQuestionnairePrescriberKnowledgeAssessmentUri(evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No Prescriber Knowledge Assessment defined");
-      }
-
-      try {
-        if (evaluateStatement("RESULT_QuestionnaireLabUri", context) != null) {
-          coverageRequirements.setQuestionnaireLabUri(evaluateStatement("RESULT_QuestionnaireLabUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No Lab questionnaire defined");
-      }
-
-      try {
-        if (evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context) != null) {
-          coverageRequirements.setQuestionnaireProgressNoteUri(evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No Progress note questionnaire defined");
-      }
-
-      try {
-        if (evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context) != null) {
-          coverageRequirements.setQuestionnairePlanOfCareUri(evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No plan of care questionnaire defined");
-      }
-
-      try {
-        if (evaluateStatement("RESULT_QuestionnairePARequestUri", context) != null) {
-          coverageRequirements.setQuestionnairePARequestUri(evaluateStatement("RESULT_QuestionnairePARequestUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No PA Request questionnaire defined");
-      }
-
-      try {
-        if (evaluateStatement("RESULT_QuestionnaireAdditionalUri", context) != null) {
-          coverageRequirements.setQuestionnaireAdditionalUri(evaluateStatement("RESULT_QuestionnaireAdditionalUri", context).toString());
-        }
-      } catch (Exception e) {
-        logger.info("-- No additional questionnaire defined");
-      }
-
+      coverageRequirements.addPrescriberRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnairePrescriberEnrollmentUri", context),
+              "Prescriber Enrollment Form",
+              SMART_LINK_TYPE
+      ));
+      coverageRequirements.addPrescriberRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnairePrescriberKnowledgeAssessmentUri", context),
+              "Prescriber Knowledge Assessment Form",
+              SMART_LINK_TYPE
+      ));
+      coverageRequirements.addPatientRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnaireLabUri", context),
+              "Lab Form",
+              SMART_LINK_TYPE
+      ));
+      coverageRequirements.addPatientRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnaireProgressNoteUri", context),
+              "Patient Status Update Form",
+              SMART_LINK_TYPE
+      ));
+      coverageRequirements.addPatientRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnairePlanOfCareUri", context),
+              "Plan of Care/Certification",
+              SMART_LINK_TYPE
+      ));
+      coverageRequirements.addPatientRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnairePARequestUri", context),
+              "PA Request",
+              SMART_LINK_TYPE
+      ));
+      coverageRequirements.addPatientRequirement(new Requirement(
+              evaluateStatement("RESULT_QuestionnaireAdditionalUri", context),
+              "Additional Form",
+              SMART_LINK_TYPE
+      ));
       // process the alternative therapies
       try {
         if (evaluateStatement("ALTERNATIVE_THERAPY", context) != null) {
