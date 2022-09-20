@@ -65,7 +65,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore, String baseUrl) {
     FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
     CrdPrefetch prefetch = orderSignRequest.getPrefetch();
-    Bundle coverageBundle = prefetch.getCoverageBundle(); // TODO - do something with coverage.
+    Bundle coverageBundle = prefetch.getCoverageBundle();
     fhirBundleProcessor.processDeviceRequests(prefetch.getDeviceRequestBundle(), coverageBundle);
     fhirBundleProcessor.processMedicationRequests(prefetch.getMedicationRequestBundle(), coverageBundle);
     fhirBundleProcessor.processServiceRequests(prefetch.getServiceRequestBundle(), coverageBundle);
