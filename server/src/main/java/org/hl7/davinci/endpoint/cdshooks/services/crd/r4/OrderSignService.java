@@ -53,7 +53,11 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   static final Logger logger = LoggerFactory.getLogger(OrderSignService.class);
 
   public static final List<ConfigurationOption> CONFIGURATION_OPTIONS = Arrays.asList(
-      CrdExtensionConfigurationOptions.ALTERNATIVE_THERAPY
+      CrdExtensionConfigurationOptions.ALTERNATIVE_THERAPY,
+      CrdExtensionConfigurationOptions.DTR_CLIN,
+      CrdExtensionConfigurationOptions.PRIOR_AUTH,
+      CrdExtensionConfigurationOptions.COVERAGE,
+      CrdExtensionConfigurationOptions.MAX_CARDS
   );
   public static final DiscoveryExtension EXTENSION = new DiscoveryExtension(CONFIGURATION_OPTIONS);
 

@@ -17,7 +17,10 @@ import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.crdhook.ConfigurationOption;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
+import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
+import org.hl7.davinci.r4.crdhook.orderselect.CrdExtensionConfigurationOptions;
 import org.hl7.davinci.r4.crdhook.orderselect.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -44,7 +47,13 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
   public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
   static final Logger logger = LoggerFactory.getLogger(OrderSelectService.class);
 
-  public OrderSelectService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, null); }
+  public static final List<ConfigurationOption> CONFIGURATION_OPTIONS = Arrays.asList(
+          CrdExtensionConfigurationOptions.COVERAGE,
+          CrdExtensionConfigurationOptions.MAX_CARDS
+  );
+  public static final DiscoveryExtension EXTENSION = new DiscoveryExtension(CONFIGURATION_OPTIONS);
+
+  public OrderSelectService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, EXTENSION); }
 
   @Override
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSelectRequest orderSelectRequest, FileStore fileStore, String baseUrl) {
