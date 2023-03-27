@@ -28,4 +28,8 @@ public class Configuration {
   public Boolean getPriorAuth() { return priorAuth; }
   public Boolean getCoverage() { return coverage; }
   public int getMaxCards() { return maxCards; }
+
+  public boolean canAddCard(int currentCardCount) {
+    return currentCardCount <= maxCards;
+  }
 }
