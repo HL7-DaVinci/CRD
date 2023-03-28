@@ -7,9 +7,11 @@ import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSelectService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSignService;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderDispatchService;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
+import org.hl7.davinci.r4.crdhook.orderdispatch.OrderDispatchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ public class CdsHooksController {
 
   @Autowired private OrderSelectService orderSelectService;
   @Autowired private OrderSignService orderSignService;
+  @Autowired private OrderDispatchService orderDispatchService;
 
   /**
    * The FHIR r4 services discovery endpoint.
@@ -42,6 +45,7 @@ public class CdsHooksController {
     CdsServiceInformation serviceInformation = new CdsServiceInformation();
     serviceInformation.addServicesItem(orderSignService);
     serviceInformation.addServicesItem(orderSelectService);
+    serviceInformation.addServicesItem(orderDispatchService);
     return serviceInformation;
   }
 
@@ -75,5 +79,21 @@ public class CdsHooksController {
       request.setPrefetch(new CrdPrefetch());
     }
     return orderSignService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+  }
+
+  /**
+   * The coverage requirement discovery endpoint for the order dispatch hook.
+   * @param request An order select triggered cds request
+   * @return The card response
+   */
+  @CrossOrigin
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + OrderDispatchService.ID,
+          consumes = "application/json;charset=UTF-8")
+  public CdsResponse handleOrderDispatch(@Valid @RequestBody OrderDispatchRequest request, final HttpServletRequest httpServletRequest) {
+    logger.info("r4/handleOrderDispatch");
+    if (request.getPrefetch() == null) {
+      request.setPrefetch(new CrdPrefetch());
+    }
+    return orderDispatchService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
 }

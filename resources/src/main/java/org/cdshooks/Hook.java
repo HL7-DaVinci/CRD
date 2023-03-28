@@ -10,7 +10,8 @@ public enum Hook {
    * NOTE: CRD only currently supports order-sign and order-select hooks.
    */
   ORDER_SELECT("order-select"),
-  ORDER_SIGN("order-sign");
+  ORDER_SIGN("order-sign"),
+  ORDER_DISPATCH("order-dispatch");
 
   private String value;
 
