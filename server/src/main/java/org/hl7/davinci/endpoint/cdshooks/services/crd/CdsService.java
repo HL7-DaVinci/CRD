@@ -196,6 +196,8 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // no error cards on empty when order-select request
 
     boolean foundApplicableRule = false;
+    int availableCardsLeft = hookConfiguration.getMaxCards();
+
     for (CoverageRequirementRuleResult lookupResult : lookupResults) {
       requestLog.addTopic(requestService, lookupResult.getTopic());
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext(), lookupResult.getTopic());
@@ -205,11 +207,16 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       if (!results.ruleApplies())
         continue;
 
+      logger.info(String.valueOf(availableCardsLeft));
+
+      if (availableCardsLeft <= 0)
+        break;
+
       foundApplicableRule = true;
 
       if (results.getCoverageRequirements().getApplies()) {
         // if prior auth already approved
-        if (coverageRequirements.isPriorAuthApproved() && hookConfiguration.canAddCard(response.getCards().size())) {
+        if (coverageRequirements.isPriorAuthApproved()) {
           response.addCard(cardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
               request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
               applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
@@ -220,35 +227,32 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
           if (!coverageRequirements.hasQuestionnaireUri()) {
             logger.warn("Unspecified Questionnaire URI; summary card sent to client");
-            if (hookConfiguration.getCoverage())
+            if (hookConfiguration.getCoverage()) {
               response.addCard(cardBuilder.transform(CardTypes.COVERAGE, results));
+            }
             break;
           }
 
           List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
 
-          if (hookConfiguration.canAddCard(response.getCards().size())
-                  && coverageRequirements.isPriorAuthRequired()
-                  && hookConfiguration.getPriorAuth()) {
+          if (coverageRequirements.isPriorAuthRequired() && hookConfiguration.getPriorAuth()) {
             Card card = cardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
             card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                 "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                 true, CoverageGuidance.ADMIN));
             response.addCard(card);
-          } else if (hookConfiguration.canAddCard(response.getCards().size())
-                  && coverageRequirements.isDocumentationRequired()
-                  && hookConfiguration.getDTRClin()) {
+            availableCardsLeft--;
+          } else if (coverageRequirements.isDocumentationRequired() && hookConfiguration.getDTRClin()) {
             Card card = cardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
             card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                     "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                     true, CoverageGuidance.CLINICAL));
             response.addCard(card);
+            availableCardsLeft--;
           }
 
           // add a card for an alternative therapy if there is one
-          if (hookConfiguration.canAddCard(response.getCards().size())
-                  && results.getAlternativeTherapy().getApplies()
-                  && hookConfiguration.getAlternativeTherapy()) {
+          if (availableCardsLeft != 0 && results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
             try {
               response.addCard(cardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
                   results.getRequest(), fhirComponents));
@@ -261,7 +265,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
         // no prior auth or documentation required
         logger.info("Add the no doc or prior auth required card");
-        if (hookConfiguration.canAddCard(response.getCards().size()) && hookConfiguration.getCoverage()) {
+        if (availableCardsLeft != 0 && hookConfiguration.getCoverage()) {
           Card card = cardBuilder.transform(CardTypes.COVERAGE, results);
           card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                   "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
@@ -269,11 +273,14 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
           response.addCard(card);
         }
+
+        logger.info(String.valueOf(availableCardsLeft));
       }
 
       // apply the DrugInteractions
-      if (hookConfiguration.canAddCard(response.getCards().size()) && results.getDrugInteraction().getApplies()) {
+      if (availableCardsLeft != 0 && results.getDrugInteraction().getApplies()) {
         response.addCard(cardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
+        availableCardsLeft--;
       }
     }
 
