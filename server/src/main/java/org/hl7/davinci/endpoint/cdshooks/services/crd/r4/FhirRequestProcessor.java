@@ -191,66 +191,101 @@ public class FhirRequestProcessor {
    */
   public static void addToCrdPrefetchRequest(CrdPrefetch crdResponse, ResourceType requestType,
       List<BundleEntryComponent> resourcesToAdd) {
+    IBaseResource resource;
+
     switch (requestType) {
       case Coverage:
-        if (crdResponse.getCoverageBundle() == null) {
+        resource = crdResponse.getCoverageBundle();
+        if (resource == null) {
           crdResponse.setCoverageBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getCoverageBundle(), resourcesToAdd);
+
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case DeviceRequest:
-        if (crdResponse.getDeviceRequestBundle() == null) {
+        resource = crdResponse.getDeviceRequestBundle();
+        if (resource == null) {
           crdResponse.setDeviceRequestBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getDeviceRequestBundle(), resourcesToAdd);
+
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case MedicationRequest:
-        if (crdResponse.getMedicationRequestBundle() == null) {
+        resource = crdResponse.getMedicationRequestBundle();
+        if (resource == null) {
           crdResponse.setMedicationRequestBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getMedicationRequestBundle(), resourcesToAdd);
+
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case NutritionOrder:
-        if (crdResponse.getNutritionOrderBundle() == null) {
+        resource = crdResponse.getNutritionOrderBundle();
+        if (resource == null) {
           crdResponse.setNutritionOrderBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getNutritionOrderBundle(), resourcesToAdd);
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case ServiceRequest:
-        if (crdResponse.getServiceRequestBundle() == null) {
+        resource = crdResponse.getServiceRequestBundle();
+        if (resource == null) {
           crdResponse.setServiceRequestBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getServiceRequestBundle(), resourcesToAdd);
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case SupplyRequest:
-        if (crdResponse.getSupplyRequestBundle() == null) {
+        resource = crdResponse.getSupplyRequestBundle();
+        if (resource == null) {
           crdResponse.setSupplyRequestBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getSupplyRequestBundle(), resourcesToAdd);
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case Appointment:
-        if (crdResponse.getAppointmentBundle() == null) {
+        resource = crdResponse.getAppointmentBundle();
+        if (resource == null) {
           crdResponse.setAppointmentBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getAppointmentBundle(), resourcesToAdd);
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case Encounter:
-        if (crdResponse.getEncounterBundle() == null) {
+        resource = crdResponse.getEncounterBundle();
+        if (resource == null) {
           crdResponse.setEncounterBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getEncounterBundle(), resourcesToAdd);
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case MedicationDispense:
-        if (crdResponse.getMedicationDispenseBundle() == null) {
+        resource = crdResponse.getMedicationDispenseBundle();
+        if (resource == null) {
           crdResponse.setMedicationDispenseBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getMedicationDispenseBundle(), resourcesToAdd);
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       case MedicationStatement:
-        if (crdResponse.getMedicationStatementBundle() == null) {
+        resource = crdResponse.getMedicationStatementBundle();
+        if (resource == null) {
           crdResponse.setMedicationStatementBundle(new Bundle());
+        } else if (resource.getClass() != Bundle.class) {
+          break;
         }
-        addNonDuplicateResourcesToBundle(crdResponse.getMedicationStatementBundle(), resourcesToAdd);
+        addNonDuplicateResourcesToBundle((Bundle)resource, resourcesToAdd);
         break;
       default:
         throw new RuntimeException("Unexpected resource type for draft order request. Given " + requestType + ".");

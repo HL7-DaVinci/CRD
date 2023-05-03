@@ -26,7 +26,7 @@ public class OrderSignRequestTest {
     assertNotNull(request);
     assertEquals("1288992", request.getContext().getPatientId());
 
-    Bundle deviceRequestBundle = request.getPrefetch().getDeviceRequestBundle();
+    Bundle deviceRequestBundle = (Bundle)request.getPrefetch().getDeviceRequestBundle();
     List<DeviceRequest> deviceRequestList = Utilities.getResourcesOfTypeFromBundle(
         DeviceRequest.class, deviceRequestBundle);
 

@@ -67,11 +67,25 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore, String baseUrl) {
     FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
     CrdPrefetch prefetch = orderSignRequest.getPrefetch();
-    Bundle coverageBundle = prefetch.getCoverageBundle();
-    fhirBundleProcessor.processDeviceRequests(prefetch.getDeviceRequestBundle(), coverageBundle);
-    fhirBundleProcessor.processMedicationRequests(prefetch.getMedicationRequestBundle(), coverageBundle);
-    fhirBundleProcessor.processServiceRequests(prefetch.getServiceRequestBundle(), coverageBundle);
-    fhirBundleProcessor.processMedicationDispenses(prefetch.getMedicationDispenseBundle(), coverageBundle);
+    //It should be safe to cast these as Bundles as any OperationOutcome's found in the prefetch that could not get resolved would have thrown an exception
+    Bundle coverageBundle = (Bundle)prefetch.getCoverageBundle();
+
+    if (prefetch.getDeviceRequestBundle() != null) {
+      fhirBundleProcessor.processDeviceRequests((Bundle) prefetch.getDeviceRequestBundle(), coverageBundle);
+    }
+
+    if (prefetch.getMedicationRequestBundle() != null) {
+      fhirBundleProcessor.processMedicationRequests((Bundle) prefetch.getMedicationRequestBundle(), coverageBundle);
+    }
+
+    if (prefetch.getServiceRequestBundle() != null) {
+      fhirBundleProcessor.processServiceRequests((Bundle) prefetch.getServiceRequestBundle(), coverageBundle);
+    }
+
+    if (prefetch.getMedicationDispenseBundle() != null) {
+      fhirBundleProcessor.processMedicationDispenses((Bundle) prefetch.getMedicationDispenseBundle(), coverageBundle);
+    }
+
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {
@@ -233,7 +247,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   }
 
   @Override
-  protected void attempQueryBatchRequest(OrderSignRequest orderSignRequest, QueryBatchRequest batchRequest) {
+  protected void attemptQueryBatchRequest(OrderSignRequest orderSignRequest, QueryBatchRequest batchRequest) {
     batchRequest.performQueryBatchRequest(orderSignRequest, orderSignRequest.getPrefetch());
   }
 }

@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hl7.davinci.r4.JacksonBundleDeserializer;
 import org.hl7.davinci.r4.JacksonHapiSerializer;
+import org.hl7.davinci.r4.JacksonIBaseResourceDeserializer;
+import org.hl7.fhir.instance.model.api.IBase;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 
@@ -17,111 +20,121 @@ import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 public class CrdPrefetch {
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle coverageBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource coverageBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle deviceRequestBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource deviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle medicationRequestBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource medicationRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle nutritionOrderBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource nutritionOrderBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle serviceRequestBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource serviceRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle supplyRequestBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource supplyRequestBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle appointmentBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource appointmentBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle encounterBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource encounterBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle medicationDispenseBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource medicationDispenseBundle;
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
-  @JsonDeserialize(using = JacksonBundleDeserializer.class)
-  private Bundle medicationStatementBundle;
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource medicationStatementBundle;
 
-  public Bundle getCoverageBundle() {
+  public IBaseResource getCoverageBundle() {
     if (coverageBundle == null) {
       this.coverageBundle = new Bundle();
     }
+
+    if (coverageBundle.getClass() != Bundle.class) {
+      return null;
+    }
+
     return coverageBundle;
   }
 
-  public void setCoverageBundle(Bundle coverageBundle) {
+  public void setCoverageBundle(IBaseResource coverageBundle) {
     this.coverageBundle = coverageBundle;
   }
 
-  public Bundle getDeviceRequestBundle() {
+  public IBaseResource getDeviceRequestBundle() {
     return deviceRequestBundle;
   }
 
-  public void setDeviceRequestBundle(Bundle deviceRequestBundle) {
+  public void setDeviceRequestBundle(IBaseResource deviceRequestBundle) {
     this.deviceRequestBundle = deviceRequestBundle;
   }
 
-  public Bundle getMedicationRequestBundle() {
+  public IBaseResource getMedicationRequestBundle() {
     return medicationRequestBundle;
   }
 
-  public void setMedicationRequestBundle(Bundle medicationRequestBundle) { this.medicationRequestBundle = medicationRequestBundle; }
+  public void setMedicationRequestBundle(IBaseResource medicationRequestBundle) { this.medicationRequestBundle = medicationRequestBundle; }
 
-  public Bundle getMedicationDispenseBundle() {
+  public IBaseResource getMedicationDispenseBundle() {
     return medicationDispenseBundle;
   }
 
-  public void setMedicationDispenseBundle(Bundle medicationDispenseBundle) { this.medicationDispenseBundle = medicationDispenseBundle; }
+  public void setMedicationDispenseBundle(IBaseResource medicationDispenseBundle) { this.medicationDispenseBundle = medicationDispenseBundle; }
 
-  public Bundle getNutritionOrderBundle() {
+  public IBaseResource getNutritionOrderBundle() {
     return nutritionOrderBundle;
   }
 
-  public void setNutritionOrderBundle(Bundle nutritionOrderBundle) {
+  public void setNutritionOrderBundle(IBaseResource nutritionOrderBundle) {
     this.nutritionOrderBundle = nutritionOrderBundle;
   }
 
-  public Bundle getServiceRequestBundle() {
+  public IBaseResource getServiceRequestBundle() {
     return serviceRequestBundle;
   }
 
-  public void setServiceRequestBundle(Bundle serviceRequestBundle) {
+  public void setServiceRequestBundle(IBaseResource serviceRequestBundle) {
     this.serviceRequestBundle = serviceRequestBundle;
   }
 
-  public Bundle getSupplyRequestBundle() {
+  public IBaseResource getSupplyRequestBundle() {
     return supplyRequestBundle;
   }
 
-  public void setSupplyRequestBundle(Bundle supplyRequestBundle) {
+  public void setSupplyRequestBundle(IBaseResource supplyRequestBundle) {
     this.supplyRequestBundle = supplyRequestBundle;
   }
 
-  public Bundle getAppointmentBundle() { return appointmentBundle; }
+  public IBaseResource getAppointmentBundle() {
+    return appointmentBundle;
+  }
 
-  public void setAppointmentBundle(Bundle appointmentBundle) { this.appointmentBundle = appointmentBundle; }
+  public void setAppointmentBundle(IBaseResource appointmentBundle) { this.appointmentBundle = appointmentBundle; }
 
-  public Bundle getEncounterBundle() { return encounterBundle; }
+  public IBaseResource getEncounterBundle() {
+    return encounterBundle;
+  }
 
-  public void setEncounterBundle(Bundle encounterBundle) { this.encounterBundle = encounterBundle; }
+  public void setEncounterBundle(IBaseResource encounterBundle) { this.encounterBundle = encounterBundle; }
 
-  public Bundle getMedicationStatementBundle() { return medicationStatementBundle; }
+  public IBaseResource getMedicationStatementBundle() {
+    return medicationStatementBundle; }
 
-  public void setMedicationStatementBundle(Bundle medicationStatementBundle) { this.medicationStatementBundle = medicationStatementBundle; }
+  public void setMedicationStatementBundle(IBaseResource medicationStatementBundle) { this.medicationStatementBundle = medicationStatementBundle; }
 
   /**
    * Checks whether the given resource exists in the requested resource type.
@@ -129,16 +142,16 @@ public class CrdPrefetch {
    * @return
    */
   public boolean containsRequestResourceId(String id) {
-    return this.bundleContainsResourceId(this.coverageBundle, id)
-        || this.bundleContainsResourceId(this.deviceRequestBundle, id)
-        || this.bundleContainsResourceId(this.medicationRequestBundle, id)
-        || this.bundleContainsResourceId(this.nutritionOrderBundle, id)
-        || this.bundleContainsResourceId(this.serviceRequestBundle, id)
-        || this.bundleContainsResourceId(this.supplyRequestBundle, id)
-        || this.bundleContainsResourceId(this.appointmentBundle, id)
-        || this.bundleContainsResourceId(this.encounterBundle, id)
-        || this.bundleContainsResourceId(this.medicationDispenseBundle, id)
-        || this.bundleContainsResourceId(this.medicationStatementBundle, id);
+    return this.bundleContainsResourceId(this.getCoverageBundle(), id)
+        || this.bundleContainsResourceId(this.getDeviceRequestBundle(), id)
+        || this.bundleContainsResourceId(this.getMedicationRequestBundle(), id)
+        || this.bundleContainsResourceId(this.getNutritionOrderBundle(), id)
+        || this.bundleContainsResourceId(this.getServiceRequestBundle(), id)
+        || this.bundleContainsResourceId(this.getSupplyRequestBundle(), id)
+        || this.bundleContainsResourceId(this.getAppointmentBundle(), id)
+        || this.bundleContainsResourceId(this.getEncounterBundle(), id)
+        || this.bundleContainsResourceId(this.getMedicationDispenseBundle(), id)
+        || this.bundleContainsResourceId(this.getMedicationStatementBundle(), id);
   }
 
   /**
@@ -147,42 +160,64 @@ public class CrdPrefetch {
    * @param id
    * @return
    */
-  private boolean bundleContainsResourceId(Bundle bundle, String id) {
-    if (bundle == null) {
+  private boolean bundleContainsResourceId(IBaseResource bundle, String id) {
+    if (bundle == null || bundle.getClass() != Bundle.class) {
       return false;
     }
+
     if (id.contains("/")) {
       String[] splitId = id.split("/");
       id = splitId[splitId.length-1];
     }
     final String idToCheck = id;
-    return bundle.getEntry().stream().anyMatch(entry -> entry.getResource().getId().contains(idToCheck));
+    return ((Bundle) bundle).getEntry().stream().anyMatch(entry -> entry.getResource().getId().contains(idToCheck));
   }
 
   @Override
   public String toString() {
+
     List<BundleEntryComponent> entries = new ArrayList<>();
-    if(this.deviceRequestBundle != null) {
-    entries.addAll(this.deviceRequestBundle.getEntry());
-    } if(this.nutritionOrderBundle != null){
-      entries.addAll(this.nutritionOrderBundle.getEntry());
-    } if(this.serviceRequestBundle != null){
-      entries.addAll(this.serviceRequestBundle.getEntry());
-    } if(this.medicationDispenseBundle != null){
-      entries.addAll(this.medicationDispenseBundle.getEntry());
-    } if(this.medicationStatementBundle != null){
-      entries.addAll(this.medicationStatementBundle.getEntry());
-    } if(this.encounterBundle != null){
-      entries.addAll(this.encounterBundle.getEntry());
-    } if(this.appointmentBundle != null){
-      entries.addAll(this.appointmentBundle.getEntry());
-    } if(this.medicationRequestBundle != null){
-      entries.addAll(this.medicationRequestBundle.getEntry());
-    } if(this.supplyRequestBundle != null){
-      entries.addAll(this.supplyRequestBundle.getEntry());
-    } if(this.coverageBundle != null) {
-      entries.addAll(this.coverageBundle.getEntry());
+
+    if(this.deviceRequestBundle != null && this.deviceRequestBundle.getClass() == Bundle.class) {
+      entries.addAll(((Bundle)this.deviceRequestBundle).getEntry());
     }
+
+    if(this.nutritionOrderBundle != null && this.nutritionOrderBundle.getClass() == Bundle.class){
+      entries.addAll(((Bundle)this.nutritionOrderBundle).getEntry());
+    }
+
+    if(this.serviceRequestBundle != null && this.serviceRequestBundle.getClass() == Bundle.class){
+      entries.addAll(((Bundle)this.serviceRequestBundle).getEntry());
+    }
+
+    if(this.medicationDispenseBundle != null && this.medicationDispenseBundle.getClass() == Bundle.class){
+      entries.addAll(((Bundle)this.medicationDispenseBundle).getEntry());
+    }
+
+    if(this.medicationStatementBundle != null && this.medicationStatementBundle.getClass() == Bundle.class){
+      entries.addAll(((Bundle)this.medicationStatementBundle).getEntry());
+    }
+
+    if(this.encounterBundle != null && this.encounterBundle.getClass() == Bundle.class){
+      entries.addAll(((Bundle)this.encounterBundle).getEntry());
+    }
+
+    if(this.appointmentBundle != null && this.appointmentBundle.getClass() == Bundle.class){
+      entries.addAll(((Bundle)this.appointmentBundle).getEntry());
+    }
+
+    if(this.medicationRequestBundle != null && this.medicationRequestBundle.getClass() == Bundle.class){
+      entries.addAll(((Bundle)this.medicationRequestBundle).getEntry());
+    }
+
+    if(this.supplyRequestBundle != null && this.supplyRequestBundle.getClass() == Bundle.class){
+      entries.addAll(((Bundle)this.supplyRequestBundle).getEntry());
+    }
+
+    if(this.coverageBundle != null && this.coverageBundle.getClass() == Bundle.class) {
+      entries.addAll(((Bundle)this.coverageBundle).getEntry());
+    }
+
     StringBuilder sb = new StringBuilder();
     sb.append("[");
     for(BundleEntryComponent entry : entries) {
