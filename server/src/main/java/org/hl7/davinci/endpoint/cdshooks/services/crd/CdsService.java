@@ -1,6 +1,5 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
-import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
@@ -19,7 +18,6 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
-import org.hl7.davinci.r4.crdhook.ConfigurationOption;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -159,7 +157,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Attempt a Query Batch Request to backfill missing attributes.
     if (myConfig.isQueryBatchRequest()) {
       QueryBatchRequest qbr = new QueryBatchRequest(this.fhirComponents);
-      this.attempQueryBatchRequest(request, qbr);
+      this.attemptQueryBatchRequest(request, qbr);
     }
 
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );
@@ -296,7 +294,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       cardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
     }
 
-    // Ading card to requestLog
+    // Adding card to requestLog
     requestLog.setCardListFromCards(response.getCards());
     requestService.edit(requestLog);
 
@@ -425,6 +423,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   /**
    * Delegates query batch request to child classes based on their prefetch types.
    */
-  protected abstract void attempQueryBatchRequest(requestTypeT request, QueryBatchRequest qbr);
+  protected abstract void attemptQueryBatchRequest(requestTypeT request, QueryBatchRequest qbr);
 
 }

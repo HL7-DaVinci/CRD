@@ -24,6 +24,7 @@ import org.hl7.davinci.r4.crdhook.orderselect.CrdExtensionConfigurationOptions;
 import org.hl7.davinci.r4.crdhook.orderselect.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.json.simple.JSONObject;
 import org.opencds.cqf.cql.engine.execution.Context;
@@ -62,7 +63,8 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
 
     FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl, selections);
     CrdPrefetch prefetch = orderSelectRequest.getPrefetch();
-    fhirBundleProcessor.processOrderSelectMedicationStatements(prefetch.getMedicationRequestBundle(), prefetch.getMedicationStatementBundle(), prefetch.getCoverageBundle());
+    //It should be safe to cast these as Bundles as any OperationOutcome's found in the prefetch that could not get resolved would have thrown an exception
+    fhirBundleProcessor.processOrderSelectMedicationStatements((Bundle)prefetch.getMedicationRequestBundle(), (Bundle)prefetch.getMedicationStatementBundle(), (Bundle)prefetch.getCoverageBundle());
     List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
     if (results.isEmpty()) {
@@ -137,7 +139,7 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
   }
 
   @Override
-  protected void attempQueryBatchRequest(OrderSelectRequest request, QueryBatchRequest batchRequest) {
+  protected void attemptQueryBatchRequest(OrderSelectRequest request, QueryBatchRequest batchRequest) {
     batchRequest.performQueryBatchRequest(request, request.getPrefetch());
   }
 }

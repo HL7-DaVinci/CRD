@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import ca.uhn.fhir.rest.server.exceptions.PreconditionFailedException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpResponseException;
 import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FatalRequestIncompleteException;
 import org.hl7.davinci.FhirComponentsT;
@@ -14,9 +17,14 @@ import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.OperationOutcome;
+import org.hl7.fhir.r4.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 public class PrefetchHydrator {
 
@@ -99,39 +107,57 @@ public class PrefetchHydrator {
     Object crdResponse = cdsRequest.getPrefetch();
     for (PrefetchTemplateElement prefetchElement : cdsService.getPrefetchElements()) {
       String prefetchKey = prefetchElement.getKey();
+      IBaseResource resource;
       //check if the prefetch has already been populated with that key
       Boolean alreadyIncluded = false;
       try {
-        alreadyIncluded = (PropertyUtils.getProperty(crdResponse, prefetchKey) != null);
+        resource = (IBaseResource) PropertyUtils.getProperty(crdResponse, prefetchKey);
+
+        if (resource != null && resource.getClass() != OperationOutcome.class) {
+          alreadyIncluded = true;
+        }
       } catch (Exception e) {
         throw new RuntimeException("System error: Mismatch in prefetch keys between the "
             + "CrdPrefetch and the key templates set in the service. Given prefetch key '" + prefetchKey + "''.", e);
       }
+
       if (!alreadyIncluded) {
         // check if the bundle actually has element
         String prefetchQuery = cdsService.prefetch.get(prefetchKey);
         String hydratedPrefetchQuery = hydratePrefetchQuery(prefetchQuery);
-        // if we can't hydrate the query, it probably means we didnt get an apprpriate resource
-        // e.g. this could be a query template for a medication order but we have a device request
+        // if we can't hydrate the query, it probably means we didn't get an appropriate resource
+        // e.g. this could be a query template for a medication order, but we have a device request
         if (hydratedPrefetchQuery != null) {
           if (cdsRequest.getFhirServer() == null) {
             throw new FatalRequestIncompleteException("Attempting to fill the prefetch, but no fhir "
                 + "server provided. Either provide a full prefetch or provide a fhir server.");
           }
-          try {
-            Bundle bundle = (Bundle) PropertyUtils.getProperty(crdResponse, prefetchKey);
-            if (bundle == null) {
+
+          if (resource == null) {
+            try {
               PropertyUtils
                 .setProperty(crdResponse, prefetchKey,
                     prefetchElement.getReturnType().cast(
                         FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET)));
-            } else {
-              Bundle newBundle = (Bundle) prefetchElement.getReturnType().cast(
-                  FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET));
-              bundle.getEntry().addAll(newBundle.getEntry());
-              PropertyUtils.setProperty(crdResponse, prefetchKey, bundle);
+            } catch (Exception e) {
+              logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
             }
-          } catch (Exception e) {
+            continue;
+          }
+
+          Bundle newBundle = (Bundle) prefetchElement.getReturnType().cast(FhirRequestProcessor.executeFhirQueryUrl(hydratedPrefetchQuery, cdsRequest, fhirComponents, HttpMethod.GET));
+
+          if (newBundle == null && resource.getClass() == OperationOutcome.class) {
+            //Return Code 412 - Precondition Failed: Specified in https://cds-hooks.org/specification/current/#prefetch-template
+            OperationOutcome.OperationOutcomeIssueComponent firstOutcome = ((OperationOutcome.OperationOutcomeIssueComponent) ((OperationOutcome) resource).getIssue().toArray()[0]);
+
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Failed to fill prefetch for key: " + prefetchKey + ". Prefetch Operation Outcome: " + firstOutcome.getSeverity().getDisplay() + " - " + firstOutcome.getDetails().getText());
+          }
+
+          try {
+            PropertyUtils.setProperty(crdResponse, prefetchKey, newBundle);
+          }
+          catch (Exception e) {
             logger.warn("Failed to fill prefetch for key: " + prefetchKey, e);
           }
         }
