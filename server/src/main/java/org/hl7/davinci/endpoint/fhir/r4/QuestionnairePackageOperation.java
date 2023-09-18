@@ -73,11 +73,9 @@ public class QuestionnairePackageOperation {
                 return null;
             }
 
-            // create a single new bundle for all of the resources
-            Bundle completeBundle = new Bundle();
+            // create the bundle that will contain all of the bundles for each questionnaire
+            Bundle outerBundle = new Bundle();
 
-            // list of items in bundle to avoid duplicates
-            List<String> bundleContents = new ArrayList<>();
             if (questionnaireId == null) {
                 // process the orders to find the topics
                 FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
@@ -93,23 +91,34 @@ public class QuestionnairePackageOperation {
                     Bundle bundle = fileStore.getFhirResourcesByTopicAsFhirBundle("R4", "Questionnaire", topic.toLowerCase(), baseUrl);
                     List<BundleEntryComponent> bundleEntries = bundle.getEntry();
                     for (BundleEntryComponent entry : bundleEntries) {
-                        processResource(entry.getResource(), bundleContents, completeBundle);
+                        Bundle newBundle = new Bundle();
+                        // list of items in bundle to avoid duplicates
+                        List<String> bundleContents = new ArrayList<>();
+                        processResource(entry.getResource(), bundleContents, newBundle);
+                        addResourceToBundle(newBundle, bundleContents, outerBundle);
                     } // Questionnaires
                 } // topics
             } else {
                 // get only the specified Questionnaire
                 Resource questionnaireResource = fileStore.getFhirResourceByIdAsFhirResource("R4", "Questionnaire", questionnaireId, baseUrl);
                 if (questionnaireResource != null) {
-                    processResource(questionnaireResource, bundleContents, completeBundle);
+                    /* TODO:  The single requested Questionnaire with it's supporting resources are not contained in an outer bundle.
+                     * This should be changed when the Questionnaire is requested via canonical URL instead of ID. 
+                     * The DTR app should be able to either handle the a secondary nested Bundle or work in either scenario with or without it.
+                     */
+
+                    // list of items in bundle to avoid duplicates
+                    List<String> bundleContents = new ArrayList<>();
+                    processResource(questionnaireResource, bundleContents, outerBundle);
                 }
             }
 
 
             // add the bundle to the output parameters if it contains any resources
-            if (!completeBundle.isEmpty()) {
+            if (!outerBundle.isEmpty()) {
                 ParametersParameterComponent parameter = new ParametersParameterComponent();
                 parameter.setName("return");
-                parameter.setResource(completeBundle);
+                parameter.setResource(outerBundle);
                 outputParameters.addParameter(parameter);
             } else {
                 logger.info("No matching Questionnaires found");
