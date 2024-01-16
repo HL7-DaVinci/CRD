@@ -5,9 +5,11 @@ import javax.validation.Valid;
 import org.cdshooks.CdsResponse;
 import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.AppointmentBookService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSelectService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.OrderSignService;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
+import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookRequest;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
 import org.slf4j.Logger;
@@ -30,6 +32,7 @@ public class CdsHooksController {
 
   @Autowired private OrderSelectService orderSelectService;
   @Autowired private OrderSignService orderSignService;
+  @Autowired private AppointmentBookService appointmentBookService;
 
   /**
    * The FHIR r4 services discovery endpoint.
@@ -42,6 +45,7 @@ public class CdsHooksController {
     CdsServiceInformation serviceInformation = new CdsServiceInformation();
     serviceInformation.addServicesItem(orderSignService);
     serviceInformation.addServicesItem(orderSelectService);
+    serviceInformation.addServicesItem(appointmentBookService);
     return serviceInformation;
   }
 
@@ -75,5 +79,22 @@ public class CdsHooksController {
       request.setPrefetch(new CrdPrefetch());
     }
     return orderSignService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+  }
+  
+  
+  /**
+   * The coverage requirement discovery endpoint for the appointment-book hook.
+   * @param request An appointment-book triggered cds request
+   * @return The card response
+   */
+  @CrossOrigin
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + AppointmentBookService.ID,
+      consumes = "application/json;charset=UTF-8")
+  public CdsResponse handleAppointmentBook(@Valid @RequestBody AppointmentBookRequest request, final HttpServletRequest httpServletRequest) {
+    logger.info("r4/handleAppointmentBook");
+    if (request.getPrefetch() == null) {
+      request.setPrefetch(new CrdPrefetch());
+    }
+    return appointmentBookService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
 }
