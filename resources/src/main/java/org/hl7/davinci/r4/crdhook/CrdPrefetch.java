@@ -22,14 +22,14 @@ public class CrdPrefetch {
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
   @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
-  private IBaseResource patientBundle;
+  private IBaseResource patient;
 
-  public IBaseResource getPatientBundle() {
-	return patientBundle;
+  public IBaseResource getPatient() {
+	return patient;
   }
 	
-  public void setPatientBundle(IBaseResource patientBundle) {
-	this.patientBundle = patientBundle;
+  public void setPatient(IBaseResource patient) {
+	this.patient = patient;
   }
 
 @JsonSerialize(using = JacksonHapiSerializer.class)

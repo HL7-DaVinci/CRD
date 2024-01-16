@@ -2,6 +2,7 @@ package org.hl7.davinci.r4.crdhook.appointmentbook;
 
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Patient;
 
 /**
  * Class that contains the different prefetch template elements used in crd requests.
@@ -9,9 +10,9 @@ import org.hl7.fhir.r4.model.Bundle;
  */
 public class CrdPrefetchTemplateElements {
 
-	  public static final PrefetchTemplateElement PATIENT_BUNDLE = new PrefetchTemplateElement(
-	      "patientBundle",
-	      Bundle.class,
+	  public static final PrefetchTemplateElement PATIENT = new PrefetchTemplateElement(
+	      "patient",
+	      Patient.class,
 	      "Patient/{{context.patientId}}");
 
   public static final PrefetchTemplateElement COVERAGE_REQUEST_BUNDLE = new PrefetchTemplateElement(
