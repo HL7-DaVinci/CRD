@@ -14,11 +14,13 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.ConfigurationOption;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.springframework.stereotype.Component;
 import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookRequest;
 import org.hl7.davinci.r4.crdhook.appointmentbook.CrdPrefetchTemplateElements;
+import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.davinci.r4.crdhook.appointmentbook.CrdExtensionConfigurationOptions;
 
 @Component("r4_AppointmentBookService")
@@ -48,8 +50,18 @@ public class AppointmentBookService extends CdsService<AppointmentBookRequest>{
 	@Override
 	public List<CoverageRequirementRuleResult> createCqlExecutionContexts(AppointmentBookRequest request,
 			FileStore fileStore, String baseUrl) throws RequestIncompleteException {
-		// TODO Auto-generated method stub
-		return null;
+	//    List<String> selections = Arrays.asList(request.getContext().getSelections());
+	    List<String> selections = null;
+
+	    FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl, selections);
+	    CrdPrefetch prefetch = request.getPrefetch();
+	    //It should be safe to cast these as Bundles as any OperationOutcome's found in the prefetch that could not get resolved would have thrown an exception
+	    List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
+
+	    if (results.isEmpty()) {
+	      throw RequestIncompleteException.NoSupportedBundlesFound();
+	    }
+	    return results;
 	}
 
 	@Override
