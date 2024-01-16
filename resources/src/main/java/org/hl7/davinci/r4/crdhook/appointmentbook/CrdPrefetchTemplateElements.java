@@ -9,11 +9,17 @@ import org.hl7.fhir.r4.model.Bundle;
  */
 public class CrdPrefetchTemplateElements {
 
+	  public static final PrefetchTemplateElement PATIENT_BUNDLE = new PrefetchTemplateElement(
+	      "patientBundle",
+	      Bundle.class,
+	      "Patient/{{context.patientId}}");
+
   public static final PrefetchTemplateElement COVERAGE_REQUEST_BUNDLE = new PrefetchTemplateElement(
       "coverageBundle",
       Bundle.class,
       "Coverage?patient={{context.patientId}}");
 
+  /*
   public static final PrefetchTemplateElement APPOINTMENT_BUNDLE = new PrefetchTemplateElement(
       "appointmentBundle",
       Bundle.class,
@@ -23,6 +29,7 @@ public class CrdPrefetchTemplateElements {
           + "&_include:iterate=PractitionerRole:organization"
           + "&_include:iterate=PractitionerRole:practitioner"
           + "&_include=Appointment:location");
+          */
 
   public static final PrefetchTemplateElement ENCOUNTER_BUNDLE = new PrefetchTemplateElement(
       "encounterBundle",

@@ -18,8 +18,21 @@ import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
  * It appears that for CRD, prefetch information will be the same, regardless of hook type.
  */
 public class CrdPrefetch {
+	
 
   @JsonSerialize(using = JacksonHapiSerializer.class)
+  @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
+  private IBaseResource patientBundle;
+
+  public IBaseResource getPatientBundle() {
+	return patientBundle;
+  }
+	
+  public void setPatientBundle(IBaseResource patientBundle) {
+	this.patientBundle = patientBundle;
+  }
+
+@JsonSerialize(using = JacksonHapiSerializer.class)
   @JsonDeserialize(using = JacksonIBaseResourceDeserializer.class)
   private IBaseResource coverageBundle;
 

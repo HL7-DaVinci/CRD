@@ -31,7 +31,7 @@ public class AppointmentBookService extends CdsService<AppointmentBookRequest>{
 		      "Get information regarding the coverage requirements for appointments";
 	  public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
 		      CrdPrefetchTemplateElements.COVERAGE_REQUEST_BUNDLE,
-		      CrdPrefetchTemplateElements.APPOINTMENT_BUNDLE,
+		      CrdPrefetchTemplateElements.PATIENT_BUNDLE,
 		      CrdPrefetchTemplateElements.ENCOUNTER_BUNDLE);
 	  public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
 	  public static final List<ConfigurationOption> CONFIGURATION_OPTIONS = Arrays.asList(

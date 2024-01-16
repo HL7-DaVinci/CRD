@@ -97,4 +97,20 @@ public class CdsHooksController {
     }
     return appointmentBookService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
+  
+
+  
+  /**
+   * The coverage requirement discovery endpoint for the appointment-book hook.
+   * @param request An appointment-book triggered cds request
+   * @return The card response
+   */
+  @CrossOrigin
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + "test-hook",
+      consumes = "application/json;charset=UTF-8")
+  public String handleTestHook(final HttpServletRequest httpServletRequest) {
+    logger.info("r4/handleTestHook");
+    
+    return "[]";
+  }
 }
