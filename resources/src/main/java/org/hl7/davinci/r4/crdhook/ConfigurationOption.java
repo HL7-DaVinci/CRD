@@ -9,9 +9,9 @@ public class ConfigurationOption {
   private String name;
   private String description;
   @JsonProperty("value")
-  private Boolean defaultValue;
+  private String defaultValue;
 
-  public ConfigurationOption(String code, String type, String name, String description, Boolean defaultValue) {
+  public ConfigurationOption(String code, String type, String name, String description, String defaultValue) {
     this.code = code;
     this.type = type;
     this.name = name;
@@ -35,7 +35,7 @@ public class ConfigurationOption {
 
   public void setDescription(String description) { this.description = description; }
 
-  public Boolean getDefaultValue() { return defaultValue; }
+  public String getDefaultValue() { return defaultValue; }
 
-  public void setDefaultValue(Boolean defaultValue) { this.defaultValue = defaultValue; }
+  public void setDefaultValue(String defaultValue) { this.defaultValue = defaultValue; }
 }

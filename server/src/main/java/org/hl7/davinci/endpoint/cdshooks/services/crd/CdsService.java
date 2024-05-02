@@ -1,6 +1,5 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd;
 
-import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
@@ -158,7 +157,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Attempt a Query Batch Request to backfill missing attributes.
     if (myConfig.isQueryBatchRequest()) {
       QueryBatchRequest qbr = new QueryBatchRequest(this.fhirComponents);
-      this.attempQueryBatchRequest(request, qbr);
+      this.attemptQueryBatchRequest(request, qbr);
     }
 
     logger.info("***** ***** request from requestLog: " + requestLog.toString() );
@@ -195,80 +194,96 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // no error cards on empty when order-select request
 
     boolean foundApplicableRule = false;
+    int availableCardsLeft = hookConfiguration.getMaxCards();
+
     for (CoverageRequirementRuleResult lookupResult : lookupResults) {
       requestLog.addTopic(requestService, lookupResult.getTopic());
       CqlResultsForCard results = executeCqlAndGetRelevantResults(lookupResult.getContext(), lookupResult.getTopic());
       CoverageRequirements coverageRequirements = results.getCoverageRequirements();
       cardBuilder.setDeidentifiedResourcesContainsPhi(lookupResult.getDeidentifiedResourceContainsPhi());
 
-      if (results.ruleApplies()) {
-        foundApplicableRule = true;
+      if (!results.ruleApplies())
+        continue;
 
-        if (results.getCoverageRequirements().getApplies()) {
+      logger.info(String.valueOf(availableCardsLeft));
 
-          // if prior auth already approved
-          if (coverageRequirements.isPriorAuthApproved()) {
-            response.addCard(cardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
-                request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
-                applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
-                fhirResourceRepository));
+      if (availableCardsLeft <= 0)
+        break;
 
-          } else if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
-            if (StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireOrderUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireFaceToFaceUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireLabUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireProgressNoteUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePARequestUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnairePlanOfCareUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireDispenseUri())
-                || StringUtils.isNotEmpty(coverageRequirements.getQuestionnaireAdditionalUri())) {
-              List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
+      foundApplicableRule = true;
 
-              if (coverageRequirements.isPriorAuthRequired()) {
-                Card card = cardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
-                card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents, 
-                    "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
-                    true, CoverageGuidance.ADMIN));
-                response.addCard(card);
-              } else if (coverageRequirements.isDocumentationRequired()) {
-                Card card = cardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
-                card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents, 
-                    "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
-                    true, CoverageGuidance.CLINICAL));
-                response.addCard(card);
-              }
+      if (results.getCoverageRequirements().getApplies()) {
+        // if prior auth already approved
+        if (coverageRequirements.isPriorAuthApproved()) {
+          response.addCard(cardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
+              request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
+              applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
+              fhirResourceRepository));
+          break;
+        }
 
-              // add a card for an alternative therapy if there is one
-              if (results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
-                try {
-                  response.addCard(cardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
-                      results.getRequest(), fhirComponents));
-                } catch (RuntimeException e) {
-                  logger.warn("Failed to process alternative therapy: " + e.getMessage());
-                }
-              }
-            } else {
-              logger.warn("Unspecified Questionnaire URI; summary card sent to client");
+        if (coverageRequirements.isDocumentationRequired() || coverageRequirements.isPriorAuthRequired()) {
+          if (!coverageRequirements.hasQuestionnaireUri()) {
+            logger.warn("Unspecified Questionnaire URI; summary card sent to client");
+            if (hookConfiguration.getCoverage()) {
               response.addCard(cardBuilder.transform(CardTypes.COVERAGE, results));
             }
-          } else {
-            // no prior auth or documentation required
-            logger.info("Add the no doc or prior auth required card");
-            Card card = cardBuilder.transform(CardTypes.COVERAGE, results);
+            break;
+          }
+
+          List<Link> smartAppLinks = createQuestionnaireLinks(request, applicationBaseUrl, lookupResult, results);
+
+          if (coverageRequirements.isPriorAuthRequired() && hookConfiguration.getPriorAuth()) {
+            Card card = cardBuilder.transform(CardTypes.PRIOR_AUTH, results, smartAppLinks);
             card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                 "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
-                true, CoverageGuidance.COVERED));
-            card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
+                true, CoverageGuidance.ADMIN));
             response.addCard(card);
+            availableCardsLeft--;
+          } else if (coverageRequirements.isDocumentationRequired() && hookConfiguration.getDTRClin()) {
+            Card card = cardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
+            card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                    "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                    true, CoverageGuidance.CLINICAL));
+            response.addCard(card);
+            availableCardsLeft--;
           }
+
+          // add a card for an alternative therapy if there is one
+          if (availableCardsLeft != 0 && results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
+            try {
+              response.addCard(cardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
+                  results.getRequest(), fhirComponents));
+            } catch (RuntimeException e) {
+              logger.warn("Failed to process alternative therapy: " + e.getMessage());
+            }
+          }
+          break;
         }
 
-        // apply the DrugInteractions
-        if (results.getDrugInteraction().getApplies()) {
-          response.addCard(cardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
+        // no prior auth or documentation required
+        logger.info("Add the no doc or prior auth required card");
+        if (availableCardsLeft != 0 && hookConfiguration.getCoverage()) {
+          Card card = cardBuilder.transform(CardTypes.COVERAGE, results);
+          card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
+                  "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
+                  true, CoverageGuidance.COVERED));
+          card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
+          response.addCard(card);
         }
+
+        logger.info(String.valueOf(availableCardsLeft));
+      }
+
+      // apply the DrugInteractions
+      if (availableCardsLeft != 0 && results.getDrugInteraction().getApplies()) {
+        response.addCard(cardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
+        availableCardsLeft--;
       }
     }
+
+    // Add system actions from card actions
+    response.setSystemActions(createSystemActionsFromCards(response.getCards()));
 
     // CQL Executed
     requestLog.advanceTimeline(requestService);
@@ -282,7 +297,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       cardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
     }
 
-    // Ading card to requestLog
+    // Adding card to requestLog
     requestLog.setCardListFromCards(response.getCards());
     requestService.edit(requestLog);
 
@@ -402,6 +417,21 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     return link;
   }
 
+
+  protected List<Action> createSystemActionsFromCards(List<Card> cards) {
+    List<Action> systemActions = new ArrayList<>();
+    for (Card card : cards) {
+      if (card.getSuggestions() == null) continue;
+      for (Suggestion suggestion : card.getSuggestions()) {
+        if (suggestion.getActions() == null) continue;
+        for (Action action : suggestion.getActions()) {
+          systemActions.add(action);
+        }
+      }
+    }
+    return systemActions;
+  }
+
   // Implement these in child class
   public abstract List<CoverageRequirementRuleResult> createCqlExecutionContexts(requestTypeT request,
       FileStore fileStore, String baseUrl) throws RequestIncompleteException;
@@ -411,6 +441,6 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   /**
    * Delegates query batch request to child classes based on their prefetch types.
    */
-  protected abstract void attempQueryBatchRequest(requestTypeT request, QueryBatchRequest qbr);
+  protected abstract void attemptQueryBatchRequest(requestTypeT request, QueryBatchRequest qbr);
 
 }

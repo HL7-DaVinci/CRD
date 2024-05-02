@@ -1,5 +1,7 @@
 package org.cdshooks;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.UUID;
 
 public class CoverageRequirements {
@@ -170,5 +172,16 @@ public class CoverageRequirements {
 
   public void setQuestionnaireAdditionalUri(String questionnaireAdditionalUri) {
     this.questionnaireAdditionalUri = questionnaireAdditionalUri;
+  }
+
+  public boolean hasQuestionnaireUri() {
+    return StringUtils.isNotEmpty(this.questionnaireOrderUri)
+    || StringUtils.isNotEmpty(this.questionnaireFaceToFaceUri)
+    || StringUtils.isNotEmpty(this.questionnaireLabUri)
+    || StringUtils.isNotEmpty(this.questionnaireProgressNoteUri)
+    || StringUtils.isNotEmpty(this.questionnairePARequestUri)
+    || StringUtils.isNotEmpty(this.questionnairePlanOfCareUri)
+    || StringUtils.isNotEmpty(this.questionnaireDispenseUri)
+    || StringUtils.isNotEmpty(this.questionnaireAdditionalUri);
   }
 }

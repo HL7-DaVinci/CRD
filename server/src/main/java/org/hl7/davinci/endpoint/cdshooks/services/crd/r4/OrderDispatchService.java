@@ -70,7 +70,7 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
     }
 
     @Override
-    protected void attempQueryBatchRequest(OrderDispatchRequest request, QueryBatchRequest qbr) {
-
+    protected void attemptQueryBatchRequest(OrderDispatchRequest request, QueryBatchRequest qbr) {
+        
     }
 }

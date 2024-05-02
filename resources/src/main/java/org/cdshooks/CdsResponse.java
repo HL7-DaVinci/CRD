@@ -13,6 +13,8 @@ public class CdsResponse {
    */
   private List<Card> cards = new ArrayList<Card>();
 
+  private List<Action> systemActions = new ArrayList<Action>();
+
   /**
    * Add a card.
    * @param cardsItem The card.
@@ -30,4 +32,17 @@ public class CdsResponse {
   public void setCards(List<Card> cards) {
     this.cards = cards;
   }
+
+
+  public CdsResponse addSystemAction(Action action) {
+    this.systemActions.add(action);
+    return this;
+  }
+  public List<Action> getSystemActions() {
+    return systemActions;
+  }
+  public void setSystemActions(List<Action> systemActions) {
+    this.systemActions = systemActions;
+  }
+
 }

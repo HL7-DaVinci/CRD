@@ -1,4 +1,4 @@
-package org.hl7.davinci.r4.crdhook.orderselect;
+package org.hl7.davinci.r4.crdhook.appointmentbook;
 
 import org.cdshooks.Configuration;
 import org.hl7.davinci.r4.crdhook.ConfigurationOption;
@@ -8,7 +8,7 @@ public class CrdExtensionConfigurationOptions {
             "coverage",
             "boolean",
             "Coverage",
-            "Provides indications of whether coverage is required for the proposed order",
+            "Provides indications of whether coverage is required for the proposed appointment(s)",
             new Configuration().getPriorAuth().toString()
     );
 
