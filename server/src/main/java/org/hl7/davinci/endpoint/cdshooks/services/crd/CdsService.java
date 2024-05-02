@@ -421,7 +421,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   protected List<Action> createSystemActionsFromCards(List<Card> cards) {
     List<Action> systemActions = new ArrayList<>();
     for (Card card : cards) {
+      if (card.getSuggestions() == null) continue;
       for (Suggestion suggestion : card.getSuggestions()) {
+        if (suggestion.getActions() == null) continue;
         for (Action action : suggestion.getActions()) {
           systemActions.add(action);
         }
