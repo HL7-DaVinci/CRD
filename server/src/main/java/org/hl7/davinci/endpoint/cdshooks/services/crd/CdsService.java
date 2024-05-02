@@ -282,6 +282,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       }
     }
 
+    // Add system actions from card actions
+    response.setSystemActions(createSystemActionsFromCards(response.getCards()));
+
     // CQL Executed
     requestLog.advanceTimeline(requestService);
 
@@ -412,6 +415,19 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     link.setAppContext(appContext);
 
     return link;
+  }
+
+
+  protected List<Action> createSystemActionsFromCards(List<Card> cards) {
+    List<Action> systemActions = new ArrayList<>();
+    for (Card card : cards) {
+      for (Suggestion suggestion : card.getSuggestions()) {
+        for (Action action : suggestion.getActions()) {
+          systemActions.add(action);
+        }
+      }
+    }
+    return systemActions;
   }
 
   // Implement these in child class
