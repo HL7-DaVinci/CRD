@@ -67,8 +67,7 @@ public class AppointmentBookService extends CdsService<AppointmentBookRequest>{
 	}
 
 	@Override
-	protected	 CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
-		// TODO Auto-generated method stub
+	protected CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
 		CqlResultsForCard cardResult = new CqlResultsForCard();
 		//AppointmentBookContext request = new AppointmentBookContext();
 		//AppointmentBookRequest request =
