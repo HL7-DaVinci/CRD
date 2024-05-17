@@ -1,7 +1,12 @@
 package org.hl7.davinci.endpoint.components;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.*;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
@@ -12,8 +17,14 @@ import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.Utilities;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Annotation;
+import org.hl7.fhir.r4.model.CanonicalType;
+import org.hl7.fhir.r4.model.ClaimResponse;
+import org.hl7.fhir.r4.model.CodeType;
+import org.hl7.fhir.r4.model.DateType;
 import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -350,9 +361,45 @@ public class CardBuilder {
       identifier.setUrl("identifier")
           .setValue(new StringType(id));
       extension.addExtension(identifier);
+
+      // TODO: refactor to a safer way to get the questionnaire URL
+      if (card.getLinks() != null) {
+        for (Link link : card.getLinks()) {
+
+          // parse questionnaire URL from appContext in the link
+          if (link.getAppContext() != null) {
+            String appContextString = URLDecoder.decode(link.getAppContext(), "UTF-8");
+            List<NameValuePair> appContext = URLEncodedUtils.parse(appContextString, Charset.forName("UTF-8"));
+
+            String questionnaire = null;
+            
+            for (NameValuePair pair : appContext) {
+              if (pair.getName().equals("questionnaire")) {
+                questionnaire = pair.getValue();
+                break;
+              }
+            }
+
+            if (questionnaire != null) {
+              Extension docNeeded = new Extension("doc-needed", new CodeType("admin"));
+              extension.addExtension(docNeeded);
+              Extension questionnaireExtension = new Extension("questionnaire", new CanonicalType(questionnaire));
+              extension.addExtension(questionnaireExtension);
+              
+              // break after first questionnaire link is found
+              break;
+            }
+          }
+
+        }
+      }
+
+
       resource = FhirRequestProcessor.addExtensionToRequest(resource, extension);
     } catch (NoCoverageException e) {
       logger.warn("No Coverage, discrete coverage extension will not be included: " + e.getMessage());
+    } catch (UnsupportedEncodingException e) {
+      logger.warn("Error decoding URL: " + e.getMessage());
     }
 
     Action updateAction = new Action(fhirComponents);
