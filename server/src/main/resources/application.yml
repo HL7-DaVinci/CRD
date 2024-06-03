@@ -32,6 +32,7 @@ corsOrigins:
   - "http://localhost:3002"
   - "http://localhost:3005"
   - "https://crd-request-generator.davinci.hl7.org"
+  - "https://dtr.davinci.hl7.org"
 
 checkPractitionerLocation: false
 
