@@ -308,7 +308,7 @@ public class QuestionnairePackageOperation {
         }
 
         // Add mandatory extensions: context, intendedUse, and informationOrigin
-        addMandatoryExtensions(questionnaireResponse);
+        addMandatoryExtensions(questionnaireResponse, cqlResults);
 
         return questionnaireResponse;
     }
@@ -345,17 +345,19 @@ public class QuestionnairePackageOperation {
         return null;
     }
 
-    private void addMandatoryExtensions(QuestionnaireResponse questionnaireResponse) {
+    private void addMandatoryExtensions(QuestionnaireResponse questionnaireResponse, Map<String, Object> cqlResults) {
         // Create and set the context extension
         Extension contextExtension = new Extension("http://hl7.org/fhir/StructureDefinition/context");
-        // TODO: Replace with actual logic.
-        contextExtension.setValue(new StringType("example-context-value"));
+        if (cqlResults.containsKey("context")) {
+            contextExtension.setValue(new StringType((String) cqlResults.get("context")));
+        }
         questionnaireResponse.addExtension(contextExtension);
 
         // Create and set the intended use extension
         Extension intendedUseExtension = new Extension("http://hl7.org/fhir/StructureDefinition/intendedUse");
-        // TODO: Replace with actual logic.
-        intendedUseExtension.setValue(new StringType("example-intended-use-value"));
+        if (cqlResults.containsKey("intendedUse")) {
+            intendedUseExtension.setValue(new StringType((String) cqlResults.get("intendedUse")));
+        }
         questionnaireResponse.addExtension(intendedUseExtension);
     }
 
