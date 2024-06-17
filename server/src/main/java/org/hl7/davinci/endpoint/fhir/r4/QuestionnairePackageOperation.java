@@ -347,14 +347,14 @@ public class QuestionnairePackageOperation {
 
     private void addMandatoryExtensions(QuestionnaireResponse questionnaireResponse, Map<String, Object> cqlResults) {
         // Create and set the context extension
-        Extension contextExtension = new Extension("http://hl7.org/fhir/StructureDefinition/context");
+        Extension contextExtension = new Extension("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-context");
         if (cqlResults.containsKey("context")) {
             contextExtension.setValue(new StringType((String) cqlResults.get("context")));
         }
         questionnaireResponse.addExtension(contextExtension);
 
         // Create and set the intended use extension
-        Extension intendedUseExtension = new Extension("http://hl7.org/fhir/StructureDefinition/intendedUse");
+        Extension intendedUseExtension = new Extension("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/intendedUse");
         if (cqlResults.containsKey("intendedUse")) {
             intendedUseExtension.setValue(new StringType((String) cqlResults.get("intendedUse")));
         }
@@ -363,7 +363,7 @@ public class QuestionnairePackageOperation {
 
     private void addInformationOriginExtension(QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer, String origin) {
         Extension extension = new Extension();
-        extension.setUrl("http://hl7.org/fhir/StructureDefinition/informationOrigin");
+        extension.setUrl("http://hl7.org/fhir/us/davinci-dtr/ValueSet/informationOrigins");
         extension.setValue(new StringType(origin));
         answer.addExtension(extension);
     }
