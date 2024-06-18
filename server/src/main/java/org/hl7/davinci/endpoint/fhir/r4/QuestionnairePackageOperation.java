@@ -371,30 +371,19 @@ public class QuestionnairePackageOperation {
     private void processAnswers(QuestionnaireResponse questionnaireResponse, Bundle bundle) {
         for (QuestionnaireResponse.QuestionnaireResponseItemComponent item : questionnaireResponse.getItem()) {
             for (QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer : item.getAnswer()) {
-                if (isCqlPrePopulated(answer)) {
-                    addInformationOriginExtension(answer, "Pre-populated from the EHR by CQL");
-                } else if (isManuallyEntered(answer)) {
-                    addInformationOriginExtension(answer, "Manually entered by a person");
-                } else if (isCqlPrePopulatedButEdited(answer)) {
-                    addInformationOriginExtension(answer, "Pre-populated from the EHR by CQL but then edited by a person");
+                if (answer.hasValueCoding()) {
+                    Coding coding = answer.getValueCoding();
+                    if ("http://hl7.org/fhir/us/davinci-dtr/CodeSystem/temp".equals(coding.getSystem())) {
+                        if ("auto".equals(coding.getCode())) {
+                            addInformationOriginExtension(answer, "Auto populated");
+                        } else if ("manual".equals(coding.getCode())) {
+                            addInformationOriginExtension(answer, "Manual entry");
+                        } else if ("override".equals(coding.getCode())) {
+                            addInformationOriginExtension(answer, "Auto populated but overridden by a human");
+                        }
+                    }
                 }
             }
         }
-    }
-
-    private boolean isCqlPrePopulated(QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer) {
-        // Check if the answer has a specific extension or flag indicating it was pre-populated by CQL
-        return answer.hasExtension("http://example.com/fhir/StructureDefinition/cql-prepopulated");
-    }
-
-    private boolean isManuallyEntered(QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer) {
-        // Check if the answer does not have any extensions indicating it was system-generated
-        return !answer.hasExtension("http://example.com/fhir/StructureDefinition/cql-prepopulated") &&
-                !answer.hasExtension("http://example.com/fhir/StructureDefinition/cql-prepopulated-edited");
-    }
-
-    private boolean isCqlPrePopulatedButEdited(QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer) {
-        // Check if the answer has a specific extension or flag indicating it was pre-populated by CQL and then edited
-        return answer.hasExtension("http://example.com/fhir/StructureDefinition/cql-prepopulated-edited");
     }
 }
