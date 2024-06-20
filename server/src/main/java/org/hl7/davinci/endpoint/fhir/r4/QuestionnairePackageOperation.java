@@ -98,25 +98,15 @@ public class QuestionnairePackageOperation {
                 }
             }
 
-            // Assuming that the resourceString might be a QuestionnaireResponse
-            if (resource.fhirType().equalsIgnoreCase("QuestionnaireResponse")) {
-                QuestionnaireResponse questionnaireResponse = (QuestionnaireResponse) resource;
-                processAnswers(questionnaireResponse, orders); // Use orders as the related Bundle
 
+            // add the bundle to the output parameters if it contains any resources
+            if (!completeBundle.isEmpty()) {
                 ParametersParameterComponent parameter = new ParametersParameterComponent();
                 parameter.setName("return");
-                parameter.setResource(questionnaireResponse);
+                parameter.setResource(completeBundle);
                 outputParameters.addParameter(parameter);
             } else {
                 logger.info("No matching Questionnaires found");
-                if (!completeBundle.isEmpty()) {
-                    ParametersParameterComponent parameter = new ParametersParameterComponent();
-                    parameter.setName("return");
-                    parameter.setResource(completeBundle);
-                    outputParameters.addParameter(parameter);
-                } else {
-                    logger.info("No matching Questionnaires found");
-                }
             }
         }
 
@@ -359,31 +349,12 @@ public class QuestionnairePackageOperation {
             intendedUseExtension.setValue(new StringType((String) cqlResults.get("intendedUse")));
         }
         questionnaireResponse.addExtension(intendedUseExtension);
-    }
 
-    private void addInformationOriginExtension(QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer, String origin) {
-        Extension extension = new Extension();
-        extension.setUrl("http://hl7.org/fhir/us/davinci-dtr/ValueSet/informationOrigins");
-        extension.setValue(new StringType(origin));
-        answer.addExtension(extension);
-    }
-
-    private void processAnswers(QuestionnaireResponse questionnaireResponse, Bundle bundle) {
-        for (QuestionnaireResponse.QuestionnaireResponseItemComponent item : questionnaireResponse.getItem()) {
-            for (QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer : item.getAnswer()) {
-                if (answer.hasValueCoding()) {
-                    Coding coding = answer.getValueCoding();
-                    if ("http://hl7.org/fhir/us/davinci-dtr/CodeSystem/temp".equals(coding.getSystem())) {
-                        if ("auto".equals(coding.getCode())) {
-                            addInformationOriginExtension(answer, "Auto populated");
-                        } else if ("manual".equals(coding.getCode())) {
-                            addInformationOriginExtension(answer, "Manual entry");
-                        } else if ("override".equals(coding.getCode())) {
-                            addInformationOriginExtension(answer, "Auto populated but overridden by a human");
-                        }
-                    }
-                }
-            }
+        // Create and set the intended use extension
+        Extension informationOrigin = new Extension("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/information-origin");
+        if (cqlResults.containsKey("origin")) {
+            informationOrigin.setValue(new StringType((String) cqlResults.get("origin")));
         }
+        questionnaireResponse.addExtension(informationOrigin);
     }
 }
