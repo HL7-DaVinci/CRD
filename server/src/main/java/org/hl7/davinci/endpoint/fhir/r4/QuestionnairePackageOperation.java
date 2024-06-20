@@ -271,9 +271,7 @@ public class QuestionnairePackageOperation {
         }
     }
 
-
     private QuestionnaireResponse prepopulateQuestionnaireResponse(Questionnaire questionnaire, Parameters parameters) {
-        // Implement your prepopulation logic here based on the example provided in the previous message
         QuestionnaireResponse questionnaireResponse = new QuestionnaireResponse();
         questionnaireResponse.setQuestionnaire(questionnaire.getIdElement().toString());
 
@@ -286,44 +284,158 @@ public class QuestionnairePackageOperation {
     }
 
     private QuestionnaireResponse.QuestionnaireResponseItemComponent prepopulateItem(Questionnaire.QuestionnaireItemComponent item, Parameters parameters) {
-        // Implement your logic to prepopulate the item based on the parameters
         QuestionnaireResponse.QuestionnaireResponseItemComponent responseItem = new QuestionnaireResponse.QuestionnaireResponseItemComponent();
         responseItem.setLinkId(item.getLinkId());
         responseItem.setText(item.getText());
 
-        // Use initialExpressions and other logic to prepopulate answers
-        // For now, we'll just create empty answers
-        for (Questionnaire.QuestionnaireItemAnswerOptionComponent option : item.getAnswerOption()) {
-            QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
-            answer.setValue(option.getValue());
-            responseItem.addAnswer(answer);
+        // Retrieve CQL expression for the item
+        String cqlExpression = getCqlExpressionForItem(item);
+
+        // Execute CQL expression if available
+        if (cqlExpression != null) {
+            Object result = executeCqlExpression(cqlExpression);
+            if (result != null) {
+                QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
+                answer.setValue(new StringType(result.toString()));
+                responseItem.addAnswer(answer);
+            }
+        } else {
+            // If no CQL expression, create empty answers based on answer options
+            for (Questionnaire.QuestionnaireItemAnswerOptionComponent option : item.getAnswerOption()) {
+                QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
+                answer.setValue(option.getValue());
+                responseItem.addAnswer(answer);
+            }
+        }
+
+        // Prepopulate child items recursively
+        for (Questionnaire.QuestionnaireItemComponent childItem : item.getItem()) {
+            QuestionnaireResponse.QuestionnaireResponseItemComponent responseChildItem = prepopulateItem(childItem, parameters);
+            responseItem.addItem(responseChildItem);
         }
 
         return responseItem;
     }
 
+    private String getCqlExpressionForItem(Questionnaire.QuestionnaireItemComponent item) {
+        // This assumes there is a custom extension or element in the item that holds the CQL expression
+        Extension cqlExtension = item.getExtensionByUrl("http://example.com/fhir/StructureDefinition/cql-expression");
+        if (cqlExtension != null && cqlExtension.getValue() instanceof StringType) {
+            return ((StringType) cqlExtension.getValue()).getValue();
+        }
+        return null;
+    }
+
+    private Object executeCqlExpression(String cqlExpression) {
+        String elm = null;
+        try {
+            // Translate CQL expression to Elm or execute directly
+            elm = CqlExecution.translateToElm(cqlExpression, this.cqlProcessor);
+        } catch (Exception e) {
+            logger.error("Failed to Execute Cql Expression");
+        }
+        return elm != null ? elm : null;
+    }
+
+    private QuestionnaireResponse.QuestionnaireResponseItemComponent prepopulateItem(Questionnaire.QuestionnaireItemComponent item, Parameters parameters, Map<String, Object> cqlResults) {
+        QuestionnaireResponse.QuestionnaireResponseItemComponent responseItem = new QuestionnaireResponse.QuestionnaireResponseItemComponent();
+        responseItem.setLinkId(item.getLinkId());
+        responseItem.setText(item.getText());
+
+        // Check if CQL results contain data for this item
+        if (cqlResults.containsKey(item.getLinkId())) {
+            Object cqlResult = cqlResults.get(item.getLinkId());
+
+            // Use the CQL result to prepopulate the answer
+            QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
+            answer.setValue(new StringType(cqlResult.toString()));
+            responseItem.addAnswer(answer);
+        } else {
+            // If no CQL result, add empty answers based on answer options
+            for (Questionnaire.QuestionnaireItemAnswerOptionComponent option : item.getAnswerOption()) {
+                QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
+                answer.setValue(option.getValue());
+                responseItem.addAnswer(answer);
+            }
+        }
+
+        // Prepopulate child items recursively
+        for (Questionnaire.QuestionnaireItemComponent childItem : item.getItem()) {
+            QuestionnaireResponse.QuestionnaireResponseItemComponent responseChildItem = prepopulateItem(childItem, parameters, cqlResults);
+            responseItem.addItem(responseChildItem);
+        }
+
+        return responseItem;
+    }
+
+
     private void addMandatoryExtensions(QuestionnaireResponse response, Map<String, Object> cqlResults) {
         for (QuestionnaireResponse.QuestionnaireResponseItemComponent item : response.getItem()) {
             addExtensionsToItem(item, cqlResults);
+            addIntendedUseExtension(item, cqlResults);
+            addContextExtension(item, cqlResults);
         }
     }
 
+
     private void addExtensionsToItem(QuestionnaireResponse.QuestionnaireResponseItemComponent item, Map<String, Object> cqlResults) {
-        // Example: Adding an extension for each item based on some CQL result
+        // Adding an extension for CQL result if applicable
         if (cqlResults.containsKey(item.getLinkId())) {
             Object cqlResult = cqlResults.get(item.getLinkId());
-            // Add extension to the item based on CQL result
             Extension extension = new Extension();
             extension.setUrl("http://example.com/fhir/StructureDefinition/cql-result");
             extension.setValue(new StringType(cqlResult.toString()));
             item.addExtension(extension);
         }
 
+        // Recursively add extensions to child items
         for (QuestionnaireResponse.QuestionnaireResponseItemComponent childItem : item.getItem()) {
             addExtensionsToItem(childItem, cqlResults);
         }
     }
 
+    private void addIntendedUseExtension(QuestionnaireResponse.QuestionnaireResponseItemComponent item, Map<String, Object> cqlResults) {
+        // Adding intendedUse extension if available in cqlResults
+        if (cqlResults.containsKey("intendedUse")) {
+            Object intendedUseValue = cqlResults.get("intendedUse");
+
+            Extension intendedUseExtension = new Extension();
+            intendedUseExtension.setUrl("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/intendedUse");
+
+            if (intendedUseValue instanceof String) {
+                intendedUseExtension.setValue(new StringType((String) intendedUseValue));
+            } else if (intendedUseValue instanceof CodeType) {
+                intendedUseExtension.setValue((CodeType) intendedUseValue);
+            } else {
+                // Handle other types as needed
+                logger.warn("Unexpected type for intendedUseValue: " + intendedUseValue.getClass().getName());
+                return;
+            }
+
+            item.addExtension(intendedUseExtension);
+        }
+    }
+
+    private void addContextExtension(QuestionnaireResponse.QuestionnaireResponseItemComponent item, Map<String, Object> cqlResults) {
+        // Adding context extension if available in cqlResults
+        if (cqlResults.containsKey("context")) {
+            Object contextValue = cqlResults.get("context");
+
+            Extension contextExtension = new Extension();
+            contextExtension.setUrl("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-context");
+
+            if (contextValue instanceof String) {
+                contextExtension.setValue(new StringType((String) contextValue));
+            } else {
+                // Handle other types as needed
+                logger.warn("Unexpected type for contextValue: " + contextValue.getClass().getName());
+                return;
+            }
+
+            item.addExtension(contextExtension);
+        }
+    }
+    
     private void processAnswers(QuestionnaireResponse questionnaireResponse, Bundle bundle) {
         for (QuestionnaireResponse.QuestionnaireResponseItemComponent item : questionnaireResponse.getItem()) {
             processItemAnswers(item);
