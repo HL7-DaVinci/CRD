@@ -1,33 +1,25 @@
 package org.hl7.davinci.endpoint.fhir.r4;
 
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirBundleProcessor;
+import org.hl7.davinci.endpoint.cql.CqlExecution;
 import org.hl7.davinci.endpoint.files.FileStore;
+import org.hl7.davinci.endpoint.files.QuestionnaireEmbeddedCQLProcessor;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.CanonicalType;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.DataRequirement;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Library;
-import org.hl7.fhir.r4.model.Parameters;
-import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.RelatedArtifact;
-import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
-import org.hl7.fhir.r4.model.RelatedArtifact.RelatedArtifactType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.uhn.fhir.parser.DataFormatException;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //TODO: handle operation being passed one or more canonicals specifying the URL and, optionally, the version of the Questionnaire(s) to retrieve
 
@@ -37,6 +29,7 @@ public class QuestionnairePackageOperation {
 
     FileStore fileStore;
     String baseUrl;
+    QuestionnaireEmbeddedCQLProcessor cqlProcessor;
 
     // map of Resources and ids/urls so that we can skip retrieving duplicates
     HashMap<String, Resource> resources = new HashMap<>();
@@ -44,6 +37,7 @@ public class QuestionnairePackageOperation {
     public QuestionnairePackageOperation(FileStore fileStore, String baseUrl) {
         this.fileStore = fileStore;
         this.baseUrl = baseUrl;
+        this.cqlProcessor = new QuestionnaireEmbeddedCQLProcessor();
     }
 
     /*
@@ -89,7 +83,7 @@ public class QuestionnairePackageOperation {
                 List<String> topics = createTopicList(fhirBundleProcessor);
                 for (String topic : topics) {
                     logger.info("--> process topic: " + topic);
-                    // get all of the Quesionnaires for the topic
+                    // get all of the Questionnaires for the topic
                     Bundle bundle = fileStore.getFhirResourcesByTopicAsFhirBundle("R4", "Questionnaire", topic.toLowerCase(), baseUrl);
                     List<BundleEntryComponent> bundleEntries = bundle.getEntry();
                     for (BundleEntryComponent entry : bundleEntries) {
@@ -104,6 +98,26 @@ public class QuestionnairePackageOperation {
                 }
             }
 
+            // Prepopulate the QuestionnaireResponse
+            if (questionnaireId != null) {
+                Resource questionnaireResource = fileStore.getFhirResourceByIdAsFhirResource("R4", "Questionnaire", questionnaireId, baseUrl);
+                if (questionnaireResource != null && questionnaireResource.fhirType().equalsIgnoreCase("Questionnaire")) {
+                    Questionnaire questionnaire = (Questionnaire) questionnaireResource;
+                    QuestionnaireResponse questionnaireResponse = prepopulateQuestionnaireResponse(questionnaire, parameters);
+
+                    // Add mandatory extensions
+                    Map<String, Object> cqlResults = new HashMap<>(); // Replace with actual CQL results
+                    addMandatoryExtensions(questionnaireResponse, cqlResults);
+
+                    // Process answers
+                    processAnswers(questionnaireResponse, completeBundle);
+
+                    ParametersParameterComponent responseParameter = new ParametersParameterComponent();
+                    responseParameter.setName("questionnaire-response");
+                    responseParameter.setResource(questionnaireResponse);
+                    outputParameters.addParameter(responseParameter);
+                }
+            }
 
             // add the bundle to the output parameters if it contains any resources
             if (!completeBundle.isEmpty()) {
@@ -209,7 +223,7 @@ public class QuestionnairePackageOperation {
         List<RelatedArtifact> relatedArtifacts = library.getRelatedArtifact();
         for (RelatedArtifact relatedArtifact : relatedArtifacts) {
             // only add the depends-on artifacts
-            if (relatedArtifact.getType() == RelatedArtifactType.DEPENDSON) {
+            if (relatedArtifact.getType() == RelatedArtifact.RelatedArtifactType.DEPENDSON) {
                 String relatedArtifactReferenceString = relatedArtifact.getResource();
                 String[] referenceParts = relatedArtifactReferenceString.split("/");
                 String id = referenceParts[1];
@@ -256,4 +270,226 @@ public class QuestionnairePackageOperation {
             }
         }
     }
+
+    private QuestionnaireResponse prepopulateQuestionnaireResponse(Questionnaire questionnaire, Parameters parameters) {
+        QuestionnaireResponse questionnaireResponse = new QuestionnaireResponse();
+        questionnaireResponse.setQuestionnaire(questionnaire.getIdElement().toString());
+
+        for (Questionnaire.QuestionnaireItemComponent item : questionnaire.getItem()) {
+            QuestionnaireResponse.QuestionnaireResponseItemComponent responseItem = prepopulateItem(item, parameters);
+            questionnaireResponse.addItem(responseItem);
+        }
+
+        return questionnaireResponse;
+    }
+
+    private QuestionnaireResponse.QuestionnaireResponseItemComponent prepopulateItem(Questionnaire.QuestionnaireItemComponent item, Parameters parameters) {
+        QuestionnaireResponse.QuestionnaireResponseItemComponent responseItem = new QuestionnaireResponse.QuestionnaireResponseItemComponent();
+        responseItem.setLinkId(item.getLinkId());
+        responseItem.setText(item.getText());
+
+        // Retrieve CQL expression for the item
+        String cqlExpression = getCqlExpressionForItem(item);
+
+        // Execute CQL expression if available
+        if (cqlExpression != null) {
+            Object result = executeCqlExpression(cqlExpression);
+            if (result != null) {
+                QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
+                answer.setValue(new StringType(result.toString()));
+                responseItem.addAnswer(answer);
+            }
+        } else {
+            // If no CQL expression, create empty answers based on answer options
+            for (Questionnaire.QuestionnaireItemAnswerOptionComponent option : item.getAnswerOption()) {
+                QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
+                answer.setValue(option.getValue());
+                responseItem.addAnswer(answer);
+            }
+        }
+
+        // Prepopulate child items recursively
+        for (Questionnaire.QuestionnaireItemComponent childItem : item.getItem()) {
+            QuestionnaireResponse.QuestionnaireResponseItemComponent responseChildItem = prepopulateItem(childItem, parameters);
+            responseItem.addItem(responseChildItem);
+        }
+
+        return responseItem;
+    }
+
+    private String getCqlExpressionForItem(Questionnaire.QuestionnaireItemComponent item) {
+        // This assumes there is a custom extension or element in the item that holds the CQL expression
+        Extension cqlExtension = item.getExtensionByUrl("http://example.com/fhir/StructureDefinition/cql-expression");
+        if (cqlExtension != null && cqlExtension.getValue() instanceof StringType) {
+            return ((StringType) cqlExtension.getValue()).getValue();
+        }
+        return null;
+    }
+
+    private Object executeCqlExpression(String cqlExpression) {
+        String elm = null;
+        try {
+            // Translate CQL expression to Elm or execute directly
+            elm = CqlExecution.translateToElm(cqlExpression, this.cqlProcessor);
+        } catch (Exception e) {
+            logger.error("Failed to Execute Cql Expression");
+        }
+        return elm != null ? elm : null;
+    }
+
+    private QuestionnaireResponse.QuestionnaireResponseItemComponent prepopulateItem(Questionnaire.QuestionnaireItemComponent item, Parameters parameters, Map<String, Object> cqlResults) {
+        QuestionnaireResponse.QuestionnaireResponseItemComponent responseItem = new QuestionnaireResponse.QuestionnaireResponseItemComponent();
+        responseItem.setLinkId(item.getLinkId());
+        responseItem.setText(item.getText());
+
+        // Check if CQL results contain data for this item
+        if (cqlResults.containsKey(item.getLinkId())) {
+            Object cqlResult = cqlResults.get(item.getLinkId());
+
+            // Use the CQL result to prepopulate the answer
+            QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
+            answer.setValue(new StringType(cqlResult.toString()));
+            responseItem.addAnswer(answer);
+        } else {
+            // If no CQL result, add empty answers based on answer options
+            for (Questionnaire.QuestionnaireItemAnswerOptionComponent option : item.getAnswerOption()) {
+                QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer = new QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent();
+                answer.setValue(option.getValue());
+                responseItem.addAnswer(answer);
+            }
+        }
+
+        // Prepopulate child items recursively
+        for (Questionnaire.QuestionnaireItemComponent childItem : item.getItem()) {
+            QuestionnaireResponse.QuestionnaireResponseItemComponent responseChildItem = prepopulateItem(childItem, parameters, cqlResults);
+            responseItem.addItem(responseChildItem);
+        }
+
+        return responseItem;
+    }
+
+
+    private void addMandatoryExtensions(QuestionnaireResponse response, Map<String, Object> cqlResults) {
+        for (QuestionnaireResponse.QuestionnaireResponseItemComponent item : response.getItem()) {
+            addExtensionsToItem(item, cqlResults);
+            addIntendedUseExtension(item, cqlResults);
+            addContextExtension(item, cqlResults);
+        }
+    }
+
+
+    private void addExtensionsToItem(QuestionnaireResponse.QuestionnaireResponseItemComponent item, Map<String, Object> cqlResults) {
+        // Adding an extension for CQL result if applicable
+        if (cqlResults.containsKey(item.getLinkId())) {
+            Object cqlResult = cqlResults.get(item.getLinkId());
+            Extension extension = new Extension();
+            extension.setUrl("http://example.com/fhir/StructureDefinition/cql-result");
+            extension.setValue(new StringType(cqlResult.toString()));
+            item.addExtension(extension);
+        }
+
+        // Recursively add extensions to child items
+        for (QuestionnaireResponse.QuestionnaireResponseItemComponent childItem : item.getItem()) {
+            addExtensionsToItem(childItem, cqlResults);
+        }
+    }
+
+    private void addIntendedUseExtension(QuestionnaireResponse.QuestionnaireResponseItemComponent item, Map<String, Object> cqlResults) {
+        // Adding intendedUse extension if available in cqlResults
+        if (cqlResults.containsKey("intendedUse")) {
+            Object intendedUseValue = cqlResults.get("intendedUse");
+
+            Extension intendedUseExtension = new Extension();
+            intendedUseExtension.setUrl("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/intendedUse");
+
+            if (intendedUseValue instanceof String) {
+                intendedUseExtension.setValue(new StringType((String) intendedUseValue));
+            } else if (intendedUseValue instanceof CodeType) {
+                intendedUseExtension.setValue((CodeType) intendedUseValue);
+            } else {
+                // Handle other types as needed
+                logger.warn("Unexpected type for intendedUseValue: " + intendedUseValue.getClass().getName());
+                return;
+            }
+
+            item.addExtension(intendedUseExtension);
+        }
+    }
+
+    private void addContextExtension(QuestionnaireResponse.QuestionnaireResponseItemComponent item, Map<String, Object> cqlResults) {
+        // Adding context extension if available in cqlResults
+        if (cqlResults.containsKey("context")) {
+            Object contextValue = cqlResults.get("context");
+
+            Extension contextExtension = new Extension();
+            contextExtension.setUrl("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/qr-context");
+
+            if (contextValue instanceof String) {
+                contextExtension.setValue(new StringType((String) contextValue));
+            } else {
+                // Handle other types as needed
+                logger.warn("Unexpected type for contextValue: " + contextValue.getClass().getName());
+                return;
+            }
+
+            item.addExtension(contextExtension);
+        }
+    }
+    
+    private void processAnswers(QuestionnaireResponse questionnaireResponse, Bundle bundle) {
+        for (QuestionnaireResponse.QuestionnaireResponseItemComponent item : questionnaireResponse.getItem()) {
+            processItemAnswers(item);
+        }
+    }
+
+    private void processItemAnswers(QuestionnaireResponse.QuestionnaireResponseItemComponent item) {
+        for (QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer : item.getAnswer()) {
+            if (answer.hasValueCoding()) {
+                Coding coding = answer.getValueCoding();
+
+                if ("http://hl7.org/fhir/us/davinci-dtr/CodeSystem/temp".equals(coding.getSystem())) {
+                    switch (coding.getCode()) {
+                        case "auto":
+                            addInformationOriginExtension(answer, "Auto populated");
+                            break;
+                        case "manual":
+                            addInformationOriginExtension(answer, "Manual entry");
+                            break;
+                        case "override":
+                            addInformationOriginExtension(answer, "Auto populated but overridden by a human");
+                            break;
+                    }
+                }
+            }
+        }
+        for (QuestionnaireResponse.QuestionnaireResponseItemComponent subItem : item.getItem()) {
+            processItemAnswers(subItem);
+        }
+    }
+
+    private void addInformationOriginExtension(QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent answer, String display) {
+        Coding coding = new Coding();
+        coding.setSystem("http://hl7.org/fhir/us/davinci-dtr/CodeSystem/temp");
+        coding.setCode(displayToCode(display));
+        coding.setDisplay(display);
+
+        Extension informationOriginExtension = new Extension("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/informationOrigin");
+        informationOriginExtension.setValue(coding);
+
+        answer.addExtension(informationOriginExtension);
+    }
+
+    private String displayToCode(String display) {
+        switch (display) {
+            case "Auto populated":
+                return "auto";
+            case "Manual entry":
+                return "manual";
+            case "Auto populated but overridden by a human":
+                return "override";
+            default:
+                return null;
+        }
+    }
+
 }

@@ -26,7 +26,7 @@ public class QuestionnaireEmbeddedCQLProcessor extends FhirResourceProcessor<Que
         return this.replaceEmbeddedCql(inputResource);
     }
 
-    protected Questionnaire replaceEmbeddedCql(Questionnaire inputResource) {
+    public Questionnaire replaceEmbeddedCql(Questionnaire inputResource) {
         // find expressions and language as text/cql
         List<QuestionnaireItemComponent> itemList = inputResource.getItem();
         findAndReplaceEmbeddedCql(itemList);
