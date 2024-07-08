@@ -207,6 +207,12 @@ public class QuestionnairePackageOperation {
                         resources.put(url, libraryResource);
                     }
 
+                    if (libraryResource == null) {
+                        String error = "Failed to find Library for URL: " + url;
+                        logger.error(error);
+                        throw new RuntimeException(error);
+                    }
+
                     if (addResourceToBundle(libraryResource, bundleContents, completeBundle)) {
                         // recursively add the depends-on libraries if added to bundle
                         addLibraryDependencies((Library) libraryResource, bundleContents, completeBundle);
@@ -264,6 +270,12 @@ public class QuestionnairePackageOperation {
                 } else {
                     valueSetResource = fileStore.getFhirResourceByUrlAsFhirResource("R4", "ValueSet", valueSetUrl, baseUrl);
                     resources.put(valueSetUrl, valueSetResource);
+                }
+
+                if (valueSetResource == null) {
+                    String error = "Failed to find ValueSet for URL: " + valueSetUrl;
+                    logger.error(error);
+                    throw new RuntimeException(error);
                 }
 
                 addResourceToBundle(valueSetResource, bundleContents, questionnaireBundle);
