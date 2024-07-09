@@ -80,7 +80,7 @@ export default class Index extends Component {
                     "id": "example4",
                     "meta": {
                       "profile": [
-                        "http://hl7.org/fhir/us/davinci-crd/R4/StructureDefinition/profile-devicerequest-r4"
+                        "http://hl7.org/fhir/us/davinci-crd/StructureDefinition/profile-devicerequest"
                       ]
                     },
                     "insurance": [

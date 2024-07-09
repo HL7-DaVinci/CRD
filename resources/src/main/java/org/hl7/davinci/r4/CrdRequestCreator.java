@@ -228,7 +228,7 @@ public class CrdRequestCreator {
     Bundle prefetchBundleCoverage = new Bundle();
     Coverage coverage = new Coverage();
     coverage.setId(idString());
-    Coding planCode = new Coding().setCode("plan").setSystem("http://hl7.org/fhir/coverage-class");
+    Coding planCode = new Coding().setCode("plan").setSystem("http://terminology.hl7.org/CodeSystem/coverage-class");
     CodeableConcept codeableConcept = new CodeableConcept();
     List<Coding> codingList = new ArrayList<Coding>();
     codingList.add(planCode);

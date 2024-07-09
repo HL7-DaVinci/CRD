@@ -70,7 +70,7 @@ export default function CoverageInfo(props) {
         } else {
             const covClass = [{
                     "type": {
-                        "system": "http://hl7.org/fhir/coverage-class",
+                        "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
                     },
                     "value": event.target.value
                 }]
@@ -86,14 +86,14 @@ export default function CoverageInfo(props) {
         if( coverage.class && coverage.class.length > 0) {
             const classList = {...coverage.class[0]}; // copy coverage.class
             classList.type = {
-                "system": "http://hl7.org/fhir/coverage-class",
+                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
                 "code": event.target.value
             };
             handleChange('class', [classList]);
         } else {
             const covClass = [{
                 "type": {
-                    "system": "http://hl7.org/fhir/coverage-class",
+                    "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
                     "code": event.target.value
                 },
             }];

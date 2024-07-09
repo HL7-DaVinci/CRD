@@ -130,7 +130,7 @@
             "class": [
               {
                 "type": {
-                  "system": "http://hl7.org/fhir/coverage-class",
+                  "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
                   "code": "plan"
                 },
                 "value": "Medicare Part D"
