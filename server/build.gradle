@@ -56,8 +56,8 @@ dependencies {
     testImplementation "com.github.tomakehurst:wiremock-standalone:2.18.0"
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 
-    implementation 'ca.uhn.hapi.fhir:hapi-fhir-base:5.3.0'
-    implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.3.0'
+    implementation 'ca.uhn.hapi.fhir:hapi-fhir-base:5.7.9'
+    implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.7.9'
 
     implementation 'com.jayway.jsonpath:json-path:2.4.0'
     implementation 'joda-time:joda-time:2.10.5'

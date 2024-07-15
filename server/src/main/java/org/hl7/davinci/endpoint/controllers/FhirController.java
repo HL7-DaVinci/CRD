@@ -1,8 +1,6 @@
 package org.hl7.davinci.endpoint.controllers;
 
-import org.aspectj.weaver.patterns.TypePatternQuestions;
 import org.hl7.davinci.FhirResourceInfo;
-import org.hl7.davinci.endpoint.Application;
 import org.hl7.davinci.endpoint.Utils;
 import org.hl7.davinci.endpoint.database.FhirResource;
 import org.hl7.davinci.endpoint.database.FhirResourceRepository;
@@ -20,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
@@ -48,7 +45,7 @@ public class FhirController {
     return fileStore.findAllFhirResources();
   }
 
-  @GetMapping(path = "/fhir/{fhirVersion}/metadata")
+  @GetMapping(path = "/fhir/{fhirVersion}/metadata", produces = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
   public ResponseEntity<String> getConformanceStatement(HttpServletRequest request, @PathVariable String fhirVersion) throws IOException {
     fhirVersion = fhirVersion.toUpperCase();
     logger.info("GET /fhir/" + fhirVersion + "/metadata");
@@ -101,7 +98,7 @@ public class FhirController {
    * @return
    * @throws IOException
    */
-  @GetMapping(path = "/fhir/{fhirVersion}/{resource}/{id}")
+  @GetMapping(path = "/fhir/{fhirVersion}/{resource}/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, "application/fhir+json" })
   public ResponseEntity<Resource> getFhirResourceById(HttpServletRequest request, @PathVariable String fhirVersion, @PathVariable String resource, @PathVariable String id) throws IOException {
     fhirVersion = fhirVersion.toUpperCase();
     resource = resource.toLowerCase();
@@ -155,8 +152,9 @@ public class FhirController {
       return ResponseEntity.notFound().build();
     }
     return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileResource.getFilename() + "\"")
-        .contentType(MediaType.parseMediaType("application/octet-stream"))
+        // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileResource.getFilename() + "\"")
+        // .contentType(MediaType.parseMediaType("application/octet-stream"))
+        .contentType(MediaType.APPLICATION_JSON)
         .body(fileResource.getResource());
   }
 

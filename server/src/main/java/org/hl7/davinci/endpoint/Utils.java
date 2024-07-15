@@ -8,6 +8,8 @@ import com.google.common.net.HttpHeaders;
 public class Utils {
 
   public static URL getApplicationBaseUrl(HttpServletRequest request) {
+
+    String fhirPath = "/fhir/r4";
     try {
       URL url = null;
 
@@ -23,13 +25,13 @@ public class Utils {
         String proto = (request.getHeader(HttpHeaders.X_FORWARDED_PROTO) != null) ? request.getHeader(HttpHeaders.X_FORWARDED_PROTO) : "http";
 
         if (request.getHeader(HttpHeaders.X_FORWARDED_PORT) != null) {
-          url = new URL(proto, serverName, Integer.parseInt(request.getHeader(HttpHeaders.X_FORWARDED_PORT)), request.getContextPath());
+          url = new URL(proto, serverName, Integer.parseInt(request.getHeader(HttpHeaders.X_FORWARDED_PORT)), request.getContextPath() + fhirPath);
         } else {
-          url = new URL(proto, serverName, request.getContextPath());
+          url = new URL(proto, serverName, request.getContextPath() + fhirPath);
         }
 
       } else {
-        url = new URL(request.getScheme(), request.getServerName(), request.getServerPort(), request.getContextPath());
+        url = new URL(request.getScheme(), request.getServerName(), request.getServerPort(), request.getContextPath() + fhirPath);
       }
 
       return url;

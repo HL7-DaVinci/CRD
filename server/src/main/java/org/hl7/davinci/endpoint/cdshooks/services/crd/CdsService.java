@@ -356,7 +356,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   private Link smartLinkBuilder(String patientId, String fhirBase, URL applicationBaseUrl, String questionnaireUri,
                                 String reqResourceId, IBaseResource request, String label) {
     URI configLaunchUri = myConfig.getLaunchUrl();
-    questionnaireUri = applicationBaseUrl + "/fhir/r4/" + questionnaireUri;
+    questionnaireUri = applicationBaseUrl + "/" + questionnaireUri;
 
     String launchUrl;
     if (myConfig.getLaunchUrl().isAbsolute()) {

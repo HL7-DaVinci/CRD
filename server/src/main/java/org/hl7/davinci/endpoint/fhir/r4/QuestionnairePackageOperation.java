@@ -36,7 +36,7 @@ public class QuestionnairePackageOperation {
 
     public QuestionnairePackageOperation(FileStore fileStore, String baseUrl) {
         this.fileStore = fileStore;
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
         this.cqlProcessor = new QuestionnaireEmbeddedCQLProcessor();
     }
 
@@ -69,6 +69,8 @@ public class QuestionnairePackageOperation {
 
             // create a single new bundle for all of the resources
             Bundle completeBundle = new Bundle();
+            completeBundle.setType(Bundle.BundleType.COLLECTION);
+            completeBundle.getMeta().addProfile("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle");
 
             // list of items in bundle to avoid duplicates
             List<String> bundleContents = new ArrayList<>();
@@ -98,35 +100,52 @@ public class QuestionnairePackageOperation {
                 }
             }
 
-            // Prepopulate the QuestionnaireResponse
-            if (questionnaireId != null) {
-                Resource questionnaireResource = fileStore.getFhirResourceByIdAsFhirResource("R4", "Questionnaire", questionnaireId, baseUrl);
-                if (questionnaireResource != null && questionnaireResource.fhirType().equalsIgnoreCase("Questionnaire")) {
-                    Questionnaire questionnaire = (Questionnaire) questionnaireResource;
-                    QuestionnaireResponse questionnaireResponse = prepopulateQuestionnaireResponse(questionnaire, parameters);
-
-                    // Add mandatory extensions
-                    Map<String, Object> cqlResults = new HashMap<>(); // Replace with actual CQL results
-                    addMandatoryExtensions(questionnaireResponse, cqlResults);
-
-                    // Process answers
-                    processAnswers(questionnaireResponse, completeBundle);
-
-                    ParametersParameterComponent responseParameter = new ParametersParameterComponent();
-                    responseParameter.setName("questionnaire-response");
-                    responseParameter.setResource(questionnaireResponse);
-                    outputParameters.addParameter(responseParameter);
-                }
-            }
-
+            
             // add the bundle to the output parameters if it contains any resources
             if (!completeBundle.isEmpty()) {
                 ParametersParameterComponent parameter = new ParametersParameterComponent();
-                parameter.setName("return");
+                parameter.setName("PackageBundle");
                 parameter.setResource(completeBundle);
                 outputParameters.addParameter(parameter);
+
+                // Prepopulate the QuestionnaireResponse
+                if (questionnaireId != null) {
+                    Resource questionnaireResource = fileStore.getFhirResourceByIdAsFhirResource("R4", "Questionnaire", questionnaireId, baseUrl);
+                    if (questionnaireResource != null && questionnaireResource.fhirType().equalsIgnoreCase("Questionnaire")) {
+                        Questionnaire questionnaire = (Questionnaire) questionnaireResource;
+                        QuestionnaireResponse questionnaireResponse = prepopulateQuestionnaireResponse(questionnaire, parameters);
+                        questionnaireResponse.setStatus(QuestionnaireResponse.QuestionnaireResponseStatus.INPROGRESS);
+
+                        // Add mandatory extensions
+                        Map<String, Object> cqlResults = new HashMap<>(); // Replace with actual CQL results
+                        addMandatoryExtensions(questionnaireResponse, cqlResults);
+
+                        // Process answers
+                        processAnswers(questionnaireResponse, completeBundle);
+
+                        // Add the QuestionnaireResponse to the PackageBundle bundle
+                        BundleEntryComponent questionnaireResponseEntry = new BundleEntryComponent();
+                        questionnaireResponseEntry.setResource(questionnaireResponse);
+                        questionnaireResponseEntry.setFullUrl(baseUrl + "QuestionnaireResponse");
+                        completeBundle.addEntry(questionnaireResponseEntry);
+                    }
+                }
+                
+                // if this is a Library, update the related artifact references to be canonical URLs
+                for (BundleEntryComponent entry : completeBundle.getEntry()) {
+                    Resource entryResource = entry.getResource();
+                    if (entryResource.fhirType().equalsIgnoreCase("Library")) {
+                        for (RelatedArtifact artifact : ((Library)entryResource).getRelatedArtifact()) {
+                            if (artifact.getResource().startsWith("Library/")) {
+                                artifact.setResource(baseUrl + artifact.getResource());
+                            }
+                        }
+                    }
+                }
+
             } else {
                 logger.info("No matching Questionnaires found");
+                throw new RuntimeException("No matching Questionnaires found");
             }
         }
 
@@ -165,6 +184,7 @@ public class QuestionnairePackageOperation {
         if (!bundleContents.contains(resource.getId())) {
             // add the questionnaire to the bundle
             BundleEntryComponent questionnaireBundleEntry = new BundleEntryComponent();
+            questionnaireBundleEntry.setFullUrl(baseUrl + resource.getId());
             questionnaireBundleEntry.setResource(resource);
             questionnaireBundle.addEntry(questionnaireBundleEntry);
             bundleContents.add(resource.getId());
@@ -207,7 +227,7 @@ public class QuestionnairePackageOperation {
                         resources.put(url, libraryResource);
                     }
 
-                    if (libraryResource == null) {
+                    if (libraryResource == null || !(libraryResource instanceof Library)) {
                         String error = "Failed to find Library for URL: " + url;
                         logger.error(error);
                         throw new RuntimeException(error);
@@ -246,6 +266,7 @@ public class QuestionnairePackageOperation {
                 // only add the library if not already in the bundle
                 if (!bundleContents.contains(referencedLibraryResource.getId())) {
                     BundleEntryComponent referencedLibraryBundleEntry = new BundleEntryComponent();
+                    referencedLibraryBundleEntry.setFullUrl(baseUrl + referencedLibraryResource.getId());
                     referencedLibraryBundleEntry.setResource(referencedLibraryResource);
                     questionnaireBundle.addEntry(referencedLibraryBundleEntry);
                     bundleContents.add(referencedLibraryResource.getId());
@@ -285,7 +306,7 @@ public class QuestionnairePackageOperation {
 
     private QuestionnaireResponse prepopulateQuestionnaireResponse(Questionnaire questionnaire, Parameters parameters) {
         QuestionnaireResponse questionnaireResponse = new QuestionnaireResponse();
-        questionnaireResponse.setQuestionnaire(questionnaire.getIdElement().toString());
+        questionnaireResponse.setQuestionnaire(baseUrl + questionnaire.getId());
 
         for (Questionnaire.QuestionnaireItemComponent item : questionnaire.getItem()) {
             QuestionnaireResponse.QuestionnaireResponseItemComponent responseItem = prepopulateItem(item, parameters);
