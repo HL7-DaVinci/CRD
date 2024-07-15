@@ -45,6 +45,7 @@ public class QuestionnairePackageOperation {
      */
     public String execute(String resourceString, String questionnaireId) {
         Parameters outputParameters = new Parameters();
+        outputParameters.getMeta().addProfile("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters");
         IBaseResource resource = null;
 
         try {
