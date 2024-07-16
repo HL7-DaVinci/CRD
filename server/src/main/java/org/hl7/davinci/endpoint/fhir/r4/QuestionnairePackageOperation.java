@@ -47,6 +47,8 @@ public class QuestionnairePackageOperation {
         Parameters outputParameters = new Parameters();
         outputParameters.getMeta().addProfile("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-qpackage-output-parameters");
         IBaseResource resource = null;
+        FhirContext ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
+        IParser parser = ctx.newJsonParser().setPrettyPrint(true);
 
         try {
             resource = org.hl7.davinci.r4.Utilities.parseFhirData(resourceString);
@@ -145,8 +147,11 @@ public class QuestionnairePackageOperation {
                 }
 
             } else {
-                logger.info("No matching Questionnaires found");
-                throw new RuntimeException("No matching Questionnaires found");
+                logger.error("No matching Questionnaires found");
+                OperationOutcome outcome = new OperationOutcome();
+                outcome.addIssue().setSeverity(OperationOutcome.IssueSeverity.ERROR).setCode(OperationOutcome.IssueType.NOTFOUND)
+                        .setDiagnostics("No matching Questionnaires found");
+                return parser.encodeResourceToString(outcome);
             }
         }
 
@@ -155,9 +160,12 @@ public class QuestionnairePackageOperation {
             return null;
         }
 
-        // convert the outputParameters to a string
-        FhirContext ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
-        IParser parser = ctx.newJsonParser().setPrettyPrint(true);
+        // if there is only a single package bundle and no additional outcome parameter, it can be returned on its own without a Parameters resource
+        if (outputParameters.getParameter().size() == 1 && outputParameters.getParameter().get(0).getName().equals("PackageBundle")) {
+            return parser.encodeResourceToString(outputParameters.getParameter().get(0).getResource());
+        }
+
+        // return the output parameters
         return parser.encodeResourceToString(outputParameters);
     }
 

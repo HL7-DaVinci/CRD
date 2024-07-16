@@ -8,6 +8,7 @@ import org.hl7.davinci.endpoint.fhir.r4.QuestionnaireNextQuestionOperation;
 import org.hl7.davinci.endpoint.fhir.r4.QuestionnairePackageOperation;
 import org.hl7.davinci.endpoint.files.FileResource;
 import org.hl7.davinci.endpoint.files.FileStore;
+import org.hl7.fhir.r4.model.OperationOutcome;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -16,6 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -248,6 +252,8 @@ public class FhirController {
                                                               String fhirVersion, String questionnaireId) {
     fhirVersion = fhirVersion.toUpperCase();
     String baseUrl = Utils.getApplicationBaseUrl(request).toString() + "/";
+    FhirContext ctx = new org.hl7.davinci.r4.FhirComponents().getFhirContext();
+    IParser parser = ctx.newJsonParser().setPrettyPrint(true);
 
     logger.info("POST /fhir/" + fhirVersion + "/Questionnaire/$Questionnaire-package");
 
@@ -258,24 +264,19 @@ public class FhirController {
 
       if (resource == null) {
         logger.warning("bad parameters");
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        MediaType contentType = MediaType.TEXT_PLAIN;
-
-        return ResponseEntity.status(status).contentType(contentType)
-                .body("Bad Parameters");
+        OperationOutcome outcome = new OperationOutcome();
+        outcome.addIssue().setSeverity(OperationOutcome.IssueSeverity.ERROR).setCode(OperationOutcome.IssueType.INVALID).setDiagnostics("Bad Parameters");
+        return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(parser.encodeResourceToString(outcome));
       }
 
     } else {
       logger.warning("unsupported FHIR version: " + fhirVersion + ", not storing");
-      HttpStatus status = HttpStatus.BAD_REQUEST;
-      MediaType contentType = MediaType.TEXT_PLAIN;
-
-      return ResponseEntity.status(status).contentType(contentType)
-              .body("Bad Request");
+      OperationOutcome outcome = new OperationOutcome();
+      outcome.addIssue().setSeverity(OperationOutcome.IssueSeverity.ERROR).setCode(OperationOutcome.IssueType.INVALID).setDiagnostics("Unsupported FHIR version: " + fhirVersion);
+      return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(parser.encodeResourceToString(outcome));
     }
 
-    return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
-            .body(resource);
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(resource);
   }
 
 
