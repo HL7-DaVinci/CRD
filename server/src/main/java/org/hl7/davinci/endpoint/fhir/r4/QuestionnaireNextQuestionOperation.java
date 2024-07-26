@@ -18,13 +18,11 @@ import org.hl7.davinci.endpoint.files.QuestionnaireEmbeddedCQLProcessor;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.fhir.instance.model.api.IDomainResource;
 import org.hl7.fhir.r4.model.Questionnaire;
-import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemAnswerOptionComponent;
 import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseStatus;
-import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
 import org.springframework.http.HttpHeaders;
@@ -117,7 +115,7 @@ public class QuestionnaireNextQuestionOperation {
                 // Get the child and supplemental question items of this question.
                 List<QuestionnaireItemComponent> subQuestions = determinantQuestion.getItem();
                 // Extract the supplemental questions which do not have a child link-id branch from the determinant questions.
-                List<String> nonSupplementLinkIds = determinantQuestionItem.getAnswerOption().stream().map(answerOption -> answerOption.getModifierExtensionFirstRep().getUrl()).collect(Collectors.toList());
+                List<String> nonSupplementLinkIds = determinantQuestionItem.getAnswerOption().stream().map(answerOption -> answerOption.getValueCoding().getCode()).collect(Collectors.toList());
                 List<QuestionnaireItemComponent> childQuestions = this.extractChildQuestions(subQuestions, nonSupplementLinkIds);
                 // Extract the remaining questions as supplemental questions.
                 this.supplementalQuestions = this.extractSupplementalQuestions(subQuestions, nonSupplementLinkIds);
@@ -129,20 +127,6 @@ public class QuestionnaireNextQuestionOperation {
 
                 // If the determinant question item does not have any answer options, then this is a leaf node and should not generate any children.
                 if(determinantQuestionItem.hasAnswerOption()) {
-                    Map<String, String> childIdsToResponses = new HashMap<String, String>();
-                    // This loop iterates over the possible answer options of this questionitem and links the linkId to its possible responses.
-                    for(QuestionnaireItemAnswerOptionComponent answerOption : determinantQuestionItem.getAnswerOption()) {
-                        // The Id of this answer response's next question.
-                        String answerNextQuestionId = answerOption.getModifierExtensionFirstRep().getUrl();
-                        // The response that indicates this answer to the question.
-                        String possibleAnswerResponse = answerOption.getValueCoding().getCode();
-                        // Check for issues.
-                        if(answerNextQuestionId == null || possibleAnswerResponse == null){
-                            throw new RuntimeException("Malformed Adaptive Questionnaire. Missing a question ID or answer response.");
-                        }
-                        // Add the key-value pair of next question id to its assocated answer response.
-                        childIdsToResponses.put(answerNextQuestionId, possibleAnswerResponse);
-                    }
 
                     // Create the map of answerResponses->subQuestionItems
                     this.children = new HashMap<String, AdaptiveQuestionnaireNode>();
@@ -150,11 +134,9 @@ public class QuestionnaireNextQuestionOperation {
                     for(QuestionnaireItemComponent subQuestionItem : subQuestionItems){
                         // SubQuestion linkId.
                         String subQuestionLinkId = subQuestionItem.getLinkId();
-                        // SubQuestion's associated response.
-                        String subQuestionResponse = childIdsToResponses.get(subQuestionLinkId);
                         // Create a new node for this subQuestion.
                         AdaptiveQuestionnaireNode subQuestionNode = new AdaptiveQuestionnaireNode(subQuestionItem);
-                        this.children.put(subQuestionResponse, subQuestionNode);
+                        this.children.put(subQuestionLinkId, subQuestionNode);
                     }
                 }
             }
@@ -307,7 +289,7 @@ public class QuestionnaireNextQuestionOperation {
                 throw new RuntimeException("Received a set of questions with duplicates.");
             }
 
-            String questionnaireId = ((Reference) inputQuestionnaireResponse.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/contained-id").getValue()).getReference();
+            String questionnaireId = inputQuestionnaireResponse.getQuestionnaire();
             System.out.println("Input Questionnaire: " + questionnaireId);
 
             if (inputQuestionnaireFromRequest != null) {

@@ -248,6 +248,12 @@ public class QuestionnairePackageOperation {
                     }
                 }
             }
+
+            // if this is an adaptive questionnaire, set the URL for the $next-question operation
+            Extension adaptiveExtension = questionnaire.getExtensionByUrl("http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive");
+            if (adaptiveExtension != null) {
+                adaptiveExtension.setValue(new UrlType(baseUrl + "Questionnaire/$next-question"));
+            }
         }
     }
 
@@ -316,6 +322,31 @@ public class QuestionnairePackageOperation {
     private QuestionnaireResponse prepopulateQuestionnaireResponse(Questionnaire questionnaire, Parameters parameters) {
         QuestionnaireResponse questionnaireResponse = new QuestionnaireResponse();
         questionnaireResponse.setQuestionnaire(baseUrl + questionnaire.getId());
+        questionnaireResponse.getMeta().addProfile("http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/dtr-questionnaireresponse");        
+
+        // determine if this is an adaptive questionnaire and add the corresponding profile
+        if (questionnaire.hasExtension("http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-questionnaireAdaptive")) {
+            questionnaireResponse.getMeta().addProfile("http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaireresponse-adapt");
+        }
+
+        // add questionnaire response subject from the provided coverage
+        String patientRef = null;
+        for (ParametersParameterComponent parameter : parameters.getParameter()) {
+            if (parameter.getName().equals("coverage")) {
+                Resource coverage = parameter.getResource();
+                if (coverage instanceof Coverage) {
+                    patientRef = ((Coverage) coverage).getBeneficiary().getReference();
+                    questionnaireResponse.setSubject(new Reference(patientRef));
+                    break;
+                } else {
+                    throw new RuntimeException("Coverage parameter is not a Coverage resource");
+                }
+            }
+        }
+        if (patientRef == null) {
+            throw new RuntimeException("No beneficiary Patient resource found in the coverage parameter");
+        }
+
 
         for (Questionnaire.QuestionnaireItemComponent item : questionnaire.getItem()) {
             QuestionnaireResponse.QuestionnaireResponseItemComponent responseItem = prepopulateItem(item, parameters);
