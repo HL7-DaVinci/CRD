@@ -24,16 +24,8 @@ public class AppointmentBookRequest extends CdsRequest<CrdPrefetch, AppointmentB
 	      contextMap.put("userId", getContext().getUserId());
 	      contextMap.put("patientId", getContext().getPatientId());
 	      contextMap.put("encounterId", getContext().getEncounterId());
-		//contextMap.put("appointments", Utilities.bundleAsHashmap(getContext().getAppointments()));
-	   //   contextMap.put("draftOrders", Utilities.bundleAsHashmap(getContext().getDraftOrders()));
+		  contextMap.put("appointments", Utilities.bundleAsHashmap(getContext().getAppointments()));
 	      mapForPrefetchTemplates.put("context", contextMap);
-
-        try {
-            System.out.println(new ObjectMapper().writeValueAsString(mapForPrefetchTemplates));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
 
         return mapForPrefetchTemplates;
 	}
