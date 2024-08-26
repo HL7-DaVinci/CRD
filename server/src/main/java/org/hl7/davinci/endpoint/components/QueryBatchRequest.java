@@ -61,6 +61,17 @@ public class QueryBatchRequest {
     }
   }
 
+  public void performAppointmentQueryBatchRequest(CdsRequest<?, ?> cdsRequest, CrdPrefetch crdPrefetch) {
+    logger.info("***** ***** Performing Query Batch Request.");
+    // Get the IDs of references in the request's appointments.
+    Bundle appoinmentsBundle = (Bundle) crdPrefetch.getAppointmentBundle();
+
+    // Perform the query batch request for each of the draft orders.
+    for(BundleEntryComponent bec : appoinmentsBundle.getEntry()) {
+      this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, cdsRequest);
+    }
+  }
+
   private void performBundleQueryBatchRequest(Resource resource, CrdPrefetch crdResponse, CdsRequest<?, ?> cdsRequest) {
     ResourceType requestType = resource.getResourceType();
     // The list of references that should be queried in the batch request.
