@@ -4,6 +4,7 @@ import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
+import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookRequest;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.r4.model.Bundle;
@@ -61,14 +62,15 @@ public class QueryBatchRequest {
     }
   }
 
-  public void performAppointmentQueryBatchRequest(CdsRequest<?, ?> cdsRequest, CrdPrefetch crdPrefetch) {
+  public void performAppointmentQueryBatchRequest(AppointmentBookRequest appointmentBookRequestRequest, CrdPrefetch crdPrefetch) {
     logger.info("***** ***** Performing Query Batch Request.");
     // Get the IDs of references in the request's appointments.
-    Bundle appoinmentsBundle = (Bundle) crdPrefetch.getAppointmentBundle();
+
+    Bundle appoinmentsBundle = appointmentBookRequestRequest.getContext().getAppointments();
 
     // Perform the query batch request for each of the draft orders.
     for(BundleEntryComponent bec : appoinmentsBundle.getEntry()) {
-      this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, cdsRequest);
+      this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, appointmentBookRequestRequest);
     }
   }
 

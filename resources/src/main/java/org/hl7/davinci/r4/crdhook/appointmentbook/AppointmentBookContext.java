@@ -33,6 +33,8 @@ public class AppointmentBookContext extends ServiceContext {
 	  @JsonDeserialize(using = JacksonBundleDeserializer.class)
 	  private Bundle draftOrders;
 
+	  private Bundle appointments;
+
 	  public String getUserId() { return userId; }
 
 	  public void setUserId(String userId) { this.userId = userId; }
@@ -61,4 +63,11 @@ public class AppointmentBookContext extends ServiceContext {
 	    this.draftOrders = draftOrders;
 	  }
 
+	public Bundle getAppointments() {
+		return appointments;
+	}
+
+	public void setAppointments(Bundle appointments) {
+		this.appointments = appointments;
+	}
 }
