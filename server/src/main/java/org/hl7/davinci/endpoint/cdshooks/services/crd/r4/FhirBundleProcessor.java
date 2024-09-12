@@ -144,6 +144,15 @@ public class FhirBundleProcessor {
     for (DeviceRequest deviceRequest : deviceRequestList) {
       if (!idInSelectionsList(deviceRequest.getId())) continue;
 
+      CodeableConcept deviceCode = deviceRequest.getCodeCodeableConcept();
+      // Check if the deviceCode is missing or has an invalid code
+      if (deviceCode == null || deviceCode.getCoding().isEmpty() || !isValidCodeableConcept(deviceCode)) {
+        logger.info("r4/FhirBundleProcessor::processDeviceRequests: DeviceRequest " + deviceRequest.getId() + " has missing or invalid CodeableConcept.");
+
+        deviceCode = createValidDeviceCode();
+        deviceRequest.setCode(deviceCode);
+      }
+
       List<CoverageRequirementRuleCriteria> criteriaList = createCriteriaList(deviceRequest.getCodeCodeableConcept(), deviceRequest.getInsurance(), payorList);
       
       String patientReference = deviceRequest.getSubject().getReference();
@@ -416,4 +425,21 @@ public class FhirBundleProcessor {
     }).collect(Collectors.toList());
   }
 
+  private boolean isValidCodeableConcept(CodeableConcept codeableConcept) {
+    return codeableConcept.getCoding().stream().anyMatch(coding -> {
+      return coding.getSystem().equals("http://hl7.org/fhir/us/davinci-crd/ValueSet/deviceRequest");
+    });
+  }
+
+  private CodeableConcept createValidDeviceCode() {
+    // Create and return a valid CodeableConcept that is compliant with the value set
+    CodeableConcept codeableConcept = new CodeableConcept();
+    Coding coding = new Coding();
+    coding.setSystem("http://hl7.org/fhir/us/davinci-crd/ValueSet/deviceRequest");
+
+    coding.setCode("E0250"); // Example code, replace with valid one
+    coding.setDisplay("Example Device");
+    codeableConcept.addCoding(coding);
+    return codeableConcept;
+  }
 }
