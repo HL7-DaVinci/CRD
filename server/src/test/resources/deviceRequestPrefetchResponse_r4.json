@@ -114,7 +114,7 @@
         "codeCodeableConcept": {
           "coding": [
             {
-              "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+              "system": "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
               "code": "E0250"
             }
           ],
@@ -139,7 +139,7 @@
         "type": {
           "coding": [
             {
-              "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+              "system": "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
               "code": "E0250",
               "display": "Stationary Compressed Gaseous Oxygen System, Rental"
             }

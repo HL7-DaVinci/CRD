@@ -19,7 +19,7 @@
             "codeCodeableConcept": {
               "coding": [
                 {
-                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "system": "hhttps://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
                   "code": "E0250"
                 }
               ],
