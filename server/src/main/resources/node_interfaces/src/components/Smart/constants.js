@@ -69,7 +69,7 @@ const coverageCodes = [
 ]
 
 const codeSystems = [
-    {key: 'hcpcs', value: 'https://bluebutton.cms.gov/resources/codesystem/hcpcs', text: 'HCPCS'},
+    {key: 'hcpcs', value: 'https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets', text: 'HCPCS'},
     {key: 'cpt', value: 'http://www.ama-assn.org/go/cpt', text: 'CPT'},
     {key: 'rxnorm', value: 'http://www.nlm.nih.gov/research/umls/rxnorm', text: 'RxNorm'},
 ]

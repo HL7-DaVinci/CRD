@@ -66,7 +66,7 @@ public class CodeSystemTranslator {
 
     // Extra oid mappings not yet defined by VSAC FHIR API
     // HCPCS is still in decision on HL7 JIRA https://jira.hl7.org/browse/FHIR-13129?jql=project%20%3D%20fhir%20and%20text%20~%20hcpcs
-    oidToUriMap.put("2.16.840.1.113883.6.285", "https://bluebutton.cms.gov/resources/codesystem/hcpcs"); //HCPCS
+    oidToUriMap.put("2.16.840.1.113883.6.285", "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets"); //HCPCS
   }
 
   public static String convertOidToUri(String oid) {

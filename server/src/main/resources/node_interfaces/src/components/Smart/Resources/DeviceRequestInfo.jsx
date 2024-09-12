@@ -85,7 +85,7 @@ export default function DeviceRequestInfo(props) {
         let options = [];
         if( deviceRequest.codeCodeableConcept && deviceRequest.codeCodeableConcept.coding) {
             const system =  deviceRequest.codeCodeableConcept.coding[0].system;
-            if (system === 'https://bluebutton.cms.gov/resources/codesystem/hcpcs') {
+            if (system === 'https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets') {
                 options = hcpcsCodes;
             }else if (system === 'http://www.ama-assn.org/go/cpt') {
                 options = cptCodes;
