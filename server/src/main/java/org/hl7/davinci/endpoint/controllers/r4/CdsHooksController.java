@@ -36,6 +36,7 @@ public class CdsHooksController {
   @Autowired private OrderSignService orderSignService;
   @Autowired private AppointmentBookService appointmentBookService;
   @Autowired private OrderDispatchService orderDispatchService;
+  @Autowired private Enc
 
   /**
    * The FHIR r4 services discovery endpoint.
@@ -101,6 +102,9 @@ public class CdsHooksController {
     }
     return appointmentBookService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
+
+  @CrossOrigin
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + )
   
 
   
@@ -134,3 +138,5 @@ public class CdsHooksController {
     return orderDispatchService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
 }
+
+

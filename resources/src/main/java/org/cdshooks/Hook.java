@@ -12,7 +12,9 @@ public enum Hook {
   ORDER_SELECT("order-select"),
   ORDER_SIGN("order-sign"),
 	APPOINTMENT_BOOK("appointment-book"),
+  ENCOUNTER_START("encounter-start"),
   ORDER_DISPATCH("order-dispatch");
+
 
   private String value;
 
