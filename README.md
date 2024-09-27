@@ -7,6 +7,7 @@ The CRD RI project is software that can simulate all of the systems involved in 
 This software lets EHR vendors and payer organizations examine how the proposed standard will work and allows them to test their own implementation of the standard.
 
 ## Running CRD
+A live demo is hosted by [HL7 FHIR Foundry](https://foundry.hl7.org/products/f03f9ffa-83b1-43fd-a4d7-4641d72e275c), where you may also download curated configurations to run yourself.
 
 You can find a complete end-to-end set up guide for DRLS, including CRD, [here](SetupGuideForMacOS.md).
 
