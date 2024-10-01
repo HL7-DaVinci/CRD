@@ -13,6 +13,7 @@ allprojects {
         maven { url 'https://oss.sonatype.org/service/local/repositories/snapshots/content' }
         maven { url "https://jitpack.io" }
         jcenter()
+        maven { url 'https://repo.jenkins-ci.org/public'}
     }
 
 
