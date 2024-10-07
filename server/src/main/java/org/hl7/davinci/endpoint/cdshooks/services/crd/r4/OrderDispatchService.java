@@ -40,7 +40,7 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
     public static final String TITLE = "order-dispatch Coverage Requirements Discovery";
     public static final Hook HOOK = Hook.ORDER_DISPATCH;
     public static final String DESCRIPTION = "test";
-
+    private static final String USAGE_REQUIREMENTS = "String patientid, array dispatchedOrders, String performer";
     public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
             CrdPrefetchTemplateElements.COVERAGE_REQUEST_BUNDLE,
             CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
@@ -57,7 +57,7 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
     );
     //public static final DiscoveryExtension EXTENSION = new DiscoveryExtension(CONFIGURATION_OPTIONS);
 
-    public OrderDispatchService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, null); }
+    public OrderDispatchService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, null, USAGE_REQUIREMENTS); }
 
     @Override
     public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderDispatchRequest request, FileStore fileStore, String baseUrl) throws RequestIncompleteException {

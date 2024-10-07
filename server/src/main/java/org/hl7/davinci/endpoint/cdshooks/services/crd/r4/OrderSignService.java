@@ -41,6 +41,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   public static final Hook HOOK = Hook.ORDER_SIGN;
   public static final String DESCRIPTION =
       "Get information regarding the coverage requirements for durable medical equipment";
+  private static final String USAGE_REQUIREMENTS = "String userId, String patientId, object draftOrders";
   public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
       CrdPrefetchTemplateElements.COVERAGE_REQUEST_BUNDLE,
       CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
@@ -61,7 +62,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   );
   public static final DiscoveryExtension EXTENSION = new DiscoveryExtension(CONFIGURATION_OPTIONS);
 
-  public OrderSignService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, EXTENSION); }
+  public OrderSignService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, EXTENSION, USAGE_REQUIREMENTS); }
 
   @Override
   public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderSignRequest orderSignRequest, FileStore fileStore, String baseUrl) {

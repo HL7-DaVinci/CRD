@@ -73,6 +73,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    */
   public Prefetch prefetch;
 
+  /**
+   * Human-friendly description of any preconditions for the use of this CDS Service. OPTIONAL
+   */
+  public String usageRequirements;
+
   @Autowired
   private YamlConfig myConfig;
 
@@ -100,12 +105,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
    * @param description      Human description.
    * @param prefetchElements List of prefetch elements, will be in prefetch
    *                         template.
+   * @param usageRequirements list of preconditions
    * @param fhirComponents   Fhir components to use
    * @param extension        Custom CDS Hooks extensions.
    */
   public CdsService(String id, Hook hook, String title, String description,
       List<PrefetchTemplateElement> prefetchElements, FhirComponentsT fhirComponents,
-      DiscoveryExtension extension) {
+      DiscoveryExtension extension, String usageRequirements) {
 
     if (id == null) {
       throw new NullPointerException("CDSService id cannot be null");
@@ -121,6 +127,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     this.title = title;
     this.description = description;
     this.prefetchElements = prefetchElements;
+    this.usageRequirements = usageRequirements;
     prefetch = new Prefetch();
     for (PrefetchTemplateElement prefetchElement : prefetchElements) {
       this.prefetch.put(prefetchElement.getKey(), prefetchElement.getQuery());

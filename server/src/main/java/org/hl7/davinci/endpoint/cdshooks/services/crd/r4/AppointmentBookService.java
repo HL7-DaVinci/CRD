@@ -33,6 +33,7 @@ public class AppointmentBookService extends CdsService<AppointmentBookRequest>{
 	public static final Hook HOOK = Hook.APPOINTMENT_BOOK;
 	public static final String DESCRIPTION =
 			"Get information regarding the coverage requirements for appointments";
+	private static final String USAGE_REQUIREMENTS = "String, userID, String patientid, object appointments";
 	public static final List<PrefetchTemplateElement> PREFETCH_ELEMENTS = Arrays.asList(
 			CrdPrefetchTemplateElements.COVERAGE_REQUEST_BUNDLE,
 			CrdPrefetchTemplateElements.PATIENT,
@@ -46,7 +47,7 @@ public class AppointmentBookService extends CdsService<AppointmentBookRequest>{
 
 
 	public AppointmentBookService() {
-		super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, EXTENSION);
+		super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, EXTENSION, USAGE_REQUIREMENTS);
 	}
 
 	@Override
