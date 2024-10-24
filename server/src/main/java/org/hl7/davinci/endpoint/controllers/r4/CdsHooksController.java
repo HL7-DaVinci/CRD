@@ -8,6 +8,7 @@ import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsServiceInformation;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.*;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookRequest;
+import org.hl7.davinci.r4.crdhook.encounterdischarge.EncounterDischargeRequest;
 import org.hl7.davinci.r4.crdhook.encounterstart.EncounterStartRequest;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.davinci.r4.crdhook.ordersign.OrderSignRequest;
@@ -35,6 +36,7 @@ public class CdsHooksController {
   @Autowired private AppointmentBookService appointmentBookService;
   @Autowired private OrderDispatchService orderDispatchService;
   @Autowired private EncounterStartService encounterStartService;
+  @Autowired private EncounterDischargeService encounterDischargeService;
 
   /**
    * The FHIR r4 services discovery endpoint.
@@ -49,6 +51,8 @@ public class CdsHooksController {
     serviceInformation.addServicesItem(orderSelectService);
     serviceInformation.addServicesItem(appointmentBookService);
     serviceInformation.addServicesItem(orderDispatchService);
+    serviceInformation.addServicesItem(encounterStartService);
+    serviceInformation.addServicesItem(encounterDischargeService);
     return serviceInformation;
   }
 
@@ -111,7 +115,17 @@ public class CdsHooksController {
     }
     return encounterStartService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
   }
-  
+
+  @CrossOrigin
+  @PostMapping(value = FHIR_RELEASE + URL_BASE + "/" + EncounterDischargeService.ID,
+          consumes = "application/json;charset=UTF-8")
+  public CdsResponse handleEncounterStart(@Valid @RequestBody EncounterDischargeRequest request, final HttpServletRequest httpServletRequest) {
+    logger.info("r4/handleEncounterDischarge");
+    if (request.getPrefetch() == null) {
+      request.setPrefetch(new CrdPrefetch());
+    }
+    return encounterDischargeService.handleRequest(request, Utils.getApplicationBaseUrl(httpServletRequest));
+  }
 
   
   /**
