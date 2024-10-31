@@ -19,7 +19,7 @@
             "codeCodeableConcept": {
               "coding": [
                 {
-                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "system": "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
                   "code": "E0424"
                 }
               ],
@@ -66,7 +66,7 @@
             "codeCodeableConcept": {
               "coding": [
                 {
-                  "system": "https://bluebutton.cms.gov/resources/codesystem/hcpcs",
+                  "system": "https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
                   "code": "E0424"
                 }
               ],

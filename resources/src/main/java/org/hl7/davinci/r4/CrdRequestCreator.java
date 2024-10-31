@@ -158,7 +158,7 @@ public class CrdRequestCreator {
     Bundle prefetchBundleCoverage = prefetchBundles.get("coverage");
 
     Coding oxygen = new Coding().setCode("A0426")
-        .setSystem("https://bluebutton.cms.gov/resources/codesystem/hcpcs")
+        .setSystem("https://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets")
         .setDisplay("Ambulance service, advanced life support, non-emergency transport, level 1 (als 1)");
     sr.setCode(new CodeableConcept().addCoding(oxygen).setText("Ambulance service Non-Emergency Transport"));
     Bundle orderBundle = new Bundle();
