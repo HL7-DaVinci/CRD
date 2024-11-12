@@ -27,7 +27,7 @@ public class EncounterStartService extends CdsService<EncounterStartRequest> {
 
     public static final String ID = "encounter-start-crd";
     public static final String TITLE = "encounter-start Coverage Requirements Discovery";
-    public static final Hook HOOK = Hook.APPOINTMENT_BOOK;
+    public static final Hook HOOK = Hook.ENCOUNTER_START;
     public static final String DESCRIPTION =
             "Get information regarding the coverage requirements for encounters";
     private static final String USAGE_REQUIREMENTS = "String userId, String patientid, String encounterID";
