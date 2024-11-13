@@ -1,5 +1,6 @@
 package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,16 +62,46 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
 
     @Override
     public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderDispatchRequest request, FileStore fileStore, String baseUrl) throws RequestIncompleteException {
-        return null;
+        List<CoverageRequirementRuleResult> ruleResults = new ArrayList<>();
+        // Execute specific rules as needed for decision support
+        return ruleResults;
     }
 
     @Override
     protected CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
-        return null;
+        CqlResultsForCard cardResults = new CqlResultsForCard();
+        try {
+            Object result = context.resolveExpressionRef(topic).evaluate(context);
+
+            // Use instanceof to determine the type of result and set appropriate fields
+            if (result instanceof CoverageRequirements) {
+                cardResults.setCoverageRequirements((CoverageRequirements) result);
+            } else if (result instanceof AlternativeTherapy) {
+                cardResults.setAlternativeTherapy((AlternativeTherapy) result);
+            } else if (result instanceof DrugInteraction) {
+                cardResults.setDrugInteraction((DrugInteraction) result);
+            } else {
+                logger.warn("Unexpected CQL result type: {}", result.getClass().getName());
+            }
+
+        } catch (Exception e) {
+            logger.error("Error executing CQL for topic " + topic, e);
+        }
+        return cardResults;
     }
 
     @Override
     protected void attemptQueryBatchRequest(OrderDispatchRequest request, QueryBatchRequest qbr) {
-        
+        if (StringUtils.isNotBlank(request.getContext().getPatientId()) && request.getPrefetch() != null) {
+            logger.info("Attempting Query Batch Request for OrderDispatch.");
+            try {
+                // Use performQueryBatchRequest to backfill the CRD response
+                qbr.performQueryBatchRequest(request, request.getPrefetch());
+            } catch (Exception e) {
+                logger.error("Failed to perform query batch request: {}", e.getMessage(), e);
+            }
+        } else {
+            logger.warn("Skipping Query Batch Request: Patient ID or prefetch data is missing.");
+        }
     }
 }
