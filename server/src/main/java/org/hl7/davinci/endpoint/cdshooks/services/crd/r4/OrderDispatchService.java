@@ -16,17 +16,21 @@ import org.hl7.davinci.RequestIncompleteException;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.CdsService;
 import org.hl7.davinci.endpoint.components.QueryBatchRequest;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
+import org.hl7.davinci.endpoint.database.RuleMapping;
 import org.hl7.davinci.endpoint.files.FileStore;
+import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleCriteria;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.ConfigurationOption;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
+import org.hl7.davinci.r4.crdhook.orderdispatch.OrderDispatchContext;
 import org.hl7.davinci.r4.crdhook.orderdispatch.OrderDispatchRequest;
 import org.hl7.davinci.r4.crdhook.ordersign.CrdExtensionConfigurationOptions;
 import org.hl7.davinci.r4.crdhook.ordersign.CrdPrefetchTemplateElements;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Resource;
 import org.json.simple.JSONObject;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.opencds.cqf.cql.engine.runtime.Code;
@@ -63,7 +67,40 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
     @Override
     public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderDispatchRequest request, FileStore fileStore, String baseUrl) throws RequestIncompleteException {
         List<CoverageRequirementRuleResult> ruleResults = new ArrayList<>();
-        // Execute specific rules as needed for decision support
+        OrderDispatchContext context = request.getContext();
+
+        // Retrieve identifiers
+        String performer = context.getPerformer();
+        String orderId = context.getOrder();
+
+        if (orderId != null && !orderId.isEmpty()) {
+            // Define the criteria for retrieving rules based on the context
+            CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria()
+                    .setPayor(performer)
+                    .setCode("someCodeValue") // Replace with appropriate code
+                    .setCodeSystem("someCodeSystem") // Replace with appropriate code system
+                    .setFhirVersion("R4"); // Specify the FHIR version as needed
+
+            // Retrieve matching rules from FileStore
+            List<RuleMapping> rules = fileStore.findRules(criteria);
+            if (rules != null && !rules.isEmpty()) {
+                for (RuleMapping rule : rules) {
+                    CoverageRequirementRuleResult ruleResult = new CoverageRequirementRuleResult();
+                    ruleResult.setCriteria(criteria);
+                    ruleResult.setTopic(rule.getTopic());
+                    ruleResults.add(ruleResult);
+                }
+            } else {
+                // If no rule is found, generate a CoverageRequirementRuleResult manually
+                CoverageRequirementRuleResult ruleResult = new CoverageRequirementRuleResult()
+                        .setCriteria(criteria)
+                        .setTopic("No rule found for given criteria"); // Set based on your use case
+                ruleResults.add(ruleResult);
+            }
+        } else {
+            throw new RequestIncompleteException("Order ID is missing in the context.");
+        }
+
         return ruleResults;
     }
 
