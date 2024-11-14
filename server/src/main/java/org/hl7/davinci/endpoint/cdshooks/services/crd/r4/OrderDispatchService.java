@@ -77,8 +77,8 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
             // Define the criteria for retrieving rules based on the context
             CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria()
                     .setPayor(performer)
-                    .setCode("someCodeValue") // Replace with appropriate code
-                    .setCodeSystem("someCodeSystem") // Replace with appropriate code system
+                    .setCode("fulfill") // Replace with appropriate code
+                    .setCodeSystem("http://hl7.org/fhir/CodeSystem/task-code") // Replace with appropriate code system
                     .setFhirVersion("R4"); // Specify the FHIR version as needed
 
             // Retrieve matching rules from FileStore
