@@ -61,66 +61,22 @@ public class QueryBatchRequest {
   }
 
   public void performDispatchQueryBatchRequest(OrderDispatchRequest request, CrdPrefetch prefetch) {
-    logger.info("Performing Query Batch Request for OrderDispatch.");
+    logger.info("Performing Query Batch Request for Order Dispatch");
 
-    // Validate Task and associated context
-    Task task = request.getContext().getTask();
-    if (task == null || task.getFocus() == null || StringUtils.isBlank(task.getFocus().getReference())) {
-      logger.warn("Task or its focus (ServiceRequest reference) is missing. Skipping query batch request.");
-      return;
-    }
+    // Define a helper method to process bundles
+    processBundle((Bundle) request.getPrefetch().getCoverageBundle(), "coverage", prefetch, request);
+    processBundle((Bundle) request.getPrefetch().getDeviceRequestBundle(), "deviceRequest", prefetch, request);
+    processBundle((Bundle) request.getPrefetch().getMedicationRequestBundle(), "medicationRequest", prefetch, request);
+    processBundle((Bundle) request.getPrefetch().getServiceRequestBundle(), "serviceRequest", prefetch, request);
+  }
 
-    // Extract references from Task
-    String serviceRequestRef = task.getFocus().getReference();
-    String patientId = request.getContext().getPatientId();
-    String performer = request.getContext().getPerformer();
-
-    // Collect references to query
-    List<String> resourceReferences = new ArrayList<>();
-    resourceReferences.add(serviceRequestRef);
-
-    if (StringUtils.isNotBlank(patientId)) {
-      resourceReferences.add("Patient/" + patientId);
-    }
-
-    if (StringUtils.isNotBlank(performer)) {
-      resourceReferences.add(performer);
-    }
-
-    // Remove duplicates and already-fetched resources
-    resourceReferences = resourceReferences.stream()
-            .distinct()
-            .filter(ref -> !prefetch.containsRequestResourceId(ref))
-            .collect(Collectors.toList());
-
-    if (resourceReferences.isEmpty()) {
-      logger.info("All necessary references are already pre-fetched. No Query Batch Request needed.");
-      return;
-    }
-
-    // Build and execute the Query Batch Request
-    try {
-      Bundle queryBatchRequestBundle = buildQueryBatchRequestBundle(resourceReferences);
-      String queryBatchRequestBody = FhirContext.forR4().newJsonParser().encodeResourceToString(queryBatchRequestBundle);
-
-      logger.info("Executing Query Batch Request: {}", queryBatchRequestBody);
-
-      Bundle queryResponseBundle = (Bundle) FhirRequestProcessor.executeFhirQueryBody(
-              queryBatchRequestBody, request, this.fhirComponents, HttpMethod.POST
-      );
-
-      if (queryResponseBundle == null || queryResponseBundle.getEntry().isEmpty()) {
-        logger.warn("Query Batch Request returned no data.");
-        return;
+  private void processBundle(Bundle bundle, String bundleType, CrdPrefetch prefetch, OrderDispatchRequest request) {
+    if (bundle != null && !bundle.getEntry().isEmpty()) {
+      for (BundleEntryComponent bec : bundle.getEntry()) {
+        performBundleQueryBatchRequest(bec.getResource(), prefetch, request);
       }
-
-      logger.info("Processing Query Batch Response.");
-      queryResponseBundle = extractNestedBundledResources(queryResponseBundle);
-
-      // Add resources to CRD Prefetch
-      FhirRequestProcessor.addToCrdPrefetchRequest(prefetch, ResourceType.Task, queryResponseBundle.getEntry());
-    } catch (Exception e) {
-      logger.error("Error during Query Batch Request for OrderDispatch: {}", e.getMessage(), e);
+    } else {
+      logger.info(String.format("No %s bundle found in prefetch", bundleType));
     }
   }
 
@@ -235,7 +191,7 @@ public class QueryBatchRequest {
    * Extracts the resources inside a bundled bundle to be at the top level of the
    * bundle, making them no longer nested.
    * 
-   * @param resource
+   * @param
    * @return
    */
   private static Bundle extractNestedBundledResources(Bundle bundle) {

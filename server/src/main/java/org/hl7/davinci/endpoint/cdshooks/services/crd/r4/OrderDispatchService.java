@@ -50,7 +50,7 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
             CrdPrefetchTemplateElements.COVERAGE_REQUEST_BUNDLE,
             CrdPrefetchTemplateElements.DEVICE_REQUEST_BUNDLE,
             // CrdPrefetchTemplateElements.SUPPLY_REQUEST_BUNDLE,
-            // CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
+            //  CrdPrefetchTemplateElements.NUTRITION_ORDER_BUNDLE,
             CrdPrefetchTemplateElements.MEDICATION_REQUEST_BUNDLE,
             CrdPrefetchTemplateElements.SERVICE_REQUEST_BUNDLE);
     // CrdPrefetchTemplateElements.MEDICATION_DISPENSE_BUNDLE);
