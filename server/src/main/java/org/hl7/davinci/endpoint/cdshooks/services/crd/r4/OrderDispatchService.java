@@ -66,79 +66,29 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
 
     @Override
     public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderDispatchRequest request, FileStore fileStore, String baseUrl) throws RequestIncompleteException {
-        List<CoverageRequirementRuleResult> ruleResults = new ArrayList<>();
-        OrderDispatchContext context = request.getContext();
+        FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl, null);
+        List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
 
-        // Retrieve identifiers
-        String performer = context.getPerformer();
-        String orderId = context.getOrder();
-
-        if (orderId != null && !orderId.isEmpty()) {
-            // Define the criteria for retrieving rules based on the context
-            CoverageRequirementRuleCriteria criteria = new CoverageRequirementRuleCriteria()
-                    .setPayor(performer)
-                    .setCode("fulfill") // Replace with appropriate code
-                    .setCodeSystem("http://hl7.org/fhir/CodeSystem/task-code") // Replace with appropriate code system
-                    .setFhirVersion("R4"); // Specify the FHIR version as needed
-
-            // Retrieve matching rules from FileStore
-            List<RuleMapping> rules = fileStore.findRules(criteria);
-            if (rules != null && !rules.isEmpty()) {
-                for (RuleMapping rule : rules) {
-                    CoverageRequirementRuleResult ruleResult = new CoverageRequirementRuleResult();
-                    ruleResult.setCriteria(criteria);
-                    ruleResult.setTopic(rule.getTopic());
-                    ruleResults.add(ruleResult);
-                }
-            } else {
-                // If no rule is found, generate a CoverageRequirementRuleResult manually
-                CoverageRequirementRuleResult ruleResult = new CoverageRequirementRuleResult()
-                        .setCriteria(criteria)
-                        .setTopic("No rule found for given criteria"); // Set based on your use case
-                ruleResults.add(ruleResult);
-            }
-        } else {
-            throw new RequestIncompleteException("Order ID is missing in the context.");
+        if (results.isEmpty()) {
+            throw RequestIncompleteException.NoSupportedBundlesFound();
         }
-
-        return ruleResults;
+        return results;
     }
 
     @Override
     protected CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
-        CqlResultsForCard cardResults = new CqlResultsForCard();
-        try {
-            Object result = context.resolveExpressionRef(topic).evaluate(context);
-
-            // Use instanceof to determine the type of result and set appropriate fields
-            if (result instanceof CoverageRequirements) {
-                cardResults.setCoverageRequirements((CoverageRequirements) result);
-            } else if (result instanceof AlternativeTherapy) {
-                cardResults.setAlternativeTherapy((AlternativeTherapy) result);
-            } else if (result instanceof DrugInteraction) {
-                cardResults.setDrugInteraction((DrugInteraction) result);
-            } else {
-                logger.warn("Unexpected CQL result type: {}", result.getClass().getName());
-            }
-
-        } catch (Exception e) {
-            logger.error("Error executing CQL for topic " + topic, e);
-        }
-        return cardResults;
+        CqlResultsForCard cardResult = new CqlResultsForCard();
+        cardResult.setRequest((IBaseResource) context);
+        return cardResult;
     }
 
     @Override
     protected void attemptQueryBatchRequest(OrderDispatchRequest request, QueryBatchRequest qbr) {
-        if (StringUtils.isNotBlank(request.getContext().getPatientId()) && request.getPrefetch() != null) {
+        try {
             logger.info("Attempting Query Batch Request for OrderDispatch.");
-            try {
-                // Use performQueryBatchRequest to backfill the CRD response
-                qbr.performQueryBatchRequest(request, request.getPrefetch());
-            } catch (Exception e) {
-                logger.error("Failed to perform query batch request: {}", e.getMessage(), e);
-            }
-        } else {
-            logger.warn("Skipping Query Batch Request: Patient ID or prefetch data is missing.");
+            qbr.performDispatchQueryBatchRequest(request, request.getPrefetch());
+        } catch (Exception e) {
+            logger.error("Failed to perform query batch request: {}", e.getMessage(), e);
         }
     }
 }

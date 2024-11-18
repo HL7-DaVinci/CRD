@@ -1,17 +1,15 @@
 package org.hl7.davinci.endpoint.components;
 
+import org.apache.commons.lang.StringUtils;
 import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookRequest;
+import org.hl7.davinci.r4.crdhook.orderdispatch.OrderDispatchRequest;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.ResourceType;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
 import org.slf4j.Logger;
@@ -59,6 +57,70 @@ public class QueryBatchRequest {
     // Perform the query batch request for each of the draft orders.
     for(BundleEntryComponent bec : draftOrdersBundle.getEntry()) {
       this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, cdsRequest);
+    }
+  }
+
+  public void performDispatchQueryBatchRequest(OrderDispatchRequest request, CrdPrefetch prefetch) {
+    logger.info("Performing Query Batch Request for OrderDispatch.");
+
+    // Validate Task and associated context
+    Task task = request.getContext().getTask();
+    if (task == null || task.getFocus() == null || StringUtils.isBlank(task.getFocus().getReference())) {
+      logger.warn("Task or its focus (ServiceRequest reference) is missing. Skipping query batch request.");
+      return;
+    }
+
+    // Extract references from Task
+    String serviceRequestRef = task.getFocus().getReference();
+    String patientId = request.getContext().getPatientId();
+    String performer = request.getContext().getPerformer();
+
+    // Collect references to query
+    List<String> resourceReferences = new ArrayList<>();
+    resourceReferences.add(serviceRequestRef);
+
+    if (StringUtils.isNotBlank(patientId)) {
+      resourceReferences.add("Patient/" + patientId);
+    }
+
+    if (StringUtils.isNotBlank(performer)) {
+      resourceReferences.add(performer);
+    }
+
+    // Remove duplicates and already-fetched resources
+    resourceReferences = resourceReferences.stream()
+            .distinct()
+            .filter(ref -> !prefetch.containsRequestResourceId(ref))
+            .collect(Collectors.toList());
+
+    if (resourceReferences.isEmpty()) {
+      logger.info("All necessary references are already pre-fetched. No Query Batch Request needed.");
+      return;
+    }
+
+    // Build and execute the Query Batch Request
+    try {
+      Bundle queryBatchRequestBundle = buildQueryBatchRequestBundle(resourceReferences);
+      String queryBatchRequestBody = FhirContext.forR4().newJsonParser().encodeResourceToString(queryBatchRequestBundle);
+
+      logger.info("Executing Query Batch Request: {}", queryBatchRequestBody);
+
+      Bundle queryResponseBundle = (Bundle) FhirRequestProcessor.executeFhirQueryBody(
+              queryBatchRequestBody, request, this.fhirComponents, HttpMethod.POST
+      );
+
+      if (queryResponseBundle == null || queryResponseBundle.getEntry().isEmpty()) {
+        logger.warn("Query Batch Request returned no data.");
+        return;
+      }
+
+      logger.info("Processing Query Batch Response.");
+      queryResponseBundle = extractNestedBundledResources(queryResponseBundle);
+
+      // Add resources to CRD Prefetch
+      FhirRequestProcessor.addToCrdPrefetchRequest(prefetch, ResourceType.Task, queryResponseBundle.getEntry());
+    } catch (Exception e) {
+      logger.error("Error during Query Batch Request for OrderDispatch: {}", e.getMessage(), e);
     }
   }
 
