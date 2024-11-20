@@ -58,17 +58,38 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
     static final Logger logger = LoggerFactory.getLogger(OrderSignService.class);
 
     public static final List<ConfigurationOption> CONFIGURATION_OPTIONS = Arrays.asList(
-            CrdExtensionConfigurationOptions.ALTERNATIVE_THERAPY
+            CrdExtensionConfigurationOptions.ALTERNATIVE_THERAPY,
+            CrdExtensionConfigurationOptions.DTR_CLIN,
+            CrdExtensionConfigurationOptions.PRIOR_AUTH,
+            CrdExtensionConfigurationOptions.COVERAGE,
+            CrdExtensionConfigurationOptions.MAX_CARDS
     );
-    //public static final DiscoveryExtension EXTENSION = new DiscoveryExtension(CONFIGURATION_OPTIONS);
+    public static final DiscoveryExtension EXTENSION = new DiscoveryExtension(CONFIGURATION_OPTIONS);
 
-    public OrderDispatchService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, null, USAGE_REQUIREMENTS); }
+    public OrderDispatchService() { super(ID, HOOK, TITLE, DESCRIPTION, PREFETCH_ELEMENTS, FHIRCOMPONENTS, EXTENSION, USAGE_REQUIREMENTS); }
 
     @Override
     public List<CoverageRequirementRuleResult> createCqlExecutionContexts(OrderDispatchRequest request, FileStore fileStore, String baseUrl) throws RequestIncompleteException {
-        FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl, null);
-        List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
+        FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
+        CrdPrefetch prefetch = request.getPrefetch();
+        Bundle coverageBundle = (Bundle) prefetch.getCoverageBundle();
 
+        // Process DeviceRequests
+        if (prefetch.getDeviceRequestBundle() != null) {
+            fhirBundleProcessor.processDeviceRequests((Bundle) prefetch.getDeviceRequestBundle(), coverageBundle);
+        }
+
+        // Process MedicationRequests
+        if (prefetch.getMedicationRequestBundle() != null) {
+            fhirBundleProcessor.processMedicationRequests((Bundle) prefetch.getMedicationRequestBundle(), coverageBundle);
+        }
+
+        // Process ServiceRequests
+        if (prefetch.getServiceRequestBundle() != null) {
+            fhirBundleProcessor.processServiceRequests((Bundle) prefetch.getServiceRequestBundle(), coverageBundle);
+        }
+
+        List<CoverageRequirementRuleResult> results = fhirBundleProcessor.getResults();
         if (results.isEmpty()) {
             throw RequestIncompleteException.NoSupportedBundlesFound();
         }
@@ -77,9 +98,37 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
 
     @Override
     protected CqlResultsForCard executeCqlAndGetRelevantResults(Context context, String topic) {
-        CqlResultsForCard cardResult = new CqlResultsForCard();
-        cardResult.setRequest((IBaseResource) context);
-        return cardResult;
+        CqlResultsForCard results = new CqlResultsForCard();
+
+        results.setRuleApplies((Boolean) evaluateStatement("RULE_APPLIES", context));
+        if (!results.ruleApplies()) {
+            logger.warn("Rule does not apply.");
+            return results;
+        }
+
+        CoverageRequirements coverageRequirements = new CoverageRequirements();
+        coverageRequirements.setApplies(true);
+
+        String humanReadableTopic = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(topic), ' ');
+
+        coverageRequirements.setInfoLink(evaluateStatement("RESULT_InfoLink", context).toString());
+        coverageRequirements.setPriorAuthRequired((Boolean) evaluateStatement("PRIORAUTH_REQUIRED", context));
+        coverageRequirements.setDocumentationRequired((Boolean) evaluateStatement("DOCUMENTATION_REQUIRED", context));
+
+        // Add additional logic for Prior Auth or Documentation Required
+        if (coverageRequirements.isPriorAuthRequired()) {
+            coverageRequirements.setSummary(humanReadableTopic + ": Prior Authorization required.")
+                    .setDetails("Prior Authorization required, follow the attached link for information.");
+        } else if (coverageRequirements.isDocumentationRequired()) {
+            coverageRequirements.setSummary(humanReadableTopic + ": Documentation Required.")
+                    .setDetails("Documentation Required, please complete form via Smart App link.");
+        } else {
+            coverageRequirements.setSummary(humanReadableTopic + ": No Prior Authorization required.")
+                    .setDetails("No Prior Authorization required for " + humanReadableTopic + ".");
+        }
+
+        results.setCoverageRequirements(coverageRequirements);
+        return results;
     }
 
     @Override
