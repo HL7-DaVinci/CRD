@@ -1,17 +1,15 @@
 package org.hl7.davinci.endpoint.components;
 
+import org.apache.commons.lang.StringUtils;
 import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookRequest;
+import org.hl7.davinci.r4.crdhook.orderdispatch.OrderDispatchRequest;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.ResourceType;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
 import org.slf4j.Logger;
@@ -59,6 +57,26 @@ public class QueryBatchRequest {
     // Perform the query batch request for each of the draft orders.
     for(BundleEntryComponent bec : draftOrdersBundle.getEntry()) {
       this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, cdsRequest);
+    }
+  }
+
+  public void performDispatchQueryBatchRequest(OrderDispatchRequest request, CrdPrefetch prefetch) {
+    logger.info("Performing Query Batch Request for Order Dispatch");
+
+    // Define a helper method to process bundles
+    processBundle((Bundle) request.getPrefetch().getCoverageBundle(), "coverage", prefetch, request);
+    processBundle((Bundle) request.getPrefetch().getDeviceRequestBundle(), "deviceRequest", prefetch, request);
+    processBundle((Bundle) request.getPrefetch().getMedicationRequestBundle(), "medicationRequest", prefetch, request);
+    processBundle((Bundle) request.getPrefetch().getServiceRequestBundle(), "serviceRequest", prefetch, request);
+  }
+
+  private void processBundle(Bundle bundle, String bundleType, CrdPrefetch prefetch, OrderDispatchRequest request) {
+    if (bundle != null && !bundle.getEntry().isEmpty()) {
+      for (BundleEntryComponent bec : bundle.getEntry()) {
+        performBundleQueryBatchRequest(bec.getResource(), prefetch, request);
+      }
+    } else {
+      logger.info(String.format("No %s bundle found in prefetch", bundleType));
     }
   }
 
@@ -173,7 +191,7 @@ public class QueryBatchRequest {
    * Extracts the resources inside a bundled bundle to be at the top level of the
    * bundle, making them no longer nested.
    * 
-   * @param resource
+   * @param
    * @return
    */
   private static Bundle extractNestedBundledResources(Bundle bundle) {
