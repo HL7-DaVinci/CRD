@@ -104,7 +104,7 @@ public class SubQuestionnaireProcessor extends FhirResourceProcessor<Questionnai
   private List<QuestionnaireItemComponent> processItem(QuestionnaireItemComponent item, FileStore fileStore, String baseUrl,
   Hashtable<String, org.hl7.fhir.r4.model.Resource> containedList, List<Extension> extensionList) {
     // find if item has an extension is sub-questionnaire
-    Extension e = item.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/sub-questionnaire");
+    Extension e = item.getExtensionByUrl("http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-subQuestionnaire");
 
     if (e != null) {
       // read sub questionnaire from file store
@@ -115,7 +115,7 @@ public class SubQuestionnaireProcessor extends FhirResourceProcessor<Questionnai
       String id = value.asStringValue();
       String[] parts = id.split("/");
       if (parts.length > 1) {
-        id = parts[1];
+        id = parts[parts.length - 1];
       }
 
       boolean expandRootItem = false;
