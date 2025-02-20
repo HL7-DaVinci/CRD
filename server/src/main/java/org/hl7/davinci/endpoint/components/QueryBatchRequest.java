@@ -62,12 +62,12 @@ public class QueryBatchRequest {
 
   public void performOrderSignQueryBatchRequest(CdsRequest<?, ?> cdsRequest, CrdPrefetch crdPrefetch) {
     logger.info("***** ***** Performing Query Batch Request For Order Sign.");
-    // Get the IDs of references in the request's draft orders.
-    Bundle draftOrdersBundle = cdsRequest.getContext().getDraftOrders();
+    // Get the IDs of references in the request's device requests.
+    Bundle deviceRequestBundle = (Bundle)crdPrefetch.getDeviceRequestBundle();
 
     // Perform the query batch request for each of the draft orders.
-    for(BundleEntryComponent bec : draftOrdersBundle.getEntry()) {
-      this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, cdsRequest);
+    for(BundleEntryComponent dR : deviceRequestBundle.getEntry()) {
+      this.performBundleQueryBatchRequest(dR.getResource(), crdPrefetch, cdsRequest);
     }
   }
 
