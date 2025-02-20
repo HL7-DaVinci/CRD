@@ -12,7 +12,7 @@ public enum CoverageGuidance {
 
   private String code;
   private String display;
-  private static String codeSystem = "http://hl7.org/fhir/us/davinci-crd/CodeSystem/coverageGuidance";
+  private static String codeSystem = "http://hl7.org/fhir/us/davinci-crd/CodeSystem/temp";
 
   CoverageGuidance(String code, String display) {
     this.code = code;
