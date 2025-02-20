@@ -309,7 +309,7 @@ public class QuestionnairePackageOperation {
                 }
 
                 if (valueSetResource == null) {
-                    String error = "Failed to find ValueSet for URL: " + valueSetUrl;
+                    String error = "Failed to find ValueSet for URL: " + valueSetUrl + ". Is the VSAC_API_KEY set and valid?";
                     logger.error(error);
                     throw new RuntimeException(error);
                 }
