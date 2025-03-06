@@ -5,6 +5,7 @@ import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.AppointmentBookService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
@@ -18,9 +19,12 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
+import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
+import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookContext;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,8 +184,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (RequestIncompleteException e) {
       logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
-      response.addCard(cardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
-      requestLog.setCardListFromCards(response.getCards());
+      List<Card> cards = new ArrayList<>();
+      cards.add(cardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
+      // Add system actions from card actions
+      response.setSystemActions(createSystemActionsFromRequest(request, cards));
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
       return response;
@@ -290,7 +296,11 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     }
 
     // Add system actions from card actions
-    response.setSystemActions(createSystemActionsFromCards(response.getCards()));
+    List<Action>  systemActions = createSystemActionsFromCards(response.getCards());
+    if (systemActions.isEmpty()) {
+      systemActions.add(new Action(this.fhirComponents));
+    }
+    response.setSystemActions(systemActions);
 
     // CQL Executed
     requestLog.advanceTimeline(requestService);
@@ -309,6 +319,25 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     requestService.edit(requestLog);
 
     return response;
+  }
+
+  private List<Action> createSystemActionsFromRequest(requestTypeT request, List<Card> cards) {
+    List<Action> systemActions = createSystemActionsFromCards(cards);
+    if (systemActions.isEmpty()) {
+      if (request.getHook().getValue().equals("appointment-book") && request.getContext() != null) {
+        AppointmentBookContext context = (AppointmentBookContext)request.getContext();
+        if(context.getAppointments() != null && !context.getAppointments().isEmpty()){
+          Bundle appointments = context.getAppointments();
+          for (Bundle.BundleEntryComponent e : appointments.getEntry()) {
+            Action systemAction = new Action(this.fhirComponents);
+            systemAction.setType(Action.TypeEnum.create);
+            systemAction.setResource(e.getResource());
+            systemActions.add(systemAction);
+          }
+        }
+      }
+    }
+    return systemActions;
   }
 
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
