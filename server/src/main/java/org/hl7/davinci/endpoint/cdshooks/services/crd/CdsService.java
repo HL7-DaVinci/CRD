@@ -314,7 +314,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     }
 
     // Adding card to requestLog
-    requestLog.setCardListFromCards(response.getCards());
+    requestLog.setCardListFromCards(cards);
     requestService.edit(requestLog);
 
     return response;
