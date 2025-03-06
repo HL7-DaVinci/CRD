@@ -5,6 +5,7 @@ import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
+import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.AppointmentBookService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
@@ -18,9 +19,12 @@ import org.hl7.davinci.endpoint.files.FileStore;
 import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
+import org.hl7.davinci.r4.FhirComponents;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
+import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookContext;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Bundle;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,6 +175,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
     CdsResponse response = new CdsResponse();
     CardBuilder cardBuilder = new CardBuilder();
+    List<Card> cards = new ArrayList<>();
 
     // CQL Fetched
     List<CoverageRequirementRuleResult> lookupResults;
@@ -180,8 +185,9 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     } catch (RequestIncompleteException e) {
       logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
-      response.addCard(cardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
-      requestLog.setCardListFromCards(response.getCards());
+      cards.add(cardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
+      // Add system actions from card actions
+      response.setSystemActions(createSystemActionsFromRequest(request, cards));
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
       return response;
@@ -218,11 +224,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         break;
 
       foundApplicableRule = true;
-
       if (results.getCoverageRequirements().getApplies()) {
         // if prior auth already approved
         if (coverageRequirements.isPriorAuthApproved()) {
-          response.addCard(cardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
+          cards.add(cardBuilder.priorAuthCard(results, results.getRequest(), fhirComponents, coverageRequirements.getPriorAuthId(),
               request.getContext().getPatientId(), lookupResult.getCriteria().getPayorId(), request.getContext().getUserId(),
               applicationBaseUrl.toString() + "/fhir/" + fhirComponents.getFhirVersion().toString(),
               fhirResourceRepository));
@@ -233,7 +238,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
           if (!coverageRequirements.hasQuestionnaireUri()) {
             logger.warn("Unspecified Questionnaire URI; summary card sent to client");
             if (hookConfiguration.getCoverage()) {
-              response.addCard(cardBuilder.transform(CardTypes.COVERAGE, results));
+              cards.add(cardBuilder.transform(CardTypes.COVERAGE, results));
             }
             break;
           }
@@ -245,21 +250,21 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
             card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                 "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                 true, CoverageGuidance.ADMIN));
-            response.addCard(card);
+            cards.add(card);
             availableCardsLeft--;
           } else if (coverageRequirements.isDocumentationRequired() && hookConfiguration.getDTRClin()) {
             Card card = cardBuilder.transform(CardTypes.DTR_CLIN, results, smartAppLinks);
             card.addSuggestionsItem(cardBuilder.createSuggestionWithNote(card, results.getRequest(), fhirComponents,
                     "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                     true, CoverageGuidance.CLINICAL));
-            response.addCard(card);
+            cards.add(card);
             availableCardsLeft--;
           }
 
           // add a card for an alternative therapy if there is one
           if (availableCardsLeft != 0 && results.getAlternativeTherapy().getApplies() && hookConfiguration.getAlternativeTherapy()) {
             try {
-              response.addCard(cardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
+              cards.add(cardBuilder.alternativeTherapyCard(results.getAlternativeTherapy(),
                   results.getRequest(), fhirComponents));
             } catch (RuntimeException e) {
               logger.warn("Failed to process alternative therapy: " + e.getMessage());
@@ -276,7 +281,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                   "Save Update To EHR", "Update original " + results.getRequest().fhirType() + " to add note",
                   true, CoverageGuidance.COVERED));
           card.setSelectionBehavior(Card.SelectionBehaviorEnum.ANY);
-          response.addCard(card);
+          cards.add(card);
         }
 
         logger.info(String.valueOf(availableCardsLeft));
@@ -284,13 +289,17 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
       // apply the DrugInteractions
       if (availableCardsLeft != 0 && results.getDrugInteraction().getApplies()) {
-        response.addCard(cardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
+        cards.add(cardBuilder.drugInteractionCard(results.getDrugInteraction(), results.getRequest()));
         availableCardsLeft--;
       }
     }
 
     // Add system actions from card actions
-    response.setSystemActions(createSystemActionsFromCards(response.getCards()));
+    List<Action>  systemActions = createSystemActionsFromRequest(request, cards);
+    if (systemActions.isEmpty()) {
+      systemActions.add(new Action(this.fhirComponents));
+    }
+    response.setSystemActions(systemActions);
 
     // CQL Executed
     requestLog.advanceTimeline(requestService);
@@ -299,16 +308,35 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       if (!foundApplicableRule) {
         String msg = "No documentation rules found";
         logger.warn(msg + "; summary card sent to client");
-        response.addCard(cardBuilder.summaryCard(CardTypes.COVERAGE, msg));
+        cards.add(cardBuilder.summaryCard(CardTypes.COVERAGE, msg));
       }
       cardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
     }
 
     // Adding card to requestLog
-    requestLog.setCardListFromCards(response.getCards());
+    requestLog.setCardListFromCards(cards);
     requestService.edit(requestLog);
 
     return response;
+  }
+
+  private List<Action> createSystemActionsFromRequest(requestTypeT request, List<Card> cards) {
+    List<Action> systemActions = createSystemActionsFromCards(cards);
+    if (systemActions.isEmpty()) {
+      if (request.getHook().getValue().equals("appointment-book") && request.getContext() != null) {
+        AppointmentBookContext context = (AppointmentBookContext)request.getContext();
+        if(context.getAppointments() != null && !context.getAppointments().isEmpty()){
+          Bundle appointments = context.getAppointments();
+          for (Bundle.BundleEntryComponent e : appointments.getEntry()) {
+            Action systemAction = new Action(this.fhirComponents);
+            systemAction.setType(Action.TypeEnum.create);
+            systemAction.setResource(e.getResource());
+            systemActions.add(systemAction);
+          }
+        }
+      }
+    }
+    return systemActions;
   }
 
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
