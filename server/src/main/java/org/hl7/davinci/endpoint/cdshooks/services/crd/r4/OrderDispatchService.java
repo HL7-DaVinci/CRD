@@ -135,7 +135,7 @@ public class OrderDispatchService extends CdsService<OrderDispatchRequest> {
     protected void attemptQueryBatchRequest(OrderDispatchRequest request, QueryBatchRequest qbr) {
         try {
             logger.info("Attempting Query Batch Request for OrderDispatch.");
-            qbr.performDispatchQueryBatchRequest(request, request.getPrefetch());
+            qbr.performQueryBatchRequest(request, request.getPrefetch());
         } catch (Exception e) {
             logger.error("Failed to perform query batch request: {}", e.getMessage(), e);
         }

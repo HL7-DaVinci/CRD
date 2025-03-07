@@ -77,7 +77,7 @@ public class AppointmentBookService extends CdsService<AppointmentBookRequest>{
 	@Override
 	protected void attemptQueryBatchRequest(AppointmentBookRequest request, QueryBatchRequest qbr) {
 		try {
-			qbr.performAppointmentQueryBatchRequest(request, request.getPrefetch());
+			qbr.performQueryBatchRequest(request, request.getPrefetch());
 		}
 		catch(Exception e) {
 			throw new Error("Failed to perform query batch request due to " + e.getMessage());
