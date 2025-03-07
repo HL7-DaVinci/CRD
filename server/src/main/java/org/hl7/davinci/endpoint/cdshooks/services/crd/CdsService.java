@@ -20,6 +20,7 @@ import org.hl7.davinci.endpoint.rules.CoverageRequirementRuleResult;
 import org.hl7.davinci.r4.CardTypes;
 import org.hl7.davinci.r4.CoverageGuidance;
 import org.hl7.davinci.r4.FhirComponents;
+import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.DiscoveryExtension;
 import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookContext;
 import org.hl7.davinci.r4.crdhook.orderselect.OrderSelectRequest;
@@ -325,18 +326,50 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     if (systemActions.isEmpty()) {
       if (request.getHook().getValue().equals("appointment-book") && request.getContext() != null) {
         AppointmentBookContext context = (AppointmentBookContext)request.getContext();
-        if(context.getAppointments() != null && !context.getAppointments().isEmpty()){
+        if (context.getAppointments() != null && !context.getAppointments().isEmpty()){
           Bundle appointments = context.getAppointments();
-          for (Bundle.BundleEntryComponent e : appointments.getEntry()) {
-            Action systemAction = new Action(this.fhirComponents);
-            systemAction.setType(Action.TypeEnum.create);
-            systemAction.setResource(e.getResource());
-            systemActions.add(systemAction);
-          }
+          processActions(appointments, systemActions);
+          logger.info("Adding Appointments to system actions");
+        }
+      }
+
+      if (request.getPrefetch() != null) {
+        CrdPrefetch preFetch = (CrdPrefetch)request.getPrefetch();
+        if (preFetch.getCoverageBundle() != null && !preFetch.getCoverageBundle().isEmpty()) {
+          Bundle coverage = (Bundle)preFetch.getCoverageBundle();
+          processActions(coverage, systemActions);
+          logger.info("Adding Coverages to system actions");
+        }
+
+        if (preFetch.getDeviceRequestBundle() != null && !preFetch.getDeviceRequestBundle().isEmpty()) {
+          Bundle dr = (Bundle)preFetch.getDeviceRequestBundle();
+          processActions(dr, systemActions);
+          logger.info("Adding Device Requests to system actions");
+        }
+
+        if (preFetch.getMedicationRequestBundle() != null && !preFetch.getMedicationRequestBundle().isEmpty()) {
+          Bundle mr = (Bundle)preFetch.getMedicationRequestBundle();
+          processActions(mr, systemActions);
+          logger.info("Adding Medication Requests to system actions");
+        }
+
+        if (preFetch.getServiceRequestBundle() != null && !preFetch.getServiceRequestBundle().isEmpty()) {
+          Bundle sr = (Bundle)preFetch.getServiceRequestBundle();
+          processActions(sr, systemActions);
+          logger.info("Adding Service Requests to system actions");
         }
       }
     }
     return systemActions;
+  }
+
+  private void processActions(Bundle bundle, List<Action> systemActions) {
+    for (Bundle.BundleEntryComponent e : bundle.getEntry()) {
+      Action systemAction = new Action(this.fhirComponents);
+      systemAction.setType(Action.TypeEnum.create);
+      systemAction.setResource(e.getResource());
+      systemActions.add(systemAction);
+    }
   }
 
   private List<Link> createQuestionnaireLinks(requestTypeT request, URL applicationBaseUrl,
