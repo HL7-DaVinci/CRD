@@ -251,7 +251,7 @@ public class OrderSignService extends CdsService<OrderSignRequest> {
   protected void attemptQueryBatchRequest(OrderSignRequest orderSignRequest, QueryBatchRequest batchRequest) {
     try {
       logger.info("Attempting Query Batch Request for Order Sign.");
-      batchRequest.performOrderSignQueryBatchRequest(orderSignRequest, orderSignRequest.getPrefetch());
+      batchRequest.performQueryBatchRequest(orderSignRequest, orderSignRequest.getPrefetch());
     } catch (Exception e) {
       logger.error("Failed to perform query batch request: {}", e.getMessage(), e);
     }
