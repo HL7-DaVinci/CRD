@@ -103,6 +103,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
 
   private final DiscoveryExtension extension;
 
+  private boolean docNeededPresent = false;
+
+  private boolean docNeededChecked = false;
+
   /**
    * Create a new cdsservice.
    *
@@ -332,6 +336,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   }
 
   boolean hasDocNeededExtension(List<Card> cards) {
+    if (this.docNeededChecked) {
+      return this.docNeededPresent;
+    }
+    this.docNeededChecked = true;
     for (Card card : cards) {
       if(card.getSuggestions() != null && !card.getSuggestions().isEmpty()) {
         for (Suggestion suggestion : card.getSuggestions()) {
@@ -345,6 +353,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
                 if ("http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-coverage-information".equals(extension.getUrl())) {
                   for (org.hl7.fhir.r4.model.Extension subExt : extension.getExtension()) {
                     if ("doc-needed".equals(subExt.getUrl())) {
+                      this.docNeededPresent = true;
                       return true;
                     }
                   }
@@ -355,6 +364,7 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         }
       }
     }
+    this.docNeededPresent = false;
     return false;
   }
 
