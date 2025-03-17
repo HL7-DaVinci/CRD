@@ -44,23 +44,12 @@ public class QueryBatchRequest {
 
   /**
    * Backfills the missing required values of the response that prefetch may have missed.
-   * This implementation pulls the IDs of the required references from the request object's draft
-   * orders, checks which of those values are missing from the current CRD response, builds the
+   * This implementation pulls the IDs of the required references from the request object's context
+   * checks which of those values are missing from the current CRD response, builds the
    * Query Batch JSON request using
    * http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#fhir-resource-access,
    * then populates the CRD response with the response from the Query Batch.
    */
-  public void performDraftOrderQueryBatchRequest(CdsRequest<?, ?> cdsRequest, CrdPrefetch crdPrefetch) {
-    logger.info("***** ***** Performing Query Batch Request.");
-    // Get the IDs of references in the request's draft orders.
-    Bundle draftOrdersBundle = cdsRequest.getContext().getDraftOrders();
-
-    // Perform the query batch request for each of the draft orders.
-    for(BundleEntryComponent bec : draftOrdersBundle.getEntry()) {
-      this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, cdsRequest);
-    }
-  }
-
   public void performQueryBatchRequest(CdsRequest<?, ?>  request, CrdPrefetch prefetch) {
     logger.info("Performing Query Batch Request " + request.getHookInstance());
 
@@ -83,10 +72,16 @@ public class QueryBatchRequest {
       }
     }
 
-    if (request.getHook().getValue().equals("appointment-book") && request.getContext() != null) {
-      AppointmentBookContext context = (AppointmentBookContext)request.getContext();
-      if (context.getAppointments() != null && !context.getAppointments().isEmpty()) {
-        processBundle(context.getAppointments(), "appointment-book", prefetch, request);
+    if (request.getContext() != null) {
+      if (request.getContext().getDraftOrders() != null && !request.getContext().getDraftOrders().isEmpty()) {
+        processBundle(request.getContext().getDraftOrders(), "draft-order", prefetch, request);
+      }
+
+      if (request.getHook().getValue().equals("appointment-book")) {
+        AppointmentBookContext context = (AppointmentBookContext)request.getContext();
+        if (context.getAppointments() != null && !context.getAppointments().isEmpty()) {
+          processBundle(context.getAppointments(), "appointment-book", prefetch, request);
+        }
       }
     }
   }
