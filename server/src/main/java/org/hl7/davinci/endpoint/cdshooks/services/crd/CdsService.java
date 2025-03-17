@@ -5,7 +5,6 @@ import org.cdshooks.*;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.PrefetchTemplateElement;
 import org.hl7.davinci.RequestIncompleteException;
-import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.AppointmentBookService;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.endpoint.components.CardBuilder;
 import org.hl7.davinci.endpoint.components.CardBuilder.CqlResultsForCard;
@@ -36,12 +35,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -100,6 +102,10 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
   protected FhirComponentsT fhirComponents;
 
   private final DiscoveryExtension extension;
+
+  private boolean docNeededPresent = false;
+
+  private boolean docNeededChecked = false;
 
   /**
    * Create a new cdsservice.
@@ -187,8 +193,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
       cards.add(cardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
-      // Add system actions from card actions
-      response.setSystemActions(createSystemActionsFromRequest(request, cards));
+      if(hasDocNeededExtension(cards)) {
+        // Add system actions from card actions
+        response.setSystemActions(createSystemActionsFromRequest(request, cards));
+      }
+      else {
+        cards.forEach(response::addCard);
+      }
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
       return response;
@@ -295,12 +306,13 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       }
     }
 
-    // Add system actions from card actions
-    List<Action>  systemActions = createSystemActionsFromRequest(request, cards);
-    if (systemActions.isEmpty()) {
-      systemActions.add(new Action(this.fhirComponents));
+    if(hasDocNeededExtension(cards)) {
+      // Add system actions from card actions
+      response.setSystemActions(createSystemActionsFromRequest(request, cards));
     }
-    response.setSystemActions(systemActions);
+    else {
+      cards.forEach(response::addCard);
+    }
 
     // CQL Executed
     requestLog.advanceTimeline(requestService);
@@ -317,8 +329,53 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
     // Adding card to requestLog
     //requestLog.setCardListFromCards(cards);
     requestService.edit(requestLog);
-    response.getCards().clear();
+    if(hasDocNeededExtension(cards)) {
+      response.getCards().clear();
+    }
     return response;
+  }
+
+  boolean hasDocNeededExtension(List<Card> cards) {
+    if (this.docNeededChecked) {
+      return this.docNeededPresent;
+    }
+    this.docNeededChecked = true;
+    for (Card card : cards) {
+      if(card.getSuggestions() != null && !card.getSuggestions().isEmpty()) {
+        for (Suggestion suggestion : card.getSuggestions()) {
+          for (Action action : suggestion.getActions()) {
+            IBaseResource resource = action.getResource();
+            List<?> extensions = getExtensionsFromResource(resource);
+            for (Object ext : extensions) {
+              logger.info("Extension object class: " + ext.getClass().getName());
+              if (ext instanceof org.hl7.fhir.r4.model.Extension) {
+                org.hl7.fhir.r4.model.Extension extension = (org.hl7.fhir.r4.model.Extension) ext;
+                if ("http://hl7.org/fhir/us/davinci-crd/StructureDefinition/ext-coverage-information".equals(extension.getUrl())) {
+                  for (org.hl7.fhir.r4.model.Extension subExt : extension.getExtension()) {
+                    if ("doc-needed".equals(subExt.getUrl())) {
+                      this.docNeededPresent = true;
+                      return true;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    this.docNeededPresent = false;
+    return false;
+  }
+
+  List<?> getExtensionsFromResource(IBaseResource resource) {
+    try {
+      Method getExtensionsMethod = resource.getClass().getMethod("getExtension");
+      return (List<?>) getExtensionsMethod.invoke(resource);
+    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+      // Log a warning if needed but return empty to prevent crashes
+      return Collections.emptyList();
+    }
   }
 
   private List<Action> createSystemActionsFromRequest(requestTypeT request, List<Card> cards) {

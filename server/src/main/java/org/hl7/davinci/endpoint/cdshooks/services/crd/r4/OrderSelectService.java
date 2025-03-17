@@ -141,6 +141,6 @@ public class OrderSelectService extends CdsService<OrderSelectRequest> {
 
   @Override
   protected void attemptQueryBatchRequest(OrderSelectRequest request, QueryBatchRequest batchRequest) {
-    batchRequest.performDraftOrderQueryBatchRequest(request, request.getPrefetch());
+    batchRequest.performQueryBatchRequest(request, request.getPrefetch());
   }
 }
