@@ -193,13 +193,15 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
       logger.warn("RequestIncompleteException " + request);
       logger.warn(e.getMessage() + "; summary card sent to client");
       cards.add(cardBuilder.summaryCard(CardTypes.COVERAGE, e.getMessage()));
+      
+      // Aadd summary card to response for error cases
+      cards.forEach(response::addCard);
+      
       if(hasDocNeededExtension(cards)) {
         // Add system actions from card actions
         response.setSystemActions(createSystemActionsFromRequest(request, cards));
       }
-      else {
-        cards.forEach(response::addCard);
-      }
+      
       requestLog.setResults(e.getMessage());
       requestService.edit(requestLog);
       return response;
@@ -305,33 +307,36 @@ public abstract class CdsService<requestTypeT extends CdsRequest<?, ?>> {
         availableCardsLeft--;
       }
     }
-
+    
     if(hasDocNeededExtension(cards)) {
       // Add system actions from card actions
       response.setSystemActions(createSystemActionsFromRequest(request, cards));
+      // Also add cards to response so they're visible
+      cards.forEach(response::addCard);
     }
     else {
       cards.forEach(response::addCard);
     }
-
+    
     // CQL Executed
     requestLog.advanceTimeline(requestService);
-
+    
     if (errorCardOnEmpty) {
       if (!foundApplicableRule) {
         String msg = "No documentation rules found";
         logger.warn(msg + "; summary card sent to client");
         cards.add(cardBuilder.summaryCard(CardTypes.COVERAGE, msg));
       }
+      
+      // Ensure cards are added to response before checking for empty response
+      if(!hasDocNeededExtension(cards)) {
+        cards.forEach(response::addCard);
+      }
+      
       cardBuilder.errorCardIfNonePresent(CardTypes.COVERAGE, response);
     }
 
-    // Adding card to requestLog
-    //requestLog.setCardListFromCards(cards);
     requestService.edit(requestLog);
-    if(hasDocNeededExtension(cards)) {
-      response.getCards().clear();
-    }
     return response;
   }
 
