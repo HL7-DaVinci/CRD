@@ -12,7 +12,7 @@ public class PublicKey {
   @Column(name = "id", nullable = false)
   private String id;
 
-  @Column(name = "key", nullable = false, length = 100000)
+  @Column(name = "key_val", nullable = false, length = 100000)
   private String key;
 
   public PublicKey() {}

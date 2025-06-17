@@ -17,6 +17,13 @@
             "request": "attach",
             "hostName": "localhost",
             "port": 8091
+        },
+        { 
+            "type": "java", 
+            "name": "Debug Attach 5005", 
+            "request": "attach", 
+            "hostName": "localhost",
+            "port": 5005 
         }
     ]
 } 
