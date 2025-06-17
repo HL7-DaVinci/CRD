@@ -5,6 +5,7 @@ import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
+import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookContext;
 import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookRequest;
 import org.hl7.davinci.r4.crdhook.orderdispatch.OrderDispatchRequest;
 import org.hl7.fhir.r4.model.*;
@@ -43,52 +44,55 @@ public class QueryBatchRequest {
 
   /**
    * Backfills the missing required values of the response that prefetch may have missed.
-   * This implementation pulls the IDs of the required references from the request object's draft
-   * orders, checks which of those values are missing from the current CRD response, builds the
+   * This implementation pulls the IDs of the required references from the request object's context
+   * checks which of those values are missing from the current CRD response, builds the
    * Query Batch JSON request using
    * http://build.fhir.org/ig/HL7/davinci-crd/hooks.html#fhir-resource-access,
    * then populates the CRD response with the response from the Query Batch.
    */
-  public void performQueryBatchRequest(CdsRequest<?, ?> cdsRequest, CrdPrefetch crdPrefetch) {
-    logger.info("***** ***** Performing Query Batch Request.");
-    // Get the IDs of references in the request's draft orders.
-    Bundle draftOrdersBundle = cdsRequest.getContext().getDraftOrders();
+  public void performQueryBatchRequest(CdsRequest<?, ?>  request, CrdPrefetch prefetch) {
+    logger.info("Performing Query Batch Request " + request.getHookInstance());
 
-    // Perform the query batch request for each of the draft orders.
-    for(BundleEntryComponent bec : draftOrdersBundle.getEntry()) {
-      this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, cdsRequest);
+    // Define a helper method to process bundles
+    if (prefetch != null) {
+      if (prefetch.getCoverageBundle() != null) {
+        processBundle((Bundle) prefetch.getCoverageBundle(), "coverage", prefetch, request);
+      }
+
+      if(prefetch.getDeviceRequestBundle() != null) {
+        processBundle((Bundle) prefetch.getDeviceRequestBundle(), "deviceRequest", prefetch, request);
+      }
+
+      if (prefetch.getMedicationRequestBundle() != null) {
+        processBundle((Bundle) prefetch.getMedicationRequestBundle(), "medicationRequest", prefetch, request);
+      }
+
+      if (prefetch.getServiceRequestBundle() != null) {
+        processBundle((Bundle) prefetch.getServiceRequestBundle(), "serviceRequest", prefetch, request);
+      }
+    }
+
+    if (request.getContext() != null) {
+      if (request.getContext().getDraftOrders() != null && !request.getContext().getDraftOrders().isEmpty()) {
+        processBundle(request.getContext().getDraftOrders(), "draft-order", prefetch, request);
+      }
+
+      if (request.getHook().getValue().equals("appointment-book")) {
+        AppointmentBookContext context = (AppointmentBookContext)request.getContext();
+        if (context.getAppointments() != null && !context.getAppointments().isEmpty()) {
+          processBundle(context.getAppointments(), "appointment-book", prefetch, request);
+        }
+      }
     }
   }
 
-  public void performDispatchQueryBatchRequest(OrderDispatchRequest request, CrdPrefetch prefetch) {
-    logger.info("Performing Query Batch Request for Order Dispatch");
-
-    // Define a helper method to process bundles
-    processBundle((Bundle) request.getPrefetch().getCoverageBundle(), "coverage", prefetch, request);
-    processBundle((Bundle) request.getPrefetch().getDeviceRequestBundle(), "deviceRequest", prefetch, request);
-    processBundle((Bundle) request.getPrefetch().getMedicationRequestBundle(), "medicationRequest", prefetch, request);
-    processBundle((Bundle) request.getPrefetch().getServiceRequestBundle(), "serviceRequest", prefetch, request);
-  }
-
-  private void processBundle(Bundle bundle, String bundleType, CrdPrefetch prefetch, OrderDispatchRequest request) {
+  private void processBundle(Bundle bundle, String bundleType, CrdPrefetch prefetch, CdsRequest<?, ?> request) {
     if (bundle != null && !bundle.getEntry().isEmpty()) {
       for (BundleEntryComponent bec : bundle.getEntry()) {
         performBundleQueryBatchRequest(bec.getResource(), prefetch, request);
       }
     } else {
       logger.info(String.format("No %s bundle found in prefetch", bundleType));
-    }
-  }
-
-  public void performAppointmentQueryBatchRequest(AppointmentBookRequest appointmentBookRequestRequest, CrdPrefetch crdPrefetch) {
-    logger.info("***** ***** Performing Query Batch Request.");
-    // Get the IDs of references in the request's appointments.
-
-    Bundle appoinmentsBundle = appointmentBookRequestRequest.getContext().getAppointments();
-
-    // Perform the query batch request for each of the draft orders.
-    for(BundleEntryComponent bec : appoinmentsBundle.getEntry()) {
-      this.performBundleQueryBatchRequest(bec.getResource(), crdPrefetch, appointmentBookRequestRequest);
     }
   }
 

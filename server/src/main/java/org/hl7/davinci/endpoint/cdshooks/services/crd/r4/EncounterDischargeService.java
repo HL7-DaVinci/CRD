@@ -17,6 +17,8 @@ import org.hl7.davinci.r4.crdhook.appointmentbook.CrdPrefetchTemplateElements;
 import org.hl7.davinci.r4.crdhook.encounterdischarge.EncounterDischargeRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.opencds.cqf.cql.engine.execution.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -36,6 +38,7 @@ public class EncounterDischargeService extends CdsService<EncounterDischargeRequ
             CrdPrefetchTemplateElements.PATIENT,
             CrdPrefetchTemplateElements.ENCOUNTER_BUNDLE);
     public static final FhirComponents FHIRCOMPONENTS = new FhirComponents();
+    static final Logger logger = LoggerFactory.getLogger(EncounterDischargeService.class);
     public static final List<ConfigurationOption> CONFIGURATION_OPTIONS = Arrays.asList(
             CrdExtensionConfigurationOptions.COVERAGE,
             CrdExtensionConfigurationOptions.MAX_CARDS
@@ -69,6 +72,11 @@ public class EncounterDischargeService extends CdsService<EncounterDischargeRequ
 
     @Override
     protected void attemptQueryBatchRequest(EncounterDischargeRequest request, QueryBatchRequest qbr) {
-
+        try {
+            logger.info("Attempting Query Batch Request for Order Sign.");
+            qbr.performQueryBatchRequest(request, request.getPrefetch());
+        } catch (Exception e) {
+            logger.error("Failed to perform query batch request: {}", e.getMessage(), e);
+        }
     }
 }
