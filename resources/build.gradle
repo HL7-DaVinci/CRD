@@ -1,22 +1,18 @@
 apply plugin: 'maven-publish'
 
 dependencies {
-    implementation group: 'com.helger', name: 'ph-schematron', version: '4.1.0'
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'com.helger:ph-schematron:5.6.5'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
-    implementation 'ca.uhn.hapi.fhir:hapi-fhir-base:5.3.0'
-    implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.3.0'
-    implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-validation-resources-r4', version: '5.3.0'
-    implementation 'ca.uhn.hapi.fhir:hapi-fhir-validation:5.3.0'
-
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.1'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.1'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-base:${hapiFhirVersion}"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:${hapiFhirVersion}"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4:${hapiFhirVersion}"
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-validation:${hapiFhirVersion}"
 
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
-    implementation group: 'org.springframework', name: 'spring-context', version: '5.0.8.RELEASE'
+    implementation group: 'org.springframework', name: 'spring-context', version: '5.3.32'
 
-    implementation('ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:3.6.0'){
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-jpaserver-base:${hapiFhirVersion}"){
             exclude group: 'org.thymeleaf'
     }
 }

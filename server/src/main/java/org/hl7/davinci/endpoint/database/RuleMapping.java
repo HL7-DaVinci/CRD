@@ -1,6 +1,6 @@
 package org.hl7.davinci.endpoint.database;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.lang.reflect.Field;

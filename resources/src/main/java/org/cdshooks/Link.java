@@ -1,7 +1,5 @@
 package org.cdshooks;
 
-import org.json.simple.JSONObject;
-
 public class Link {
   private String label = null;
 

@@ -5,13 +5,21 @@ spring:
   thymeleaf:
     cache: false
   datasource:
-    url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
+    # url: 'jdbc:h2:file:./target/database/h2'
+    url: jdbc:h2:mem:test_mem
+    username: sa
+    password: null
+    driverClassName: org.h2.Driver
+    max-active: 15
+  flyway:
+    enabled: false
   jpa:
-    hibernate:
-      ddl-auto: validate
     properties:
-      hibernate.dialect: org.hibernate.dialect.H2Dialect
-      hibernate.hbm2ddl.auto: create-drop
+      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirH2Dialect
+      hibernate.hbm2ddl.auto: update
+      hibernate.search.enabled: false
+      hibernate.format_sql: false
+      hibernate.show_sql: false
   profiles:
     active: localDb
 #    active: gitHub

@@ -1,25 +1,41 @@
-FROM eclipse-temurin:11-jdk-alpine
+FROM eclipse-temurin:17-jdk-alpine AS builder
 
-# Install Gradle
-RUN apk add --no-cache curl unzip bash git && \
-	GRADLE_VERSION=8.14.2 && \
-	curl -fsSL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip -o gradle.zip && \
-	unzip gradle.zip -d /opt && \
-	ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/bin/gradle && \
-	rm gradle.zip
+# embedCdsLibrary task requires git
+RUN apk add --no-cache git bash
+
+WORKDIR /CRD
+
+# Copy the Gradle wrapper
+COPY gradlew .
+COPY gradle ./gradle
+RUN chmod +x gradlew
+
+# Copy the rest of the source code
+COPY . .
+
+# Build the application skipping checkstyle tasks
+RUN ./gradlew :server:embedCdsLibrary && ./gradlew build -x checkstyleMain -x checkstyleTest
+
+# Use a smaller image for the final stage
+FROM eclipse-temurin:17-jre-alpine
 
 # Create a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+# Copy the built JAR from the builder stage
+COPY --from=builder --chown=appuser:appgroup /CRD/server/build/libs/*.jar app.jar
+COPY --from=builder --chown=appuser:appgroup /CRD/server/CDS-Library ./CDS-Library/
+
+# Create the ValueSetCache directory
+RUN mkdir -p /app/ValueSetCache && chown appuser:appgroup /app/ValueSetCache
+
+# Expose the application port
+EXPOSE 8090
+
+# Run the application as the non-root user
 USER appuser
 
-# Copy app files to container
-COPY --chown=appuser:appgroup . /CRD/
-# Set working directory so that all subsequent command runs in this folder
-WORKDIR /CRD/server/
-# Embed CDS Library
-RUN gradle embedCdsLibrary
-# Build the application
-RUN gradle build
-EXPOSE 8090
-# Command to run our app
-CMD ["gradle", "bootRun"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

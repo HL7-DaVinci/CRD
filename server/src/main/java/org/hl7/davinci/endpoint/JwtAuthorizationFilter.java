@@ -83,6 +83,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
       // will throw an exception if the signature cannot be verified
       Jwts.parser()
           .setSigningKeyResolver(new SigningKeyResolverCrd(publicKeyRepository))
+          .build()
           .parseClaimsJws(token).getSignature();
     } catch (io.jsonwebtoken.SignatureException sigEx) {
       logger.info("Failed to verify token signature, rejecting token.");

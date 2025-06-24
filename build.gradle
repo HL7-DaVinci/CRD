@@ -7,6 +7,11 @@ allprojects {
         toolVersion "8.11"
     }
 
+    ext {
+        hapiFhirVersion = '6.10.5'
+        jacksonVersion = '2.18.4'
+    }
+
     repositories {
         mavenCentral()
         jcenter{ url "https://jcenter.bintray.com/" }
@@ -28,10 +33,14 @@ subprojects {
     apply plugin: 'java'
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-        testCompileOnly 'junit:junit:4.12'
-        testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.1.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+        testCompileOnly 'junit:junit:4.13.2'
+        testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.2'
+        
+        implementation "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}"
+        implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+        implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     }
 
     test {
@@ -40,5 +49,17 @@ subprojects {
     }
 
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.51.0"
+    }
+}
+
+apply plugin: "com.github.ben-manes.versions"
 
 

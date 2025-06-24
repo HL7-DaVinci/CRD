@@ -3,7 +3,7 @@ package org.hl7.davinci.endpoint.cdshooks.services.crd.r4;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cdshooks.AlternativeTherapy;
 import org.cdshooks.CoverageRequirements;
 import org.cdshooks.DrugInteraction;

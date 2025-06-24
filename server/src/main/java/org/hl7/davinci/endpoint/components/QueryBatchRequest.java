@@ -1,13 +1,10 @@
 package org.hl7.davinci.endpoint.components;
 
-import org.apache.commons.lang.StringUtils;
 import org.cdshooks.CdsRequest;
 import org.hl7.davinci.FhirComponentsT;
 import org.hl7.davinci.endpoint.cdshooks.services.crd.r4.FhirRequestProcessor;
 import org.hl7.davinci.r4.crdhook.CrdPrefetch;
 import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookContext;
-import org.hl7.davinci.r4.crdhook.appointmentbook.AppointmentBookRequest;
-import org.hl7.davinci.r4.crdhook.orderdispatch.OrderDispatchRequest;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
@@ -24,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * A Query Batch Request can be used to populate fields in a CDS Request that a Prefetch may have missed.
@@ -95,14 +92,13 @@ public class QueryBatchRequest {
       logger.info(String.format("No %s bundle found in prefetch", bundleType));
     }
   }
-
   private void performBundleQueryBatchRequest(Resource resource, CrdPrefetch crdResponse, CdsRequest<?, ?> cdsRequest) {
     ResourceType requestType = resource.getResourceType();
     // The list of references that should be queried in the batch request.
     List<String> requiredReferences = new ArrayList<String>();
     // Extract the references by iterating through the JSON.
-    Gson gson = new Gson();
-    final JsonObject jsonObject = gson.toJsonTree(resource).getAsJsonObject();
+    String resourceJson = FhirContext.forR4().newJsonParser().encodeResourceToString(resource);
+    final JsonObject jsonObject = JsonParser.parseString(resourceJson).getAsJsonObject();
     for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
       FhirRequestProcessor.extractReferenceIds(requiredReferences, entry.getValue());
     }
