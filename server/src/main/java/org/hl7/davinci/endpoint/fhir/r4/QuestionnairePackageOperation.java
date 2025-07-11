@@ -70,6 +70,22 @@ public class QuestionnairePackageOperation {
                 return null;
             }
 
+            // if questionnaireId was not provided, check if it was provided in the input parameters
+            if (questionnaireId == null) {
+                Parameters.ParametersParameterComponent parameter = parameters.getParameter("questionnaire");
+                if (parameter != null) {
+                    Type value = parameter.getValue();
+                    if (value instanceof CanonicalType) {
+                        String canonicalUrl = ((CanonicalType) value).getValue();
+                        if (canonicalUrl != null && canonicalUrl.contains("/")) {
+                            questionnaireId = canonicalUrl.substring(canonicalUrl.lastIndexOf('/') + 1);
+                        } else {
+                            questionnaireId = canonicalUrl;
+                        }
+                    }
+                }
+            }
+
             // create a single new bundle for all of the resources
             Bundle completeBundle = new Bundle();
             completeBundle.setType(Bundle.BundleType.COLLECTION);
@@ -77,6 +93,8 @@ public class QuestionnairePackageOperation {
 
             // list of items in bundle to avoid duplicates
             List<String> bundleContents = new ArrayList<>();
+
+            // still no questionnaireId
             if (questionnaireId == null) {
                 // process the orders to find the topics
                 FhirBundleProcessor fhirBundleProcessor = new FhirBundleProcessor(fileStore, baseUrl);
@@ -91,9 +109,13 @@ public class QuestionnairePackageOperation {
                     // get all of the Questionnaires for the topic
                     Bundle bundle = fileStore.getFhirResourcesByTopicAsFhirBundle("R4", "Questionnaire", topic.toLowerCase(), baseUrl);
                     List<BundleEntryComponent> bundleEntries = bundle.getEntry();
-                    for (BundleEntryComponent entry : bundleEntries) {
-                        processResource(entry.getResource(), bundleContents, completeBundle);
-                    } // Questionnaires
+
+                    // http://hl7.org/fhir/us/davinci-dtr/StructureDefinition/DTR-QPackageBundle
+                    // specifies only one Questionnaire can be returned, so we take the first one and stop going through topics
+                    if (!bundleEntries.isEmpty()) {
+                        processResource(bundleEntries.get(0).getResource(), bundleContents, completeBundle);
+                        break;
+                    }
                 } // topics
             } else {
                 // get only the specified Questionnaire
