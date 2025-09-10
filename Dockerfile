@@ -1,23 +1,19 @@
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM amazoncorretto:17-alpine-jdk AS builder
 
 # embedCdsLibrary task requires git
 RUN apk add --no-cache git bash
 
 WORKDIR /CRD
 
-# Copy the Gradle wrapper
-COPY gradlew .
-COPY gradle ./gradle
-RUN chmod +x gradlew
-
 # Copy the rest of the source code
 COPY . .
 
 # Build the application skipping checkstyle tasks
-RUN ./gradlew :server:embedCdsLibrary && ./gradlew build -x checkstyleMain -x checkstyleTest
+RUN ./gradlew --no-daemon --no-parallel :server:embedCdsLibrary
+RUN ./gradlew --no-daemon --no-parallel build -x checkstyleMain -x checkstyleTest -x test
 
 # Use a smaller image for the final stage
-FROM eclipse-temurin:17-jre-alpine
+FROM amazoncorretto:17-alpine
 
 # Create a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
