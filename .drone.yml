@@ -1,0 +1,62 @@
+name: latest-amd64
+kind: pipeline
+type: docker
+platform:
+  arch: amd64
+  os: linux
+steps:
+  - name: publish
+    image: plugins/docker
+    settings:
+      repo: hlseven/davinci-crd
+      tags:
+        - ${DRONE_COMMIT_BRANCH}-linux-amd64
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+---
+name: latest-arm64
+kind: pipeline
+type: docker
+platform:
+  arch: arm64
+  os: linux
+steps:
+  - name: publish
+    image: plugins/docker
+    settings:
+      repo: hlseven/davinci-crd
+      tags:
+        - ${DRONE_COMMIT_BRANCH}-linux-arm64
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+---
+name: manifest
+kind: pipeline
+type: docker
+depends_on:
+  - latest-amd64
+  - latest-arm64
+steps:
+  - name: publish-manifest
+    image: plugins/manifest
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: hlseven/davinci-crd:latest
+      template: hlseven/davinci-crd:master-OS-ARCH
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      exclude: [master]
+trigger:
+  branch:
+    include:
+      - master
+  status:
+    - success
