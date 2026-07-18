@@ -1,3 +1,4 @@
+---
 name: latest-amd64
 kind: pipeline
 type: docker
@@ -6,15 +7,24 @@ platform:
   os: linux
 steps:
   - name: publish
-    image: plugins/docker
-    settings:
-      repo: hlseven/davinci-crd
-      tags:
-        - ${DRONE_COMMIT_BRANCH}-linux-amd64
-      username:
+    image: docker:latest
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      DOCKER_USERNAME:
         from_secret: docker_username
-      password:
+      DOCKER_PASSWORD:
         from_secret: docker_password
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker build -t hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-amd64 .
+      - docker push hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-amd64
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
 ---
 name: latest-arm64
 kind: pipeline
@@ -24,15 +34,24 @@ platform:
   os: linux
 steps:
   - name: publish
-    image: plugins/docker
-    settings:
-      repo: hlseven/davinci-crd
-      tags:
-        - ${DRONE_COMMIT_BRANCH}-linux-arm64
-      username:
+    image: docker:latest
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      DOCKER_USERNAME:
         from_secret: docker_username
-      password:
+      DOCKER_PASSWORD:
         from_secret: docker_password
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker build -t hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-arm64 .
+      - docker push hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-arm64
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
 ---
 name: manifest
 kind: pipeline
@@ -53,7 +72,8 @@ steps:
       platforms:
         - linux/amd64
         - linux/arm64
-      exclude: [master]
+      exclude:
+        - master
 trigger:
   branch:
     include:
