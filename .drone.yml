@@ -19,8 +19,8 @@ steps:
         path: /var/run/docker.sock
     commands:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - docker build -t hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-amd64 .
-      - docker push hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-amd64
+      - docker build -t hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-amd64 . --push
+      # - docker push hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-amd64
 volumes:
   - name: dockersock
     host:
@@ -46,8 +46,8 @@ steps:
         path: /var/run/docker.sock
     commands:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - docker build -t hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-arm64 .
-      - docker push hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-arm64
+      - docker build -t hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-arm64 . --push
+      # - docker push hlseven/davinci-crd:${DRONE_COMMIT_BRANCH}-linux-arm64
 volumes:
   - name: dockersock
     host:
